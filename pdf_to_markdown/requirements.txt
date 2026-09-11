@@ -1,0 +1,4 @@
+markitdown>=0.1.6
+pymupdf>=1.24
+openai>=1.40
+python-dotenv>=1.0

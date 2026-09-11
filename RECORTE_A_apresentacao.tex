@@ -1,0 +1,225 @@
+% Apresentação — Recorte A
+% -------------------------------------------------------------
+% COMO COMPILAR:
+%   Recomendado: XeLaTeX ou LuaLaTeX. No Overleaf: Menu > Compiler > XeLaTeX.
+%   Também compila com pdfLaTeX (só ignora um aviso de fontes).
+%
+% NOTAS DO APRESENTADOR (para você saber o que falar em cada slide):
+%   Cada slide tem um bloco \note{...} com a explicação em linguagem simples.
+%   Para VER as notas junto com os slides, tire o % da linha abaixo e compile:
+% \setbeameroption{show notes}
+%   Para gerar SÓ o roteiro (as notas, sem os slides), use:
+% \setbeameroption{show only notes}
+% -------------------------------------------------------------
+\documentclass[aspectratio=169,11pt]{beamer}
+
+\usetheme{metropolis}
+\metroset{sectionpage=none, numbering=fraction, progressbar=foot}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{booktabs}
+
+\title{Detecção de vulnerabilidades em código com modelos de linguagem}
+\subtitle{Um estudo sobre custo e qualidade}
+\author{[Seu nome]}
+\institute{Mestrado em Ciência da Computação — PPGCC/UFMA}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\note{Abertura tranquila. Diga: ``Meu trabalho é sobre usar modelos de linguagem para
+encontrar falhas de segurança em código, tentando fazer isso de um jeito mais barato.
+Vou explicar o problema, a ideia e como pretendo tocar o projeto.''}
+
+% ------------------------------------------------------------------
+\begin{frame}{Do que se trata}
+  \begin{itemize}
+    \item Uma vulnerabilidade é uma falha no código que um atacante pode explorar.
+    \item A ideia é dar uma função (um pedaço de código) para um modelo de linguagem
+          e ele responder se aquela função tem uma falha ou não.
+    \item O problema: os modelos que fazem isso bem são grandes. Eles gastam muita
+          memória de placa de vídeo e custam caro para rodar.
+  \end{itemize}
+  \vspace{1em}
+  A minha pergunta é simples: dá para usar um modelo menor e mais barato
+  sem perder muita qualidade?
+\end{frame}
+\note{Explique com suas palavras o que é vulnerabilidade (ex.: um erro que deixa o
+sistema ser invadido). Deixe claro que a tarefa é só responder ``tem falha? sim ou não'',
+não é consertar nem gerar código. E que o incômodo é o custo: modelo grande = caro.}
+
+% ------------------------------------------------------------------
+\begin{frame}{Por que os resultados da área enganam}
+  \begin{itemize}
+    \item Para saber se um modelo é bom, testamos ele num conjunto de exemplos.
+    \item Muitos conjuntos antigos têm o mesmo código no treino e no teste.
+          Isso faz o modelo parecer melhor do que é.
+  \end{itemize}
+  \vspace{1.5em}
+  \begin{center}
+    O mesmo modelo, em dois testes:\\[1em]
+    {\Large teste antigo: \textbf{68\%} \qquad teste limpo: \textbf{3\%}}
+  \end{center}
+  \vspace{1.5em}
+  Por isso vou usar sempre um conjunto de teste ``limpo'' (o PrimeVul).
+\end{frame}
+\note{Aqui é o ponto mais forte da motivação. Diga: ``Quando o teste tem código repetido,
+o modelo praticamente decora as respostas. Num teste limpo, o mesmo modelo desaba de
+68\% para 3\%. Ou seja, muita coisa publicada não se sustenta.'' É por isso que sua
+avaliação vai ser criteriosa desde o começo.}
+
+% ------------------------------------------------------------------
+\begin{frame}{O que ainda ninguém fez}
+  Duas coisas já são conhecidas:
+  \begin{itemize}
+    \item testar num conjunto limpo derruba os números;
+    \item existem técnicas para deixar o modelo menor e mais rápido.
+  \end{itemize}
+  \vspace{1em}
+  O que ninguém juntou ainda:
+  \begin{itemize}
+    \item medir, de forma limpa, quanto cada técnica de ``encolher'' o modelo
+          afeta a qualidade de dizer se a função tem falha.
+  \end{itemize}
+  \vspace{1em}
+  É esse o espaço do meu trabalho.
+\end{frame}
+\note{Deixe claro que você não está inventando um método novo. Está preenchendo uma
+lacuna: cruzar ``modelo menor'' com ``avaliação limpa'' e medir com cuidado. Fale que
+isso é um estudo de comparação e medição, que é um tipo de trabalho aceito e seguro.}
+
+% ------------------------------------------------------------------
+\begin{frame}{As perguntas que quero responder}
+  \begin{enumerate}
+    \item Quanto eu economizo (memória, energia, tempo, dinheiro) para uma mesma
+          qualidade?
+    \item Entre as formas de encolher o modelo, qual mantém melhor a qualidade?
+    \item (extra) Encolher o modelo o deixa mais frágil a pequenas mudanças no código?
+  \end{enumerate}
+\end{frame}
+\note{Leia as três perguntas com naturalidade. A 1 e a 2 são o coração do trabalho.
+A 3 é um bônus, que só faço se sobrar tempo. Se o orientador perguntar, diga que as
+duas primeiras já bastam para uma dissertação.}
+
+% ------------------------------------------------------------------
+\begin{frame}{Como vou testar}
+  \begin{itemize}
+    \item \textbf{Dados:} o PrimeVul, um conjunto limpo. Ele traz pares de código:
+          a versão com falha e a versão já corrigida.
+    \item \textbf{Tarefa:} peço ao modelo uma resposta direta (tem falha? sim/não),
+          em vez de deixá-lo escrever texto.
+    \item \textbf{Duas medidas:}
+      \begin{itemize}
+        \item qualidade: ele acerta as falhas? evita alarme falso?
+        \item custo: quanta memória, quanto tempo, quanta energia, quanto dinheiro.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+\note{Explique por que os pares (com falha / corrigida) são importantes: se o modelo
+acha que os dois são vulneráveis, ele não entendeu nada, só está ``chutando pelo
+formato''. E reforce as duas medidas: não adianta ser barato e errar tudo; nem acertar
+e ser caro demais.}
+
+% ------------------------------------------------------------------
+\begin{frame}{A ideia central do trabalho}
+  \begin{itemize}
+    \item Não vou tentar provar que o modelo pequeno fica tão bom quanto o grande.
+    \item Estudos recentes mostram que, num teste limpo e difícil, quase todos os
+          modelos vão mal.
+    \item Então meu objetivo é mostrar, de forma clara, quanto mais barato fica o
+          modelo pequeno para um mesmo nível de qualidade e indicar a melhor
+          configuração para usar na prática.
+  \end{itemize}
+\end{frame}
+\note{Esse é o enquadramento honesto do trabalho. Fale: ``Como todo mundo vai mal na
+qualidade, o valor não está em vencer o modelo grande, e sim em mostrar o custo. Se o
+pequeno é quase tão limitado quanto o grande, mas muito mais barato, isso já é um
+resultado útil.'' Isso protege o trabalho: ele dá certo mesmo que o modelo pequeno não
+melhore a qualidade.}
+
+% ------------------------------------------------------------------
+\begin{frame}{O que entra e o que fica de fora}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \textbf{Entra}
+      \begin{itemize}
+        \item código em C/C++
+        \item uma função por vez
+        \item resposta sim/não
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Fica de fora}
+      \begin{itemize}
+        \item outras linguagens
+        \item olhar o projeto inteiro
+        \item gerar/consertar código
+        \item criar um algoritmo novo
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \vspace{1.5em}
+  Deixar isso claro evita que o trabalho cresça demais e não caiba no tempo.
+\end{frame}
+\note{Use este slide para se proteger do escopo crescer. Diga que está de propósito
+limitando a C/C++ e a uma função por vez, porque é o que dá para fazer bem no tempo
+que você tem.}
+
+% ------------------------------------------------------------------
+\begin{frame}{As etapas do trabalho}
+  \begin{enumerate}
+    \item Montar a base e medir os modelos sem mexer neles (ponto de referência).
+    \item Encolher os modelos e medir de novo (qualidade e custo).
+    \item Treinar o modelo pequeno para a tarefa, de forma barata, e medir.
+    \item Mostrar a diferença entre o teste antigo e o teste limpo.
+    \item Juntar tudo num gráfico de custo contra qualidade e escrever a recomendação.
+  \end{enumerate}
+\end{frame}
+\note{Passe rápido pelas cinco etapas, como um caminho. A etapa 1 é a mais importante
+para começar: sem a base funcionando, nada anda. As etapas seguintes são variações da
+primeira.}
+
+% ------------------------------------------------------------------
+\begin{frame}{Cronograma (12 meses)}
+  \centering
+  \small
+  \begin{tabular}{@{}ll@{}}
+    \toprule
+    \textbf{Etapa} & \textbf{Quando} \\
+    \midrule
+    Montar a base e medir os modelos      & set–nov/2026 \\
+    Treinar o modelo pequeno (versão inicial) & dez/2026–jan/2027 \\
+    Qualificação                          & fev–mar/2027 \\
+    Comparar as formas de encolher o modelo & abr–mai/2027 \\
+    Escrever o artigo                     & jun–jul/2027 \\
+    Escrever a dissertação e defender     & ago–set/2027 \\
+    \bottomrule
+  \end{tabular}
+  \vspace{1.2em}
+
+  \footnotesize Com cerca de 10 horas por semana, o foco é o essencial;
+  o resto entra só se sobrar tempo.
+\end{frame}
+\note{Seja realista: 12 meses e 10h por semana é apertado. Diga que priorizou um núcleo
+pequeno e que extensões (mais modelos, testes extras) só entram com folga. Se ainda não
+souber a data da qualificação, comente que precisa confirmar isso com o programa.}
+
+% ------------------------------------------------------------------
+\begin{frame}{Por onde começo}
+  \begin{itemize}
+    \item Subir o ambiente e o conjunto de dados PrimeVul.
+    \item Rodar um modelo pequeno em umas 50 funções e obter o primeiro resultado.
+  \end{itemize}
+  \vspace{1.5em}
+  A partir daí, cada etapa seguinte é uma variação dessa base.
+  \vspace{2em}
+
+  \centering Obrigado. Dúvidas e sugestões são bem-vindas.
+\end{frame}
+\note{Fechamento calmo. Deixe claro qual é o primeiro passo concreto e que você já sabe
+por onde começar. Abra para perguntas.}
+
+\end{document}
