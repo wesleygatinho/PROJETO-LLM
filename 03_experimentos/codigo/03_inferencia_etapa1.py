@@ -65,6 +65,8 @@ def carregar_jsonl(caminho: Path):
 def escolher_amostra(itens, n, balanceado, seed):
     """Escolhe N funções. Balanceado = metade target=1, metade target=0 (bom para depurar,
     porque no teste real só ~3% são vulneráveis e uma amostra pequena poderia vir sem nenhuma)."""
+    for pos, d in enumerate(itens):
+        d["_pos"] = pos  # posição original no arquivo (necessária para a avaliação pareada)
     rng = random.Random(seed)
     if not balanceado:
         rng.shuffle(itens)
@@ -197,7 +199,10 @@ def main():
             previstos.append(pred)
 
             flog.write(json.dumps({
-                "i": i, "target": alvo, "pred": pred, "status": status,
+                "i": i, "pos": item.get("_pos"), "idx": item.get("idx"),
+                "project": item.get("project"), "commit_id": item.get("commit_id"),
+                "func_hash": item.get("func_hash"),
+                "target": alvo, "pred": pred, "status": status,
                 "resposta_crua": resposta, "truncada": foi_truncada,
                 "tempo_s": round(tempos[-1], 3),
             }, ensure_ascii=False) + "\n")
