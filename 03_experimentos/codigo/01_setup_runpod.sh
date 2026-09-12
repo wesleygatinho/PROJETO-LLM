@@ -8,7 +8,7 @@ pip install --upgrade pip
 pip install "transformers>=4.44" "accelerate" "datasets" "scikit-learn" "pandas" "tqdm" "huggingface_hub"
 
 echo "== 2) Login no Hugging Face (cole o seu token quando pedir; ele NÃO fica no código) =="
-huggingface-cli login
+hf auth login
 
 echo "== 3) Pastas de trabalho =="
 mkdir -p ../dados ../resultados ../logs
