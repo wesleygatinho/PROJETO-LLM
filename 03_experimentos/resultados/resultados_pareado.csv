@@ -1,0 +1,2 @@
+data,log,dados,pares_avaliados,metodo_pareamento,P_C,P_V,P_B,P_R,P_C_pct,P_V_pct,P_B_pct,P_R_pct,rotulo
+2026-09-12 02:57,etapa1_20260912_025431.jsonl,primevul_test_paired.jsonl,433,consecutivos,16,52,354,11,3.7,12.01,81.76,2.54,3B 16bit prompt v1
