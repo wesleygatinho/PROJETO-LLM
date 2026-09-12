@@ -141,9 +141,10 @@ def main():
     # ---- 2) Modelo em 16 bits -----------------------------------------------
     print(f"Carregando modelo: {args.modelo}")
     tokenizer = AutoTokenizer.from_pretrained(args.modelo)
-    model = AutoModelForCausalLM.from_pretrained(
-        args.modelo, torch_dtype=torch.float16, device_map="cuda"
-    )
+    try:  # versões novas do transformers usam `dtype`; as antigas, `torch_dtype`
+        model = AutoModelForCausalLM.from_pretrained(args.modelo, dtype=torch.float16, device_map="cuda")
+    except TypeError:
+        model = AutoModelForCausalLM.from_pretrained(args.modelo, torch_dtype=torch.float16, device_map="cuda")
     model.eval()
     n_params_bilhoes = sum(p.numel() for p in model.parameters()) / 1e9
     gpu_nome = torch.cuda.get_device_name(0)
@@ -169,21 +170,25 @@ def main():
                 {"role": "system", "content": SISTEMA},
                 {"role": "user", "content": INSTRUCAO.format(codigo=codigo)},
             ]
+            # return_dict=True devolve input_ids + attention_mask (funciona em versões novas e antigas)
             entrada = tokenizer.apply_chat_template(
-                mensagens, add_generation_prompt=True, return_tensors="pt"
-            ).to(model.device)
+                mensagens, add_generation_prompt=True, return_tensors="pt", return_dict=True
+            )
+            entrada = {k: v.to(model.device) for k, v in entrada.items()}
+            n_entrada = entrada["input_ids"].shape[1]
 
             t0 = time.time()
             with torch.no_grad():
                 saida = model.generate(
-                    entrada,
+                    **entrada,
                     max_new_tokens=5,          # só precisamos de YES/NO
                     do_sample=False,           # determinístico (equivale a temperatura 0)
+                    temperature=None, top_p=None, top_k=None,  # evita avisos do generation_config
                     pad_token_id=tokenizer.eos_token_id,
                 )
             tempos.append(time.time() - t0)
 
-            resposta = tokenizer.decode(saida[0][entrada.shape[1]:], skip_special_tokens=True)
+            resposta = tokenizer.decode(saida[0][n_entrada:], skip_special_tokens=True)
             pred, status = interpretar_resposta(resposta)
             indefinidos += int(status == "indefinido")
 
