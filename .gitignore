@@ -1,0 +1,42 @@
+# Dados e modelos grandes — nunca subir para o Git
+03_experimentos/dados/*
+!03_experimentos/dados/.gitkeep
+*.safetensors
+*.bin
+*.gguf
+*.pt
+*.pth
+*.ckpt
+models/
+checkpoints/
+hf_cache/
+.cache/
+
+# Segredos (tokens, chaves)
+.env
+*.token
+secrets*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# LaTeX (arquivos temporários de compilação)
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.bbl
+*.blg
+
+# Sistema
+.DS_Store
+Thumbs.db
