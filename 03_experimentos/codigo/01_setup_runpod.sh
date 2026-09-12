@@ -17,5 +17,5 @@ echo "== 4) Conferir GPU =="
 nvidia-smi --query-gpu=name,memory.total --format=csv
 
 echo
-echo "Pronto. Próximo passo: baixe o PrimeVul para ../dados/ e rode: python 02_ver_dados.py"
+echo "Pronto. Próximo passo: python 00_baixar_primevul.py   (depois: python 02_ver_dados.py)"
 echo "Lembrete: ao terminar a sessão, DESLIGUE o pod para não gastar crédito."
