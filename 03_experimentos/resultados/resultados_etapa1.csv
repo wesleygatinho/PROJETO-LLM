@@ -1,0 +1,6 @@
+data,modelo,tamanho_B,precisao_bits,metodo_quantizacao,prompt_versao,seed,n_funcoes,amostra,f1,precisao,revocacao,fpr,acuracia,tp,fp,fn,tn,indefinidos,truncadas,memoria_gpu_gb,tempo_por_funcao_s,tempo_total_s,gpu,preco_hora_usd,custo_total_usd,log,observacoes
+2026-09-12 01:53,Qwen/Qwen2.5-Coder-3B-Instruct,3.09,16,nenhum,v1,42,50,balanceada,0.303,0.625,0.2,0.12,0.54,5,3,20,22,0,0,6.43,0.085,4.4,NVIDIA A40,0.0,0.0,etapa1_20260912_015319.jsonl,
+2026-09-12 02:00,Qwen/Qwen2.5-Coder-3B-Instruct,3.09,16,nenhum,v1,1,50,balanceada,0.1429,0.6667,0.08,0.04,0.52,2,1,23,24,0,2,6.44,0.089,4.6,NVIDIA A40,0.5,0.0006,etapa1_20260912_020014.jsonl,
+2026-09-12 02:01,Qwen/Qwen2.5-Coder-3B-Instruct,3.09,16,nenhum,v1,2,50,balanceada,0.1935,0.5,0.12,0.12,0.5,3,3,22,22,0,5,6.44,0.102,5.3,NVIDIA A40,0.5,0.0007,etapa1_20260912_020109.jsonl,
+2026-09-12 02:03,Qwen/Qwen2.5-Coder-3B-Instruct,3.09,16,nenhum,v1,42,870,proporcao_real,0.243,0.5188,0.1586,0.1471,0.5057,69,64,366,371,0,154,6.44,0.11,100.0,NVIDIA A40,0.5,0.0139,etapa1_20260912_020137.jsonl,teste pareado completo
+2026-09-12 02:32,Qwen/Qwen2.5-Coder-3B-Instruct,3.09,16,nenhum,v1,42,24788,proporcao_real,0.1113,0.0887,0.1494,0.0347,0.9472,82,842,467,23397,0,621,6.43,0.067,1717.9,NVIDIA A40,0.5,0.2386,etapa1_20260912_020340.jsonl,"teste completo, proporcao real"
