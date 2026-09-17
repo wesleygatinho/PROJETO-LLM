@@ -22,6 +22,7 @@ Outros exemplos:
 
 import argparse
 import csv
+import hashlib
 import json
 import random
 import re
@@ -34,6 +35,8 @@ from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,
                              precision_score, recall_score)
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
+
+from ambiente import conferir, descrever_ambiente  # trava de versões (ambiente.py, mesma pasta)
 
 # ----------------------------------------------------------------------------
 # Configuração fixa desta versão de prompt. Se mudar o texto, mude a versão
@@ -79,6 +82,40 @@ def escolher_amostra(itens, n, balanceado, seed):
     amostra = vul[:metade] + ben[: n - metade]
     rng.shuffle(amostra)
     return amostra
+
+
+def impressao_digital(caminho: Path):
+    """Primeiros 12 caracteres do SHA-256 do arquivo de dados. Como o pod é recriado e os dados
+    são baixados de novo a cada sessão, isso prova que todas as rodadas usaram o mesmo arquivo."""
+    h = hashlib.sha256()
+    with caminho.open("rb") as f:
+        for bloco in iter(lambda: f.read(1 << 20), b""):
+            h.update(bloco)
+    return h.hexdigest()[:12]
+
+
+def gravar_linha_csv(arquivo: Path, linha: dict):
+    """Acrescenta uma linha na planilha. Se a planilha for de uma versão antiga do script
+    (sem as colunas novas), acrescenta as colunas no fim; as linhas antigas ficam vazias nelas."""
+    if not arquivo.exists():
+        with arquivo.open("w", newline="", encoding="utf-8") as f:
+            w = csv.DictWriter(f, fieldnames=list(linha.keys()))
+            w.writeheader()
+            w.writerow(linha)
+        return
+    with arquivo.open("r", newline="", encoding="utf-8") as f:
+        leitor = csv.DictReader(f)
+        campos = list(leitor.fieldnames or [])
+        linhas_antigas = list(leitor)
+    novas_colunas = [c for c in linha if c not in campos]
+    if novas_colunas:
+        campos += novas_colunas
+        with arquivo.open("w", newline="", encoding="utf-8") as f:
+            w = csv.DictWriter(f, fieldnames=campos)
+            w.writeheader()
+            w.writerows(linhas_antigas)
+    with arquivo.open("a", newline="", encoding="utf-8") as f:
+        csv.DictWriter(f, fieldnames=campos).writerow(linha)
 
 
 def truncar_codigo(tokenizer, codigo, max_tokens):
@@ -140,7 +177,12 @@ def main():
     print(f"Dados: {caminho_dados}  |  usando {len(amostra)} funções "
           f"({'proporção real' if args.sem_balancear else 'metade/metade'})")
 
-    # ---- 2) Modelo em 16 bits -----------------------------------------------
+    dados_sha256 = impressao_digital(caminho_dados)
+
+    # ---- 2) Ambiente e modelo em 16 bits ------------------------------------
+    # Confere a trava ANTES de baixar o modelo: se o pod estiver errado, dá tempo de parar (Ctrl+C).
+    ambiente_confere = conferir(torch.cuda.get_device_name(0))
+    ambiente = descrever_ambiente()
     print(f"Carregando modelo: {args.modelo}")
     tokenizer = AutoTokenizer.from_pretrained(args.modelo)
     try:  # versões novas do transformers usam `dtype`; as antigas, `torch_dtype`
@@ -148,6 +190,8 @@ def main():
     except TypeError:
         model = AutoModelForCausalLM.from_pretrained(args.modelo, torch_dtype=torch.float16, device_map="cuda")
     model.eval()
+    # Revisão (commit) exata do modelo no Hugging Face: se os autores atualizarem o repositório, dá para ver.
+    modelo_revisao = (getattr(model.config, "_commit_hash", None) or "")[:12]
     n_params_bilhoes = sum(p.numel() for p in model.parameters()) / 1e9
     gpu_nome = torch.cuda.get_device_name(0)
     print(f"Modelo carregado: {n_params_bilhoes:.2f} B parâmetros  |  GPU: {gpu_nome}")
@@ -255,13 +299,16 @@ def main():
         "custo_total_usd": round(custo_usd, 4),
         "log": arquivo_log.name,
         "observacoes": args.observacoes,
+        # Reprodutibilidade (colunas novas; linhas antigas ficam vazias aqui)
+        "ambiente_confere": ambiente_confere,
+        "torch": ambiente["torch"],
+        "cuda": ambiente["cuda"],
+        "transformers": ambiente["transformers"],
+        "tokenizers": ambiente["tokenizers"],
+        "modelo_revisao": modelo_revisao,
+        "dados_sha256": dados_sha256,
     }
-    novo = not arquivo_csv.exists()
-    with arquivo_csv.open("a", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=list(linha.keys()))
-        if novo:
-            w.writeheader()
-        w.writerow(linha)
+    gravar_linha_csv(arquivo_csv, linha)
 
     # ---- 7) Resumo na tela --------------------------------------------------
     print("\n================ RESULTADO ================")
@@ -273,6 +320,9 @@ def main():
     print(f"Respostas cruas em: {arquivo_log}")
     if indefinidos > 0:
         print(f"[ATENÇÃO] {indefinidos} respostas não foram YES/NO claros — abra o log e ajuste o prompt/parsing.")
+    if ambiente_confere != "sim":
+        print(f"[ATENÇÃO] Ambiente fora da trava (ambiente_confere={ambiente_confere}): "
+              f"esta linha serve só como teste, não como resultado oficial.")
 
 
 if __name__ == "__main__":

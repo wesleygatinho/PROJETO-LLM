@@ -135,13 +135,13 @@ Regra simples: **não abra tudo ao mesmo tempo**. Nas próximas semanas, só o g
 
 Não é para fazer hoje — é para você visualizar que é curto:
 
-1. Criar um pod com **1 GPU de 24 GB** (ex.: RTX 4090) e o template de PyTorch.
-2. Abrir o terminal do pod e instalar: `transformers`, `datasets`, `scikit-learn`, `pandas`, `accelerate`.
+1. Criar um pod com **1 A40 de 48 GB** e o template de PyTorch. É a placa oficial do trabalho: use sempre ela e sempre o mesmo template.
+2. Abrir o terminal do pod e rodar `bash 01_setup_runpod.sh`, que instala as bibliotecas nas versões travadas. A rotina completa de cada sessão está em `03_experimentos/codigo/README.md`.
 3. Fazer login no Hugging Face com o seu token.
 4. Baixar o PrimeVul e o modelo pequeno.
 5. Rodar o script em **50 funções**.
 6. Anotar na planilha: F1, precisão, revocação, FPR, memória, tempo, custo.
-7. **Desligar o pod** (para não gastar crédito à toa).
+7. Fazer commit + push dos resultados e logs, e **apagar o pod** (para não gastar crédito à toa).
 
 Se no fim disso existir uma linha preenchida na planilha, a pesquisa começou.
 Quando você quiser, eu escrevo o script dessa primeira sessão pronto para colar.

@@ -119,13 +119,15 @@ Estimativa grosseira (buffer de depuração incluído; varia com tier Community/
 | **Subtotal** | | ~115 | **~160** |
 | **+ buffer 2–3× (depuração, falhas, repetições de medição de energia)** | | | **~320–560** |
 
-→ dentro do envelope **médio (US$300–800)**. Começar pelo modelo 3B/menor e por ~50 funções para depurar o *parsing* antes de gastar. Preferir RTX 4090 24GB (mais barata) para os 7B e A100 só quando necessário.
+→ dentro do envelope **médio (US$300–800)**. Começar pelo modelo 3B/menor e por ~50 funções para depurar o *parsing* antes de gastar. **GPU oficial: A40 48 GB** (~US$ 0,50/h), decidida na Etapa 1, para toda rodada que entra em comparação; outras placas só para teste. Se algum bloco não couber na A40, o bloco inteiro muda de placa junto com a sua referência em 16 bits.
 
 ---
 
 ## 10. Reprodutibilidade
 
 - Fixar e registrar: modelo exato, precisão, método de quantização, prompt, seed, GPU/tier, versão das libs.
+- **Mesmo tipo de GPU para toda comparação entre configurações.** Evidência da Etapa 1: o mesmo 3B, com prompt, seed e decodificação gulosa idênticos, mudou 9 de 870 respostas entre A40 e RTX A5000 (F1 0,239 × 0,227). Diferenças dessa ordem são ruído de hardware.
+- **Versões travadas.** O pod é recriado a cada sessão; as versões das bibliotecas ficam em `03_experimentos/codigo/requisitos_travados.txt` e o setup instala exatamente elas. Cada linha da planilha registra torch, CUDA, transformers, tokenizers, revisão do modelo no Hugging Face e impressão digital (SHA-256) do arquivo de dados.
 - Usar o **script oficial de avaliação pareada do PrimeVul**; publicar código + splits + configs.
 - Guardar os *checkpoints* dos adapters QLoRA e os modelos quantizados (ou receitas).
 
