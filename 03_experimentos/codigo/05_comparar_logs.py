@@ -3,6 +3,7 @@
 
 Para que serve: testar reprodutibilidade. Exemplo: a mesma configuração rodada num pod novo,
 em outra GPU ou com outras versões das bibliotecas. Se o resultado for IDÊNTICAS, nada mudou.
+Serve para os logs da Etapa 1 (texto cru) e da Etapa 3 (nota da cabeça de classificação).
 
 Uso:
   python 05_comparar_logs.py ../logs/etapa1_A.jsonl ../logs/etapa1_B.jsonl
@@ -41,15 +42,17 @@ def main():
         raise SystemExit("[ERRO] Os dois logs não têm nenhuma função em comum.")
 
     so_a, so_b = len(set(ma) - set(mb)), len(set(mb) - set(ma))
+    # Etapa 1 guarda o texto cru; Etapa 3 guarda a nota (número). Compara o que existir.
+    cru = lambda r: r["resposta_crua"] if "resposta_crua" in r else r.get("nota")
     difs = [k for k in comuns if int(ma[k]["pred"]) != int(mb[k]["pred"])]
-    crus = [k for k in comuns if ma[k]["resposta_crua"] != mb[k]["resposta_crua"]]
+    crus = [k for k in comuns if cru(ma[k]) != cru(mb[k])]
 
     print(f"funções em comum: {len(comuns)}  (só no A: {so_a}, só no B: {so_b})")
     print(f"respostas YES/NO diferentes: {len(difs)}")
-    print(f"texto cru diferente:         {len(crus)}")
+    print(f"texto cru / nota diferente:  {len(crus)}")
     for k in difs[:10]:
         print(f"  {chave}={k}  target={ma[k]['target']}  "
-              f"A={ma[k]['resposta_crua'].strip()!r}  B={mb[k]['resposta_crua'].strip()!r}")
+              f"A={str(cru(ma[k])).strip()!r}  B={str(cru(mb[k])).strip()!r}")
     if len(difs) > 10:
         print(f"  ... e mais {len(difs) - 10}")
 

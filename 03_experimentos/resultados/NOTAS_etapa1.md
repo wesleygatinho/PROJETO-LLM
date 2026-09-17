@@ -40,6 +40,18 @@ A rodada da A5000 **saiu das planilhas**: o log e as linhas removidas estão em 
   (`../codigo/requisitos_travados.txt`) e cada linha da planilha registra torch, transformers, revisão do modelo e impressão digital dos dados.
 - Custo real da A5000: US$ 0,28/h (a linha tinha sido gravada com 0,50 por engano).
 
+## Reprodutibilidade em pod novo, com ambiente travado (17/set/2026)
+
+O pareado do 3B a 8192 foi refeito num pod A40 novo, já com as versões travadas
+(torch 2.8.0+cu128, CUDA 12.8, transformers 5.17.0, tokenizers 0.23.2).
+Comparado com a rodada de 13/set (`etapa1_20260913_010615.jsonl`) pelo `05_comparar_logs.py`:
+
+- **870 de 870 respostas idênticas**, inclusive o texto cru. Métricas iguais: F1 0,2386; P-C 14/433.
+- Conclusão: mesma placa + mesmas versões reproduzem o resultado exatamente, mesmo em pod recriado.
+  Todas as rodadas da Etapa 1 na A40 continuam válidas; nada precisa ser refeito.
+- Referências para conferir as próximas rodadas: revisão do Qwen2.5-Coder-3B-Instruct `488639f1ff80`;
+  impressão digital do arquivo pareado `edeac72d3db3`. Se um desses valores mudar, o modelo ou os dados mudaram.
+
 ## Conclusão para a qualificação
 
 Sem treino, nem o 3B nem o 7B detectam vulnerabilidade no PrimeVul: F1 no nível do acaso, pareado abaixo do acaso,

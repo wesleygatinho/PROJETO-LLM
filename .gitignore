@@ -8,6 +8,7 @@
 *.pth
 *.ckpt
 models/
+03_experimentos/adapters/
 checkpoints/
 hf_cache/
 .cache/
