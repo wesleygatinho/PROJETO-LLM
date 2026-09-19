@@ -2,7 +2,8 @@
 07_avaliar_classificador.py — Etapa 3: avalia um adaptador treinado pelo 06_treinar_qlora.py.
 
 O que este script faz, em ordem:
-  1. Lê a receita da rodada (rodada.json): modelo base, max_tokens e melhor época.
+  1. Lê a receita da rodada (rodada.json): modelo base, max_tokens e melhor época
+     (escolhida no treino pelo pareado da VALIDAÇÃO, não pela AUC — ver o cabeçalho do 06).
   2. Carrega a variante pedida:
        nf4  = base em 4 bits NF4 + adaptador (o modelo exatamente como foi treinado);
        bf16 = base em 16 bits com o adaptador MESCLADO (o "modelo especializado" de referência,
@@ -36,8 +37,9 @@ from peft import PeftModel
 
 from ambiente import conferir, descrever_ambiente, versao
 from classificador import (auc_segura, carregar_base, carregar_jsonl, carregar_tokenizer, escolher_amostra,
-                           fixar_seed, formar_pares, gravar_linha_csv, impressao_digital, limiar_para_fpr,
-                           metricas_classificacao, metricas_pareadas, pontuar, taxas_no_limiar, tokenizar)
+                           fixar_seed, formar_pares, gravar_linha_csv, gravar_log_notas, impressao_digital,
+                           limiar_para_fpr, metricas_classificacao, metricas_pareadas, pontuar, taxas_no_limiar,
+                           tokenizar)
 
 
 def localizar_rodada(rodada):
@@ -50,24 +52,12 @@ def localizar_rodada(rodada):
     return Path(raiz) / nome
 
 
-def gravar_log(arquivo, amostra, notas, cortadas, seqs):
-    """Uma linha por função, na ordem do arquivo de dados. Tem 'pos' e 'pred' (nota > 0), então
-    serve também para o 04_metricas_pareadas.py e o 05_comparar_logs.py."""
-    with arquivo.open("w", encoding="utf-8") as f:
-        for j in sorted(range(len(amostra)), key=lambda j: amostra[j]["_pos"]):
-            d = amostra[j]
-            f.write(json.dumps({
-                "pos": d["_pos"], "idx": d.get("idx"), "project": d.get("project"),
-                "commit_id": d.get("commit_id"), "func_hash": d.get("func_hash"),
-                "target": int(d["target"]), "nota": round(float(notas[j]), 5), "pred": int(notas[j] > 0),
-                "truncada": bool(cortadas[j]), "n_tokens": int(len(seqs[j])),
-            }, ensure_ascii=False) + "\n")
-
-
 def main():
     ap = argparse.ArgumentParser(description="Etapa 3 — avaliação do classificador (QLoRA + cabeça).")
     ap.add_argument("--rodada", required=True, help="pasta da rodada (../adapters/NOME) ou hf:usuario/repositorio/NOME")
-    ap.add_argument("--epoca", type=int, default=0, help="0 = melhor época pela AUC na validação (escolhida no treino)")
+    ap.add_argument("--epoca", default="",
+                    help='vazio = a melhor época (escolhida no treino pelo pareado da validação); um número = aquela '
+                         'época; "parcial" = o adaptador que a rede de segurança do 06 salvou no meio do caminho')
     ap.add_argument("--variante", choices=["nf4", "bf16"], default="nf4")
     ap.add_argument("--validacao", default="../dados/primevul_valid.jsonl")
     ap.add_argument("--teste", default="../dados/primevul_test.jsonl")
@@ -84,12 +74,16 @@ def main():
         raise SystemExit(f"[ERRO] Não achei {pasta / 'rodada.json'}.")
     registro = json.loads((pasta / "rodada.json").read_text(encoding="utf-8"))
     epoca = args.epoca or registro["melhor_epoca"]
-    pasta_epoca = pasta / f"epoca_{epoca}"
+    pasta_epoca = pasta / ("parcial" if str(epoca) == "parcial" else f"epoca_{epoca}")
     if not pasta_epoca.exists():
         raise SystemExit(f"[ERRO] Não achei {pasta_epoca}.")
     modelo, max_tokens = registro["modelo"], registro["args"]["max_tokens"]
     depuracao = args.limite > 0 or registro.get("depuracao", False)
     print(f"Rodada: {registro['nome']}  |  época {epoca}  |  variante {args.variante}  |  max_tokens {max_tokens}")
+    if str(epoca) == "parcial":
+        print(f"[ATENÇÃO] Adaptador PARCIAL (passo {registro.get('parcial', {}).get('passo', '?')} de "
+              f"{registro.get('parcial', {}).get('de_passos', '?')}): treino interrompido, lr não terminou de descer. "
+              f"Serve para não perder a rodada, não como configuração final.")
 
     # ---- 1) Dados -----------------------------------------------------------
     conjuntos = {}
@@ -137,7 +131,8 @@ def main():
         c["alvos"] = np.array([int(d["target"]) for d in c["amostra"]], dtype=np.int64)
         c["cortadas"] = int(sum(cortadas))
         c["log"] = pasta_logs / f"{nome_aval}_{nome_c}.jsonl"
-        gravar_log(c["log"], c["amostra"], c["notas"], cortadas, seqs)
+        gravar_log_notas(c["log"], c["amostra"], c["notas"],
+                         extras={"truncada": cortadas, "n_tokens": [len(x) for x in seqs]})
     tempo_total = time.time() - inicio_total
     memoria_pico_gb = torch.cuda.max_memory_allocated() / 1e9
 
@@ -189,7 +184,7 @@ def main():
     gravar_linha_csv(arquivo_csv, linha)
 
     # ---- 6) Resumo na tela --------------------------------------------------
-    auc_treino = next((e["auc_validacao"] for e in registro["epocas"] if e["epoca"] == epoca), None)
+    auc_treino = next((e["auc_validacao"] for e in registro["epocas"] if str(e["epoca"]) == str(epoca)), None)
     print("\n================ RESULTADO (TESTE) ================")
     print(f"F1={m['f1']:.3f}  precisão={m['precisao']:.3f}  revocação={m['revocacao']:.3f}  "
           f"FPR={m['fpr']:.3f}  acurácia={m['acuracia']:.3f}  AUC={m['auc']:.3f}")

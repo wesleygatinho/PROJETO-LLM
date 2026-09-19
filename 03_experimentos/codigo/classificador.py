@@ -11,6 +11,7 @@ VD-S precisa (o limiar que deixa passar no máximo 0,5% de alarmes falsos).
 """
 
 import importlib
+import json
 import random
 
 import numpy as np
@@ -130,6 +131,23 @@ def pontuar(model, seqs, pad_id, tokens_por_lote, desc="Pontuando"):
     if estava_treinando:
         model.train()
     return notas
+
+
+def gravar_log_notas(arquivo, amostra, notas, limiar=0.0, extras=None):
+    """Uma linha por função, na ordem do arquivo de dados. Tem 'pos' e 'pred' (nota > limiar), então
+    o log serve também para o 04_metricas_pareadas.py e o 05_comparar_logs.py.
+    extras: colunas a mais, como {"n_tokens": [...]}, alinhadas com a amostra."""
+    with arquivo.open("w", encoding="utf-8") as f:
+        for j in sorted(range(len(amostra)), key=lambda j: amostra[j]["_pos"]):
+            d = amostra[j]
+            linha = {"pos": d["_pos"], "idx": d.get("idx"), "project": d.get("project"),
+                     "commit_id": d.get("commit_id"), "func_hash": d.get("func_hash"),
+                     "target": int(d["target"]), "nota": round(float(notas[j]), 5),
+                     "pred": int(notas[j] > limiar)}
+            for nome, valores in (extras or {}).items():
+                v = valores[j]
+                linha[nome] = bool(v) if isinstance(v, (bool, np.bool_)) else int(v)
+            f.write(json.dumps(linha, ensure_ascii=False) + "\n")
 
 
 # ----------------------------------------------------------------------------

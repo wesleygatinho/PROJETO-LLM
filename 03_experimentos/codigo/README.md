@@ -24,7 +24,8 @@ Crie o pod sempre igual: **1× A40 48 GB** e **o mesmo template PyTorch**.
 | `05_comparar_logs.py` | Compara duas rodadas função por função (Etapa 1 ou Etapa 3). Diz se as respostas são idênticas. |
 | `06_treinar_qlora.py` | Etapa 3: treina o adaptador QLoRA + cabeça de classificação no PrimeVul-train. |
 | `07_avaliar_classificador.py` | Etapa 3: avalia um adaptador na validação, no teste e no pareado (F1, AUC, VD-S, P-C). |
-| `classificador.py` | Peças comuns do 06 e do 07 (carregar modelo, notas, VD-S). Não é para rodar sozinho. |
+| `08_baseline_tamanho.py` | O baseline burro: só o tamanho da função. Sem GPU, sem modelo. É o piso das tabelas. |
+| `classificador.py` | Peças comuns do 06, 07 e 08 (carregar modelo, notas, VD-S, pareado). Não é para rodar sozinho. |
 
 (Os números nos nomes são só identificadores; a ordem de uso é a da rotina acima.)
 
@@ -56,7 +57,9 @@ as rodadas da Etapa 1 deixam de ser reproduzíveis nesse ambiente: pare e refaç
 ### Regras
 
 - Modelo **Base** (`Qwen/Qwen2.5-Coder-3B`, `Qwen/Qwen2.5-Coder-7B`), não Instruct (protocolo §2).
-- O **teste nunca decide nada**: a melhor época e o limiar do VD-S saem da validação.
+- O **teste nunca decide nada**: o limiar do VD-S sai da validação e a melhor época sai do **pareado da validação**
+  (`primevul_valid_paired.jsonl`). Não use a AUC para escolher: no PrimeVul as vulneráveis são muito mais longas
+  (922 tokens contra 297), e só o tamanho da função já dá AUC 0,82 no teste — escolher pela AUC premia esse atalho.
 - Seeds oficiais: **1, 2 e 3** (protocolo §6).
 - A mesma rodada treina e avalia com o mesmo `max_tokens` (o 07 lê da receita do 06).
 - O pod é apagado: use `--repo_hf SEU_USUARIO/etapa3-adaptadores` (repositório **privado**) ou avalie antes de apagar.
@@ -74,7 +77,7 @@ Os números da depuração não valem nada; ela serve para ver o fluxo inteiro r
 ### Rodada completa
 
 A proporção de benignas (`real` ou um número `k`) e o número de épocas ainda vão ser fixados num piloto
-com o 3B, comparando **só a AUC na validação**. O exemplo abaixo usa `real`.
+com o 3B, comparado pelo **pareado da validação**. O exemplo abaixo usa `real`.
 
 ```bash
 python 06_treinar_qlora.py --modelo Qwen/Qwen2.5-Coder-7B --benignas_por_vul real --epocas 1 --seed 1 --preco_hora 0.50 --repo_hf SEU_USUARIO/etapa3-adaptadores
@@ -87,6 +90,54 @@ python 07_avaliar_classificador.py --rodada hf:SEU_USUARIO/etapa3-adaptadores/NO
   16 bits é bfloat16, o tipo nativo do Qwen2.5 e o mesmo do treino.
 - Tempo e memória do 07 são indicativos (transformers, em lotes; não comparáveis ao tempo por função da Etapa 1).
   O custo oficial da curva será medido com o vLLM, na etapa de quantização.
+
+### Piloto do 3B: decidir a proporção de benignas (uma sessão de ~14 h, ~US$ 7)
+
+Pergunta do piloto: **treinar com todas as benignas (~1:35) rende mais que 1 benigna por vulnerável?**
+Quem responde é o **pareado da validação**. O teste não entra nesta decisão.
+
+1. Trava e dados (ver a seção acima), depois um teste de 4 min do fluxo já com a checagem pareada:
+
+```bash
+python 06_treinar_qlora.py --benignas_por_vul 1 --limite_treino 400 --preco_hora 0.50
+```
+
+2. O baseline do tamanho (CPU, ~5 min) — é o piso da tabela:
+
+```bash
+python 08_baseline_tamanho.py --observacoes "piloto 3B: baseline do tamanho"
+```
+
+3. Os dois treinos, um atrás do outro, em segundo plano. O `nohup` é o que impede o treino de morrer
+   quando o terminal do RunPod fecha; o `&&` faz o segundo só começar se o primeiro terminar bem:
+
+```bash
+nohup bash -c "python 06_treinar_qlora.py --benignas_por_vul 1 --epocas 3 --seed 1 --preco_hora 0.50 --repo_hf SEU_USUARIO/etapa3-adaptadores --observacoes 'piloto 3B 1:1' && python 06_treinar_qlora.py --benignas_por_vul real --epocas 1 --seed 1 --preco_hora 0.50 --repo_hf SEU_USUARIO/etapa3-adaptadores --observacoes 'piloto 3B proporcao real'" > ../logs/piloto_3b.out 2>&1 &
+```
+
+Acompanhe com `tail -f ../logs/piloto_3b.out`. Tempos esperados (medidos na depuração, 1.523 tokens/s):
+1:1 com 3 épocas ≈ 3,3 h; proporção real com 1 época ≈ 10,2 h. A cada 2.000 passos o script salva um
+adaptador `parcial`, para uma queda do pod não zerar a rodada.
+
+4. A decisão, lendo `../resultados/treinos_etapa3.csv` (colunas `pareado_val_melhor_pct` e `pareado_val_margem_acaso`):
+
+- proporção real ganha do 1:1 por **mais** que a margem do acaso → o 7B usa `real` e paga as ~23 h/época;
+- diferença **dentro** da margem → o 7B usa `1:1`, e o piloto vira uma ablação para a dissertação
+  ("a proporção de treino não muda o resultado pareado"), que é o que economiza dias de pod;
+- as duas abaixo de 50% + margem → é o cenário-base do protocolo (§11): resultado, não fracasso.
+
+Anote a decisão **antes** de rodar o `07`. Só depois avalie no teste (US$ 0,25 por variante).
+
+### O baseline do tamanho (rode uma vez, antes de comparar qualquer modelo)
+
+```bash
+python 08_baseline_tamanho.py
+```
+
+Não usa GPU nem modelo treinado: ele só mede o tamanho da função e segue o mesmo protocolo (limiar escolhido na
+validação, VD-S, pareado). Serve de piso para toda tabela: **um modelo de 7B só compensa se ganhar disto.**
+No teste desbalanceado ele vai bem (o artefato do tamanho); no pareado ele desmorona, porque a versão corrigida
+costuma ser a maior — o conserto acrescenta código. `--medida linhas` ou `--medida caracteres` dispensa o tokenizer.
 
 ## Onde ficam as coisas
 

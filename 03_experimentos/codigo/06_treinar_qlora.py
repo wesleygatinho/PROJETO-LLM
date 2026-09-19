@@ -6,11 +6,17 @@ O que este script faz, em ordem:
      escolhida em --benignas_por_vul ("real" = todas, ~35 por vulnerável; ou um número k).
   2. Carrega o modelo BASE (não o Instruct, protocolo §2) em 4 bits NF4, com uma cabeça de 2 saídas.
   3. Congela o modelo e treina só os adaptadores LoRA e a cabeça.
-  4. No fim de cada época: salva o adaptador e mede a AUC numa amostra FIXA da VALIDAÇÃO
-     (o teste não é tocado aqui). A época com maior AUC vira a "melhor época".
+  4. No fim de cada época: salva o adaptador e confere duas coisas na VALIDAÇÃO (o teste não é tocado aqui):
+     a AUC numa amostra fixa e, no arquivo pareado da validação, a % de pares em que a função vulnerável
+     recebeu nota maior que a sua versão corrigida. A "melhor época" é escolhida pelo PAREADO.
+     Por que não pela AUC: no PrimeVul as funções vulneráveis são bem mais longas (922 tokens contra 297),
+     e só o tamanho da função já dá AUC 0,82 no teste. Escolher pela AUC premia esse atalho; o pareado não,
+     porque as duas funções do par são quase iguais.
   5. Grava uma linha em ../resultados/treinos_etapa3.csv, a receita completa e a perda passo a passo
      em ../logs/ e, com --repo_hf, envia o adaptador para um repositório PRIVADO do Hugging Face
      (o pod é apagado no fim da sessão; sem isso o adaptador se perde).
+  Rede de segurança: a cada --salvar_a_cada_passos passos o adaptador é salvo na pasta "parcial".
+  Numa época de 10 horas, é o que sobra se o pod cair (avalie com: 07 ... --epoca parcial).
 
 Uso (primeira rodada = depuração, poucos minutos):
   python 06_treinar_qlora.py --benignas_por_vul 1 --limite_treino 400 --preco_hora 0.50
@@ -38,8 +44,8 @@ from tqdm import tqdm
 
 from ambiente import conferir, descrever_ambiente, versao
 from classificador import (CAMADAS_LORA, auc_segura, carregar_base, carregar_jsonl, carregar_tokenizer,
-                           dividir_por_tokens, fixar_seed, gravar_linha_csv, impressao_digital,
-                           montar_lote, pontuar, tokenizar)
+                           dividir_por_tokens, fixar_seed, formar_pares, gravar_linha_csv, impressao_digital,
+                           metricas_pareadas, montar_lote, pontuar, tokenizar)
 
 
 def montar_treino(itens, benignas_por_vul, seed, limite):
@@ -67,6 +73,12 @@ def amostra_checagem(itens, limite):
     if limite:
         vul = rng.sample(vul, min(len(vul), max(1, limite // 2)))
     return vul + rng.sample(ben, min(len(ben), 4 * len(vul)))
+
+
+def margem_do_acaso(n_pares):
+    """Meia-largura do IC95% da % de pares ordenados certo, quando o modelo está no acaso.
+    Diferenças menores que isso entre duas épocas são ruído, não melhora."""
+    return 100 * 1.96 * 0.5 / math.sqrt(max(1, n_pares))
 
 
 def lotes_de_treino(seqs, tamanho_lote, seed):
@@ -104,6 +116,8 @@ def main():
     ap.add_argument("--modelo", default="Qwen/Qwen2.5-Coder-3B", help="versão BASE, não Instruct")
     ap.add_argument("--treino", default="../dados/primevul_train.jsonl")
     ap.add_argument("--validacao", default="../dados/primevul_valid.jsonl")
+    ap.add_argument("--validacao_pareada", default="../dados/primevul_valid_paired.jsonl",
+                    help="pareado da VALIDAÇÃO: é ele que escolhe a melhor época")
     ap.add_argument("--benignas_por_vul", required=True,
                     help='"real" (todas as benignas, ~35 por vulnerável) ou um número k (k benignas por vulnerável)')
     ap.add_argument("--peso_vul", type=float, default=1.0, help="peso da classe vulnerável na perda (1 = sem peso)")
@@ -119,6 +133,8 @@ def main():
     ap.add_argument("--tokens_por_passo", type=int, default=16384,
                     help="só memória: o lote é dividido em pedaços com até isso de tokens (a conta não muda)")
     ap.add_argument("--limite_treino", type=int, default=0, help="depuração: só N funções (metade/metade)")
+    ap.add_argument("--salvar_a_cada_passos", type=int, default=2000,
+                    help="rede de segurança: salva o adaptador em 'parcial' a cada N passos; 0 desliga")
     ap.add_argument("--preco_hora", type=float, default=0.0, help="preço por hora do pod em US$")
     ap.add_argument("--repo_hf", default="", help="usuario/repositorio PRIVADO no Hugging Face para guardar o adaptador")
     ap.add_argument("--observacoes", default="", help="texto livre para a planilha")
@@ -137,15 +153,22 @@ def main():
     pasta_logs.mkdir(parents=True, exist_ok=True)
 
     # ---- 1) Dados -----------------------------------------------------------
-    for caminho in (args.treino, args.validacao):
+    for caminho in (args.treino, args.validacao, args.validacao_pareada):
         if not Path(caminho).exists():
             raise SystemExit(f"[ERRO] Não achei {caminho}. Rode python 00_baixar_primevul.py")
     treino = montar_treino(carregar_jsonl(Path(args.treino)), args.benignas_por_vul, args.seed, args.limite_treino)
     checagem = amostra_checagem(carregar_jsonl(Path(args.validacao)), args.limite_treino)
+    # Pareado da validação: os pares vêm em linhas consecutivas, então o limite da depuração pega as primeiras.
+    pareado = carregar_jsonl(Path(args.validacao_pareada))
+    for pos, d in enumerate(pareado):
+        d["_pos"] = pos
+    pares_val, _ = formar_pares(pareado)
+    checagem_par = pareado[: args.limite_treino] if args.limite_treino else pareado
     dados_sha256 = impressao_digital(Path(args.treino))
     n_vul = sum(int(d["target"]) for d in treino)
     print(f"Treino: {len(treino)} funções ({n_vul} vulneráveis, {len(treino) - n_vul} benignas)"
-          f"{'  [DEPURAÇÃO]' if depuracao else ''}  |  checagem na validação: {len(checagem)} funções")
+          f"{'  [DEPURAÇÃO]' if depuracao else ''}")
+    print(f"Checagem por época: {len(checagem)} funções da validação (AUC) + {len(checagem_par)} do pareado da validação")
 
     # ---- 2) Ambiente, tokens e modelo em 4 bits -----------------------------
     gpu = torch.cuda.get_device_name(0)
@@ -156,6 +179,7 @@ def main():
     alvos = np.array([int(d["target"]) for d in treino], dtype=np.int64)
     seqs_val, _ = tokenizar(tokenizer, checagem, args.max_tokens)
     alvos_val = np.array([int(d["target"]) for d in checagem], dtype=np.int64)
+    seqs_par, _ = tokenizar(tokenizer, checagem_par, args.max_tokens)
     del treino, checagem
     tokens_por_epoca = int(sum(len(s) for s in seqs))
     print(f"Tokens por época: {tokens_por_epoca / 1e6:.1f} milhões  |  funções cortadas em {args.max_tokens}: {sum(cortadas)}")
@@ -190,9 +214,10 @@ def main():
         "treino": {"n_vul": n_vul, "n_ben": len(seqs) - n_vul, "cortadas": int(sum(cortadas)),
                    "tokens_por_epoca": tokens_por_epoca, "passos_por_epoca": passos_por_epoca},
         "checagem_validacao": {"n_vul": int(alvos_val.sum()), "n_ben": int(len(alvos_val) - alvos_val.sum())},
+        "checagem_pareada": {"arquivo": Path(args.validacao_pareada).name, "n_funcoes": len(checagem_par)},
         "parametros_treinaveis": n_treinaveis, "ambiente_confere": ambiente_confere,
         "ambiente": {**descrever_ambiente(), "peft": versao("peft"), "bitsandbytes": versao("bitsandbytes"), "gpu": gpu},
-        "epocas": [], "melhor_epoca": None,
+        "epocas": [], "melhor_epoca": None, "criterio_melhor_epoca": "pareado da validação (% de pares ordenados)",
     }
 
     # ---- 4) Treino ----------------------------------------------------------
@@ -226,6 +251,16 @@ def main():
                 agenda.step()
                 otimizador.zero_grad(set_to_none=True)
                 passo += 1
+                if args.salvar_a_cada_passos and passo % args.salvar_a_cada_passos == 0:
+                    # Se o pod cair no meio de uma época longa, isto é o que sobra: um modelo treinado
+                    # em parte do caminho (o lr ainda não terminou de descer), não uma época completa.
+                    model.save_pretrained(str(pasta / "parcial"))
+                    registro["parcial"] = {"passo": passo, "epoca": epoca, "de_passos": passos_total,
+                                           "hora": datetime.now().strftime("%Y-%m-%d %H:%M")}
+                    (pasta / "rodada.json").write_text(json.dumps(registro, indent=2, ensure_ascii=False), encoding="utf-8")
+                    barra.write(f"  [rede de segurança] adaptador parcial salvo no passo {passo}/{passos_total}")
+                    if args.repo_hf:
+                        enviar_hf(args.repo_hf, pasta, nome)
                 soma_perda_epoca += perda_lote
                 soma_janela += perda_lote
                 n_janela += 1
@@ -245,16 +280,27 @@ def main():
             sinal = np.where(alvos_val == 1, 1.0, -1.0)
             perda_val = float(np.mean(np.logaddexp(0.0, -sinal * notas_val)))  # entropia cruzada
             auc_val = auc_segura(alvos_val, notas_val)
+            notas_par = pontuar(model, seqs_par, pad_id, args.tokens_por_passo * 2, desc="Checando pareado")
+            r_par = metricas_pareadas({d["_pos"]: float(n) for d, n in zip(checagem_par, notas_par)}, pares_val)
+            ordenados_pct = 100.0 * r_par["ordenados"] / max(1, r_par["avaliados"])
             model.save_pretrained(str(pasta / f"epoca_{epoca}"))
             registro["epocas"].append({
-                "epoca": epoca, "auc_validacao": round(auc_val, 4), "perda_validacao": round(perda_val, 5),
+                "epoca": epoca, "pareado_ordenados_pct": round(ordenados_pct, 2),
+                "pareado_P_C_pct": round(100.0 * r_par["P_C"] / max(1, r_par["avaliados"]), 2),
+                "pareado_pares": r_par["avaliados"],
+                "auc_validacao": round(auc_val, 4), "perda_validacao": round(perda_val, 5),
                 "perda_treino": round(soma_perda_epoca / passos_por_epoca, 5), "tempo_s": round(duracao, 1),
                 "tokens_por_s": round(tokens_epoca / duracao),
             })
-            validas = [e for e in registro["epocas"] if not math.isnan(e["auc_validacao"])]
-            registro["melhor_epoca"] = max(validas, key=lambda e: e["auc_validacao"])["epoca"] if validas else epoca
+            # Critério: pareado da validação; empate (ou pareado indisponível) desempata pela AUC.
+            registro["melhor_epoca"] = max(
+                registro["epocas"],
+                key=lambda e: (e["pareado_ordenados_pct"],
+                               -1.0 if math.isnan(e["auc_validacao"]) else e["auc_validacao"]))["epoca"]
             (pasta / "rodada.json").write_text(json.dumps(registro, indent=2, ensure_ascii=False), encoding="utf-8")
-            print(f"Época {epoca}: perda treino={soma_perda_epoca / passos_por_epoca:.4f}  |  validação: "
+            print(f"Época {epoca}: perda treino={soma_perda_epoca / passos_por_epoca:.4f}  |  "
+                  f"pareado da validação: {ordenados_pct:.1f}% ordenados (acaso 50% ± {margem_do_acaso(r_par['avaliados']):.1f}), "
+                  f"P-C={100.0 * r_par['P_C'] / max(1, r_par['avaliados']):.1f}%  |  "
                   f"AUC={auc_val:.4f} perda={perda_val:.4f}  |  {duracao / 60:.1f} min, {tokens_epoca / duracao:.0f} tokens/s")
             if args.repo_hf:
                 enviar_hf(args.repo_hf, pasta, nome)
@@ -278,8 +324,12 @@ def main():
         "lora_r": args.lora_r, "lora_alpha": args.lora_alpha, "lora_dropout": args.lora_dropout,
         "max_tokens": args.max_tokens, "cortadas": int(sum(cortadas)), "tokens_por_epoca": tokens_por_epoca,
         "parametros_treinaveis": n_treinaveis,
+        "pareado_val_por_epoca": ";".join(str(e["pareado_ordenados_pct"]) for e in registro["epocas"]),
         "auc_validacao_por_epoca": ";".join(str(e["auc_validacao"]) for e in registro["epocas"]),
-        "melhor_epoca": registro["melhor_epoca"], "auc_validacao_melhor": melhor["auc_validacao"],
+        "melhor_epoca": registro["melhor_epoca"], "criterio_melhor_epoca": "pareado_validacao",
+        "pareado_val_melhor_pct": melhor["pareado_ordenados_pct"], "pareado_val_pares": melhor["pareado_pares"],
+        "pareado_val_margem_acaso": round(margem_do_acaso(melhor["pareado_pares"]), 2),
+        "auc_validacao_melhor": melhor["auc_validacao"],
         "tokens_por_s": round(tokens_total / max(1.0, tempo_treino)),
         "memoria_modelo_gb": round(memoria_modelo_gb, 2), "memoria_pico_gb": round(memoria_pico_gb, 2),
         "tempo_treino_s": round(tempo_treino, 1), "tempo_total_s": round(tempo_total, 1),
@@ -298,7 +348,12 @@ def main():
 
     print("\n================ TREINO CONCLUÍDO ================")
     print(f"Rodada: {nome}")
-    print(f"Melhor época (AUC na validação): {registro['melhor_epoca']}  AUC={melhor['auc_validacao']}")
+    margem = margem_do_acaso(melhor["pareado_pares"])
+    print(f"Melhor época (pelo pareado da validação): {registro['melhor_epoca']}  "
+          f"{melhor['pareado_ordenados_pct']}% de pares ordenados (acaso 50% ± {margem:.1f}), AUC={melhor['auc_validacao']}")
+    if abs(melhor["pareado_ordenados_pct"] - 50.0) < margem:
+        print("[LEIA] O pareado da validação está DENTRO do acaso: a escolha da época é ruído, não melhora. "
+              "É o cenário-base previsto no protocolo (§11) — vale como resultado, não como falha.")
     print(f"Tempo total={tempo_total / 60:.1f} min  |  memória pico={memoria_pico_gb:.1f} GB  |  custo US$ {custo_usd:.2f}")
     print(f"Adaptadores em: {pasta}")
     print(f"Receita e perda por passo em: {pasta_logs / (nome + '.json')} e {arquivo_passos}")
