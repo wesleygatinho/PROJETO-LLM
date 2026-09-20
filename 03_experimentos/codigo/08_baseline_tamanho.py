@@ -31,7 +31,7 @@ import numpy as np
 from ambiente import descrever_ambiente
 from classificador import (auc_segura, carregar_jsonl, carregar_tokenizer, escolher_amostra, formar_pares,
                            gravar_linha_csv, gravar_log_notas, impressao_digital, limiar_para_fpr,
-                           metricas_pareadas, taxas_no_limiar, tokenizar)
+                           metricas_pareadas, qual_release, taxas_no_limiar, tokenizar)
 
 
 def medir(itens, medida, tokenizer, max_tokens):
@@ -143,6 +143,7 @@ def main():
         "ambiente_confere": "nao se aplica",
         "tokenizers": ambiente["tokenizers"], "transformers": ambiente["transformers"],
         "dados_sha256_teste": impressao_digital(teste["caminho"]),
+        "release_dados": qual_release(teste["caminho"], len(teste["itens"])),
     }
     arquivo_csv = Path("../resultados/resultados_etapa3.csv")
     arquivo_csv.parent.mkdir(parents=True, exist_ok=True)

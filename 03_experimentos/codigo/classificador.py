@@ -25,11 +25,13 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer, Bits
 # e, principalmente, a MESMA regra de formar os pares (resultados comparáveis entre etapas).
 _etapa1 = importlib.import_module("03_inferencia_etapa1")
 _pareado = importlib.import_module("04_metricas_pareadas")
+_baixar = importlib.import_module("00_baixar_primevul")
 carregar_jsonl = _etapa1.carregar_jsonl
 escolher_amostra = _etapa1.escolher_amostra
 impressao_digital = _etapa1.impressao_digital
 gravar_linha_csv = _etapa1.gravar_linha_csv
 formar_pares = _pareado.formar_pares
+qual_release = _baixar.qual_release  # para a planilha registrar de qual release são os dados
 
 # LoRA em todas as camadas lineares dos blocos (recomendação do artigo do QLoRA, Dettmers et al. 2023).
 CAMADAS_LORA = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]

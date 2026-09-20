@@ -38,8 +38,8 @@ from peft import PeftModel
 from ambiente import conferir, descrever_ambiente, versao
 from classificador import (auc_segura, carregar_base, carregar_jsonl, carregar_tokenizer, escolher_amostra,
                            fixar_seed, formar_pares, gravar_linha_csv, gravar_log_notas, impressao_digital,
-                           limiar_para_fpr, metricas_classificacao, metricas_pareadas, pontuar, taxas_no_limiar,
-                           tokenizar)
+                           limiar_para_fpr, metricas_classificacao, metricas_pareadas, pontuar, qual_release,
+                           taxas_no_limiar, tokenizar)
 
 
 def localizar_rodada(rodada):
@@ -178,6 +178,7 @@ def main():
         "torch": ambiente["torch"], "cuda": ambiente["cuda"], "transformers": ambiente["transformers"],
         "tokenizers": ambiente["tokenizers"], "peft": versao("peft") or "", "bitsandbytes": versao("bitsandbytes") or "",
         "modelo_revisao": modelo_revisao, "dados_sha256_teste": impressao_digital(teste["caminho"]),
+        "release_dados": qual_release(teste["caminho"], len(teste["itens"])),
     }
     arquivo_csv = Path("../resultados/resultados_etapa3.csv")
     arquivo_csv.parent.mkdir(parents=True, exist_ok=True)

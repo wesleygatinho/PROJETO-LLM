@@ -1,5 +1,13 @@
 # Notas de leitura — Etapa 1 (baseline 16 bits, prompt v1 zero-shot)
 
+> ⚠️ **Os números deste documento são da release v0.1 do PrimeVul e vão ser refeitos.**
+> Em 19/set/2026 descobrimos que o espelho usado (`colin/PrimeVul`) é a v0.1, um **subconjunto** da
+> release do artigo: 24.788 funções de teste em vez de 25.911, e 435 pares em vez de 564. O motivo e a
+> decisão de migrar estão em `v01/LEIA.md`. As tabelas abaixo serão substituídas quando a Etapa 1 for
+> refeita na release original; as **conclusões de método** (ruído entre GPUs, reprodutibilidade com o
+> ambiente travado, zero-shot no nível do acaso, tamanho da função como atalho) não dependem da release
+> e continuam valendo.
+
 Dados: PrimeVul v0.1 (espelho HF `colin/PrimeVul`), teste = 24.788 funções (549 vulneráveis, 2,2%);
 pareado = 870 funções / 433 pares avaliados. Pod: A40 48 GB, US$ 0,50/h. Todas as linhas abaixo com `--max_tokens_entrada 8192`, na A40.
 

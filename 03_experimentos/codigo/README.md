@@ -6,7 +6,8 @@ Crie o pod sempre igual: **1× A40 48 GB** e **o mesmo template PyTorch**.
 
 1. Baixe o repositório no pod (`git clone`) e entre em `03_experimentos/codigo`.
 2. `bash 01_setup_runpod.sh` instala as bibliotecas nas **versões travadas**, faz login no Hugging Face e confere a GPU.
-3. `python 00_baixar_primevul.py` baixa o PrimeVul de novo (os dados não vão para o Git).
+3. `python 00_baixar_primevul.py --release original` baixa o PrimeVul de novo (os dados não vão para o Git).
+   Ele confere os seis arquivos e **para com erro** se o que veio não for a release pedida.
 4. Rode os experimentos.
 5. Antes de apagar o pod: `git add`, `git commit` e `git push` dos resultados e logs. Na Etapa 3, confira também se o adaptador foi para o Hugging Face.
 
@@ -17,7 +18,7 @@ Crie o pod sempre igual: **1× A40 48 GB** e **o mesmo template PyTorch**.
 | `01_setup_runpod.sh` | Prepara o pod. Na primeira vez cria a trava de versões; nas seguintes, instala exatamente o que está nela. |
 | `ambiente.py` | A trava. Grava e confere versões das bibliotecas, do torch e a GPU oficial. Quem chama é o setup. |
 | `requisitos_travados.txt` | Criado na primeira sessão com trava. **Vai para o Git.** Não edite à mão. |
-| `00_baixar_primevul.py` | Baixa o PrimeVul para `../dados/` (padrão: espelho do Hugging Face; `--fonte drive` para a pasta oficial) e confere os totais. |
+| `00_baixar_primevul.py` | Baixa o PrimeVul para `../dados/` na release escolhida (`--release original` por padrão) e **para com erro** se os totais não baterem. |
 | `02_ver_dados.py` | Mostra o formato dos dados (colunas, exemplos, quantos de cada rótulo). |
 | `03_inferencia_etapa1.py` | Etapa 1: o modelo responde YES/NO, o script mede acertos, memória, tempo e custo e grava uma linha na planilha. |
 | `04_metricas_pareadas.py` | Depois do 03 rodado no arquivo pareado: calcula P-C, P-V, P-B e P-R. |
@@ -36,6 +37,58 @@ Crie o pod sempre igual: **1× A40 48 GB** e **o mesmo template PyTorch**.
 - Teste rápido em outra placa pode, mas a linha não entra nas tabelas da dissertação.
 - Na Etapa 3, a coluna `depuracao` diz **nao**.
 - Rodada descartada: o log vai para `../logs/descartados/`, com o motivo e as linhas removidas no `LEIA.md` de lá.
+
+## Qual release do PrimeVul (leia antes de gerar qualquer número)
+
+Os autores publicaram **duas** releases, e elas têm tamanhos diferentes:
+
+| | `--release original` (padrão) | `--release v01` |
+|---|---|---|
+| Teste | 25.911 funções (695 vulneráveis) | 24.788 (549) |
+| Teste pareado | 564 pares | 435 pares |
+| Validação pareada | 562 pares | 480 pares |
+| Treino | 184.427 (5.574) | 175.797 (4.862) |
+
+A v0.1 é **mais nova, porém menor**: ela acrescenta metadados e, em troca, descarta as vulnerabilidades
+cujos metadados os autores não conseguiram recuperar ("only include vulnerabilities that we successfully
+retrieved their metadata"). Usamos a **original**, que é a do artigo: é ela que permite comparar os nossos
+números com a Tabela V do PrimeVul, tem 30% mais pares e não tem o descarte enviesado. Os nossos scripts
+leem só `func` e `target`, então os metadados da v0.1 não nos serviriam para nada.
+
+O que foi rodado na v0.1 até 19/set/2026 está arquivado em `../resultados/v01/` (com o `LEIA.md` explicando).
+Desde então, cada linha das planilhas traz a coluna `release_dados`, deduzida do tamanho do arquivo.
+
+**Cuidado com espelhos:** o `ASSERT-KTH/PrimeVul` tem as contagens da release original, mas a coluna
+`is_vulnerable` está **invertida**. Quem treinar com ele aprende a tarefa ao contrário.
+
+### Baixar a release original
+
+```bash
+python 00_baixar_primevul.py --release original
+```
+
+Se o Drive dos autores recusar por cota: copie a pasta **\[Original Release\]** para o seu próprio Drive,
+compartilhe como "qualquer pessoa com o link" e aponte para ela — a conferência continua valendo:
+
+```bash
+python 00_baixar_primevul.py --release original --pasta_drive "https://drive.google.com/drive/folders/SEU_ID"
+```
+
+## Etapa 1 — baseline por prompting (as quatro rodadas oficiais)
+
+Rode uma vez por release. São ~1,5 h no total (~US$ 0,75). Comece pelas pareadas, que levam 2 min e
+já mostram se está tudo certo:
+
+```bash
+python 03_inferencia_etapa1.py --modelo Qwen/Qwen2.5-Coder-3B-Instruct --dados ../dados/primevul_test_paired.jsonl --n 999999 --sem_balancear --max_tokens_entrada 8192 --preco_hora 0.50 --observacoes "3B pareado 8192"
+```
+
+Depois as outras três (7B pareado, 3B teste completo, 7B teste completo), trocando `--modelo` e `--dados`.
+Para cada log de pareado, calcule os pares:
+
+```bash
+python 04_metricas_pareadas.py --dados ../dados/primevul_test_paired.jsonl --log ../logs/etapa1_XXXX.jsonl --rotulo "3B 16bit prompt v1"
+```
 
 ## Etapa 3 — QLoRA + cabeça de classificação
 

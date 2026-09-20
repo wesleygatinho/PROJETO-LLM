@@ -23,6 +23,7 @@ Outros exemplos:
 import argparse
 import csv
 import hashlib
+import importlib
 import json
 import random
 import re
@@ -37,6 +38,9 @@ from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from ambiente import conferir, descrever_ambiente  # trava de versões (ambiente.py, mesma pasta)
+
+# De qual release do PrimeVul são os dados (original x v0.1): vai para a planilha, em toda linha.
+qual_release = importlib.import_module("00_baixar_primevul").qual_release
 
 # ----------------------------------------------------------------------------
 # Configuração fixa desta versão de prompt. Se mudar o texto, mude a versão
@@ -307,6 +311,7 @@ def main():
         "tokenizers": ambiente["tokenizers"],
         "modelo_revisao": modelo_revisao,
         "dados_sha256": dados_sha256,
+        "release_dados": qual_release(caminho_dados, len(itens)),
     }
     gravar_linha_csv(arquivo_csv, linha)
 

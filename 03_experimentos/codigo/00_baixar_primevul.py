@@ -69,6 +69,18 @@ DRIVE = {
 }
 
 
+def qual_release(caminho, n_linhas):
+    """Diz de qual release é um arquivo, pelo nome e pelo número de linhas ('desconhecida' se não bater).
+    Os outros scripts usam isto para gravar em cada linha da planilha em que dados ela foi calculada —
+    é o que impede de comparar, sem perceber, um número da release original com um da v0.1."""
+    alvo = Path(caminho).name
+    for release, arquivos in ESPERADO.items():
+        esperado = arquivos.get(alvo)
+        if esperado and n_linhas == esperado["1"] + esperado["0"]:
+            return release
+    return "desconhecida"
+
+
 def baixar_via_huggingface():
     """Baixa os subsets 'default' e 'paired' do espelho colin/PrimeVul (que é a release v0.1)."""
     try:

@@ -45,7 +45,7 @@ from tqdm import tqdm
 from ambiente import conferir, descrever_ambiente, versao
 from classificador import (CAMADAS_LORA, auc_segura, carregar_base, carregar_jsonl, carregar_tokenizer,
                            dividir_por_tokens, fixar_seed, formar_pares, gravar_linha_csv, impressao_digital,
-                           metricas_pareadas, montar_lote, pontuar, tokenizar)
+                           metricas_pareadas, montar_lote, pontuar, qual_release, tokenizar)
 
 
 def montar_treino(itens, benignas_por_vul, seed, limite):
@@ -156,7 +156,9 @@ def main():
     for caminho in (args.treino, args.validacao, args.validacao_pareada):
         if not Path(caminho).exists():
             raise SystemExit(f"[ERRO] Não achei {caminho}. Rode python 00_baixar_primevul.py")
-    treino = montar_treino(carregar_jsonl(Path(args.treino)), args.benignas_por_vul, args.seed, args.limite_treino)
+    itens_treino = carregar_jsonl(Path(args.treino))
+    release_dados = qual_release(args.treino, len(itens_treino))
+    treino = montar_treino(itens_treino, args.benignas_por_vul, args.seed, args.limite_treino)
     checagem = amostra_checagem(carregar_jsonl(Path(args.validacao)), args.limite_treino)
     # Pareado da validação: os pares vêm em linhas consecutivas, então o limite da depuração pega as primeiras.
     pareado = carregar_jsonl(Path(args.validacao_pareada))
@@ -180,7 +182,7 @@ def main():
     seqs_val, _ = tokenizar(tokenizer, checagem, args.max_tokens)
     alvos_val = np.array([int(d["target"]) for d in checagem], dtype=np.int64)
     seqs_par, _ = tokenizar(tokenizer, checagem_par, args.max_tokens)
-    del treino, checagem
+    del itens_treino, treino, checagem
     tokens_por_epoca = int(sum(len(s) for s in seqs))
     print(f"Tokens por época: {tokens_por_epoca / 1e6:.1f} milhões  |  funções cortadas em {args.max_tokens}: {sum(cortadas)}")
 
@@ -210,7 +212,8 @@ def main():
 
     registro = {
         "nome": nome, "modelo": args.modelo, "modelo_revisao": modelo_revisao, "args": vars(args),
-        "camadas_lora": CAMADAS_LORA, "dados_sha256": dados_sha256, "depuracao": depuracao,
+        "camadas_lora": CAMADAS_LORA, "dados_sha256": dados_sha256, "release_dados": release_dados,
+        "depuracao": depuracao,
         "treino": {"n_vul": n_vul, "n_ben": len(seqs) - n_vul, "cortadas": int(sum(cortadas)),
                    "tokens_por_epoca": tokens_por_epoca, "passos_por_epoca": passos_por_epoca},
         "checagem_validacao": {"n_vul": int(alvos_val.sum()), "n_ben": int(len(alvos_val) - alvos_val.sum())},
@@ -341,6 +344,7 @@ def main():
         **{k: registro["ambiente"][k] or "" for k in ("torch", "cuda", "transformers", "tokenizers", "peft", "bitsandbytes")},
         "modelo_revisao": modelo_revisao,
         "dados_sha256": dados_sha256,
+        "release_dados": release_dados,
     }
     arquivo_csv = Path("../resultados/treinos_etapa3.csv")
     arquivo_csv.parent.mkdir(parents=True, exist_ok=True)
