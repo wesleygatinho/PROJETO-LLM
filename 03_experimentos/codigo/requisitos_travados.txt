@@ -1,5 +1,5 @@
 # Versões travadas do ambiente dos experimentos. NÃO edite à mão.
-# Gerado por ambiente.py em 2026-09-17 01:19. O 01_setup_runpod.sh instala exatamente isto.
+# Gerado por ambiente.py em 2026-09-20 00:14. O 01_setup_runpod.sh instala exatamente isto.
 # torch vem do template do pod (não é instalado por aqui); se o template for outro, o setup para.
 # trava: torch=2.8.0+cu128
 # trava: cuda=12.8
@@ -17,3 +17,5 @@ numpy==2.1.2
 pandas==3.0.5
 tqdm==4.70.1
 gdown==6.3.0
+peft==0.21.0
+bitsandbytes==0.50.2
