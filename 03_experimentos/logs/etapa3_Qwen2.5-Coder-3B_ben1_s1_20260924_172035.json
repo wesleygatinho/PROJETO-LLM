@@ -1,0 +1,109 @@
+{
+  "nome": "etapa3_Qwen2.5-Coder-3B_ben1_s1_20260924_172035",
+  "modelo": "Qwen/Qwen2.5-Coder-3B",
+  "modelo_revisao": "09d9bc5d376b",
+  "args": {
+    "modelo": "Qwen/Qwen2.5-Coder-3B",
+    "treino": "../dados/primevul_train.jsonl",
+    "validacao": "../dados/primevul_valid.jsonl",
+    "validacao_pareada": "../dados/primevul_valid_paired.jsonl",
+    "benignas_por_vul": "1",
+    "peso_vul": 1.0,
+    "epocas": 3,
+    "seed": 1,
+    "lr": 0.0002,
+    "lote": 16,
+    "aquecimento": 0.03,
+    "lora_r": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "max_tokens": 2048,
+    "tokens_por_passo": 16384,
+    "limite_treino": 0,
+    "salvar_a_cada_passos": 2000,
+    "preco_hora": 0.5,
+    "repo_hf": "wesley2h/etapa3-adaptadores",
+    "observacoes": "piloto 3B 1:1"
+  },
+  "camadas_lora": [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+    "gate_proj",
+    "up_proj",
+    "down_proj"
+  ],
+  "dados_sha256": "9fea452f1b7c",
+  "release_dados": "original",
+  "depuracao": false,
+  "treino": {
+    "n_vul": 5574,
+    "n_ben": 5574,
+    "cortadas": 1068,
+    "tokens_por_epoca": 6468367,
+    "passos_por_epoca": 697
+  },
+  "checagem_validacao": {
+    "n_vul": 699,
+    "n_ben": 2796
+  },
+  "checagem_pareada": {
+    "arquivo": "primevul_valid_paired.jsonl",
+    "n_funcoes": 1124
+  },
+  "parametros_treinaveis": 29937664,
+  "ambiente_confere": "sim",
+  "ambiente": {
+    "torch": "2.8.0+cu128",
+    "cuda": "12.8",
+    "transformers": "5.17.0",
+    "tokenizers": "0.23.2",
+    "peft": "0.21.0",
+    "bitsandbytes": "0.50.2",
+    "gpu": "NVIDIA A40"
+  },
+  "epocas": [
+    {
+      "epoca": 1,
+      "pareado_ordenados_pct": 38.43,
+      "pareado_P_C_pct": 0.18,
+      "pareado_pares": 562,
+      "auc_validacao": 0.7554,
+      "perda_validacao": 0.44018,
+      "perda_treino": 0.74273,
+      "tempo_s": 4047.9,
+      "tokens_por_s": 1598
+    },
+    {
+      "epoca": 2,
+      "pareado_ordenados_pct": 31.85,
+      "pareado_P_C_pct": 0.89,
+      "pareado_pares": 562,
+      "auc_validacao": 0.8116,
+      "perda_validacao": 0.56637,
+      "perda_treino": 0.53746,
+      "tempo_s": 4052.4,
+      "tokens_por_s": 1596
+    },
+    {
+      "epoca": 3,
+      "pareado_ordenados_pct": 35.59,
+      "pareado_P_C_pct": 1.25,
+      "pareado_pares": 562,
+      "auc_validacao": 0.8319,
+      "perda_validacao": 0.47284,
+      "perda_treino": 0.35848,
+      "tempo_s": 4044.9,
+      "tokens_por_s": 1599
+    }
+  ],
+  "melhor_epoca": 1,
+  "criterio_melhor_epoca": "pareado da validação (% de pares ordenados)",
+  "parcial": {
+    "passo": 2000,
+    "epoca": 3,
+    "de_passos": 2091,
+    "hora": "2026-09-24 20:47"
+  }
+}
