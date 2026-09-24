@@ -1,0 +1,81 @@
+{
+  "nome": "etapa3_Qwen2.5-Coder-3B_ben1_s1_20260923_233514_depuracao",
+  "modelo": "Qwen/Qwen2.5-Coder-3B",
+  "modelo_revisao": "09d9bc5d376b",
+  "args": {
+    "modelo": "Qwen/Qwen2.5-Coder-3B",
+    "treino": "../dados/primevul_train.jsonl",
+    "validacao": "../dados/primevul_valid.jsonl",
+    "validacao_pareada": "../dados/primevul_valid_paired.jsonl",
+    "benignas_por_vul": "1",
+    "peso_vul": 1.0,
+    "epocas": 1,
+    "seed": 1,
+    "lr": 0.0002,
+    "lote": 16,
+    "aquecimento": 0.03,
+    "lora_r": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "max_tokens": 2048,
+    "tokens_por_passo": 16384,
+    "limite_treino": 400,
+    "salvar_a_cada_passos": 2000,
+    "preco_hora": 0.5,
+    "repo_hf": "",
+    "observacoes": ""
+  },
+  "camadas_lora": [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+    "gate_proj",
+    "up_proj",
+    "down_proj"
+  ],
+  "dados_sha256": "9fea452f1b7c",
+  "release_dados": "original",
+  "depuracao": true,
+  "treino": {
+    "n_vul": 200,
+    "n_ben": 200,
+    "cortadas": 45,
+    "tokens_por_epoca": 231533,
+    "passos_por_epoca": 25
+  },
+  "checagem_validacao": {
+    "n_vul": 200,
+    "n_ben": 800
+  },
+  "checagem_pareada": {
+    "arquivo": "primevul_valid_paired.jsonl",
+    "n_funcoes": 400
+  },
+  "parametros_treinaveis": 29937664,
+  "ambiente_confere": "sim",
+  "ambiente": {
+    "torch": "2.8.0+cu128",
+    "cuda": "12.8",
+    "transformers": "5.17.0",
+    "tokenizers": "0.23.2",
+    "peft": "0.21.0",
+    "bitsandbytes": "0.50.2",
+    "gpu": "NVIDIA A40"
+  },
+  "epocas": [
+    {
+      "epoca": 1,
+      "pareado_ordenados_pct": 44.0,
+      "pareado_P_C_pct": 3.0,
+      "pareado_pares": 200,
+      "auc_validacao": 0.6168,
+      "perda_validacao": 0.60367,
+      "perda_treino": 1.11264,
+      "tempo_s": 149.9,
+      "tokens_por_s": 1545
+    }
+  ],
+  "melhor_epoca": 1,
+  "criterio_melhor_epoca": "pareado da validação (% de pares ordenados)"
+}
