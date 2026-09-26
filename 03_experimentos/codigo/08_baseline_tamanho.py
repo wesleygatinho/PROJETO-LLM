@@ -110,7 +110,8 @@ def main():
     vds, fpr_no_limiar = taxas_no_limiar(teste["notas"], teste["alvos"], limiar_vds)
     vds_oraculo, _ = taxas_no_limiar(teste["notas"], teste["alvos"], limiar_para_fpr(teste["notas"], teste["alvos"]))
     pares, metodo_pares = formar_pares(par["itens"])
-    p = metricas_pareadas({d["_pos"]: float(n) for d, n in zip(par["amostra"], par["notas"])}, pares)
+    nota_par = {d["_pos"]: float(n) for d, n in zip(par["amostra"], par["notas"])}
+    p = metricas_pareadas(nota_par, pares, limiar=limiar, tamanho_por_pos=nota_par)  # aqui nota = tamanho: dá +1
     pct = lambda k: 100.0 * k / p["avaliados"] if p["avaliados"] else 0.0
 
     # ---- 4) Logs e planilha -------------------------------------------------
@@ -136,6 +137,7 @@ def main():
         "pares_avaliados": p["avaliados"], "metodo_pareamento": metodo_pares,
         "P_C": p["P_C"], "P_V": p["P_V"], "P_B": p["P_B"], "P_R": p["P_R"],
         "P_C_pct": round(pct(p["P_C"]), 2), "pares_ordenados_pct": round(pct(p["ordenados"]), 2),
+        "corr_tamanho_pares": round(p["corr_tamanho"], 3), "pares_empatados": p["empatados"],
         "limiar_decisao": round(limiar, 2), "f1_validacao_no_limiar": round(f1_val, 4),
         "gpu": "", "motor": "nenhum", "log_prefixo": nome,
         "depuracao": "sim" if args.limite else "nao",

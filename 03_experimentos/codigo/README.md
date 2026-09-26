@@ -181,6 +181,39 @@ adaptador `parcial`, para uma queda do pod não zerar a rodada.
 
 Anote a decisão **antes** de rodar o `07`. Só depois avalie no teste (US$ 0,25 por variante).
 
+### Terceiro braço do piloto: 1:1 com benignas de mesmo tamanho (~6,5 h, ~US$ 3,20)
+
+Treino ~5,4 h (as benignas agora são tão longas quanto as vulneráveis: ~10 milhões de tokens por época,
+contra 6,5 do 1:1 sorteado) + ~1 h para avaliar no teste os dois adaptadores do piloto.
+
+O piloto mostrou que o modelo aprende "função longa = vulnerável" e por isso ordena os pares ao contrário
+(ver `../resultados/NOTAS_etapa3.md`). Este treino tira o atalho: cada vulnerável ganha uma benigna do mesmo
+tamanho. Numa sessão, depois do setup e do `00_baixar_primevul.py --release original`:
+
+1. Teste de 4 min do código novo. Confira a linha `AUC do tamanho no treino`: ela deve dar **~0,50**.
+
+```bash
+python 06_treinar_qlora.py --benignas_por_vul 1 --parear_tamanho --limite_treino 400 --preco_hora 0.50
+```
+
+2. O treino, seguido da avaliação no teste dos dois adaptadores do piloto (a decisão deles já foi tomada;
+   o `07` baixa os adaptadores do Hugging Face):
+
+```bash
+nohup bash -c "python 06_treinar_qlora.py --benignas_por_vul 1 --parear_tamanho --epocas 3 --seed 1 --preco_hora 0.50 --repo_hf wesley2h/etapa3-adaptadores --observacoes 'piloto 3B 1:1 mesmo tamanho' && python 07_avaliar_classificador.py --rodada hf:wesley2h/etapa3-adaptadores/etapa3_Qwen2.5-Coder-3B_ben1_s1_20260924_172035 --preco_hora 0.50 --observacoes 'piloto 3B 1:1' && python 07_avaliar_classificador.py --rodada hf:wesley2h/etapa3-adaptadores/etapa3_Qwen2.5-Coder-3B_benreal_s1_20260924_210301 --preco_hora 0.50 --observacoes 'piloto 3B proporcao real'" > ../logs/piloto_3b_tamanho.out 2>&1 &
+```
+
+3. Leia a decisão em `treinos_etapa3.csv` (linha com `parear_tamanho = sim`) **antes** de avaliar esse treino
+   no teste. A regra, anotada antes de rodar, está no fim da `NOTAS_etapa3.md`. Só depois:
+
+```bash
+python 07_avaliar_classificador.py --rodada ../adapters/NOME_DA_RODADA_ben1tam --preco_hora 0.50 --observacoes 'piloto 3B 1:1 mesmo tamanho'
+```
+
+Toda linha nova traz duas medidas do atalho: `auc_tamanho_treino` (no treino) e a correlação
+**nota × tamanho nos pares** (`pareado_val_corr_tamanho_por_epoca` no treino, `corr_tamanho_pares` no teste).
+Um detector que só olha o tamanho dá +1; um que não usa o tamanho dá perto de 0.
+
 ### O baseline do tamanho (rode uma vez, antes de comparar qualquer modelo)
 
 ```bash

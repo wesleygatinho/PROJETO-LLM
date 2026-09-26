@@ -3,7 +3,11 @@
 
 O que este script faz, em ordem:
   1. Monta o treino a partir do PrimeVul-train: TODAS as funções vulneráveis + as benignas na proporção
-     escolhida em --benignas_por_vul ("real" = todas, ~35 por vulnerável; ou um número k).
+     escolhida em --benignas_por_vul ("real" = todas, ~32 por vulnerável; ou um número k).
+     Com --parear_tamanho, as k benignas de cada vulnerável são as de tamanho mais parecido (em tokens).
+     Motivo: no piloto, o modelo aprendeu "função longa = vulnerável" e passou a dar nota maior à versão
+     CORRIGIDA de cada par (o conserto costuma aumentar a função). Com as duas classes do mesmo tamanho,
+     esse atalho some do treino. O script imprime a "AUC do tamanho no treino" para conferir (0,5 = sumiu).
   2. Carrega o modelo BASE (não o Instruct, protocolo §2) em 4 bits NF4, com uma cabeça de 2 saídas.
   3. Congela o modelo e treina só os adaptadores LoRA e a cabeça.
   4. No fim de cada época: salva o adaptador e confere duas coisas na VALIDAÇÃO (o teste não é tocado aqui):
@@ -22,17 +26,19 @@ Uso (primeira rodada = depuração, poucos minutos):
   python 06_treinar_qlora.py --benignas_por_vul 1 --limite_treino 400 --preco_hora 0.50
 
 Rodada de verdade (exemplo):
-  python 06_treinar_qlora.py --modelo Qwen/Qwen2.5-Coder-7B --benignas_por_vul real --epocas 1 --seed 1 \
+  python 06_treinar_qlora.py --benignas_por_vul 1 --parear_tamanho --epocas 3 --seed 1 \
       --preco_hora 0.50 --repo_hf SEU_USUARIO/etapa3-adaptadores
 
 Depois: python 07_avaliar_classificador.py --rodada ../adapters/NOME_DA_RODADA
 """
 
 import argparse
+import bisect
 import json
 import math
 import random
 import time
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
@@ -61,6 +67,38 @@ def montar_treino(itens, benignas_por_vul, seed, limite):
     if benignas_por_vul != "real":
         ben = rng.sample(ben, min(len(ben), int(benignas_por_vul) * len(vul)))
     return vul + ben
+
+
+def benignas_de_mesmo_tamanho(tam_vul, tam_ben, k, seed):
+    """Para cada vulnerável, as k benignas de tamanho mais próximo, sem repetir nenhuma.
+    Tamanho = nº de tokens que o modelo vê (já cortado em max_tokens). É o que tira do treino o atalho
+    "função longa = vulnerável": com as duas classes do mesmo tamanho, o tamanho não serve de pista.
+    As vulneráveis são atendidas em ordem sorteada, para nenhuma faixa de tamanho ficar sempre com as sobras.
+    Devolve (índices das benignas escolhidas em tam_ben, diferença de tamanho de cada escolha)."""
+    rng = random.Random(seed)
+    baldes = defaultdict(list)  # tamanho -> benignas ainda disponíveis com esse tamanho
+    for j, t in enumerate(tam_ben):
+        baldes[t].append(j)
+    for balde in baldes.values():
+        rng.shuffle(balde)
+    tamanhos = sorted(baldes)  # só os tamanhos que ainda têm benigna disponível
+    ordem = list(range(len(tam_vul)))
+    rng.shuffle(ordem)
+    escolhidas, diferencas = [], []
+    for i in ordem:
+        for _ in range(k):
+            if not tamanhos:
+                break
+            p = bisect.bisect_left(tamanhos, tam_vul[i])
+            c = min((c for c in (p - 1, p) if 0 <= c < len(tamanhos)),
+                    key=lambda c: (abs(tamanhos[c] - tam_vul[i]), tamanhos[c]))
+            t = tamanhos[c]
+            escolhidas.append(baldes[t].pop())
+            diferencas.append(abs(t - tam_vul[i]))
+            if not baldes[t]:
+                del baldes[t]
+                tamanhos.pop(c)
+    return escolhidas, diferencas
 
 
 def amostra_checagem(itens, limite):
@@ -120,6 +158,9 @@ def main():
                     help="pareado da VALIDAÇÃO: é ele que escolhe a melhor época")
     ap.add_argument("--benignas_por_vul", required=True,
                     help='"real" (todas as benignas, ~35 por vulnerável) ou um número k (k benignas por vulnerável)')
+    ap.add_argument("--parear_tamanho", action="store_true",
+                    help="sorteia as benignas com o MESMO tamanho (em tokens) das vulneráveis, para tirar do treino "
+                         "o atalho 'função longa = vulnerável'. Exige um número em --benignas_por_vul")
     ap.add_argument("--peso_vul", type=float, default=1.0, help="peso da classe vulnerável na perda (1 = sem peso)")
     ap.add_argument("--epocas", type=int, default=1)
     ap.add_argument("--seed", type=int, default=1, help="rodadas oficiais: 1, 2 e 3 (protocolo §6)")
@@ -142,11 +183,13 @@ def main():
 
     if args.benignas_por_vul != "real" and not (args.benignas_por_vul.isdigit() and int(args.benignas_por_vul) > 0):
         raise SystemExit('[ERRO] --benignas_por_vul deve ser "real" ou um número inteiro positivo.')
+    if args.parear_tamanho and args.benignas_por_vul == "real":
+        raise SystemExit('[ERRO] --parear_tamanho escolhe k benignas por vulnerável: use um número em --benignas_por_vul.')
     fixar_seed(args.seed)  # antes de carregar o modelo: a cabeça nasce aleatória e depende da seed
     depuracao = args.limite_treino > 0
     carimbo = datetime.now().strftime("%Y%m%d_%H%M%S")
-    nome = (f"etapa3_{args.modelo.split('/')[-1]}_ben{args.benignas_por_vul}_s{args.seed}_{carimbo}"
-            + ("_depuracao" if depuracao else ""))
+    nome = (f"etapa3_{args.modelo.split('/')[-1]}_ben{args.benignas_por_vul}{'tam' if args.parear_tamanho else ''}"
+            f"_s{args.seed}_{carimbo}" + ("_depuracao" if depuracao else ""))
     pasta = Path("../adapters") / nome
     pasta.mkdir(parents=True, exist_ok=True)
     pasta_logs = Path("../logs")
@@ -158,7 +201,10 @@ def main():
             raise SystemExit(f"[ERRO] Não achei {caminho}. Rode python 00_baixar_primevul.py")
     itens_treino = carregar_jsonl(Path(args.treino))
     release_dados = qual_release(args.treino, len(itens_treino))
-    treino = montar_treino(itens_treino, args.benignas_por_vul, args.seed, args.limite_treino)
+    if args.parear_tamanho:
+        treino = itens_treino  # a escolha das benignas espera a contagem de tokens (passo 2)
+    else:
+        treino = montar_treino(itens_treino, args.benignas_por_vul, args.seed, args.limite_treino)
     checagem = amostra_checagem(carregar_jsonl(Path(args.validacao)), args.limite_treino)
     # Pareado da validação: os pares vêm em linhas consecutivas, então o limite da depuração pega as primeiras.
     pareado = carregar_jsonl(Path(args.validacao_pareada))
@@ -167,9 +213,6 @@ def main():
     pares_val, _ = formar_pares(pareado)
     checagem_par = pareado[: args.limite_treino] if args.limite_treino else pareado
     dados_sha256 = impressao_digital(Path(args.treino))
-    n_vul = sum(int(d["target"]) for d in treino)
-    print(f"Treino: {len(treino)} funções ({n_vul} vulneráveis, {len(treino) - n_vul} benignas)"
-          f"{'  [DEPURAÇÃO]' if depuracao else ''}")
     print(f"Checagem por época: {len(checagem)} funções da validação (AUC) + {len(checagem_par)} do pareado da validação")
 
     # ---- 2) Ambiente, tokens e modelo em 4 bits -----------------------------
@@ -179,9 +222,30 @@ def main():
     pad_id = tokenizer.pad_token_id
     seqs, cortadas = tokenizar(tokenizer, treino, args.max_tokens)
     alvos = np.array([int(d["target"]) for d in treino], dtype=np.int64)
+    pareamento = None
+    if args.parear_tamanho:
+        idx_vul = [i for i in range(len(alvos)) if alvos[i] == 1]
+        idx_ben = [i for i in range(len(alvos)) if alvos[i] == 0]
+        if args.limite_treino:  # depuração: poucas vulneráveis, cada uma com as suas benignas de mesmo tamanho
+            idx_vul = random.Random(args.seed).sample(idx_vul, min(len(idx_vul), max(1, args.limite_treino // 2)))
+        escolhidas, dif = benignas_de_mesmo_tamanho([len(seqs[i]) for i in idx_vul], [len(seqs[j]) for j in idx_ben],
+                                                    int(args.benignas_por_vul), args.seed)
+        manter = idx_vul + [idx_ben[j] for j in escolhidas]
+        seqs, cortadas, alvos = [seqs[i] for i in manter], [cortadas[i] for i in manter], alvos[manter]
+        pareamento = {"dif_media_tokens": round(float(np.mean(dif)), 2), "dif_max_tokens": int(max(dif)),
+                      "mesmo_tamanho_pct": round(100.0 * float(np.mean(np.array(dif) == 0)), 1)}
+        print(f"Benignas de mesmo tamanho: diferença média {pareamento['dif_media_tokens']} tokens "
+              f"(máx. {pareamento['dif_max_tokens']}), {pareamento['mesmo_tamanho_pct']}% com o tamanho exato")
+    n_vul = int(alvos.sum())
+    # Quanto o tamanho sozinho separa as classes NESTE treino: 0,5 = nada (sem atalho); no 1:1 comum dá ~0,8.
+    auc_tamanho_treino = auc_segura(alvos, np.array([len(s) for s in seqs], dtype=np.float64))
+    print(f"Treino: {len(seqs)} funções ({n_vul} vulneráveis, {len(seqs) - n_vul} benignas)"
+          f"{'  [DEPURAÇÃO]' if depuracao else ''}  |  AUC do tamanho no treino: {auc_tamanho_treino:.3f} "
+          f"(0,5 = o tamanho não ajuda a separar)")
     seqs_val, _ = tokenizar(tokenizer, checagem, args.max_tokens)
     alvos_val = np.array([int(d["target"]) for d in checagem], dtype=np.int64)
     seqs_par, _ = tokenizar(tokenizer, checagem_par, args.max_tokens)
+    tamanho_par = {d["_pos"]: len(s) for d, s in zip(checagem_par, seqs_par)}
     del itens_treino, treino, checagem
     tokens_por_epoca = int(sum(len(s) for s in seqs))
     print(f"Tokens por época: {tokens_por_epoca / 1e6:.1f} milhões  |  funções cortadas em {args.max_tokens}: {sum(cortadas)}")
@@ -215,7 +279,8 @@ def main():
         "camadas_lora": CAMADAS_LORA, "dados_sha256": dados_sha256, "release_dados": release_dados,
         "depuracao": depuracao,
         "treino": {"n_vul": n_vul, "n_ben": len(seqs) - n_vul, "cortadas": int(sum(cortadas)),
-                   "tokens_por_epoca": tokens_por_epoca, "passos_por_epoca": passos_por_epoca},
+                   "tokens_por_epoca": tokens_por_epoca, "passos_por_epoca": passos_por_epoca,
+                   "auc_tamanho": round(auc_tamanho_treino, 4), "pareamento_tamanho": pareamento},
         "checagem_validacao": {"n_vul": int(alvos_val.sum()), "n_ben": int(len(alvos_val) - alvos_val.sum())},
         "checagem_pareada": {"arquivo": Path(args.validacao_pareada).name, "n_funcoes": len(checagem_par)},
         "parametros_treinaveis": n_treinaveis, "ambiente_confere": ambiente_confere,
@@ -284,13 +349,15 @@ def main():
             perda_val = float(np.mean(np.logaddexp(0.0, -sinal * notas_val)))  # entropia cruzada
             auc_val = auc_segura(alvos_val, notas_val)
             notas_par = pontuar(model, seqs_par, pad_id, args.tokens_por_passo * 2, desc="Checando pareado")
-            r_par = metricas_pareadas({d["_pos"]: float(n) for d, n in zip(checagem_par, notas_par)}, pares_val)
+            r_par = metricas_pareadas({d["_pos"]: float(n) for d, n in zip(checagem_par, notas_par)}, pares_val,
+                                      tamanho_por_pos=tamanho_par)
             ordenados_pct = 100.0 * r_par["ordenados"] / max(1, r_par["avaliados"])
             model.save_pretrained(str(pasta / f"epoca_{epoca}"))
             registro["epocas"].append({
                 "epoca": epoca, "pareado_ordenados_pct": round(ordenados_pct, 2),
                 "pareado_P_C_pct": round(100.0 * r_par["P_C"] / max(1, r_par["avaliados"]), 2),
                 "pareado_pares": r_par["avaliados"],
+                "pareado_corr_tamanho": round(r_par["corr_tamanho"], 3), "pareado_empatados": r_par["empatados"],
                 "auc_validacao": round(auc_val, 4), "perda_validacao": round(perda_val, 5),
                 "perda_treino": round(soma_perda_epoca / passos_por_epoca, 5), "tempo_s": round(duracao, 1),
                 "tokens_por_s": round(tokens_epoca / duracao),
@@ -303,7 +370,8 @@ def main():
             (pasta / "rodada.json").write_text(json.dumps(registro, indent=2, ensure_ascii=False), encoding="utf-8")
             print(f"Época {epoca}: perda treino={soma_perda_epoca / passos_por_epoca:.4f}  |  "
                   f"pareado da validação: {ordenados_pct:.1f}% ordenados (acaso 50% ± {margem_do_acaso(r_par['avaliados']):.1f}), "
-                  f"P-C={100.0 * r_par['P_C'] / max(1, r_par['avaliados']):.1f}%  |  "
+                  f"P-C={100.0 * r_par['P_C'] / max(1, r_par['avaliados']):.1f}%, "
+                  f"nota × tamanho nos pares={r_par['corr_tamanho']:+.2f} (só tamanho = +1), empatados={r_par['empatados']}  |  "
                   f"AUC={auc_val:.4f} perda={perda_val:.4f}  |  {duracao / 60:.1f} min, {tokens_epoca / duracao:.0f} tokens/s")
             if args.repo_hf:
                 enviar_hf(args.repo_hf, pasta, nome)
@@ -321,7 +389,10 @@ def main():
         "modelo": args.modelo,
         "seed": args.seed,
         "benignas_por_vul": args.benignas_por_vul,
+        "parear_tamanho": "sim" if args.parear_tamanho else "nao",
         "n_vul": n_vul, "n_ben": len(seqs) - n_vul,
+        "auc_tamanho_treino": round(auc_tamanho_treino, 4),
+        "pareamento_dif_media_tokens": pareamento["dif_media_tokens"] if pareamento else "",
         "peso_vul": args.peso_vul,
         "epocas": args.epocas, "lr": args.lr, "lote": args.lote, "aquecimento": args.aquecimento,
         "lora_r": args.lora_r, "lora_alpha": args.lora_alpha, "lora_dropout": args.lora_dropout,
@@ -332,6 +403,8 @@ def main():
         "melhor_epoca": registro["melhor_epoca"], "criterio_melhor_epoca": "pareado_validacao",
         "pareado_val_melhor_pct": melhor["pareado_ordenados_pct"], "pareado_val_pares": melhor["pareado_pares"],
         "pareado_val_margem_acaso": round(margem_do_acaso(melhor["pareado_pares"]), 2),
+        "pareado_val_corr_tamanho_por_epoca": ";".join(str(e["pareado_corr_tamanho"]) for e in registro["epocas"]),
+        "pareado_val_empatados_melhor": melhor["pareado_empatados"],
         "auc_validacao_melhor": melhor["auc_validacao"],
         "tokens_por_s": round(tokens_total / max(1.0, tempo_treino)),
         "memoria_modelo_gb": round(memoria_modelo_gb, 2), "memoria_pico_gb": round(memoria_pico_gb, 2),
@@ -358,6 +431,10 @@ def main():
     if abs(melhor["pareado_ordenados_pct"] - 50.0) < margem:
         print("[LEIA] O pareado da validação está DENTRO do acaso: a escolha da época é ruído, não melhora. "
               "É o cenário-base previsto no protocolo (§11) — vale como resultado, não como falha.")
+    elif melhor["pareado_ordenados_pct"] < 50.0 - margem:
+        print("[LEIA] O pareado da validação está ABAIXO do acaso: o modelo dá nota maior à versão CORRIGIDA. "
+              "É a marca de um atalho (no PrimeVul, o tamanho: o conserto costuma aumentar a função). "
+              f"Veja a correlação nota × tamanho nos pares: {melhor['pareado_corr_tamanho']:+.2f} (só tamanho = +1).")
     print(f"Tempo total={tempo_total / 60:.1f} min  |  memória pico={memoria_pico_gb:.1f} GB  |  custo US$ {custo_usd:.2f}")
     print(f"Adaptadores em: {pasta}")
     print(f"Receita e perda por passo em: {pasta_logs / (nome + '.json')} e {arquivo_passos}")

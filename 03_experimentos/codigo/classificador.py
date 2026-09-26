@@ -191,17 +191,41 @@ def metricas_classificacao(notas, alvos):
     }
 
 
-def metricas_pareadas(nota_por_pos, pares):
-    """P-C/P-V/P-B/P-R no limiar padrão (nota > 0), como o 04_metricas_pareadas.py.
+def metricas_pareadas(nota_por_pos, pares, limiar=0.0, tamanho_por_pos=None):
+    """P-C/P-V/P-B/P-R com a regra 'nota > limiar', como o 04_metricas_pareadas.py. Para o modelo o
+    limiar é 0 (logit vulnerável > logit benigna); o baseline do tamanho PRECISA passar o seu limiar,
+    porque toda contagem de tokens é > 0.
     'ordenados' não depende de limiar: pares em que a vulnerável recebeu nota MAIOR que a corrigida
-    (acaso = 50%). Serve para comparar variantes mesmo quando o limiar padrão fica mal calibrado."""
-    r = {"avaliados": 0, "P_C": 0, "P_V": 0, "P_B": 0, "P_R": 0, "ordenados": 0}
+    (acaso = 50%). Serve para comparar variantes mesmo quando o limiar padrão fica mal calibrado.
+    'empatados': pares com nota idêntica nas duas versões — em geral o conserto ficou depois do corte de
+    tokens e o modelo viu duas entradas iguais.
+    Com tamanho_por_pos (nº de tokens que o modelo viu), mede também 'corr_tamanho': a correlação de
+    Spearman, entre os pares, da diferença de nota (vulnerável − corrigida) com a diferença de tamanho.
+    Um detector que só olha o tamanho dá +1; um que não usa o tamanho dá perto de 0."""
+    r = {"avaliados": 0, "P_C": 0, "P_V": 0, "P_B": 0, "P_R": 0, "ordenados": 0, "empatados": 0,
+         "corr_tamanho": float("nan")}
+    dif_nota, dif_tamanho = [], []
     for vul, ben in pares:
         if vul not in nota_por_pos or ben not in nota_por_pos:
             continue
         r["avaliados"] += 1
         a, b = nota_por_pos[vul], nota_por_pos[ben]
         chave = {(True, False): "P_C", (True, True): "P_V", (False, False): "P_B", (False, True): "P_R"}
-        r[chave[(a > 0, b > 0)]] += 1
+        r[chave[(a > limiar, b > limiar)]] += 1
         r["ordenados"] += int(a > b)
+        r["empatados"] += int(a == b)
+        if tamanho_por_pos is not None:
+            dif_nota.append(a - b)
+            dif_tamanho.append(tamanho_por_pos[vul] - tamanho_por_pos[ben])
+    if len(dif_nota) >= 3 and np.std(dif_nota) > 0 and np.std(dif_tamanho) > 0:
+        r["corr_tamanho"] = float(np.corrcoef(_postos(dif_nota), _postos(dif_tamanho))[0, 1])
     return r
+
+
+def _postos(valores):
+    """Postos (1, 2, 3...) com empates recebendo a média — a correlação de Pearson dos postos é o Spearman."""
+    x = np.asarray(valores, dtype=float)
+    postos = np.empty(len(x))
+    postos[np.argsort(x, kind="mergesort")] = np.arange(1, len(x) + 1)
+    _, grupo, quantos = np.unique(x, return_inverse=True, return_counts=True)
+    return (np.bincount(grupo, weights=postos) / quantos)[grupo]
