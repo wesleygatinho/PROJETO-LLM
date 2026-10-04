@@ -171,3 +171,25 @@ Variante nf4 (como foram treinados), melhor época de cada um. Teste: 25.911 fun
 3. Ponto para o orientador: com o pareado no acaso, a comparação entre métodos de quantização (RQ2) vai depender
    de AUC, VD-S e F1, que ainda têm sinal; o pareado passa a servir como controle (a quantização não deve tirá-lo
    do acaso, nem em direção nenhuma).
+
+## 7B: leitura anotada antes de rodar (04/out/2026)
+
+Receita: 1:1 com benignas de mesmo tamanho, 3 épocas, seeds 1, 2 e 3; melhor época de cada seed pelo pareado da
+validação, como no 3B. Pergunta: com 2,4× mais parâmetros, o modelo aprende a distinguir a versão vulnerável da
+corrigida, que o 3B não aprendeu?
+
+Medida: pares ordenados no pareado da validação (562 pares; acaso = 50% ± 4,1). As três seeds são avaliadas nos
+mesmos pares, então a média delas não estreita essa margem.
+
+| Resultado (média das 3 seeds) | Leitura | Consequência |
+|---|---|---|
+| **acima de 54,1%** e nenhuma seed abaixo de 50% | O 7B aprende algo que o 3B não aprendeu. | O pareado entra na RQ2 como métrica de qualidade: a quantização pode tirar esse ganho. |
+| **acima de 54,1%**, mas alguma seed abaixo de 50% | O sinal depende da seed. | Registra-se como instável; não conta como "aprende". |
+| **entre 45,9% e 54,1%** | Como no 3B: sem o atalho do tamanho, o ajuste fino não aprende a distinguir as versões, nem no 7B. | Cenário-base do protocolo (§11). A RQ2 se apoia em AUC, VD-S e F1; o pareado fica como controle. |
+| **abaixo de 45,9%** | Outro atalho que aponta para a versão corrigida. | Investigar antes de gerar as variantes quantizadas. |
+
+Como no terceiro braço, confere-se a correlação nota × tamanho na melhor época de cada seed: ela deve ficar perto
+de 0. Se não ficar, o pareamento não tirou o atalho e o resultado não pode ser lido pela tabela.
+
+O teste (F1, AUC, VD-S, pares ordenados) é avaliado na mesma sessão, mas não muda a leitura acima; entra na tabela
+custo × qualidade ao lado do 3B e do baseline do tamanho.

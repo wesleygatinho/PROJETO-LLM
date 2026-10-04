@@ -129,11 +129,11 @@ Os números da depuração não valem nada; ela serve para ver o fluxo inteiro r
 
 ### Rodada completa
 
-A proporção de benignas (`real` ou um número `k`) e o número de épocas ainda vão ser fixados num piloto
-com o 3B, comparado pelo **pareado da validação**. O exemplo abaixo usa `real`.
+Forma geral de um treino e das duas avaliações. A receita foi fixada no piloto do 3B (1:1 com benignas de mesmo
+tamanho, 3 épocas); os comandos do 7B estão na seção "7B: receita final", mais abaixo.
 
 ```bash
-python 06_treinar_qlora.py --modelo Qwen/Qwen2.5-Coder-7B --benignas_por_vul real --epocas 1 --seed 1 --preco_hora 0.50 --repo_hf SEU_USUARIO/etapa3-adaptadores
+python 06_treinar_qlora.py --modelo Qwen/Qwen2.5-Coder-7B --benignas_por_vul 1 --parear_tamanho --epocas 3 --seed 1 --preco_hora 0.50 --repo_hf SEU_USUARIO/etapa3-adaptadores
 python 07_avaliar_classificador.py --rodada hf:SEU_USUARIO/etapa3-adaptadores/NOME --variante nf4 --preco_hora 0.50
 python 07_avaliar_classificador.py --rodada hf:SEU_USUARIO/etapa3-adaptadores/NOME --variante bf16 --preco_hora 0.50
 ```
@@ -204,15 +204,64 @@ nohup bash -c "python 06_treinar_qlora.py --benignas_por_vul 1 --parear_tamanho 
 ```
 
 3. Leia a decisão em `treinos_etapa3.csv` (linha com `parear_tamanho = sim`) **antes** de avaliar esse treino
-   no teste. A regra, anotada antes de rodar, está no fim da `NOTAS_etapa3.md`. Só depois:
-
-```bash
-python 07_avaliar_classificador.py --rodada ../adapters/NOME_DA_RODADA_ben1tam --preco_hora 0.50 --observacoes 'piloto 3B 1:1 mesmo tamanho'
-```
+   no teste. A regra, anotada antes de rodar, está na `NOTAS_etapa3.md`. (A decisão foi registrada em 29/set;
+   a avaliação no teste ficou para a sessão do 7B, abaixo.)
 
 Toda linha nova traz duas medidas do atalho: `auc_tamanho_treino` (no treino) e a correlação
 **nota × tamanho nos pares** (`pareado_val_corr_tamanho_por_epoca` no treino, `corr_tamanho_pares` no teste).
 Um detector que só olha o tamanho dá +1; um que não usa o tamanho dá perto de 0.
+
+### 7B: receita final, seeds 1, 2 e 3 (uma sessão de ~45 h, ~US$ 23)
+
+Receita decidida no terceiro braço: **1:1 com benignas de mesmo tamanho, 3 épocas**, os mesmos hiperparâmetros do 3B.
+A leitura do resultado foi anotada no fim da `NOTAS_etapa3.md` **antes** de rodar.
+
+Estimativa: fora dos embeddings, o 7B tem 2,4× os parâmetros do 3B, então ~690 tokens/s (o 3B fez 1.631).
+
+| Por seed | Tempo | Custo |
+|---|---|---|
+| Treino (3 épocas de 9,7 milhões de tokens) + checagens na validação | ~12,5 h | ~US$ 6,30 |
+| Avaliação `nf4` (o modelo como foi treinado) | ~1,2 h | ~US$ 0,60 |
+| Avaliação `bf16` (adaptador mesclado; é a referência da RQ2) | ~1 h | ~US$ 0,50 |
+
+Mais ~1 h no começo (terceiro braço do 3B no teste + depuração do 7B). O 7B base ocupa ~15 GB no cache do Hugging Face.
+
+Numa sessão, depois do setup e do `00_baixar_primevul.py --release original`:
+
+1. Depuração do 7B (~20 min, em primeiro plano). Baixa o modelo e mede velocidade e memória:
+
+```bash
+python 06_treinar_qlora.py --modelo Qwen/Qwen2.5-Coder-7B --benignas_por_vul 1 --parear_tamanho --limite_treino 400 --preco_hora 0.50
+```
+
+   Confira: o aviso de ambiente não aparece, `AUC do tamanho no treino` ≈ 0,50, memória de pico bem abaixo de 48 GB e
+   os **tokens/s** (uma época leva 9,74 milhões ÷ tokens/s segundos). Se faltar memória, acrescente
+   `--tokens_por_passo 8192` nos treinos (a conta não muda, só fica um pouco mais lento).
+
+2. A sessão inteira em segundo plano. Primeiro o terceiro braço do 3B no teste; depois, para cada seed, o treino e as
+   duas avaliações. Se um treino falhar, a fila para. Se uma avaliação falhar, a fila segue (dá para refazer depois
+   a partir do Hugging Face).
+
+```bash
+nohup bash -c '
+python 07_avaliar_classificador.py --rodada hf:wesley2h/etapa3-adaptadores/etapa3_Qwen2.5-Coder-3B_ben1tam_s1_20260929_013715 --preco_hora 0.50 --observacoes "piloto 3B 1:1 mesmo tamanho"
+for s in 1 2 3; do
+  python 06_treinar_qlora.py --modelo Qwen/Qwen2.5-Coder-7B --benignas_por_vul 1 --parear_tamanho --epocas 3 --seed $s --preco_hora 0.50 --repo_hf wesley2h/etapa3-adaptadores --observacoes "7B 1:1 mesmo tamanho" || exit 1
+  r=$(ls -d ../adapters/etapa3_Qwen2.5-Coder-7B_ben1tam_s${s}_* | grep -v depuracao | tail -1)
+  python 07_avaliar_classificador.py --rodada "$r" --variante nf4 --preco_hora 0.50 --observacoes "7B 1:1 mesmo tamanho"
+  python 07_avaliar_classificador.py --rodada "$r" --variante bf16 --preco_hora 0.50 --observacoes "7B 1:1 mesmo tamanho"
+done
+' > ../logs/etapa3_7b.out 2>&1 &
+```
+
+   Acompanhe com `tail -f ../logs/etapa3_7b.out`. A linha `r=$(...)` pega a pasta do treino que acabou de terminar
+   (a da depuração termina em `_depuracao` e fica de fora).
+
+3. A cada seed concluída (~15 h), faça commit + push de `resultados/` e `logs/`: se o pod cair depois, o que já
+   terminou está salvo. Os adaptadores vão sozinhos para o Hugging Face no fim de cada época.
+
+4. A leitura: linhas do 7B em `treinos_etapa3.csv` (validação) contra a regra no fim da `NOTAS_etapa3.md`.
+   O teste (`resultados_etapa3.csv`) só é olhado depois.
 
 ### O baseline do tamanho (rode uma vez, antes de comparar qualquer modelo)
 
