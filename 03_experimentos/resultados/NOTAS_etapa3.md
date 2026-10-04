@@ -119,3 +119,55 @@ Na mesma sessão, os dois adaptadores do piloto são avaliados no teste (a decis
 na dissertação como ablação ("proporção de treino × atalho").
 
 Os adaptadores estão em `wesley2h/etapa3-adaptadores` (Hugging Face, privado).
+
+## Resultado do terceiro braço (29/set/2026, só validação)
+
+O pareamento funcionou: 99,7% das benignas têm exatamente o tamanho da sua vulnerável (diferença máxima de 2 tokens)
+e a AUC do tamanho no treino ficou em 0,500.
+
+| Época | Perda treino | AUC validação | Pares ordenados | Nota × tamanho nos pares | Empatados |
+|---|---|---|---|---|---|
+| 1 | 0,654 | 0,736 | 34,2% | +0,32 | 45 |
+| 2 | 0,458 | 0,788 | 44,5% | +0,07 | 41 |
+| 3 | 0,322 | 0,760 | **48,0%** | **−0,05** | 38 |
+
+Treino: 5,0 h, US$ 2,65, 1.631 tokens/s. Melhor época pelo pareado: 3.
+
+**Decisão, pela regra anotada antes de rodar:** 48,0% está dentro da faixa do acaso (45,9–54,1%) e a correlação com
+o tamanho caiu para perto de zero (−0,05), então o resultado pode ser lido como previsto. É a linha do meio da tabela:
+**sem o atalho do tamanho, o 3B não aprende nada que distinga a versão vulnerável da corrigida.** A receita do 7B
+passa a ser **1:1 com benignas de mesmo tamanho, 3 épocas**.
+
+O que mudou ao longo das épocas: na época 1 o modelo ainda ordenava os pares pelo tamanho (+0,32), mesmo sem o
+tamanho ajudar no treino; com mais treino essa dependência some e o pareado sobe até o acaso — mas não passa dele.
+
+## Adaptadores do piloto avaliados no teste (29/set/2026)
+
+Variante nf4 (como foram treinados), melhor época de cada um. Teste: 25.911 funções; pareado: 564 pares.
+
+| | F1 | FPR | AUC | VD-S (validação) | VD-S oráculo | Pares ordenados | Nota × tamanho | Empatados |
+|---|---|---|---|---|---|---|---|---|
+| 1:1 sorteado | 0,189 | 2,6% | 0,795 | 0,941 | 0,942 | 37,8% | +0,33 | 52 |
+| Proporção real | 0,000 | 0,0% | **0,851** | **0,881** | **0,901** | **33,7%** | +0,42 | 43 |
+| *Tamanho da função* | *0,200* | *4,5%* | *0,810* | *1,000* | *1,000* | *10,1%* | *+1,00* | *124* |
+
+- **O teste confirma a validação:** os dois ficam muito abaixo do acaso no pareado (37,8% e 33,7%; o acaso é
+  50% ± 4,1) e a nota acompanha o tamanho dentro dos pares (+0,33 e +0,42).
+- **Pelo critério do artigo do PrimeVul, o melhor modelo é justamente o que mais aprendeu o atalho.** A proporção
+  real tem a maior AUC (0,851) e o melhor VD-S (0,881; oráculo 0,901, na faixa dos modelos ajustados do artigo,
+  entre ~0,88 e ~0,96) — e o pior pareado.
+- F1 = 0 na proporção real: treinado com 1 vulnerável para 32 benignas, o modelo nunca passa do limiar padrão
+  (nota > 0). A nota ainda ordena bem (AUC 0,851); é só o limiar 0 que fica sem sentido nesse desbalanceamento.
+- O tamanho não explica tudo fora dos pares: dentro de faixas de tamanho parecido, a AUC no teste fica em média em
+  0,60 (1:1) e 0,74 (proporção real). Mas o que o modelo usa a mais é algo que **as duas versões de um par têm
+  igual** — o tipo de código, o projeto, o estilo —, porque no par ele não ajuda. Ou seja, o modelo aprende "que
+  tipo de função costuma ter falha", não "esta versão tem a falha".
+- O 1:1 sorteado tem AUC (0,795) e F1 (0,189) **abaixo** do baseline do tamanho (0,810 e 0,200).
+
+## Próximo passo
+
+1. Avaliar no teste o adaptador do terceiro braço (a decisão acima já está registrada).
+2. Treinar o 7B com a receita escolhida, seeds 1, 2 e 3 (estimativa: ~12 h e ~US$ 6 por seed).
+3. Ponto para o orientador: com o pareado no acaso, a comparação entre métodos de quantização (RQ2) vai depender
+   de AUC, VD-S e F1, que ainda têm sinal; o pareado passa a servir como controle (a quantização não deve tirá-lo
+   do acaso, nem em direção nenhuma).
