@@ -1,0 +1,122 @@
+{
+  "nome": "etapa3_Qwen2.5-Coder-7B_ben1tam_s3_20261005_153159",
+  "modelo": "Qwen/Qwen2.5-Coder-7B",
+  "modelo_revisao": "0396a76181e1",
+  "args": {
+    "modelo": "Qwen/Qwen2.5-Coder-7B",
+    "treino": "../dados/primevul_train.jsonl",
+    "validacao": "../dados/primevul_valid.jsonl",
+    "validacao_pareada": "../dados/primevul_valid_paired.jsonl",
+    "benignas_por_vul": "1",
+    "parear_tamanho": true,
+    "peso_vul": 1.0,
+    "epocas": 3,
+    "seed": 3,
+    "lr": 0.0002,
+    "lote": 16,
+    "aquecimento": 0.03,
+    "lora_r": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "max_tokens": 2048,
+    "tokens_por_passo": 16384,
+    "limite_treino": 0,
+    "salvar_a_cada_passos": 2000,
+    "preco_hora": 0.5,
+    "repo_hf": "wesley2h/etapa3-adaptadores",
+    "observacoes": "7B 1:1 mesmo tamanho"
+  },
+  "camadas_lora": [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+    "gate_proj",
+    "up_proj",
+    "down_proj"
+  ],
+  "dados_sha256": "9fea452f1b7c",
+  "release_dados": "original",
+  "depuracao": false,
+  "treino": {
+    "n_vul": 5574,
+    "n_ben": 5574,
+    "cortadas": 1926,
+    "tokens_por_epoca": 9742335,
+    "passos_por_epoca": 697,
+    "auc_tamanho": 0.5,
+    "pareamento_tamanho": {
+      "dif_media_tokens": 0.0,
+      "dif_max_tokens": 2,
+      "mesmo_tamanho_pct": 99.7
+    }
+  },
+  "checagem_validacao": {
+    "n_vul": 699,
+    "n_ben": 2796
+  },
+  "checagem_pareada": {
+    "arquivo": "primevul_valid_paired.jsonl",
+    "n_funcoes": 1124
+  },
+  "parametros_treinaveis": 40377344,
+  "ambiente_confere": "sim",
+  "ambiente": {
+    "torch": "2.8.0+cu128",
+    "cuda": "12.8",
+    "transformers": "5.17.0",
+    "tokenizers": "0.23.2",
+    "peft": "0.21.0",
+    "bitsandbytes": "0.50.2",
+    "gpu": "NVIDIA A40"
+  },
+  "epocas": [
+    {
+      "epoca": 1,
+      "pareado_ordenados_pct": 43.24,
+      "pareado_P_C_pct": 1.6,
+      "pareado_pares": 562,
+      "pareado_corr_tamanho": 0.158,
+      "pareado_empatados": 45,
+      "auc_validacao": 0.7781,
+      "perda_validacao": 0.61263,
+      "perda_treino": 0.66547,
+      "tempo_s": 9491.6,
+      "tokens_por_s": 1026
+    },
+    {
+      "epoca": 2,
+      "pareado_ordenados_pct": 47.86,
+      "pareado_P_C_pct": 2.31,
+      "pareado_pares": 562,
+      "pareado_corr_tamanho": 0.101,
+      "pareado_empatados": 44,
+      "auc_validacao": 0.759,
+      "perda_validacao": 0.47667,
+      "perda_treino": 0.45501,
+      "tempo_s": 9505.8,
+      "tokens_por_s": 1025
+    },
+    {
+      "epoca": 3,
+      "pareado_ordenados_pct": 51.42,
+      "pareado_P_C_pct": 5.87,
+      "pareado_pares": 562,
+      "pareado_corr_tamanho": 0.02,
+      "pareado_empatados": 36,
+      "auc_validacao": 0.7526,
+      "perda_validacao": 0.67124,
+      "perda_treino": 0.31442,
+      "tempo_s": 9495.6,
+      "tokens_por_s": 1026
+    }
+  ],
+  "melhor_epoca": 3,
+  "criterio_melhor_epoca": "pareado da validação (% de pares ordenados)",
+  "parcial": {
+    "passo": 2000,
+    "epoca": 3,
+    "de_passos": 2091,
+    "hora": "2026-10-05 23:28"
+  }
+}
