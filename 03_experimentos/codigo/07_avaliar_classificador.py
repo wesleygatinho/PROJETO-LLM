@@ -13,7 +13,8 @@ O que este script faz, em ordem:
      VD-S = taxa de vulneráveis perdidas no teste, com o limiar escolhido na VALIDAÇÃO para dar
      no máximo 0,5% de alarmes falsos (protocolo §6: o limiar nunca é escolhido no teste).
      Também grava o "VD-S oráculo" (limiar escolhido no próprio teste), só para comparar com o artigo do PrimeVul.
-     No pareado: P-C, P-V, P-B, P-R (nota > 0) e a % de pares em que a vulnerável recebeu nota maior.
+     No pareado: P-C, P-V, P-B, P-R (nota > 0) e a % de pares em que a vulnerável recebeu nota maior
+     (com o empate valendo meio acerto, o acaso é 50%: coluna pares_ordenados_ajust_pct).
   5. Grava uma linha em ../resultados/resultados_etapa3.csv e as notas de cada função em ../logs/.
 
 Tempo e memória aqui são indicativos (transformers, em lotes). O custo oficial da curva custo × qualidade
@@ -168,6 +169,7 @@ def main():
         "pares_avaliados": p["avaliados"], "metodo_pareamento": metodo_pares,
         "P_C": p["P_C"], "P_V": p["P_V"], "P_B": p["P_B"], "P_R": p["P_R"],
         "P_C_pct": round(pct(p["P_C"]), 2), "pares_ordenados_pct": round(pct(p["ordenados"]), 2),
+        "pares_ordenados_ajust_pct": round(pct(p["ordenados_ajust"]), 2),
         "corr_tamanho_pares": round(p["corr_tamanho"], 3), "pares_empatados": p["empatados"],
         "memoria_modelo_gb": round(memoria_modelo_gb, 2), "memoria_pico_gb": round(memoria_pico_gb, 2),
         "tempo_por_funcao_s": round(tempo_por_funcao, 4), "tokens_por_lote": args.tokens_por_lote,
@@ -195,7 +197,7 @@ def main():
     print(f"TP={m['tp']} FP={m['fp']} FN={m['fn']} TN={m['tn']}  |  cortadas={teste['cortadas']}")
     print(f"VD-S={vds:.3f} (limiar da validação; FPR no teste={fpr_no_limiar:.4f})  |  VD-S oráculo={vds_oraculo:.3f}")
     print(f"Pareado ({p['avaliados']} pares): P-C={pct(p['P_C']):.1f}%  P-V={pct(p['P_V']):.1f}%  "
-          f"P-B={pct(p['P_B']):.1f}%  P-R={pct(p['P_R']):.1f}%  |  vulnerável com nota maior: {pct(p['ordenados']):.1f}% (acaso 50%)")
+          f"P-B={pct(p['P_B']):.1f}%  P-R={pct(p['P_R']):.1f}%  |  vulnerável com nota maior: {pct(p['ordenados_ajust']):.1f}% (empate = meio acerto; acaso 50%)")
     print(f"Nos pares: nota × tamanho = {p['corr_tamanho']:+.2f} (só tamanho = +1; sem usar tamanho ≈ 0)  |  "
           f"pares com nota idêntica: {p['empatados']} (em geral o conserto ficou depois do corte de tokens)")
     print(f"AUC na validação inteira={auc_val:.3f}  (no treino, na amostra de checagem: {auc_treino}; "

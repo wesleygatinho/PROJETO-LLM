@@ -12,7 +12,8 @@ O que este script faz, em ordem:
   3. Congela o modelo e treina só os adaptadores LoRA e a cabeça.
   4. No fim de cada época: salva o adaptador e confere duas coisas na VALIDAÇÃO (o teste não é tocado aqui):
      a AUC numa amostra fixa e, no arquivo pareado da validação, a % de pares em que a função vulnerável
-     recebeu nota maior que a sua versão corrigida. A "melhor época" é escolhida pelo PAREADO.
+     recebeu nota maior que a sua versão corrigida (empate = meio acerto, para o acaso ser 50%).
+     A "melhor época" é escolhida pelo PAREADO.
      Por que não pela AUC: no PrimeVul as funções vulneráveis são bem mais longas (922 tokens contra 297),
      e só o tamanho da função já dá AUC 0,82 no teste. Escolher pela AUC premia esse atalho; o pareado não,
      porque as duas funções do par são quase iguais.
@@ -285,7 +286,7 @@ def main():
         "checagem_pareada": {"arquivo": Path(args.validacao_pareada).name, "n_funcoes": len(checagem_par)},
         "parametros_treinaveis": n_treinaveis, "ambiente_confere": ambiente_confere,
         "ambiente": {**descrever_ambiente(), "peft": versao("peft"), "bitsandbytes": versao("bitsandbytes"), "gpu": gpu},
-        "epocas": [], "melhor_epoca": None, "criterio_melhor_epoca": "pareado da validação (% de pares ordenados)",
+        "epocas": [], "melhor_epoca": None, "criterio_melhor_epoca": "pareado da validação (% de pares ordenados, empate = meio acerto)",
     }
 
     # ---- 4) Treino ----------------------------------------------------------
@@ -351,10 +352,12 @@ def main():
             notas_par = pontuar(model, seqs_par, pad_id, args.tokens_por_passo * 2, desc="Checando pareado")
             r_par = metricas_pareadas({d["_pos"]: float(n) for d, n in zip(checagem_par, notas_par)}, pares_val,
                                       tamanho_por_pos=tamanho_par)
-            ordenados_pct = 100.0 * r_par["ordenados"] / max(1, r_par["avaliados"])
+            ordenados_pct = 100.0 * r_par["ordenados"] / max(1, r_par["avaliados"])  # empate = erro (histórico)
+            ajust_pct = 100.0 * r_par["ordenados_ajust"] / max(1, r_par["avaliados"])  # empate = meio acerto
             model.save_pretrained(str(pasta / f"epoca_{epoca}"))
             registro["epocas"].append({
                 "epoca": epoca, "pareado_ordenados_pct": round(ordenados_pct, 2),
+                "pareado_ordenados_ajust_pct": round(ajust_pct, 2),
                 "pareado_P_C_pct": round(100.0 * r_par["P_C"] / max(1, r_par["avaliados"]), 2),
                 "pareado_pares": r_par["avaliados"],
                 "pareado_corr_tamanho": round(r_par["corr_tamanho"], 3), "pareado_empatados": r_par["empatados"],
@@ -362,14 +365,15 @@ def main():
                 "perda_treino": round(soma_perda_epoca / passos_por_epoca, 5), "tempo_s": round(duracao, 1),
                 "tokens_por_s": round(tokens_epoca / duracao),
             })
-            # Critério: pareado da validação; empate (ou pareado indisponível) desempata pela AUC.
+            # Critério: pareado da validação com empate = meio acerto (desde 06/out/2026; antes, empate = erro —
+            # em todas as rodadas com empates registrados a melhor época sai a mesma). Igualdade entre épocas desempata pela AUC.
             registro["melhor_epoca"] = max(
                 registro["epocas"],
-                key=lambda e: (e["pareado_ordenados_pct"],
+                key=lambda e: (e["pareado_ordenados_ajust_pct"],
                                -1.0 if math.isnan(e["auc_validacao"]) else e["auc_validacao"]))["epoca"]
             (pasta / "rodada.json").write_text(json.dumps(registro, indent=2, ensure_ascii=False), encoding="utf-8")
             print(f"Época {epoca}: perda treino={soma_perda_epoca / passos_por_epoca:.4f}  |  "
-                  f"pareado da validação: {ordenados_pct:.1f}% ordenados (acaso 50% ± {margem_do_acaso(r_par['avaliados']):.1f}), "
+                  f"pareado da validação: {ajust_pct:.1f}% ordenados (empate = meio acerto; acaso 50% ± {margem_do_acaso(r_par['avaliados']):.1f}), "
                   f"P-C={100.0 * r_par['P_C'] / max(1, r_par['avaliados']):.1f}%, "
                   f"nota × tamanho nos pares={r_par['corr_tamanho']:+.2f} (só tamanho = +1), empatados={r_par['empatados']}  |  "
                   f"AUC={auc_val:.4f} perda={perda_val:.4f}  |  {duracao / 60:.1f} min, {tokens_epoca / duracao:.0f} tokens/s")
@@ -400,8 +404,10 @@ def main():
         "parametros_treinaveis": n_treinaveis,
         "pareado_val_por_epoca": ";".join(str(e["pareado_ordenados_pct"]) for e in registro["epocas"]),
         "auc_validacao_por_epoca": ";".join(str(e["auc_validacao"]) for e in registro["epocas"]),
-        "melhor_epoca": registro["melhor_epoca"], "criterio_melhor_epoca": "pareado_validacao",
+        "melhor_epoca": registro["melhor_epoca"], "criterio_melhor_epoca": "pareado_validacao_ajust",
         "pareado_val_melhor_pct": melhor["pareado_ordenados_pct"], "pareado_val_pares": melhor["pareado_pares"],
+        "pareado_val_ajust_por_epoca": ";".join(str(e["pareado_ordenados_ajust_pct"]) for e in registro["epocas"]),
+        "pareado_val_melhor_ajust_pct": melhor["pareado_ordenados_ajust_pct"],
         "pareado_val_margem_acaso": round(margem_do_acaso(melhor["pareado_pares"]), 2),
         "pareado_val_corr_tamanho_por_epoca": ";".join(str(e["pareado_corr_tamanho"]) for e in registro["epocas"]),
         "pareado_val_empatados_melhor": melhor["pareado_empatados"],
@@ -427,11 +433,12 @@ def main():
     print(f"Rodada: {nome}")
     margem = margem_do_acaso(melhor["pareado_pares"])
     print(f"Melhor época (pelo pareado da validação): {registro['melhor_epoca']}  "
-          f"{melhor['pareado_ordenados_pct']}% de pares ordenados (acaso 50% ± {margem:.1f}), AUC={melhor['auc_validacao']}")
-    if abs(melhor["pareado_ordenados_pct"] - 50.0) < margem:
+          f"{melhor['pareado_ordenados_ajust_pct']}% de pares ordenados (empate = meio acerto; acaso 50% ± {margem:.1f}), "
+          f"AUC={melhor['auc_validacao']}")
+    if abs(melhor["pareado_ordenados_ajust_pct"] - 50.0) < margem:
         print("[LEIA] O pareado da validação está DENTRO do acaso: a escolha da época é ruído, não melhora. "
               "É o cenário-base previsto no protocolo (§11) — vale como resultado, não como falha.")
-    elif melhor["pareado_ordenados_pct"] < 50.0 - margem:
+    elif melhor["pareado_ordenados_ajust_pct"] < 50.0 - margem:
         print("[LEIA] O pareado da validação está ABAIXO do acaso: o modelo dá nota maior à versão CORRIGIDA. "
               "É a marca de um atalho (no PrimeVul, o tamanho: o conserto costuma aumentar a função). "
               f"Veja a correlação nota × tamanho nos pares: {melhor['pareado_corr_tamanho']:+.2f} (só tamanho = +1).")

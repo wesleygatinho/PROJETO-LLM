@@ -195,10 +195,13 @@ def metricas_pareadas(nota_por_pos, pares, limiar=0.0, tamanho_por_pos=None):
     """P-C/P-V/P-B/P-R com a regra 'nota > limiar', como o 04_metricas_pareadas.py. Para o modelo o
     limiar é 0 (logit vulnerável > logit benigna); o baseline do tamanho PRECISA passar o seu limiar,
     porque toda contagem de tokens é > 0.
-    'ordenados' não depende de limiar: pares em que a vulnerável recebeu nota MAIOR que a corrigida
-    (acaso = 50%). Serve para comparar variantes mesmo quando o limiar padrão fica mal calibrado.
+    'ordenados' não depende de limiar: pares em que a vulnerável recebeu nota MAIOR que a corrigida.
+    Serve para comparar variantes mesmo quando o limiar padrão fica mal calibrado.
     'empatados': pares com nota idêntica nas duas versões — em geral o conserto ficou depois do corte de
     tokens e o modelo viu duas entradas iguais.
+    'ordenados_ajust' = ordenados + empatados / 2: o empate vale meio acerto. É ESTA a medida cujo acaso é 50%.
+    Em 'ordenados' o empate conta como erro, e com ~40 empates em 564 pares um modelo sem sinal fica em ~46,5%
+    (correção de 06/out/2026; ver NOTAS_etapa3.md). 'ordenados' continua sendo gravado, para o histórico.
     Com tamanho_por_pos (nº de tokens que o modelo viu), mede também 'corr_tamanho': a correlação de
     Spearman, entre os pares, da diferença de nota (vulnerável − corrigida) com a diferença de tamanho.
     Um detector que só olha o tamanho dá +1; um que não usa o tamanho dá perto de 0."""
@@ -217,6 +220,7 @@ def metricas_pareadas(nota_por_pos, pares, limiar=0.0, tamanho_por_pos=None):
         if tamanho_por_pos is not None:
             dif_nota.append(a - b)
             dif_tamanho.append(tamanho_por_pos[vul] - tamanho_por_pos[ben])
+    r["ordenados_ajust"] = r["ordenados"] + 0.5 * r["empatados"]
     if len(dif_nota) >= 3 and np.std(dif_nota) > 0 and np.std(dif_tamanho) > 0:
         r["corr_tamanho"] = float(np.corrcoef(_postos(dif_nota), _postos(dif_tamanho))[0, 1])
     return r

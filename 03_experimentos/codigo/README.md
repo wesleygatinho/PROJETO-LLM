@@ -113,6 +113,9 @@ as rodadas da Etapa 1 deixam de ser reproduzíveis nesse ambiente: pare e refaç
 - O **teste nunca decide nada**: o limiar do VD-S sai da validação e a melhor época sai do **pareado da validação**
   (`primevul_valid_paired.jsonl`). Não use a AUC para escolher: no PrimeVul as vulneráveis são muito mais longas
   (922 tokens contra 297), e só o tamanho da função já dá AUC 0,82 no teste — escolher pela AUC premia esse atalho.
+- No pareado, o par com nota idêntica nas duas versões (em geral, o conserto ficou depois do corte de tokens) vale
+  **meio acerto**: só assim o acaso é 50%. Colunas `pares_ordenados_ajust_pct` (07/08) e
+  `pareado_val_melhor_ajust_pct` (06). As colunas sem `_ajust` contam o empate como erro e ficam só para o histórico.
 - Seeds oficiais: **1, 2 e 3** (protocolo §6).
 - A mesma rodada treina e avalia com o mesmo `max_tokens` (o 07 lê da receita do 06).
 - O pod é apagado: use `--repo_hf SEU_USUARIO/etapa3-adaptadores` (repositório **privado**) ou avalie antes de apagar.

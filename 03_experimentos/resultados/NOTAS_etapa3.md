@@ -286,7 +286,15 @@ já usam a correção. Ela não muda nenhuma decisão tomada:
 | 3B proporção real, teste | 33,7% | 37,5% | abaixo do acaso, como antes |
 
 (Na validação do piloto, de 24/set, os empates não eram registrados; as diferenças ali, de 10 pontos ou mais, são
-grandes demais para a correção mudar a decisão.) A planilha ainda grava a versão antiga (`pares_ordenados_pct`).
+grandes demais para a correção mudar a decisão.)
+
+Corrigido no código em 06/out/2026: o `06`, o `07` e o `08` gravam as duas versões. A antiga continua nas colunas
+de sempre (`pares_ordenados_pct`, `pareado_val_por_epoca`, `pareado_val_melhor_pct`); a corrigida vai em
+`pares_ordenados_ajust_pct`, `pareado_val_ajust_por_epoca` e `pareado_val_melhor_ajust_pct`, e é ela que escolhe
+a melhor época daqui em diante (coluna `criterio_melhor_epoca = pareado_validacao_ajust`). As linhas já gravadas
+ganharam as colunas novas, calculadas dos logs, sem rodar nada de novo; nenhum valor antigo mudou. Em todas as
+rodadas com empates registrados, a melhor época continua a mesma com a correção. Nos treinos do piloto de 24/set,
+as colunas novas ficam vazias.
 
 ### Custo da sessão
 

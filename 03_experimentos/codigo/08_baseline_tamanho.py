@@ -14,7 +14,8 @@ Mesmo protocolo dos outros scripts: tudo o que é escolha sai da VALIDAÇÃO, nu
   - limiar de decisão: o que dá a maior F1 na validação (o modelo usa nota > 0; aqui não existe "0",
     por isso o limiar precisa ser escolhido — e é escolhido fora do teste);
   - VD-S: limiar da validação para FPR <= 0,5%, aplicado ao teste;
-  - pareado: P-C/P-V/P-B/P-R no limiar de decisão e a % de pares ordenados (não depende de limiar).
+  - pareado: P-C/P-V/P-B/P-R no limiar de decisão e a % de pares ordenados (não depende de limiar;
+    empate = meio acerto na coluna pares_ordenados_ajust_pct, a que tem acaso 50%).
 
 Uso:
   python 08_baseline_tamanho.py
@@ -137,6 +138,7 @@ def main():
         "pares_avaliados": p["avaliados"], "metodo_pareamento": metodo_pares,
         "P_C": p["P_C"], "P_V": p["P_V"], "P_B": p["P_B"], "P_R": p["P_R"],
         "P_C_pct": round(pct(p["P_C"]), 2), "pares_ordenados_pct": round(pct(p["ordenados"]), 2),
+        "pares_ordenados_ajust_pct": round(pct(p["ordenados_ajust"]), 2),
         "corr_tamanho_pares": round(p["corr_tamanho"], 3), "pares_empatados": p["empatados"],
         "limiar_decisao": round(limiar, 2), "f1_validacao_no_limiar": round(f1_val, 4),
         "gpu": "", "motor": "nenhum", "log_prefixo": nome,
@@ -159,7 +161,7 @@ def main():
           f"FPR={fp / max(1, fp + tn):.3f}  AUC={linha['auc']:.3f}")
     print(f"VD-S={vds:.3f} (limiar da validação; FPR no teste={fpr_no_limiar:.4f})  |  VD-S oráculo={vds_oraculo:.3f}")
     print(f"Pareado ({p['avaliados']} pares): P-C={pct(p['P_C']):.1f}%  |  vulnerável com nota maior: "
-          f"{pct(p['ordenados']):.1f}% (acaso 50% ± {margem:.1f})")
+          f"{pct(p['ordenados_ajust']):.1f}% (empate = meio acerto; acaso 50% ± {margem:.1f})")
     print(f"\nLeitura: compare a AUC com a do modelo treinado. Se o modelo não passar DISTO, ele está "
           f"aprendendo tamanho, não vulnerabilidade — e o pareado mostra que tamanho não serve.")
     print(f"Linha gravada em: {arquivo_csv}  |  logs: {pasta_logs}/{nome}_*.jsonl")
