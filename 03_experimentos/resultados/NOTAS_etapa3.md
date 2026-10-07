@@ -164,7 +164,7 @@ Variante nf4 (como foram treinados), melhor época de cada um. Teste: 25.911 fun
   tipo de função costuma ter falha", não "esta versão tem a falha".
 - O 1:1 sorteado tem AUC (0,795) e F1 (0,189) **abaixo** do baseline do tamanho (0,810 e 0,200).
 
-## Próximo passo
+## Próximo passo (29/set/2026; os itens 1 e 2 foram feitos em 04–06/out, ver "Resultado do 7B")
 
 1. Avaliar no teste o adaptador do terceiro braço (a decisão acima já está registrada).
 2. Treinar o 7B com a receita escolhida, seeds 1, 2 e 3 (estimativa: ~12 h e ~US$ 6 por seed).
@@ -193,3 +193,102 @@ de 0. Se não ficar, o pareamento não tirou o atalho e o resultado não pode se
 
 O teste (F1, AUC, VD-S, pares ordenados) é avaliado na mesma sessão, mas não muda a leitura acima; entra na tabela
 custo × qualidade ao lado do 3B e do baseline do tamanho.
+
+## Resultado do 7B (04–06/out/2026)
+
+Três seeds, A40, ambiente travado (`ambiente_confere = sim`), revisão do `Qwen/Qwen2.5-Coder-7B` `0396a76181e1`.
+AUC do tamanho no treino = 0,500 nas três. Na mesma sessão, o terceiro braço do 3B foi avaliado no teste.
+
+### Decisão, pela regra anotada antes de rodar (validação)
+
+| Seed | Pares ordenados por época | Melhor época | Pares ordenados (melhor) | Nota × tamanho | Empatados |
+|---|---|---|---|---|---|
+| 1 | 43,2 / 41,6 / 46,3% | 3 | 46,3% | −0,02 | 44 |
+| 2 | 45,0 / 48,9 / 45,4% | 2 | 48,9% | +0,05 | 44 |
+| 3 | 43,2 / 47,9 / 51,4% | 3 | 51,4% | +0,02 | 36 |
+| **Média** | | | **48,9%** | | |
+
+48,9% está entre 45,9% e 54,1%, e a correlação com o tamanho ficou perto de zero nas três seeds. Pela tabela
+anotada em 04/out, é a linha do meio: **como no 3B, sem o atalho do tamanho o ajuste fino não aprende a distinguir
+a versão vulnerável da corrigida, nem no 7B.** É o cenário-base do protocolo (§11). A RQ2 se apoia em AUC, VD-S e
+F1, e o pareado fica como controle. (Contando o empate como meio acerto, ver abaixo, a média vai a 52,6%: mesma linha.)
+
+Treino: 7,9 h por seed (1.029 tokens/s), US$ 4,21. A perda de treino cai a 0,31 na época 3, mas a perda na
+validação sobe da época 2 para a 3 nas três seeds: o modelo decora o treino sem aprender nada que sirva nos pares.
+
+### Teste
+
+Variante nf4 (como foi treinado), melhor época de cada seed. Pares: 564; empate conta como meio acerto (acaso = 50%).
+
+| | F1 (nota > 0) | F1 (limiar da validação) | AUC | AUC dentro de faixas de tamanho | VD-S | Pares ordenados | Nota × tamanho |
+|---|---|---|---|---|---|---|---|
+| 3B mesmo tamanho (1 seed) | 0,103 | 0,121 | 0,746 | 0,718 | 0,963 | 49,2% | +0,06 |
+| 7B seed 1 | 0,108 | 0,114 | 0,738 | 0,719 | 0,980 | 55,2% | +0,03 |
+| 7B seed 2 | 0,095 | 0,142 | 0,726 | 0,731 | 0,987 | 45,0% | +0,08 |
+| 7B seed 3 | 0,116 | 0,127 | 0,765 | 0,743 | 0,983 | 51,6% | −0,09 |
+| **7B, média das 3** | **0,106** | **0,128** | **0,743** | **0,731** | **0,983** | **50,6%** (IC95% 48,0–53,3) | 0,00 |
+| *3B 1:1 sorteado (piloto)* | *0,189* | *0,195* | *0,795* | *0,584* | *0,941* | *42,4%* | *+0,33* |
+| *3B proporção real (piloto)* | *0,000* | *0,261* | *0,851* | *0,737* | *0,881* | *37,5%* | *+0,42* |
+| *Tamanho da função* | — | *0,200* | *0,810* | *0,558* | *1,000* | *21,1%* | *+1,00* |
+
+- **F1 (limiar da validação)**: limiar de maior F1 na validação, aplicado no teste — o mesmo procedimento do baseline
+  do tamanho. Com treino 1:1, o limiar 0 supõe metade de vulneráveis; o teste tem 2,7%. Por isso o FPR no limiar 0
+  fica em 27–34% e o F1 oficial (nota > 0) não é comparável com o do baseline.
+- **AUC dentro de faixas de tamanho**: o teste dividido em 10 faixas de tamanho (decis de tokens), AUC em cada uma,
+  média simples. O tamanho sozinho dá 0,56 nessas faixas. (A nota de 29/set dizia 0,60 para o 1:1 sorteado, com
+  outro recorte de faixas; aqui todas as linhas usam o mesmo recorte.)
+
+**1. O 7B não é melhor que o 3B.** F1, AUC e pareado ficam iguais. O VD-S fica um pouco pior: no limiar de 0,5% de
+alarmes falsos, o 3B acha 26 das 695 vulneráveis e o 7B acha ~12; os dois quase não acham nada. E o 7B custa mais:
+
+| | Treino por seed | Tempo por função (nf4) | Memória do modelo | Memória de pico |
+|---|---|---|---|---|
+| 3B | 5,0 h, US$ 2,65 | 0,033 s | 2,2 GB | 6,9 GB |
+| 7B | 7,9 h, US$ 4,21 | 0,060 s | 4,6 GB | 12,5 GB |
+
+É o mesmo achado da Etapa 1: o modelo maior custa mais e não fica melhor.
+
+**2. Tirar o atalho piora todas as métricas do PrimeVul.** Da proporção real (3B) para o mesmo tamanho (7B): AUC
+0,851 → 0,743, VD-S 0,881 → 0,983, F1 0,261 → 0,128. O pareado sobe de 37,5% (ordem invertida) para 50,6% (acaso).
+O baseline do tamanho ganha do 7B em F1 (0,200 contra 0,128) e AUC (0,810 contra 0,743). Ou seja: **as métricas
+que o artigo do PrimeVul usa premiam o modelo que aprendeu o atalho.**
+
+**3. O que sobra no modelo não é o tamanho.** A AUC dentro de faixas de tamanho (0,73) é quase a AUC total (0,74),
+contra 0,56 do tamanho sozinho e 0,58 do 1:1 sorteado. O modelo aprende "que tipo de função costuma ter falha". As
+duas versões de um par têm esse tipo em comum, por isso ele não ajuda no pareado.
+
+**4. Uma seed sozinha não diz nada no pareado.** As notas das três seeds no teste têm correlação 0,71–0,76 entre si
+(elas aprendem a mesma coisa). Mas nos pares elas concordam sobre qual versão vem primeiro em só 58–61% dos casos
+(acaso: 50%), e a média das três notas continua no acaso (51,1%). No teste, o pareado vai de 45,0% (seed 2) a 55,2%
+(seed 1); a diferença entre essas duas é de ~4 desvios. Uma seed pode cair fora da faixa do acaso para qualquer
+lado; só a média das três se lê. A validação também não previu o teste seed a seed: a seed 2 foi escolhida na
+validação com 52,9% e deu 45,0% no teste.
+
+**5. nf4 × bf16 (uma prévia da RQ2).** Na mesma seed, as notas das duas variantes têm correlação de 0,988 a 0,996. AUC,
+F1 e VD-S mudam no máximo 0,006. No pareado, 73 a 87 pares trocam de lado, mas as trocas se compensam (McNemar
+p = 0,28, 1,00 e 0,91), e a média fica em 50,6% (nf4) e 50,0% (bf16). Aqui, os 4 bits não pioram nada que se possa
+medir. O bf16 é 21% **mais rápido** por função (0,047 s contra 0,060 s) e usa 3× a memória (14,2 GB contra 4,6 GB).
+Os 4 bits do bitsandbytes economizam memória, não tempo. Ressalva: o nf4 aqui é o base em 4 bits mais o
+adaptador, não o modelo mesclado e quantizado depois do treino (AWQ/GPTQ) que a RQ2 vai comparar.
+
+### Correção de método: empates no pareado
+
+"Pares ordenados" contava como erro os pares com nota idêntica nas duas versões (em geral, o conserto ficou depois
+do corte de 2.048 tokens e o modelo viu duas entradas iguais). Com ~40 empates em 564 pares, um modelo sem sinal
+fica em ~46,5%, não em 50%. Contando o empate como meio acerto, o acaso volta a ser 50%. Os números do teste acima
+já usam a correção. Ela não muda nenhuma decisão tomada:
+
+| | Como estava (empate = erro) | Empate = meio acerto | Linha da regra |
+|---|---|---|---|
+| Terceiro braço do 3B, validação, época 3 | 48,0% | 51,4% | a mesma (do meio) |
+| 7B, validação, média das melhores épocas | 48,9% | 52,6% | a mesma (do meio) |
+| 3B 1:1 sorteado, teste | 37,8% | 42,4% | abaixo do acaso, como antes |
+| 3B proporção real, teste | 33,7% | 37,5% | abaixo do acaso, como antes |
+
+(Na validação do piloto, de 24/set, os empates não eram registrados; as diferenças ali, de 10 pontos ou mais, são
+grandes demais para a correção mudar a decisão.) A planilha ainda grava a versão antiga (`pares_ordenados_pct`).
+
+### Custo da sessão
+
+30,8 h de A40, US$ 15,41: 3 treinos (US$ 12,65), 6 avaliações do 7B (US$ 2,42), o terceiro braço do 3B no teste
+(US$ 0,25) e a depuração (US$ 0,08).

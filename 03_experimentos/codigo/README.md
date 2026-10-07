@@ -211,18 +211,18 @@ Toda linha nova traz duas medidas do atalho: `auc_tamanho_treino` (no treino) e 
 **nota × tamanho nos pares** (`pareado_val_corr_tamanho_por_epoca` no treino, `corr_tamanho_pares` no teste).
 Um detector que só olha o tamanho dá +1; um que não usa o tamanho dá perto de 0.
 
-### 7B: receita final, seeds 1, 2 e 3 (uma sessão de ~45 h, ~US$ 23)
+### 7B: receita final, seeds 1, 2 e 3 (uma sessão de ~31 h, ~US$ 15; feita em 04–06/out/2026)
 
 Receita decidida no terceiro braço: **1:1 com benignas de mesmo tamanho, 3 épocas**, os mesmos hiperparâmetros do 3B.
 A leitura do resultado foi anotada no fim da `NOTAS_etapa3.md` **antes** de rodar.
 
-Estimativa: fora dos embeddings, o 7B tem 2,4× os parâmetros do 3B, então ~690 tokens/s (o 3B fez 1.631).
+Medido na sessão (1.029 tokens/s no treino; a estimativa antes da depuração era ~690):
 
 | Por seed | Tempo | Custo |
 |---|---|---|
-| Treino (3 épocas de 9,7 milhões de tokens) + checagens na validação | ~12,5 h | ~US$ 6,30 |
-| Avaliação `nf4` (o modelo como foi treinado) | ~1,2 h | ~US$ 0,60 |
-| Avaliação `bf16` (adaptador mesclado; é a referência da RQ2) | ~1 h | ~US$ 0,50 |
+| Treino (3 épocas de 9,7 milhões de tokens) + checagens na validação | 8,4 h | US$ 4,21 |
+| Avaliação `nf4` (o modelo como foi treinado) | 0,9 h | US$ 0,45 |
+| Avaliação `bf16` (adaptador mesclado; é a referência da RQ2) | 0,7 h | US$ 0,35 |
 
 Mais ~1 h no começo (terceiro braço do 3B no teste + depuração do 7B). O 7B base ocupa ~15 GB no cache do Hugging Face.
 
