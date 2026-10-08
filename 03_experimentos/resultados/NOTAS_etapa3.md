@@ -228,12 +228,14 @@ Variante nf4 (como foi treinado), melhor época de cada seed. Pares: 564; empate
 | 7B seed 3 | 0,116 | 0,127 | 0,765 | 0,743 | 0,983 | 51,6% | −0,09 |
 | **7B, média das 3** | **0,106** | **0,128** | **0,743** | **0,731** | **0,983** | **50,6%** (IC95% 48,0–53,3) | 0,00 |
 | *3B 1:1 sorteado (piloto)* | *0,189* | *0,195* | *0,795* | *0,584* | *0,941* | *42,4%* | *+0,33* |
-| *3B proporção real (piloto)* | *0,000* | *0,261* | *0,851* | *0,737* | *0,881* | *37,5%* | *+0,42* |
+| *3B proporção real (piloto)* | *0,000* | *0,262* | *0,851* | *0,737* | *0,881* | *37,5%* | *+0,42* |
 | *Tamanho da função* | — | *0,200* | *0,810* | *0,558* | *1,000* | *21,1%* | *+1,00* |
 
 - **F1 (limiar da validação)**: limiar de maior F1 na validação, aplicado no teste — o mesmo procedimento do baseline
   do tamanho. Com treino 1:1, o limiar 0 supõe metade de vulneráveis; o teste tem 2,7%. Por isso o FPR no limiar 0
-  fica em 27–34% e o F1 oficial (nota > 0) não é comparável com o do baseline.
+  fica em 27–34% e o F1 no limiar 0 não é comparável com o do baseline. Desde 06/out/2026 o `07` grava este F1
+  (colunas `*_limiar_validacao`, com `limiar_decisao`); as linhas antigas foram preenchidas dos logs, sem rodar
+  nada de novo. **É este o F1 das tabelas daqui em diante.**
 - **AUC dentro de faixas de tamanho**: o teste dividido em 10 faixas de tamanho (decis de tokens), AUC em cada uma,
   média simples. O tamanho sozinho dá 0,56 nessas faixas. (A nota de 29/set dizia 0,60 para o 1:1 sorteado, com
   outro recorte de faixas; aqui todas as linhas usam o mesmo recorte.)
@@ -249,7 +251,7 @@ alarmes falsos, o 3B acha 26 das 695 vulneráveis e o 7B acha ~12; os dois quase
 É o mesmo achado da Etapa 1: o modelo maior custa mais e não fica melhor.
 
 **2. Tirar o atalho piora todas as métricas do PrimeVul.** Da proporção real (3B) para o mesmo tamanho (7B): AUC
-0,851 → 0,743, VD-S 0,881 → 0,983, F1 0,261 → 0,128. O pareado sobe de 37,5% (ordem invertida) para 50,6% (acaso).
+0,851 → 0,743, VD-S 0,881 → 0,983, F1 0,262 → 0,128. O pareado sobe de 37,5% (ordem invertida) para 50,6% (acaso).
 O baseline do tamanho ganha do 7B em F1 (0,200 contra 0,128) e AUC (0,810 contra 0,743). Ou seja: **as métricas
 que o artigo do PrimeVul usa premiam o modelo que aprendeu o atalho.**
 

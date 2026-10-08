@@ -176,9 +176,29 @@ def auc_segura(alvos, notas):
     return float(roc_auc_score(alvos, notas)) if len(set(alvos.tolist())) == 2 else float("nan")
 
 
-def metricas_classificacao(notas, alvos):
-    """Métricas no limiar padrão (nota > 0), as mesmas da Etapa 1, mais a AUC."""
-    previsto = (notas > 0).astype(int)
+def limiar_melhor_f1(notas, alvos):
+    """Limiar que dá a maior F1 NESTAS funções (usado só na validação).
+    Testa cada valor distinto como corte, com a regra 'nota > limiar'.
+    Por que existe: com treino 1:1, o limiar padrão (nota > 0) supõe metade de vulneráveis, e o teste tem 2,7%;
+    o FPR no limiar 0 passa de 25%. O baseline do tamanho nem tem um "0". Escolher o limiar na validação, do mesmo
+    jeito para todos, é o que torna o F1 comparável entre modelos e com o baseline."""
+    ordem = np.argsort(-notas)
+    y = alvos[ordem]
+    tp = np.cumsum(y == 1)
+    fp = np.cumsum(y == 0)
+    total_vul = max(1, int((alvos == 1).sum()))
+    f1 = 2 * tp / np.maximum(1, tp + fp + total_vul)
+    # o corte fica ENTRE a função k e a seguinte: só vale onde o valor muda
+    valido = np.ones(len(y), dtype=bool)
+    valido[:-1] = notas[ordem][:-1] != notas[ordem][1:]
+    f1 = np.where(valido, f1, -1)
+    k = int(np.argmax(f1))
+    return float(np.nextafter(notas[ordem][k], -np.inf)), float(f1[k])
+
+
+def metricas_classificacao(notas, alvos, limiar=0.0):
+    """Métricas com a regra 'nota > limiar' (padrão: nota > 0, como na Etapa 1), mais a AUC."""
+    previsto = (notas > limiar).astype(int)
     tn, fp, fn, tp = confusion_matrix(alvos, previsto, labels=[0, 1]).ravel()
     return {
         "f1": f1_score(alvos, previsto, pos_label=1, zero_division=0),

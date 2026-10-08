@@ -31,8 +31,8 @@ import numpy as np
 
 from ambiente import descrever_ambiente
 from classificador import (auc_segura, carregar_jsonl, carregar_tokenizer, escolher_amostra, formar_pares,
-                           gravar_linha_csv, gravar_log_notas, impressao_digital, limiar_para_fpr,
-                           metricas_pareadas, qual_release, taxas_no_limiar, tokenizar)
+                           gravar_linha_csv, gravar_log_notas, impressao_digital, limiar_melhor_f1,
+                           limiar_para_fpr, metricas_pareadas, qual_release, taxas_no_limiar, tokenizar)
 
 
 def medir(itens, medida, tokenizer, max_tokens):
@@ -43,23 +43,6 @@ def medir(itens, medida, tokenizer, max_tokens):
         return np.array([len(d["func"]) for d in itens], dtype=np.float64)
     seqs, _ = tokenizar(tokenizer, itens, max_tokens or 10**9)
     return np.array([len(s) for s in seqs], dtype=np.float64)
-
-
-def limiar_melhor_f1(notas, alvos):
-    """Limiar que dá a maior F1 NESTAS funções (usado só na validação).
-    Testa cada valor distinto como corte, com a regra 'nota > limiar'."""
-    ordem = np.argsort(-notas)
-    y = alvos[ordem]
-    tp = np.cumsum(y == 1)
-    fp = np.cumsum(y == 0)
-    total_vul = max(1, int((alvos == 1).sum()))
-    f1 = 2 * tp / np.maximum(1, tp + fp + total_vul)
-    # o corte fica ENTRE a função k e a seguinte: só vale onde o valor muda
-    valido = np.ones(len(y), dtype=bool)
-    valido[:-1] = notas[ordem][:-1] != notas[ordem][1:]
-    f1 = np.where(valido, f1, -1)
-    k = int(np.argmax(f1))
-    return float(np.nextafter(notas[ordem][k], -np.inf)), float(f1[k])
 
 
 def main():
@@ -141,6 +124,10 @@ def main():
         "pares_ordenados_ajust_pct": round(pct(p["ordenados_ajust"]), 2),
         "corr_tamanho_pares": round(p["corr_tamanho"], 3), "pares_empatados": p["empatados"],
         "limiar_decisao": round(limiar, 2), "f1_validacao_no_limiar": round(f1_val, 4),
+        # no baseline o F1 principal já é no limiar da validação; as colunas abaixo repetem, para a tabela ter
+        # uma coluna comparável entre o baseline e os modelos (o 07 grava as mesmas)
+        "f1_limiar_validacao": round(f1, 4), "precisao_limiar_validacao": round(precisao, 4),
+        "revocacao_limiar_validacao": round(revocacao, 4), "fpr_limiar_validacao": round(fp / max(1, fp + tn), 4),
         "gpu": "", "motor": "nenhum", "log_prefixo": nome,
         "depuracao": "sim" if args.limite else "nao",
         "observacoes": args.observacoes,

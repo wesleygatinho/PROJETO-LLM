@@ -116,6 +116,10 @@ as rodadas da Etapa 1 deixam de ser reproduzíveis nesse ambiente: pare e refaç
 - No pareado, o par com nota idêntica nas duas versões (em geral, o conserto ficou depois do corte de tokens) vale
   **meio acerto**: só assim o acaso é 50%. Colunas `pares_ordenados_ajust_pct` (07/08) e
   `pareado_val_melhor_ajust_pct` (06). As colunas sem `_ajust` contam o empate como erro e ficam só para o histórico.
+- F1 que se compara (entre modelos e com o baseline do tamanho): o do **limiar de maior F1 na validação**, colunas
+  `f1_limiar_validacao`, `precisao_limiar_validacao`, `revocacao_limiar_validacao` e `fpr_limiar_validacao`.
+  As colunas `f1`, `precisao` etc. do 07 usam nota > 0, que com treino 1:1 supõe metade de vulneráveis (o teste
+  tem 2,7%) e gera FPR acima de 25%.
 - Seeds oficiais: **1, 2 e 3** (protocolo §6).
 - A mesma rodada treina e avalia com o mesmo `max_tokens` (o 07 lê da receita do 06).
 - O pod é apagado: use `--repo_hf SEU_USUARIO/etapa3-adaptadores` (repositório **privado**) ou avalie antes de apagar.

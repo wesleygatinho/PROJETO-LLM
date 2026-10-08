@@ -10,6 +10,9 @@ O que este script faz, em ordem:
               ponto de partida das variantes quantizadas da RQ2).
   3. Dá uma nota a cada função da VALIDAÇÃO, do TESTE e do TESTE PAREADO.
   4. No teste: F1, precisão, revocação, FPR e acurácia no limiar padrão (nota > 0), AUC e VD-S.
+     Também F1, precisão, revocação e FPR no limiar de maior F1 na VALIDAÇÃO (colunas *_limiar_validacao):
+     com treino 1:1, o limiar 0 supõe metade de vulneráveis e o teste tem 2,7%. É o mesmo procedimento do
+     baseline do tamanho (08), então é este F1 que se compara entre modelos e com o baseline.
      VD-S = taxa de vulneráveis perdidas no teste, com o limiar escolhido na VALIDAÇÃO para dar
      no máximo 0,5% de alarmes falsos (protocolo §6: o limiar nunca é escolhido no teste).
      Também grava o "VD-S oráculo" (limiar escolhido no próprio teste), só para comparar com o artigo do PrimeVul.
@@ -39,8 +42,8 @@ from peft import PeftModel
 from ambiente import conferir, descrever_ambiente, versao
 from classificador import (auc_segura, carregar_base, carregar_jsonl, carregar_tokenizer, escolher_amostra,
                            fixar_seed, formar_pares, gravar_linha_csv, gravar_log_notas, impressao_digital,
-                           limiar_para_fpr, metricas_classificacao, metricas_pareadas, pontuar, qual_release,
-                           taxas_no_limiar, tokenizar)
+                           limiar_melhor_f1, limiar_para_fpr, metricas_classificacao, metricas_pareadas, pontuar,
+                           qual_release, taxas_no_limiar, tokenizar)
 
 
 def localizar_rodada(rodada):
@@ -142,6 +145,8 @@ def main():
     val, teste, par = conjuntos["validacao"], conjuntos["teste"], conjuntos["pareado"]
     m = metricas_classificacao(teste["notas"], teste["alvos"])
     auc_val = auc_segura(val["alvos"], val["notas"])
+    limiar_dec, f1_val = limiar_melhor_f1(val["notas"], val["alvos"])
+    mv = metricas_classificacao(teste["notas"], teste["alvos"], limiar=limiar_dec)
     limiar_vds = limiar_para_fpr(val["notas"], val["alvos"])
     vds, fpr_no_limiar = taxas_no_limiar(teste["notas"], teste["alvos"], limiar_vds)
     vds_oraculo, _ = taxas_no_limiar(teste["notas"], teste["alvos"], limiar_para_fpr(teste["notas"], teste["alvos"]))
@@ -163,6 +168,9 @@ def main():
         "f1": round(m["f1"], 4), "precisao": round(m["precisao"], 4), "revocacao": round(m["revocacao"], 4),
         "fpr": round(m["fpr"], 4), "acuracia": round(m["acuracia"], 4), "auc": round(m["auc"], 4),
         "tp": m["tp"], "fp": m["fp"], "fn": m["fn"], "tn": m["tn"],
+        "limiar_decisao": round(limiar_dec, 5), "f1_validacao_no_limiar": round(f1_val, 4),
+        "f1_limiar_validacao": round(mv["f1"], 4), "precisao_limiar_validacao": round(mv["precisao"], 4),
+        "revocacao_limiar_validacao": round(mv["revocacao"], 4), "fpr_limiar_validacao": round(mv["fpr"], 4),
         "vds": round(vds, 4), "fpr_teste_no_limiar_vds": round(fpr_no_limiar, 4), "limiar_vds": round(limiar_vds, 5),
         "vds_oraculo_teste": round(vds_oraculo, 4), "auc_validacao": round(auc_val, 4),
         "cortadas_teste": teste["cortadas"],
@@ -195,6 +203,9 @@ def main():
     print(f"F1={m['f1']:.3f}  precisão={m['precisao']:.3f}  revocação={m['revocacao']:.3f}  "
           f"FPR={m['fpr']:.3f}  acurácia={m['acuracia']:.3f}  AUC={m['auc']:.3f}")
     print(f"TP={m['tp']} FP={m['fp']} FN={m['fn']} TN={m['tn']}  |  cortadas={teste['cortadas']}")
+    print(f"No limiar da validação (nota > {limiar_dec:.3f}, o de maior F1 lá: {f1_val:.3f}): F1={mv['f1']:.3f}  "
+          f"precisão={mv['precisao']:.3f}  revocação={mv['revocacao']:.3f}  FPR={mv['fpr']:.3f}  "
+          f"(é este F1 que se compara com o baseline do tamanho)")
     print(f"VD-S={vds:.3f} (limiar da validação; FPR no teste={fpr_no_limiar:.4f})  |  VD-S oráculo={vds_oraculo:.3f}")
     print(f"Pareado ({p['avaliados']} pares): P-C={pct(p['P_C']):.1f}%  P-V={pct(p['P_V']):.1f}%  "
           f"P-B={pct(p['P_B']):.1f}%  P-R={pct(p['P_R']):.1f}%  |  vulnerável com nota maior: {pct(p['ordenados_ajust']):.1f}% (empate = meio acerto; acaso 50%)")
