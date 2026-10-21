@@ -1,0 +1,29 @@
+{
+  "versao_canonica": 3,
+  "artefatos": [
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/texto/secoes/introducao_01.md",
+      "sha256": "bb424d8ba924f3f15fb9421f9dee0e850f3db61d7b6a953cb5f3c70b1e5b6edb"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/texto/secoes/introducao_01.tex",
+      "sha256": "86dbb3e1db8e54075b23e5a53c8fb58885e5780409872ce6808f714bc51ff9df"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/texto/introducao_sbc.tex",
+      "sha256": "4ec2a7206144970ab4f52a511a8454e951206f698f763c44058dae0ff3883dce"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/referencias/introducao.bib",
+      "sha256": "1a309be69ab72dda6b8b3c1afc4364da8bc8540e047d539d19177fafc6210ab2"
+    }
+  ],
+  "compilacao": {
+    "estado": "nao_verificada",
+    "kind": "compile-failed",
+    "erro": "Unable to find standard directories for platform",
+    "compilador": "compile_latex_document",
+    "editor": "open_in_codex retornou queued para a fonte final"
+  },
+  "parecer_final": "aprovado cientifico_editorial; zero apontamentos abertos"
+}

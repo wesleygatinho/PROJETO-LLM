@@ -1,0 +1,121 @@
+[
+  {
+    "id": "primevul",
+    "pdf": "02_referencias/pdfs das referencias/Datasets e benchmarks/Ding, Y - 2024.pdf",
+    "sha256_pdf": "a0e8c207f246576f9b4c78e86726fc2056cef00143a4644849ab14e15f889287",
+    "paginas": 14,
+    "extracao": "02_referencias/verificacao_introducao_seminarios_2026/primevul_pdf.txt",
+    "sha256_extracao": "381094a9f4d78b6ae175ed76893c3f827db199bda7800b53a088e30fb6e1d2ef",
+    "metadados_pdf": {
+      "/Author": "",
+      "/CreationDate": "D:20240711001902Z",
+      "/Creator": "LaTeX with hyperref",
+      "/Keywords": "",
+      "/ModDate": "D:20240711001902Z",
+      "/PTEX.Fullbanner": "This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) kpathsea version 6.3.5",
+      "/Producer": "pdfTeX-1.40.25",
+      "/Subject": "",
+      "/Title": "",
+      "/Trapped": "/False"
+    }
+  },
+  {
+    "id": "risse",
+    "pdf": "02_referencias/pdfs das referencias/Ref Adicionadas/Niklas Risse - 2024.pdf",
+    "sha256_pdf": "82f020c35d6a08ebd428da80f45269b155a06bba486d028ecab7e1936c019f69",
+    "paginas": 19,
+    "extracao": "02_referencias/verificacao_introducao_seminarios_2026/risse_pdf.txt",
+    "sha256_extracao": "ac8be5c42dd6d717201350d4273ac33df43a5ffbfbedd1d1791b34ef6d0b023a",
+    "metadados_pdf": {
+      "/Author": "",
+      "/CreationDate": "D:20240611134432Z",
+      "/Creator": "LaTeX with hyperref",
+      "/Keywords": "",
+      "/ModDate": "D:20240805192818Z",
+      "/PTEX.Fullbanner": "This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) kpathsea version 6.3.5",
+      "/Producer": "pdfTeX-1.40.25; modified using iText® Core 8.0.0 (AGPL version) ©2000-2023 Apryse Group NV",
+      "/Subject": "",
+      "/Title": "",
+      "/Trapped": "/False"
+    }
+  },
+  {
+    "id": "huang",
+    "pdf": "02_referencias/pdfs das referencias/Deteccao de vulnerabilidade métodos e modelos/Feiyang Huang - 2026.pdf",
+    "sha256_pdf": "9925549e2ccacc5ec0fb645a80645fe18588289ae3836cc09ddf0f5584be1223",
+    "paginas": 16,
+    "extracao": "02_referencias/verificacao_introducao_seminarios_2026/huang_pdf.txt",
+    "sha256_extracao": "9209bf7a95841e004d9b71f038b21990ad4678b93cf1897a72c30b0a1f48630d",
+    "metadados_pdf": {
+      "/Author": "Feiyang Huang; Yuqiang Sun; Fan Zhang; Ziqi Yang; Han Liu; Yang Liu",
+      "/Creator": "arXiv GenPDF (tex2pdf:a6404ea)",
+      "/DOI": "https://doi.org/10.48550/arXiv.2601.22655",
+      "/License": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+      "/PTEX.Fullbanner": "This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) kpathsea version 6.4.1",
+      "/Producer": "pikepdf 8.15.1",
+      "/Title": "Do Fine-Tuned LLMs Understand Vulnerabilities? An Investigation into the Semantic Trap",
+      "/Trapped": "/False",
+      "/arXivID": "https://arxiv.org/abs/2601.22655v3"
+    }
+  },
+  {
+    "id": "qwen",
+    "pdf": "02_referencias/pdfs das referencias/Modelos de código/Hui, B - 2024.pdf",
+    "sha256_pdf": "8416ad8d885737ed15f757180499f5202fa93e791180a6d3fcd6f0381d79595e",
+    "paginas": 32,
+    "extracao": "02_referencias/verificacao_introducao_seminarios_2026/qwen_pdf.txt",
+    "sha256_extracao": "9dac1a064dba2d4a018793aab41e29eab14ba681cce44e2568e4133dad833887",
+    "metadados_pdf": {
+      "/Author": "",
+      "/CreationDate": "D:20241113014240Z",
+      "/Creator": "LaTeX with hyperref",
+      "/Keywords": "",
+      "/ModDate": "D:20241113014240Z",
+      "/PTEX.Fullbanner": "This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) kpathsea version 6.3.5",
+      "/Producer": "pdfTeX-1.40.25",
+      "/Subject": "",
+      "/Title": "",
+      "/Trapped": "/False"
+    }
+  },
+  {
+    "id": "lora",
+    "pdf": "02_referencias/pdfs das referencias/Eficiência quantizacao PEFT e destilacao/Hu, E - 2021.pdf",
+    "sha256_pdf": "e9a0d3128767db616085dc0f4e6e455e672e89af823e8ed1282793682787395a",
+    "paginas": 26,
+    "extracao": "02_referencias/verificacao_introducao_seminarios_2026/lora_pdf.txt",
+    "sha256_extracao": "e6b9fe1d772ed8af6785a703d15e6138e81daa592ddd310cffa2af9d4977f45a",
+    "metadados_pdf": {
+      "/Author": "",
+      "/CreationDate": "D:20211019005713Z",
+      "/Creator": "LaTeX with hyperref",
+      "/Keywords": "",
+      "/ModDate": "D:20211019005713Z",
+      "/PTEX.Fullbanner": "This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) kpathsea version 6.3.2",
+      "/Producer": "pdfTeX-1.40.21",
+      "/Subject": "",
+      "/Title": "",
+      "/Trapped": "/False"
+    }
+  },
+  {
+    "id": "qlora",
+    "pdf": "02_referencias/pdfs das referencias/Eficiência quantizacao PEFT e destilacao/Dettmers, T - 2023.pdf",
+    "sha256_pdf": "33a4e757c19d6ea8d3cca8958fce8fe405e290272e135c99ee66065c775d5bd1",
+    "paginas": 26,
+    "extracao": "02_referencias/verificacao_introducao_seminarios_2026/qlora_pdf.txt",
+    "sha256_extracao": "3920c399de2f00bc0720ecfcefed5519d015fc86b2d83075ddd45d6899807542",
+    "metadados_pdf": {
+      "/Author": "",
+      "/CreationDate": "D:20230524004717Z",
+      "/Creator": "LaTeX with hyperref",
+      "/Keywords": "",
+      "/ModDate": "D:20230524004717Z",
+      "/PTEX.Fullbanner": "This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) kpathsea version 6.3.5",
+      "/Producer": "pdfTeX-1.40.25",
+      "/Subject": "",
+      "/Title": "",
+      "/Trapped": "/False"
+    }
+  }
+]

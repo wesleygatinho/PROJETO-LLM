@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"path\":\"D:/UFMA UNIVERSIDADE/MESTRADO - ESTUDO LLM/04_escrita/artigo/seminarios_2026/revisao/introducao_2026-10-07/previa_rascunho_sbc.tex\",\"kind\":\"compile-failed\",\"message\":\"Could not prepare the LaTeX preview\",\"diagnostics\":{\"untrustedData\":true,\"log\":\"exec failed: windows sandbox: helper_unknown_error: setup refresh had errors\"}}"
+    }
+  ],
+  "isError": true
+}

@@ -1,0 +1,267 @@
+[
+  {
+    "rodada": "etapa3_Qwen2.5-Coder-3B_ben1_s1_20260924_172035",
+    "receita_melhor_epoca": 1,
+    "historica_estrita": 1,
+    "ajustada_reconstruida": null,
+    "mesma": null,
+    "limite": "Empates por época não registrados; não afirmar manutenção pelo critério ajustado",
+    "epocas": [
+      {
+        "epoca": 1,
+        "estrita_pct": 38.43,
+        "empates": null,
+        "ajustada_reconstruida_pct": null,
+        "auc": 0.7554
+      },
+      {
+        "epoca": 2,
+        "estrita_pct": 31.85,
+        "empates": null,
+        "ajustada_reconstruida_pct": null,
+        "auc": 0.8116
+      },
+      {
+        "epoca": 3,
+        "estrita_pct": 35.59,
+        "empates": null,
+        "ajustada_reconstruida_pct": null,
+        "auc": 0.8319
+      }
+    ]
+  },
+  {
+    "rodada": "etapa3_Qwen2.5-Coder-3B_benreal_s1_20260924_210301",
+    "receita_melhor_epoca": 1,
+    "historica_estrita": 1,
+    "ajustada_reconstruida": null,
+    "mesma": null,
+    "limite": "Empates por época não registrados; não afirmar manutenção pelo critério ajustado",
+    "epocas": [
+      {
+        "epoca": 1,
+        "estrita_pct": 28.65,
+        "empates": null,
+        "ajustada_reconstruida_pct": null,
+        "auc": 0.8403
+      }
+    ]
+  },
+  {
+    "rodada": "etapa3_Qwen2.5-Coder-3B_ben1tam_s1_20260929_013715",
+    "receita_melhor_epoca": 3,
+    "historica_estrita": 3,
+    "ajustada_reconstruida": 3,
+    "mesma": true,
+    "limite": "Percentuais por época arredondados, não previsões por época",
+    "epocas": [
+      {
+        "epoca": 1,
+        "estrita_pct": 34.16,
+        "empates": 45,
+        "ajustada_reconstruida_pct": 38.1635587188612,
+        "auc": 0.7361
+      },
+      {
+        "epoca": 2,
+        "estrita_pct": 44.48,
+        "empates": 41,
+        "ajustada_reconstruida_pct": 48.12768683274021,
+        "auc": 0.7876
+      },
+      {
+        "epoca": 3,
+        "estrita_pct": 48.04,
+        "empates": 38,
+        "ajustada_reconstruida_pct": 51.42078291814946,
+        "auc": 0.7602
+      }
+    ]
+  },
+  {
+    "rodada": "etapa3_Qwen2.5-Coder-7B_ben1tam_s1_20261004_192443",
+    "receita_melhor_epoca": 3,
+    "historica_estrita": 3,
+    "ajustada_reconstruida": 3,
+    "mesma": true,
+    "limite": "Percentuais por época arredondados, não previsões por época",
+    "epocas": [
+      {
+        "epoca": 1,
+        "estrita_pct": 43.24,
+        "empates": 49,
+        "ajustada_reconstruida_pct": 47.59943060498221,
+        "auc": 0.6213
+      },
+      {
+        "epoca": 2,
+        "estrita_pct": 41.64,
+        "empates": 47,
+        "ajustada_reconstruida_pct": 45.82149466192171,
+        "auc": 0.758
+      },
+      {
+        "epoca": 3,
+        "estrita_pct": 46.26,
+        "empates": 44,
+        "ajustada_reconstruida_pct": 50.17459074733096,
+        "auc": 0.7371
+      }
+    ]
+  },
+  {
+    "rodada": "etapa3_Qwen2.5-Coder-7B_ben1tam_s1_20261004_192443",
+    "receita_melhor_epoca": 3,
+    "historica_estrita": 3,
+    "ajustada_reconstruida": 3,
+    "mesma": true,
+    "limite": "Percentuais por época arredondados, não previsões por época",
+    "epocas": [
+      {
+        "epoca": 1,
+        "estrita_pct": 43.24,
+        "empates": 49,
+        "ajustada_reconstruida_pct": 47.59943060498221,
+        "auc": 0.6213
+      },
+      {
+        "epoca": 2,
+        "estrita_pct": 41.64,
+        "empates": 47,
+        "ajustada_reconstruida_pct": 45.82149466192171,
+        "auc": 0.758
+      },
+      {
+        "epoca": 3,
+        "estrita_pct": 46.26,
+        "empates": 44,
+        "ajustada_reconstruida_pct": 50.17459074733096,
+        "auc": 0.7371
+      }
+    ]
+  },
+  {
+    "rodada": "etapa3_Qwen2.5-Coder-7B_ben1tam_s2_20261005_052812",
+    "receita_melhor_epoca": 2,
+    "historica_estrita": 2,
+    "ajustada_reconstruida": 2,
+    "mesma": true,
+    "limite": "Percentuais por época arredondados, não previsões por época",
+    "epocas": [
+      {
+        "epoca": 1,
+        "estrita_pct": 45.02,
+        "empates": 40,
+        "ajustada_reconstruida_pct": 48.578718861209964,
+        "auc": 0.6954
+      },
+      {
+        "epoca": 2,
+        "estrita_pct": 48.93,
+        "empates": 44,
+        "ajustada_reconstruida_pct": 52.84459074733096,
+        "auc": 0.7176
+      },
+      {
+        "epoca": 3,
+        "estrita_pct": 45.37,
+        "empates": 41,
+        "ajustada_reconstruida_pct": 49.01768683274021,
+        "auc": 0.7442
+      }
+    ]
+  },
+  {
+    "rodada": "etapa3_Qwen2.5-Coder-7B_ben1tam_s2_20261005_052812",
+    "receita_melhor_epoca": 2,
+    "historica_estrita": 2,
+    "ajustada_reconstruida": 2,
+    "mesma": true,
+    "limite": "Percentuais por época arredondados, não previsões por época",
+    "epocas": [
+      {
+        "epoca": 1,
+        "estrita_pct": 45.02,
+        "empates": 40,
+        "ajustada_reconstruida_pct": 48.578718861209964,
+        "auc": 0.6954
+      },
+      {
+        "epoca": 2,
+        "estrita_pct": 48.93,
+        "empates": 44,
+        "ajustada_reconstruida_pct": 52.84459074733096,
+        "auc": 0.7176
+      },
+      {
+        "epoca": 3,
+        "estrita_pct": 45.37,
+        "empates": 41,
+        "ajustada_reconstruida_pct": 49.01768683274021,
+        "auc": 0.7442
+      }
+    ]
+  },
+  {
+    "rodada": "etapa3_Qwen2.5-Coder-7B_ben1tam_s3_20261005_153159",
+    "receita_melhor_epoca": 3,
+    "historica_estrita": 3,
+    "ajustada_reconstruida": 3,
+    "mesma": true,
+    "limite": "Percentuais por época arredondados, não previsões por época",
+    "epocas": [
+      {
+        "epoca": 1,
+        "estrita_pct": 43.24,
+        "empates": 45,
+        "ajustada_reconstruida_pct": 47.24355871886121,
+        "auc": 0.7781
+      },
+      {
+        "epoca": 2,
+        "estrita_pct": 47.86,
+        "empates": 44,
+        "ajustada_reconstruida_pct": 51.77459074733096,
+        "auc": 0.759
+      },
+      {
+        "epoca": 3,
+        "estrita_pct": 51.42,
+        "empates": 36,
+        "ajustada_reconstruida_pct": 54.62284697508897,
+        "auc": 0.7526
+      }
+    ]
+  },
+  {
+    "rodada": "etapa3_Qwen2.5-Coder-7B_ben1tam_s3_20261005_153159",
+    "receita_melhor_epoca": 3,
+    "historica_estrita": 3,
+    "ajustada_reconstruida": 3,
+    "mesma": true,
+    "limite": "Percentuais por época arredondados, não previsões por época",
+    "epocas": [
+      {
+        "epoca": 1,
+        "estrita_pct": 43.24,
+        "empates": 45,
+        "ajustada_reconstruida_pct": 47.24355871886121,
+        "auc": 0.7781
+      },
+      {
+        "epoca": 2,
+        "estrita_pct": 47.86,
+        "empates": 44,
+        "ajustada_reconstruida_pct": 51.77459074733096,
+        "auc": 0.759
+      },
+      {
+        "epoca": 3,
+        "estrita_pct": 51.42,
+        "empates": 36,
+        "ajustada_reconstruida_pct": 54.62284697508897,
+        "auc": 0.7526
+      }
+    ]
+  }
+]

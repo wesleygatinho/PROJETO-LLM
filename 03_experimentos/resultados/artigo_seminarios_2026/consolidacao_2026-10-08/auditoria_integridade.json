@@ -1,0 +1,295 @@
+{
+  "data_utc": "2026-10-08T23:25:08.958077+00:00",
+  "release": "original oficial; hashes completos atuais coincidem com prefixos históricos disponíveis",
+  "pareado_teste": 564,
+  "pareado_validacao": 562,
+  "sem_exclusoes": true,
+  "func_hash_nulo_nao_usado": true,
+  "identidade": [
+    {
+      "execucao": "baseline_tamanho_tokens_20260924_012407",
+      "splits": {
+        "teste": {
+          "n": 25911,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "pareado": {
+          "n": 1128,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        }
+      }
+    },
+    {
+      "execucao": "etapa3_aval_nf4_20260929_065623",
+      "splits": {
+        "validacao": {
+          "n": 25430,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "teste": {
+          "n": 25911,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "pareado": {
+          "n": 1128,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        }
+      }
+    },
+    {
+      "execucao": "etapa3_aval_nf4_20260929_072628",
+      "splits": {
+        "validacao": {
+          "n": 25430,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "teste": {
+          "n": 25911,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "pareado": {
+          "n": 1128,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        }
+      }
+    },
+    {
+      "execucao": "etapa3_aval_nf4_20261004_185414",
+      "splits": {
+        "validacao": {
+          "n": 25430,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "teste": {
+          "n": 25911,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "pareado": {
+          "n": 1128,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        }
+      }
+    },
+    {
+      "execucao": "etapa3_aval_nf4_20261005_035114",
+      "splits": {
+        "validacao": {
+          "n": 25430,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "teste": {
+          "n": 25911,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "pareado": {
+          "n": 1128,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        }
+      }
+    },
+    {
+      "execucao": "etapa3_aval_bf16_20261005_044536",
+      "splits": {
+        "validacao": {
+          "n": 25430,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "teste": {
+          "n": 25911,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "pareado": {
+          "n": 1128,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        }
+      }
+    },
+    {
+      "execucao": "etapa3_aval_nf4_20261005_135446",
+      "splits": {
+        "validacao": {
+          "n": 25430,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "teste": {
+          "n": 25911,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "pareado": {
+          "n": 1128,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        }
+      }
+    },
+    {
+      "execucao": "etapa3_aval_bf16_20261005_144918",
+      "splits": {
+        "validacao": {
+          "n": 25430,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "teste": {
+          "n": 25911,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "pareado": {
+          "n": 1128,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        }
+      }
+    },
+    {
+      "execucao": "etapa3_aval_nf4_20261006_000016",
+      "splits": {
+        "validacao": {
+          "n": 25430,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "teste": {
+          "n": 25911,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "pareado": {
+          "n": 1128,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        }
+      }
+    },
+    {
+      "execucao": "etapa3_aval_bf16_20261006_005502",
+      "splits": {
+        "validacao": {
+          "n": 25430,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "teste": {
+          "n": 25911,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        },
+        "pareado": {
+          "n": 1128,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        }
+      }
+    },
+    {
+      "execucao": "etapa1_20260923_234340",
+      "splits": {
+        "pareado": {
+          "n": 1128,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        }
+      }
+    },
+    {
+      "execucao": "etapa1_20260923_234702",
+      "splits": {
+        "pareado": {
+          "n": 1128,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        }
+      }
+    },
+    {
+      "execucao": "etapa1_20260923_235217",
+      "splits": {
+        "teste": {
+          "n": 25911,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        }
+      }
+    },
+    {
+      "execucao": "etapa1_20260924_002415",
+      "splits": {
+        "teste": {
+          "n": 25911,
+          "pos_idx_project_commit_target": "iguais à fonte oficial",
+          "pos_unicas": true
+        }
+      }
+    }
+  ],
+  "cabecalhos_a_inspecionar": 15,
+  "reutilizacoes_oficiais_documentadas": {
+    "pareado": [
+      {
+        "idx": 349259,
+        "posicoes": [
+          621,
+          623
+        ],
+        "target": 0,
+        "project": "squashfs-tools",
+        "commit_id": "e0485802ec72996c20026da320650d8362f555bd",
+        "mesmo_codigo": true
+      },
+      {
+        "idx": 439495,
+        "posicoes": [
+          865,
+          867
+        ],
+        "target": 0,
+        "project": "squashfs-tools",
+        "commit_id": "79b5a555058eef4e1e7ff220c344d39f8cd09646",
+        "mesmo_codigo": true
+      }
+    ],
+    "validacao_pareada": [
+      {
+        "idx": 482955,
+        "posicoes": [
+          1001,
+          1003,
+          1005,
+          1007,
+          1009
+        ],
+        "target": 0,
+        "project": "linux",
+        "commit_id": "055e547478a11a6360c7ce05e2afc3e366968a12",
+        "mesmo_codigo": true
+      }
+    ]
+  },
+  "limites": [
+    "A identidade foi conferida contra a release oficial; isso não é uma nova auditoria humana dos rótulos/vulnerabilidades.",
+    "A release oficial reutiliza membros corrigidos; posições são únicas, idx de corrigidas não é sempre único. Dependência considerada por agrupamento de commit.",
+    "Revisão própria do tokenizer e hashes completos históricos não registrados.",
+    "Scores foram gravados com 5 casas; reconstrução não recupera precisão interna ausente."
+  ],
+  "divergencias_numericas": 0
+}

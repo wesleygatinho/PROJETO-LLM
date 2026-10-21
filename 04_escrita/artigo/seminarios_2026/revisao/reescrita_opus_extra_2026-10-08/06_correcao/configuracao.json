@@ -1,0 +1,12 @@
+{
+  "modelo_solicitado": "claude-opus-5-5",
+  "esforco_solicitado": "xhigh",
+  "teto_usd": 3,
+  "prompt_sha256": "8058ec97f79812b96fb70666b6a11506b7be02c1ed5bd78f6efaf224fffd42b5",
+  "ferramentas": [
+    "Read",
+    "Glob",
+    "Grep"
+  ],
+  "sessao_nova": true
+}

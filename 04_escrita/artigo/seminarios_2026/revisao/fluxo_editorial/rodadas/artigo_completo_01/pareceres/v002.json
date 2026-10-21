@@ -1,0 +1,71 @@
+{
+  "versao": 2,
+  "sha256": "d1867188b3d67b8da82dea0091e973a32f9ed99f6a418d020e8f34e33c1dadbf",
+  "contexto_sha256": "567ceb5d8f8c5dc09f50bed727eff51943f290601c93da087cac7e20749782e5",
+  "abrangencia": "texto_integral_da_versao",
+  "revisor": "Claude — papel revisor",
+  "escopo": "cientifico_editorial",
+  "decisao": "aprovar",
+  "itens": [],
+  "verificacoes_anteriores": [
+    {
+      "id": "V1-R1",
+      "estado": "resolvido",
+      "justificativa": "O texto atual diz 'A maior alteração absoluta nos seis resultados 7B foi 0,22 ponto percentual, arredondada a duas casas.' Esse valor confere com o 0,22393 p.p. registrado no parecer anterior e com a diferença 45,26 − 45,04. As faixas 559 (45,26–55,19 e 44,90–53,22) não mudaram."
+    },
+    {
+      "id": "V1-R2",
+      "estado": "resolvido",
+      "justificativa": "Agora o texto diz 'No limiar histórico zero, as 564 decisões pareadas do piloto 3B real foram P-B.' O F1 global de 0,262 aparece em frase separada e associado ao 'limiar reconstruído da validação'. A generalização para 'todas as funções' saiu do texto."
+    },
+    {
+      "id": "V1-R3",
+      "estado": "resolvido",
+      "justificativa": "As tabelas aparecem na ordem 1 a 6. A Tabela 5 (ordenação do 7B) está na Seção 4.2 e a Tabela 6 (recursos) na Seção 4.3. A chamada 'são apresentados na Tabela 5' corresponde à tabela certa. Não restou nenhuma chamada para uma numeração antiga."
+    },
+    {
+      "id": "V1-R4",
+      "estado": "resolvido",
+      "justificativa": "O texto atual diz 'variou no máximo 0,10 ponto percentual por modelo, arredondada a duas casas'. Isso confere com estabilidade_endpoint_max = 0,0010448."
+    },
+    {
+      "id": "V1-R5",
+      "estado": "resolvido",
+      "justificativa": "'Semente de aleatoriedade (*seed*)' aparece uma única vez, como definição na Introdução. Resumo, Introdução, Método, tabelas e conclusão usam só 'seed/seeds'. Não encontrei mais nenhuma ocorrência de 'sementes'."
+    },
+    {
+      "id": "V1-R6",
+      "estado": "resolvido",
+      "justificativa": "O Resumo diz 'No 7B, as médias de ordenação pareada das três seeds foram 50,62% em NF4 e 49,97% em BF16' e o Abstract diz 'For the 7B model, mean paired ordering across the three seeds was 50.62% (NF4) and 49.97% (BF16)'. O referente ficou explícito nas duas versões. Recalculei os valores a partir das seeds na Tabela 4: as médias (50,62 e 49,97) e os DPs (5,17 e 4,63) conferem. O contraste da referência de tamanho incluído (AUC 0,810; 21,10%) coincide com as Tabelas 3 e 4."
+    },
+    {
+      "id": "V1-R7",
+      "estado": "resolvido",
+      "justificativa": "A entrada atual é 'Hui, B. et al. (2024). Qwen2.5-Coder Technical Report. arXiv:2409.12186v3. https://arxiv.org/abs/2409.12186v3.', sem a nota interna. A lista segue a ordem alfabética sem distinguir maiúsculas: Dettmers, Ding, drogon, Hu, Huang, Hui, libjpeg, Linux, PHP, Risse, rizin."
+    },
+    {
+      "id": "V1-R8",
+      "estado": "resolvido",
+      "justificativa": "O texto atual diz 'quatro avaliações por prompting (3B e 7B Instruct, cada um no teste global e no pareado), três pilotos 3B e seis avaliações de três adaptadores 7B ... além da referência de tamanho'. A soma é 4+3+6+1 = 14, coerente com '33 arquivos de previsão das 14 avaliações selecionadas' na Seção 4.1. O manifesto traz as quatro rodadas de prompting com observação '8192'."
+    }
+  ],
+  "limites": [
+    "Arquivos consultados nesta rodada: 06_treinar_qlora.py, trechos do otimizador, agenda e argumentos. Conferem lr padrão 2e-4, aquecimento 0,03, AdamW com weight_decay 0,0, decaimento linear até zero, clip_grad_norm 1,0 e gradient checkpointing. Também consultei tokenizacao_proveniencia.json (pares_tokens_identicos_2048 = 32), manifesto.json (max_tokens 2048 nos classificadores e observações '8192' nas quatro rodadas de prompting) e selecao_epocas.json (campo 'mesma' nulo em duas entradas e verdadeiro nas demais, coerente com a afirmação sobre os pilotos sem registro e os quatro treinos com controle de tamanho).",
+    "Recalculei a partir das próprias tabelas do texto: médias, DPs e diferença NF4 − BF16 da Tabela 5; faixas de ordenação, P-C, FNR* e FPR* do 7B; as reduções de memória de cerca de 67% e 40%. Também conferi a coerência das descrições da sensibilidade 465 e da seed 2. As demais conferências contra as saídas consolidadas vêm da rodada anterior (Tabelas 1–6, intervalos bootstrap, regra inclusiva do VD-Score oficial, parâmetros LoRA, parser) e não foram repetidas.",
+    "Não verifiquei nesta rodada: o corte de 8.192 tokens dentro de 03_inferencia_etapa1.py (não aparece no script, só no manifesto), inspecao_correspondencia_commits.json, os arquivos pai/commit dos cinco casos, os scripts de consolidação e as extrações de PrimeVul, Risse, Qwen, LoRA e QLoRA. As afirmações de literatura da Introdução e da Seção 2 foram avaliadas quanto à cautela, não confrontadas integralmente com as fontes.",
+    "Não houve leitura visual de PDFs, compilação LaTeX nem verificação de diagramação SBC, do limite de dez linhas do Resumo/Abstract ou do limite de páginas. Autoria, afiliação e regras de extensão continuam pendências externas do pesquisador. O texto completo não é um arquivo pronto para submissão.",
+    "A aprovação vale para a redação e para a correspondência das alegações com as saídas consolidadas conferidas. Ela não certifica a validade científica além dessas conferências e não substitui reprodução independente. Nenhum script foi executado.",
+    "Sugestão opcional, não exigida: o Abstract abre com 'Historical records of prompting...', mas o Resumo diz apenas 'Foram consolidados registros de prompting'. Usar 'registros históricos' no Resumo deixaria as duas versões no mesmo grau de detalhe."
+  ],
+  "proveniencia": {
+    "arquivo": "entradas/revisao_v002.json",
+    "sha256": "78a0f72dfdc00f0d4dda7c6d3467eba098a1b5e4106be7ad7e5b2c5c2f180561",
+    "origem": "claude_cli",
+    "modelos": [
+      "claude-opus-5-5"
+    ],
+    "session_id": "44ef23c7-0c24-49da-8924-94c7163a7bed",
+    "duration_ms": 61510,
+    "custo_estimado_cli": 0.5836898
+  }
+}

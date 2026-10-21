@@ -1,0 +1,248 @@
+<!-- pagina 1 -->
+Meta Aprendizagem de Extrac¸a˜o de Caracter´ısticas
+Aplicada ao Diagno´stico de Glaucoma
+ArthurGuilhermeSantosFernandes1,CaioManfredinidaSilvaMartins1,
+AlanCarlosdeMouraLima1,GeraldoBrazJunior1,
+Joa˜oDallysonSousadeAlmeida1,AnselmoCardosodePaiva1
+1AppliedComputingCenter,FederalUniversityofMaranha˜o(UFMA)
+Av. dosPortugueses,1966-Bacanga,Sa˜oLu´ıs-MA,65080-805,Brazil
+{arthurgsf,caiomanfredini,alanlima,geraldo,jdallyson,paiva}@nca.ufma.br
+Abstract. Glaucomaisanasymptomaticdiseasethatcanbringpeopletoblind-
+ness if not early detected. Computational intelligence methods have been pro-
+posed to provide a computerized diagnosis that can guide patients to the ap-
+propriate treatment. However, these techniques face methodology optmization
+problems, which depends on the choices of many algorithms from diferent kno-
+wledge areas. This paper suggests a solution through meta-learning of pre-
+processing methods, decomposition and features extraction which have to be
+used efficiently in order to solve the problem. Current results are promissing,
+reaching 91.24% accuracy after 50 evaluations and it is suposed to improve
+proportionallytothenumberofevaluations.
+Resumo. O glaucoma e´ uma doenc¸a silenciosa que pode levar a cegueira caso
+diagnosticado tardiamente. Me´todos de inteligeˆncia computacional tem sido
+propostos com a finalidade de disponibilizar um diagno´stico computadorizado
+que possa guiar o paciente para o tratamento apropriado. Todavia, essas
+te´cnicas esbarram no problema de otimizac¸a˜o de metodologia, que depende
+da escolha de diversos algoritmos de diferentes a´reas de conhecimento. Este
+trabalhopropo˜eumasoluc¸a˜oatrave´sdametaaprendizagemdeme´todosdepre´
+processamento,decomposic¸a˜oeextrac¸a˜odecaracter´ısticasquedevemserusa-
+dosdemaneiraeficienteparasolucionaroproblema. Osresultadosobtidossa˜o
+promissores,atingindo91,24%deacura´ciaapo´s50testesesupostamentedeve
+melhorarproporcionalmentea` quantidadedetestesexecutados.
+1. Introduc¸a˜o
+Oglaucomae´ umadascausasmaiscomunsdecegueiraedevera´ afetaremtodoomundo,
+cerca de 80 milho˜es de pessoas ate´ 2020 [Chenetal. 2015]. O Brasil possui atualmente
+cerca de 1 milha˜o de pessoas com glaucoma, de acordo com a OMS (Organizac¸a˜o Mun-
+dial de Sau´de) [deSousaetal. 2017]. Ele e´ uma doenc¸a ocular croˆnica que pode levar a`
+perda de visa˜o, na qual o nervo o´ptico e´ progressivamente danificado devido ao aumento
+da pressa˜o intra-ocular (IOP, do ingleˆs, Intraocular Pressure). Embora o glaucoma na˜o
+possa ser curado, sua progressa˜o pode ser retardada pelo tratamento da IOP. A detecc¸a˜o
+precocedoglaucomacomaajudadeimagensdefundodeolhoe´ umimportanteprocesso
+no tratamento, por permitir que os especialistas ajam contra a doenc¸a, a fim de dar ao
+pacienteumamelhorqualidadedevida[Chenetal. 2015].
+
+<!-- pagina 2 -->
+O impacto da doenc¸a, e a incapacidade de triagem eficiente
+de toda populac¸a˜o tem motivado trabalhos de processamento de ima-
+gens e aprendizado de ma´quina [Silvaetal. 2018][Silveiraetal. 2018]
+[Acharyaetal. 2015][KawdeandBairagi2016][Kimetal. 2017] com a finalidade de
+diagnosticar automaticamente o glaucoma e indicar a necessidade de acompanhamento
+especializadoparatratamento.
+Um grande desafio consiste na escolha adequada de te´cnicas de pre´-
+processamento, decomposic¸a˜o/representac¸a˜o, extrac¸a˜o de caracter´ısticas e classificac¸a˜o.
+A combinac¸a˜o o´tima destes paraˆmetros que compo˜em a metodologia normalmente e´
+descoberta apo´s uma grande bateria de experimentos. O custo para encontrar a me-
+lhor combinac¸a˜o de te´cnicas pode ser reduzido utilizando a Otimizac¸a˜o Bayesiana,
+geralmente aplica´vel em cena´rios onde um usua´rio deseja minimizar uma func¸a˜o es-
+calar cuja execuc¸a˜o e´ muito custosa [Bergstraetal. 2013a]. Tal otimizac¸a˜o tem sua
+efica´cia comprovada em modelos de Inteligeˆncia Artificial como: Redes Neurais Con-
+volucionais [Lecunetal. 1998], Redes Profundas [Hintonetal. 2006] e classificado-
+res baseados em extrac¸a˜o de caracter´ısticas como Ma´quinas Restritas de Boltzmann
+[RanzatoandHinton2010].
+Portanto,propomosnestetrabalhoumametodologiaquerealizaametaaprendiza-
+gemdaescolhadete´cnicasexistentesparapre´-processamento,decomposic¸a˜oeextrac¸a˜o,
+visando a minimizac¸a˜o do valor de retorno de uma func¸a˜o de classificac¸a˜o f(x), utilizada
+para computar o erro do classificador, onde ”x”sa˜o as possibilidades existentes em cada
+etapadeprocessamento.
+2. Metodologia Proposta
+Este trabalho propo˜e a utilizac¸a˜o da Otimizac¸a˜o Bayesiana de maneira generalista para
+estimar uma combinac¸a˜o o´tima de te´cnicas em cada um dos esta´gios de processamento.
+A metodologia e´ proposta para o diagno´stico de glaucoma utilizando imagens de fundo
+deolho.
+A Figura 1 ilustra a metodologia proposta com o fluxo de execuc¸a˜o do sistema
+de otimizac¸a˜o e cada uma das etapas de processamento, que sera˜o detalhadas nas sec¸o˜es
+seguintes.
+Figura1. Fluxodeetapasdametodologiaproposta
+
+<!-- pagina 3 -->
+2.1. Pre´-Processamento
+O processo de realce e filtragem torna a imagem resultante mais adequada para ana´lise
+que a original em aplicac¸o˜es diversas [GonzalezandWoods2010]. O sucesso do pre´-
+processamentoaplicadodependedoobjetoestudado,oqueratificaaimportaˆnciadetestar
+o seu impacto no resultado final quando aplicado ou combinado com outras te´cnicas.
+Foram selecionadas 3 te´cnicas de pre´-processamento para serem aplicadas em conjunto.
+Asopc¸o˜esdisponibilizadassa˜o: Equalizac¸a˜oeRealcedeContrasteLocal(CLAHE)para
+o enriquecimento de caracter´ısticas e redistribuic¸a˜o da luminosidade da imagem, Realce
+Logar´ıtmico para aumentar o contraste em regio˜es em que os valores de cinza sa˜o muito
+baixoseRealceNegativoparatornarasregio˜esclarasemescurasevice-versa.
+2.2. Decomposic¸a˜o
+Esta etapa busca representar a imagem de maneira mais eficiente para o extrator de ca-
+racter´ısticas, seja isolando o objeto de interesse ou selecionando apenas pequenas partes
+das imagens. Um procedimento de decomposic¸a˜o de imagens bem-sucedido aumenta
+as chances de sucesso em problemas que requerem que certas localizac¸o˜es sejam indi-
+vidualmente analisadas [GonzalezandWoods2010]. No caso do glaucoma, a regia˜o de
+interessee´ adodiscoo´pticoeseuscomponentes.
+Dentre as opc¸o˜es de decomposic¸a˜o implementadas neste trabalho, teˆm-se:
+decomposic¸a˜odaimagememregio˜esdeRetaˆngulos,C´ırculos,Ane´is,GradeX,GradeW
+edecomposic¸a˜oWavelet. Emtodaselas,aquantidadederetaˆngulosouc´ırculoseaindao
+n´ıveldedecomposic¸a˜osa˜oparaˆmetrosdecididosautomaticamenteduranteaotimizac¸a˜o.
+2.3. Extrac¸a˜o
+O processo de extrac¸a˜o de caracter´ısticas e´ uma maneira de mensurar determinados as-
+pectos de uma imagem para que os algoritmos de inteligeˆncia computacional possam
+distinguir uma imagem da outra. Existem descritores de forma, dimensa˜o, cor, textura,
+e outros. Os algoritmos da metodologia proposta foram selecionados de acordo com sua
+eficieˆncia em problemas semelhantes. Sa˜o eles: LBP [T.Ojala1996] (Local Binary Pat-
+terns), que possui pequeno custo computacional e e´ invariante a` iluminac¸a˜o pois analisa
+ospixelsvizinhos;LBPIncoerente[MatheusV.L.Ribeiro2017],quemesclaoalgoritmo
+doVetordeCoresCoerente(CCV)eoLBPcitadoanteriormente;´IndicesdeDiversidade,
+quesa˜oconceitosutilizadosemecologiacomomaneirademensuraradistribuic¸a˜odedi-
+ferentesespe´ciesemdeterminadacomunidade;´IndicesdeDiversidadeFilogene´ticos,que
+sa˜o uma abordagem variante dos ´Indices de Diversidade, que considera elementos da
+clad´ıstica ou sistema´tica filogene´tica para calcular a Biodiversidade de uma populac¸a˜o; e
+os Descritores de Textura de Haralick [Haralicketal. 1973], baseados em estat´ıstica de
+segundaordemenarelac¸a˜oexistenteentretometexturadasimagens.
+2.4. Otimizac¸a˜o
+Aetapadeotimizac¸a˜oconsisteemanalisarresultadosdeclassificac¸o˜esanterioresparasu-
+gerirnovosparaˆmetrosparaoutraclassificac¸a˜o. Destamaneira,a` cadanovaclassificac¸a˜o,
+oresultadotendeasermaisassertivo.
+Osparaˆmetrosdentreosquaisoalgoritmodeotimizac¸a˜opoˆdeescolherforamdefi-
+nidosemumespac¸odebuscaequivalenteaodom´ıniodafunc¸a˜oquedesejou-seaprimorar.
+
+<!-- pagina 4 -->
+Tal espac¸o foi constru´ıdo em 3 possibilidades para pre´ processamento (cujas possibilida-
+des eram Equalizac¸a˜o, Realce Logar´ıtmico, Filtro Negativo e CLAHE); 1 possibilidade
+paradecomposic¸a˜o(cujaspossibilidadeseram3,4ou5C´ırculos,3ou4Ane´is,2,3,ou4
+Retaˆngulos, Grade X, Grade W, Wavelet em 2 n´ıveis e Wavelet em 3 n´ıveis) e 5 possibi-
+lidades de extratores de caracter´ısticas (cujas possibilidades eram LBP, LBP Incoerente,
+´Indices de Diversidade, ´Indices de Diversidade Filogene´ticos e Descritores de Textura
+de Haralick). Dentre todas as possibilidades citadas anteriormente, existia a chance da
+escolha nula, exceto para o extrator de caracter´ıstica, onde no m´ınimo um deveria ser
+escolhido.
+O otimizador foi implementado sobre a biblioteca HyperOpt que disponibiliza o
+algoritmo Tree-Structured Parzen Estimator (TPE) [Bergstraetal. 2013b]. O algoritmo
+TPE se utiliza de deciso˜es bayesianas para escolha de paraˆmetros, tendo como princi-
+pal caracter´ıstica, a convergeˆncia mais ra´pida para a soluc¸a˜o o´tima se comparado com a
+decisa˜oaleato´riaouemgrid.
+Para avaliar o fitness de cada soluc¸a˜o constru´ıda durante a otimizac¸a˜o foi utili-
+zado o classificador Regressa˜o Log´ıstica. Este foi escolhido por se comportar bem com
+paraˆmetrospadra˜o,serleveedera´pidaexecuc¸a˜o.
+3. Resultados Preliminares
+Para implementar a metodologia proposta foi utilizado o acervo pu´blico de imagens de
+fundo de olho RIM-ONE R2 [Fumeroetal. 2011] composta de 255 imagens normais e
+200 glaucomatosas. A base foi divida usando hold-out em 70% para treino e 30% para
+teste. Foram realizados um total de 50 testes do HyperOpt, executados durante 5 dias
+numama´quinaIntelCorei77700T,@2.90GHzx4ememo´riaRAMde16GB.
+A Figura 2 apresenta a informac¸a˜o de acura´cia a cada teste. A Tabela 1 sumariza
+dentre os 50 testes realizados, as 5 melhores soluc¸o˜es geradas. A melhor configurac¸a˜o
+obteve acura´cia de 91,24% e sensibilidade de 87,27%. A tabela tambe´m apresenta os
+paraˆmetrossugeridospelootimizadorparacadaumdostestes.
+Figura 2. Curva de acura´cia gerada pelo otimizador ao longo dos testes realiza-
+dos.
+Ao obter os melhores resultados com decomposic¸o˜es, podemos supor que locali-
+zar as caracter´ısticas e´ importante para o diagno´stico de glaucoma. Tambe´m foi poss´ıvel
+verificar que os melhores desempenhos sa˜o gerados com combinac¸o˜es de extratores de
+caracter´ısticas, sugerindo que as caracter´ısticas podem estar gerando informac¸o˜es com-
+plementares a cerca da tarefa. Observou-se uma tendeˆncia de aumento na acura´cia ao
+
+<!-- pagina 5 -->
+Tabela1. Cincomelhorescombinac¸o˜esdeparaˆmetrosdeacordocomaacura´cia.
+Pre´-Processamento Decomposic¸a˜o Extrac¸a˜o Acura´cia Sensibilidade Precisa˜o
+´IndicesdeDiversidade+
+Equalizac¸a˜o+ LBP+LBPIncoerente+
+4C´ırculos 91,24 87,27 90,56
+RealceLogar´ıtimico DescritoresdeHaralick+
+´IndicesdeDiversidadeFilogene´ticos
+DescritoresdeHaralick+LBP+
+Equalizac¸a˜o 2Retaˆngulos 88,32 89,09 83,05
+´IndicesdeDiversidadeFilogene´ticos
+DescritoresdeHaralick+LBP+
+Equalizac¸a˜o+
+4C´ırculos 88,32 83,63 86,79
+RealceNegativo
+´IndicesdeDiversidadeFilogene´ticos
+DescritoresdeHaralick+LBP+
+CLAHE+
+5C´ırculos 86,13 87,27 80
+RealceNegativo
+´IndicesdeDiversidade
+DescritoresdeHaralick+LBP+
+CLAHE+
+RealceNegativo+ 4C´ırculos 85,40 85,45 79,66
+RealceLogar´ıtimico
+´IndicesdeDiversidade
+longodoprocessodeotimizac¸a˜oepodera´ sermelhorevidenciadaa` medidaqueonu´mero
+declassificac¸o˜esaumentar.
+4. Conclusa˜o e Trabalhos Futuros
+Neste trabalho foi utilizada a otimizac¸a˜o bayesiana para estimar a melhor combinac¸a˜o
+de te´cnicas de pre´-processamento, decomposic¸a˜o e extrac¸a˜o de caracter´ısticas quando
+aplicadas ao problema de classificac¸a˜o de imagens de fundo de olho glaucomatosas ou
+normais. Tal metodologia e´ extens´ıvel para outros problemas, pois novas abordagens,
+independentemente da etapa a` qual pertence, podem ser acopladas e sua efica´cia sera´
+testadaatrave´sdaMetaAprendizagemdeExtrac¸a˜odeCaracter´ısticas.
+Em trabalhos futuros, podera´ ser adicionado o processo de aumento de dados na
+base, tambe´m conhecido como Data Augmentation, que facilitara´ a classificac¸a˜o ao au-
+mentar a quantidade de dados dispon´ıveis para treino do classificador. Ale´m disso novos
+descritoresdetexturaeextratoresdecaracter´ısticaspodera˜oseradicionadosaoprocesso,
+como o Histograma de Gradientes Orientados. Pretendemos ainda avaliar a te´cnica com
+classificadoresmaisrobustoscomRandomForests.
+Refereˆncias
+Acharya, U. R., Ng, E., Eugene, L. W. J., Noronha, K. P., Min, L. C., Nayak, K. P.,
+and Bhandary, S. V. (2015). Decision support system for the glaucoma using gabor
+transformation. Biomedical Signal Processing and Control, 15(Supplement C):18 –
+26.
+Bergstra,J.,Yamins,D.,andCox,D.D.(2013a). Hyperopt: Apythonlibraryforoptimi-
+zingthehyperparametersofmachinelearningalgorithms.InvanderWalt,S.,Millman,
+J., and Huff, K., editors, Proceedings of the 12th Python in Science Conference, pages
+13–20.
+
+<!-- pagina 6 -->
+Bergstra,J.,Yamins,D.,andCox,D.D.(2013b). Hyperopt: Apythonlibraryforoptimi-
+zing the hyperparameters of machine learning algorithms. In Proceedings of the 12th
+Pythoninscienceconference,pages13–20.Citeseer.
+Chen, X., Xu, Y., Wong, D. W. K., Wong, T. Y., and Liu, J. (2015). Glaucoma detec-
+tion based on deep convolutional neural network. In 2015 37th Annual International
+Conference of the IEEE Engineering in Medicine and Biology Society (EMBC), pages
+715–718,Milan,Italy.IEEE.
+de Sousa, J. A., de Paiva, A. C., Sousa de Almeida, J. D., Silva, A. C., Junior, G. B., and
+Gattass,M.(2017). Texturebasedongeostatisticforglaucomadiagnosisfromfundus
+eyeimage. MultimediaToolsandApplications,76(18):19173–19190.
+Fumero, F., Alayon, S., Sanchez, J. L., Sigut, J., and Gonzalez-Hernandez, M. (2011).
+RIM-ONE: An open retinal image database for optic nerve evaluation. In 2011 24th
+International Symposium on Computer-Based Medical Systems (CBMS), pages 1–6,
+Bristol,UK.IEEE.
+Gonzalez, R. C. and Woods, R. E. (2010). Processamento Digital de Imagens. Pearson,
+3a edition.
+Haralick, R., Shanmugam, K., and Dinstein, I. (1973). Texture features for image classi-
+fication. IEEETransactionsonSystems,Man,andCybernetics,3(6).
+Hinton, G. E., Osindero, S., and Teh, Y.-W. (2006). A fast learning algorithm for deep
+beliefnets. NeuralComput.,18(7):1527–1554.
+Kawde, M. M. and Bairagi, V. K. (2016). Early detection of glaucoma disease using
+imageprocessing. IndianJournalofScienceandTechnology,9(30).
+Kim, S. J., Cho, K. J., and Oh, S. (2017). Development of machine learning models for
+diagnosisofglaucoma. PLOSONE,12(5):1–16.
+Lecun,Y.,Bottou,L.,Bengio,Y.,andHaffner,P.(1998). Gradient-basedlearningapplied
+todocumentrecognition. ProceedingsoftheIEEE,86(11):2278–2324.
+Matheus V. L. Ribeiro, E. O. T. S. (2017). Lbp incoerente como nova proposta para
+descric¸a˜odecenas.
+Ranzato, M. and Hinton, G. E. (2010). Modeling pixel means and covariances using fac-
+torized third-order boltzmann machines. In 2010 IEEE Computer Society Conference
+onComputerVisionandPatternRecognition,pages2551–2558.
+Silva, M. G., Pessoa, A. C., de Almeida, J. D., Junior, G. B., and de Paiva, A. C. (2018).
+Diagno´stico do glaucoma em imagens de retinografia usando variantes de padro˜es lo-
+cais bina´rios. In 18o Simpo´sio Brasileiro de Computac¸a˜o Aplicada a` Sau´de (SBCAS
+2018),volume18.SBC.
+Silveira, R. M., Almeida, J. D., Teixeira, J. A., Maia, I. M., Paiva, A. C., and Ju´nior,
+G. B. (2018). Dispositivo de baixo custo para detecc¸a˜o de patologias da visa˜o. In
+18o Simpo´sioBrasileirodeComputac¸a˜oAplicadaa` Sau´de(SBCAS2018),volume18.
+SBC.
+T. Ojala, M. Pietikainen, D. H. (1996). A comparative study of texture measures with
+classificationbasedonfeatureddistribution. PatternRecognit,29:51–59.

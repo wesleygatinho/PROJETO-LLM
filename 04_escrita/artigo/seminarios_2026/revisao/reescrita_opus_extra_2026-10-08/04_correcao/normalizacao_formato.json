@@ -1,0 +1,10 @@
+{
+  "origem_bruta_sha256": "4fc0b5a66adcef227bad2d9b82c360684a195d405f07f3b7fc59810a4460d6ac",
+  "prefixo_fora_json_removido": "Sigo as instruções do contrato e já fiz as leituras necessárias. Agora vou montar o texto corrigido e as respostas aos onze apontamentos.",
+  "alteracao": "Somente supressão do prefácio externo para atender ao parser JSON do controlador. Todos os campos e todo o texto são os devolvidos pelo Claude, sem correção de prosa por Codex.",
+  "session_id": "f7f3949e-e0e5-49f5-bd60-db80b6f289bd",
+  "modelos_reais": [
+    "claude-opus-5-5"
+  ],
+  "custo_estimado_usd": 1.9876564
+}

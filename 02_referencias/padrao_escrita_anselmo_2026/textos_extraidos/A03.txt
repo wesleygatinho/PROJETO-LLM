@@ -1,0 +1,416 @@
+<!-- pagina 1 -->
+Classificac¸a˜o de Esteatose Hepa´tica Na˜o Alcoo´lica em Imagens
+Te´rmicas da Regia˜o do F´ıgado Utilizando Redes Neurais
+Convolucionais
+DanielMoreiraPinto1,JohnatanCarvalhoSouza1,Aristo´fanesCorreˆaSilva1,
+HenriqueManoeldeAraujoMartinsFilho2,3,AnselmoCardosodePaiva1,
+RenatoAmaroZaˆngaro2,4
+1Nu´cleodeComputac¸a˜oAplicada–UniversidadeFederaldoMaranha˜o(UFMA)
+Av. dosPortugueses,1966-VilaBacanga,Sa˜oLu´ıs-MA,65080-805
+2UniversidadeAnhembiMorumbi–UAM
+RuaCasadoAtor,294,Sa˜oPaulo,SP,Brasil,04546-001
+3Alchimia
+RuaMar. CasteloBranco31,OlhoD´a´gua,Sa˜oLu´ıs,MA,Brasil,65065-090
+4CentrodeInovac¸a˜o,TecnologiaeEducac¸a˜o–CITE
+ParqueTecnolo´gicodeSa˜oJose´ dosCampos,
+EstradaDr. AltinoBondensan,500,Sa˜oJose´ dosCampos,SP,Brasil,12247-016
+{daniel.pinto,johnatancarvalho}@nca.ufma.br, ari@dee.ufma.br,
+hmartinsfilho@globo.com, paiva@deinf.ufma.br, razangaro@gmail.com
+Abstract. The non-alcoholic fatty liver disease (NAFLD) has the highest inci-
+denceamongtheliverdiseases,afflictingabout1.5billionpeopleworldwide. It
+presentsahighmortalityrateand,ifnotdianosedandtreatedearly,canevolve
+to severe liver complications. For this reason, it requires a fast and efficient
+diagnosis. Gauging of human body temperature with thermography is a non-
+invasivemethodofobtainingdatathatmayindicatethepresenceofthedisease.
+In this context, the purpose of this work is to present a method of NAFLD clas-
+sification in thermography images of the liver. By using convolutional neural
+networks and image processing techniques, the proposed method achieved an
+accuracyof96%,sensitivityof91%andspecificityof97%.
+Resumo. A esteatose hepa´tica na˜o alcoo´lica (DHGNA) e´ a doenc¸a de f´ıgado
+de maior incideˆncia no mundo, afetando cerca de 1,5 bilha˜o de pessoas. Ela
+possuiumaaltataxademortalidadee,sena˜ofordiagnosticadaetratadacedo,
+podeevoluirparase´riascomplicac¸o˜esnof´ıgado,portantoseudiagno´sticodeve
+ser ra´pido e eficiente. A aferic¸a˜o da temperatura do corpo humano via termo-
+grafia e´ um me´todo na˜o invasivo para detectar a DHGNA. Neste contexto, o
+objetivo deste trabalho e´ apresentar um me´todo para classificac¸a˜o de DHGNA
+em imagens de termografia de f´ıgado. Utilizando redes neurais convolucionais
+ete´cnicasdeprocessamentodeimagens,ome´todopropostofoicapazalcanc¸ar
+umaacura´ciade96%,sensibilidadede91%eespecificidade97%.
+
+<!-- pagina 2 -->
+1. Introduc¸a˜o
+Aesteatosehepa´ticana˜oalcoo´licaoudoenc¸ahepa´ticagordurosana˜oalcoo´lica(DHGNA)
+e´ caracterizada pela infiltrac¸a˜o de gordura no f´ıgado de indiv´ıduos que na˜o possuam
+um significativo histo´rico de abuso de a´lcool ou outras doenc¸as hepa´ticas que ex-
+pliquem essa infiltrac¸a˜o, sendo em muitos casos associada com s´ındrome metabo´lica
+[Cotrimetal. 2016]. A DHGNA acompanha a obesidade e, globalmente, chega a afe-
+tar aproximadamente 1,5 bilha˜o de pessoas, o que faz dela a doenc¸a de f´ıgado de maior
+alcance no mundo [Schwabeetal. 2020]. Em 25% dos pacientes a doenc¸a evolui para
+esteato-hepatite na˜o alcoo´lica, trazendo uma se´ria ameac¸a a` vida desses pacientes com o
+aumento do risco do desenvolvimento de cirrose, falha do f´ıgado e carcinoma hepatoce-
+lular[Schwabeetal. 2020].
+Com o crescente nu´mero de casos da DHGNA [Schwabeetal. 2020] e, tendo
+em vista sua alta taxa de mortalidade [Cotrimetal. 2016], um diagno´stico ra´pido e
+eficiente e´ de grande importaˆncia para a sau´de global. O exame mais espec´ıfico
+para avaliar a presenc¸a e grau de desenvolvimento da DHGNA e´ hoje a bio´psia
+hepa´tica [Santanaetal. 2021], pore´m esse me´todo e´ invasivo e traz, ale´m de custos
+altos, riscos a` sau´de do paciente submetido ao exame [Byraetal. 2018]. Portanto,
+a bio´psia na˜o e´ considerada o me´todo mais otimizado para o diagno´stico da doenc¸a
+[Byraetal. 2018], o que torna o estudo de outros me´todos extremamente importante,
+como os que utilizam ultrassonografia na regia˜o do abdoˆmen [Byraetal. 2018] e termo-
+grafia[FarooqandCorcoran2020].
+A termografia e´ um me´todo na˜o invasivo e que, ao contra´rio da ultrassonogra-
+fia, na˜o envolve contato f´ısico para a extrac¸a˜o de caracter´ısticas corporais que podem ser
+utilizadas na avaliac¸a˜o da sau´de de um paciente [FarooqandCorcoran2020]. A tempe-
+ratura do corpo humano e´ uma informac¸a˜o de extrema importaˆncia para o diagno´stico
+e monitoramento de doenc¸as [FarooqandCorcoran2020]. Em pacientes com DHGNA,
+observa-se que o desenvolvimento da doenc¸a causa a diminuic¸a˜o da temperatura super-
+ficial do f´ıgado [FarooqandCorcoran2020]. Portanto, a termografia e´ uma te´cnica na˜o
+invasivapromissoraparaodiagno´sticodeDHGNA[Brzezinskietal. 2020].
+A qualidade da captura das emisso˜es de infravermelho que caˆmeras te´rmicas uti-
+lizam para gerar os termogramas da superf´ıcie do corpo humano sofrem influeˆncia do
+ambiente, o que resulta na atenuac¸a˜o dos efeitos termogra´ficos de anomalias corporais
+[FarooqandCorcoran2020], dificultando sua detecc¸a˜o. Sendo assim, te´cnicas de me-
+lhoramento de imagem sa˜o u´teis para reduzir ru´ıdos e refinar caracter´ısticas de imagens
+te´rmicas apo´s sua coleta [Wahabetal. 2018]. Ale´m disso, essas imagens podem ser in-
+troduzidasemmodelosdeaprendizagemdema´quinaparaumaextrac¸a˜omaiseficientede
+informac¸o˜esquecontribuamcomadetecc¸a˜odedoenc¸as[FarooqandCorcoran2020].
+Modelos de aprendizagem de ma´quina baseados em aprendizagem
+profunda teˆm mostrado excelente progresso em tarefas de classificac¸a˜o
+[ShortenandKhoshgoftaar2019]. No ramo da aprendizagem profunda, foram desenvol-
+vidas as redes neurais convolucionais (CNNs), que foram capazes de executar tarefas de
+visa˜o computacional com grande sucesso [ShortenandKhoshgoftaar2019]. As CNNs
+sa˜ohojeumadasprincipaiste´cnicasdereconhecimentodepadro˜esemimagens,inclusive
+imagens te´rmicas [Zuluaga-Gomezetal. 2020] e, na a´rea cl´ınica, teˆm sido extensamente
+utilizadasemtarefasdevisa˜ocomputacional[ShortenandKhoshgoftaar2019].
+
+<!-- pagina 3 -->
+Tendo em vista o grande impacto da DHGNA e a demanda de um diagno´stico
+eficiente e na˜o invasivo, o presente trabalho tem como objetivo classificar termogramas
+da regia˜o do f´ıgado como paciente sauda´vel ou paciente com DHGNA, utilizando uma
+CNN. Ele esta´ estruturado em 5 sec¸o˜es. A Sec¸a˜o 2 apresenta os trabalhos relacionados
+ao estudo. A Sec¸a˜o 3 apresenta a base de imagens utilizada no estudo e os me´todos de
+coleta, pre´-processamento e expansa˜o da base, referenciando tambe´m a CNN testada. A
+Sec¸a˜o 4 apresenta os resultados obtidos. Por fim, a Sec¸a˜o 5 apresenta as concluso˜es do
+trabalho.
+2. Trabalhos Relacionados
+Nos u´ltimos anos, descobertas sobre a utilizac¸a˜o de termografia para o di-
+agno´stico de DHGNA promovem o estudo de me´todos que utilizem aprendizagem
+de ma´quina para diagnosticar a doenc¸a atrave´s das imagens geradas por essa te´cnica
+[FarooqandCorcoran2020, Brzezinskietal. 2020]. Os principais me´todos para o re-
+conhecimento de padro˜es em imagens, inclusive imagens te´rmicas, sa˜o os que utilizam
+CNNs [Zuluaga-Gomezetal. 2020]. Esses me´todos foram aplicados com sucesso para o
+diagno´stico de caˆncer de mama [Zuluaga-Gomezetal. 2020], chamando a atenc¸a˜o para
+odesenvolvimentodeadaptac¸o˜esdessesme´todosparaoutrasdoenc¸asdetecta´veisatrave´s
+de temperatura. Levando isso em considerac¸a˜o, nesta sec¸a˜o sa˜o apresentados os traba-
+lhos utilizados como ponto de partida para o desenvolvimento do me´todo proposto de
+diagno´sticodeDHGNAapartirdetermografiaeutilizandoCNNs.
+O trabalho de Brzezinski et al. [Brzezinskietal. 2020] apresenta a primeira ten-
+tativa de uso de termografia da pele na regia˜o do f´ıgado para o monitoramento in vivo
+de esteato-hepatite, esta´gio mais desenvolvido da DHGNA, em ratos de laborato´rio. A
+doenc¸a foi induzida via alimentac¸a˜o nos animais, que foram enta˜o sedados e tiveram sua
+temperatura coletada por uma caˆmera te´rmica. Um algoritmo foi desenvolvido para ex-
+trair dados dos termogramas gerados, na regia˜o do f´ıgado dos animais, e enta˜o detectar
+a doenc¸a utilizando aprendizagem de ma´quina. O algoritmo criado foi capaz de, apo´s
+os esta´gios iniciais do estudo, detectar a doenc¸a com sucesso em 100% dos testes. Os
+autoresconcluemqueodesenvolvimentodessate´cnicaemhumanospodelevaraavanc¸os
+importantesnautilizac¸a˜odeimagenste´rmicasnocampodadetecc¸a˜odedoenc¸ascroˆnicas
+def´ıgado.
+OestudodeZuluaga-Gomezetal.[Zuluaga-Gomezetal. 2020]explorouoestado
+atual do diagno´stico de caˆncer de mama a partir de imagens te´rmicas da base DMR-IR
+[Silvaetal. 2014] e que utilizassem aprendizagem de ma´quina. A partir desse estudo, os
+autoresbuscaramdesenvolverumnovome´tododediagno´sticodadoenc¸a,utilizandoessa
+basedeimagens. Osautoresrealizaram,enta˜o,umase´riedeexperimentoscomCNNsde
+refereˆncia,comparandosuascapacidadedeclassificac¸a˜odocaˆncer. Oresultadodosexpe-
+rimentos comprovou a eficieˆncia do uso de CNNs para o diagno´stico de caˆncer de mama
+atrave´s de termografia. Ale´m disso, foi observado que CNNs mais simples teˆm melhor
+desempenho com bases de dados mais limitadas como a DMR-IR. Os autores treinaram,
+enta˜o,umase´riedeCNNscustomizadasequeexecutavamotimizac¸a˜oautoma´ticadeseus
+hiperparaˆmetros. Tambe´mforamfeitosexperimentosparaavaliaraeficieˆnciadeaumento
+de dados no desempenho das CNNs treinadas, que apresentaram menos falsos negativos
+emenosfalsospositivosaoteremessate´cnicaaplicadaemseutreinamento. Comoresul-
+tado, o trabalho gerou redes pouco profundas que alcanc¸am uma acura´cia de 92% e uma
+
+<!-- pagina 4 -->
+me´diaharmoˆnicaentreprecisa˜oesensibilidadede92%.
+Brzezinski et al. [Brzezinskietal. 2020] comprovaram o potencial do uso de
+termografia da superf´ıcie da pele na regia˜o do f´ıgado para monitorar a DHGNA
+de forma na˜o invasiva em seres vivos. Pore´m, ainda na˜o foram realizados gran-
+des avanc¸os na extensa˜o de seu trabalho para seres humanos. Ja´ Zuluaga-Gomez et
+al. [Zuluaga-Gomezetal. 2020] conseguiram estabelecer um me´todo bem-sucedido
+de diagno´stico de caˆncer de mama em imagens te´rmicas de uma base limitada uti-
+lizando CNNs, desenvolvimento que ainda na˜o foi obtido na detecc¸a˜o de DHGNA
+[Brzezinskietal. 2020].
+Levando em conta a ana´lise das descobertas, limitac¸o˜es e escopo dos trabalhos
+relacionados, este trabalho propo˜e um me´todo para o diagno´stico de DHGNA em ter-
+mogramas da regia˜o do f´ıgado em abdoˆmens humanos, utilizando as capacidades de
+detecc¸a˜o de padro˜es em imagem das CNNs. A base de imagens, descrita na Sec¸a˜o 3,
+apresenta limitac¸o˜es semelhantes a`s da base DMR-IR [Zuluaga-Gomezetal. 2020], por-
+tanto te´cnicas de aumento de dados precisaram ser aplicadas para aumentar a capacidade
+degeneralizac¸a˜odaCNNutilizada[ShortenandKhoshgoftaar2019].
+3. Metodologia Proposta
+Nestasec¸a˜oe´ apresentadoome´tododeclassificac¸a˜odeDHGNAutilizandoaredeneural
+convolucionalAlexNet. Ome´todoe´ compostode5etapas. Aetapa1consistedaobtenc¸a˜o
+da base de imagens. Na etapa 2 foi coletada a regia˜o do f´ıgado das imagens da base. Na
+etapa 3 as tabelas de temperatura geradas pela etapa 2 foram convertidas em imagens
+te´rmicas e enta˜o melhoradas. Na etapa 4 a base de imagens foi artificialmente expandida
+atrave´sdeaumentodedadoseaCNNAlexNetfoitreinadacomosdadosexpandidos. Na
+etapa5e´ feitaavalidac¸a˜oderesultadospormeiodaana´lisedasme´tricasdeavaliac¸a˜o. As
+etapasesta˜oilustradasnaFigura1.
+Figura1. Etapasparaaclassificac¸a˜odeDHGNA
+
+<!-- pagina 5 -->
+3.1. Aquisic¸a˜odeImagens
+A base de imagens utilizada nos experimentos e´ constitu´ıda de 36 pacientes, estando 14
+deles diagnosticados com DHGNA e 22 deles sem a doenc¸a. Cada paciente possui em
+me´dia 6 imagens, totalizando 223 imagens, sendo 91 imagens de pacientes afetados pela
+doenc¸a e 132 imagens de pacientes na˜o afetados. Relativamente, o grupo de pacientes
+comDHGNApossuimaisimagensporpacientequeogruposemadoenc¸a.
+As imagens foram captadas no LIT - Laborato´rio de Imagem Te´rmica da cl´ınica
+Alchimia,localizadanaruaMarechalCasteloBranco,31,OlhoD’A´gua,Sa˜oLu´ıs-MA.
+Foiutilizadoumtermo´grafodesensorinfravermelhoFLIR-ModeloS650Cderesoluc¸a˜o
+640x480, dispon´ıvel comercialmente. Os pacientes foram aclimatizados por 15 minutos,
+em temperatura ambiente de 23ºC, com umidade relativa do ar de 65%. A caˆmera foi
+posicionada a` distaˆncia de 1,5 metro para a captura das imagens, estando o paciente na
+posic¸a˜o decu´bito dorsal (deitado com o peito para cima) com a a´rea abdominal desnuda
+durante toda a aclimatac¸a˜o e captac¸a˜o das imagens (Figura 2). Os pacientes foram di-
+agnosticados como com DHGNA ou sauda´veis atrave´s de ultrassonografia de abdoˆmen
+superiorouabdoˆmentotal.
+Figura2. TermogramadepacientecomDHGNAdabasedeimagens
+3.2. Delimitac¸a˜odaRegia˜odeInteresse
+A regia˜o de interesse (ROI) do abdoˆmen dos pacientes e´ a regia˜o hepa´tica (Figura 3),
+a´reaanatoˆmicaondeof´ıgadoesta´ posicionado,noquadrantesuperiordireitodoabdoˆmen
+[Ozougwu2017,Brioschietal. 2006]. Asimagensdabasepossueminformac¸o˜esquena˜o
+contribuemparaoobjetivo,comoasregio˜esdoabdoˆmenforadaROI,roupas,oplanode
+fundo, ale´m de elementos extras como a barra de relac¸a˜o entre cores e temperaturas (Fi-
+gura 2). Portanto, foi necessa´ria a extrac¸a˜o da ROI de cada imagem. Como as CNNs re-
+cebemcomoentradaumasequeˆnciadeimagensquadradasdemesmadimensa˜o,optou-se
+porextrairaROIsempreemformatoretangular. Porcausadasdiferenc¸asf´ısicasentreos
+pacientes,ROIsdedimenso˜esdiferentesforamgeradas. Tambe´mforamextra´ıdasROIsde
+dimenso˜esquadradaseiguaisparatodosospacientes,queaproximavamaregia˜ohepa´tica
+detodos,paraverificarseaCNNteriamelhordesempenhocomdadosespec´ıficosouda-
+dos padronizados. Pore´m, a rede teve mais dificuldade em aprender nos testes feitos com
+asimagensdeROIspadronizadas.
+
+<!-- pagina 6 -->
+As ROIs de cada imagem foram extra´ıdas pelos autores por meio do software
+especializadoFLIRTools1. Comaorientac¸a˜odeumespecialista,foiselecionadaaregia˜o
+retangularmaisadequadaaosparaˆmetrosdaregia˜ohepa´ticadopaciente. Astemperaturas
+daa´reaforam exportadascomo tabelasde temperaturas,onde cadace´lulaconte´mo valor
+referente a` temperatura, em graus Celsius, e com treˆs casas decimais de precisa˜o, de
+um pixel da imagem. Para cada paciente as ROIs extra´ıdas de suas imagens possuem
+as mesmas dimenso˜es, com diferenc¸as de valores internos causadas pelo posicionamento
+manualdaa´rearetangularepelomovimentodopacienteduranteacoletadasfotos.
+Figura3. Termogramacomregia˜odeinteressedelimitada
+3.3. Pre´-Processamento
+Como as ROIs sa˜o exportadas atrave´s do FLIR Tools como tabelas de temperaturas, foi
+necessa´rio um passo de conversa˜o das tabelas para imagens te´rmicas. As tabelas foram
+convertidasparaimagensemescaladecinza(Figura4),queforamenta˜omelhoradascom
+te´cnicasdepre´-processamentoja´reportadascomoeficientesnomelhoramentodeimagens
+te´rmicas [Wahabetal. 2018, Zuluaga-Gomezetal. 2020]. Dessa forma, foram realc¸ados
+ao ma´ximo os elementos visuais, como texturas e intensidades de pixel relacionadas a`
+temperatura representada, ale´m de ser feita a limpeza de ru´ıdos gerados no momento da
+coletadabase. Ale´mdisso,nessepassoasROIstiveramsuasdimenso˜espadronizadas.
+Figura4. ROIconvertidaparaimagemte´rmica
+1Dispon´ıvelem: https://www.flir.com.br/products/flir-tools/
+
+<!-- pagina 7 -->
+A conversa˜o das ROIs para imagens te´rmicas foi realizada atrave´s de uma func¸a˜o
+deconversa˜olinearrepresentadapelaEquac¸a˜o1
+(t∗1000−oldMin)∗(newMax−newMin)
+f(t) = +newMin (1)
+(oldMax−oldMin)
+onde t e´ a temperatura de uma ce´lula da tabela, oldMin e´ a temperatura m´ınima entre
+todas as ROIs da base, multiplicada por 1000, oldMax e´ a temperatura ma´xima entre
+todasasROIsdabase,multiplicadapor1000,newMine´ ovalorm´ınimodeumpixel(0)
+enewMaxe´ ovalorma´ximodeumpixel(255). Dessaforma,cadavalordetemperatura
+foiconvertidoemumaintensidadedecinza,preservandocompletamenteaprecisa˜odede-
+talhesate´ aprimeiraposic¸a˜odecimaldetemperaturaeparcialmenteate´ asegundaposic¸a˜o
+decimal. Utilizar m´ınimo e ma´ximo universais de temperatura, ou seja, a menor tempe-
+raturaentretodosospacienteseamaiortemperaturaentretodosospacientes,provou-se,
+apo´s experimentos, ser muito mais eficiente que utilizar m´ınimo e ma´ximo locais, onde
+oldMineoldMaxlevamemcontaamenortemperaturaeamaiortemperaturaespec´ıficas
+a cada paciente dentre as suas imagens. A rede alcanc¸ou resultados de aprendizado no
+primeirocasoemostrouumaextremadificuldadeemaprendernosegundocaso.
+Para o pre´-processamento, foram experimentadas combinac¸o˜es de remoc¸a˜o de
+ru´ıdo e equalizac¸a˜o de histograma vistos como u´teis no melhoramento de imagens
+te´rmicas [Wahabetal. 2018], tendo sido bem-sucedida a combinac¸a˜o da remoc¸a˜o de
+ru´ıdo de wiener [Wahabetal. 2018] e equalizac¸a˜o de histograma adaptativa (CLAHE)
+[Zuluaga-Gomezetal. 2020]. Ale´m disso, para que pudessem ser inseridas na CNN, as
+ROIs receberam bordas de pixels pretos que padronizaram as imagens resultantes com
+lados iguais, medindo o mesmo que a maior dimensa˜o dentre todas as imagens, o que
+resultou em imagens de 283x283 pixels, ficando a regia˜o centralizada na imagem (Fi-
+gura5).
+Figura5. ROIsdediferentespacientespre´-processadasecomborda
+3.4. Classificac¸a˜odaDHGNA
+Nesta etapa e´ realizada a classificac¸a˜o da DHGNA utilizando a CNN AlexNet. A base
+detalhadanaSec¸a˜o3.1foidivididaemconjuntosdetreino,validac¸a˜oeteste,deformaba-
+lanceadaentreasclasses. Oconjuntodetreinopassou,enta˜o,porumprocessodeaumento
+
+<!-- pagina 8 -->
+dedados,queaplicoutransformac¸o˜esemsuasimagensparagerarimagenssinte´ticas,ex-
+pandindooconjuntoemduasvezesoseutamanho. Finalmente,aAlexNettreinoucomo
+conjunto de treino aumentado, realizando validac¸a˜o com o conjunto de validac¸a˜o a cada
+e´poca durante o treino. Os resultados obtidos na predic¸a˜o, sobre o conjunto de teste, do
+modelotreinadosa˜oapresentadosnaSec¸a˜o4.
+Para a divisa˜o dos conjuntos, os pacientes foram divididos entre conjuntos de
+treino, validac¸a˜o e teste, de forma que na˜o houvessem imagens de um mesmo paciente
+em conjuntos diferentes [Zuluaga-Gomezetal. 2020], para evitar considerar resultados
+de modelos possivelmente ineficientes em generalizac¸a˜o (apresentando overfitting). Os
+pacientes com DHGNA esta˜o em menor nu´mero na base, portanto foi necessa´rio balan-
+cear o conjunto de treino entre as duas classes. A divisa˜o iniciou com a separac¸a˜o de
+uma partic¸a˜o de 20% dos pacientes com DHGNA para o conjunto de teste [Ge´ron2019,
+p. 31] e 20% para o conjunto de validac¸a˜o durante o treinamento. Os 60% restantes dos
+pacientes com a doenc¸a foram inclu´ıdos no conjunto de treino. Em seguida, foram adici-
+onados pacientes sem a doenc¸a no conjunto de treino, em nu´mero ideˆntico aos pacientes
+comDHGNAnoconjunto. Omesmoprocessofoifeitonoconjuntodevalidac¸a˜oeores-
+tante dos pacientes sem DHGNA foi inclu´ıdo no conjunto de teste. O conjunto de treino
+possuiu 49 imagens com DHGNA e 43 imagens sem a doenc¸a. O conjunto de validac¸a˜o
+possuiu 19 imagens com DHGNA e 18 imagens sem a doenc¸a. Por fim, o conjunto de
+testepossuiu23imagenscomDHGNAe71imagenssemadoenc¸a.
+A pouca quantidade de imagens e o desbalanceamento da base configura um
+usual problema das CNNs aplicadas a tarefas de visa˜o computacional na a´rea cl´ınica
+[ShortenandKhoshgoftaar2019], portanto, foi necessa´ria a aplicac¸a˜o de aumento de da-
+dos no conjunto de treino. Transformac¸o˜es foram aplicadas a`s imagens de treino para
+gerar novas imagens sinte´ticas, expandindo o conjunto. Foram testados va´rios n´ıveis
+de expansa˜o, para buscar os mais eficientes. A expansa˜o ma´xima suportada foi de 100
+vezes a quantidade de imagens do conjunto de treino. O n´ıvel de expansa˜o mais efici-
+ente identificado foi o de duas vezes a quantidade de imagens do conjunto de treino. As
+transformac¸o˜es utilizadas foram giros horizontais e verticais, zoom de ate´ 20% e adic¸a˜o
+deru´ıdogaussiano[ShortenandKhoshgoftaar2019].
+Finalmente, as imagens foram utilizadas para treinamento da CNN AlexNet
+[Krizhevskyetal. 2012], experimentando trazer para o diagno´stico de DHGNA as con-
+cluso˜es de Zuluaga-Gomez et al. [Zuluaga-Gomezetal. 2020] sobre o melhor desempe-
+nhodeCNNsmaissimplessobrebasesmaislimitadasdeimagenste´rmicas. Aredepossui
+cincocamadasdeconvoluc¸a˜o,treˆscamadasdepoolingetreˆscamadascompletamenteco-
+nectadas, sendo a rede inicializada com pesos aleato´rios. Para o me´todo, foi utilizada a
+func¸a˜o de ativac¸a˜o sigmoide, func¸a˜o de perda binary cross-entropy, otimizador Adam e
+tamanhodebatchde32imagens. Aredetreinoupor100e´pocas. OesquemadaAlexNet
+utilizada esta´ representado na Figura 6. A rede foi treinada em uma GPU NVIDIA Tesla
+K80,dispon´ıvelgratuitamenteatrave´sdoGoogleColab.
+3.5. Validac¸a˜odosResultados
+Para a classificac¸a˜o, pacientes com DHGNA foram considerados como a classe positiva
+e os sauda´veis como a classe negativa. O desempenho dos modelos foi avaliado a partir
+dequatrome´tricas,sendoessasaprecisa˜o,sensibilidade,especificidadeeacura´cia. Cada
+
+<!-- pagina 9 -->
+Figura6. Representac¸a˜odaAlexNetutilizada
+uma das me´tricas e´ apresentada nas equac¸o˜es a seguir, sendo VP os verdadeiros positi-
+vos, imagens corretamente classificadas com a doenc¸a, FP os falsos positivos, imagens
+incorretamente classificadas com a doenc¸a, VN os verdadeiros negativos, imagens cor-
+retamente classificadas sem a doenc¸a e FN os falsos negativos, imagens incorretamente
+classificadassemadoenc¸a.
+VP
+precisa˜o = (2)
+VP +FP
+VP
+sensibilidade = (3)
+VP +FN
+VN
+especificidade = (4)
+VN +FP
+VP +VN
+acura´cia = (5)
+VP +FP +VN +FN
+A precisa˜o (Equac¸a˜o 2) verifica, dentre as classificac¸o˜es de casos com a doenc¸a
+realizadaspelomodelo,quantasesta˜ocorretas. Asensibilidade(Equac¸a˜o3)e´ aproporc¸a˜o
+de verdadeiros positivos, ou seja, a capacidade do modelo em identificar corretamente a
+doenc¸aemcasosquerealmenteateˆm. Aespecificidade(Equac¸a˜o4)e´ aproporc¸a˜odever-
+dadeiros negativos, ou seja, a capacidade do modelo em indicar corretamente a auseˆncia
+da doenc¸a em casos que realmente na˜o a teˆm. A acura´cia (Equac¸a˜o 5) e´ a proporc¸a˜o de
+acertodaclassificac¸a˜onogeral,semlevaremcontaasclasses.
+4. Resultados
+Nesta sec¸a˜o, sa˜o apresentados os resultados do me´todo proposto de classificac¸a˜o de
+DHGNA utilizando termografia e uma CNN. Inicialmente sa˜o discutidas as me´tricas uti-
+lizadasparaavaliarodesempenhodaCNNutilizada,enta˜osa˜oapresentadososmelhores
+resultados alcanc¸ados. Adicionalmente, e´ apresentado o que esse me´todo estende das
+descobertasdostrabalhosrelacionados.
+Em aplicac¸o˜es cl´ınicas, o risco maior a` vida dos pacientes encontra-se na na˜o
+detecc¸a˜o da doenc¸a em pacientes doentes [Zuluaga-Gomezetal. 2020]. Como a sensi-
+bilidade, representada na Equac¸a˜o 3, penaliza a classificac¸a˜o de falsos negativos, essa
+me´trica torna-se a mais importante na avaliac¸a˜o dos modelos. Falsos negativos devem
+ser evitados ao ma´ximo para aumentar a chance de um diagno´stico eficiente de pacientes
+doentes, diminuindo a mortalidade da doenc¸a [Zuluaga-Gomezetal. 2020]. Portanto, os
+
+<!-- pagina 10 -->
+modelos foram avaliados em primeiro lugar a partir da sensibilidade que alcanc¸aram e,
+em segundo lugar, pela precisa˜o (Equac¸a˜o 2), que, por sua vez, permite evitar modelos
+queclassifiquemmuitosfalsospositivos.
+Osresultadosalcanc¸adosmostramqueaAlexNetpossuiboacapacidadedeclassi-
+ficarentreasimagenste´rmicasdasregio˜eshepa´ticasafetadasporDHGNAeassauda´veis.
+Com a aplicac¸a˜o do me´todo, foi alcanc¸ada uma sensibilidade de 91%, precisa˜o de 91%,
+especificidade de 97% e acura´cia de 96%. Desses resultados, pode-se observar que a
+utilizac¸a˜o de termografias da superf´ıcie da pele sobre a regia˜o do f´ıgado para diagno´stico
+de DHGNA, com base em aprendizagem de ma´quina, foi estendida com resultados pro-
+missores para seres humanos. Ale´m disso, foi mostrado que a AlexNet e´ uma CNN
+eficiente no reconhecimento de padro˜es que podem ser associados a` presenc¸a da doenc¸a,
+e que as te´cnicas atualmente bem-sucedidas de aplicac¸a˜o de redes como essa em tarefas
+cl´ınicaspodemsertrazidasa` tarefadedetecc¸a˜odaDHGNA.
+5. Conclusa˜o
+Este trabalho aplicou te´cnicas de aprendizagem de ma´quina atrave´s de uma rede neu-
+ral convolucional para classificac¸a˜o de esteatose hepa´tica na˜o alcoo´lica usando imagens
+te´rmicas da regia˜o do f´ıgado. Atrave´s do me´todo constru´ıdo, a AlexNet utilizada foi ca-
+paz de alcanc¸ar alta sensibilidade e me´tricas gerais promissoras para a sua aplicac¸a˜o no
+diagno´stico de DHGNA, mesmo com uma base limitada. Com o me´todo, foi visto que a
+selec¸a˜odaregia˜ohepa´ticaadequadadecadapacientecriaumabasededadosquetornao
+treinamento da CNN mais eficiente, ao contra´rio do uso de uma ROI padronizada. Ale´m
+disso,foramverificadasaste´cnicasdemelhoramentodeimagemeaumentodedadosque
+maismelhoramoaprendizadodaCNN.
+O me´todo proposto precisou ser desenvolvido a partir das descobertas de traba-
+lhoscujoescopoatendedeformalimitadaoproblemaabordadonessetrabalho. Portanto,
+maisestudossobreautilizac¸a˜odeCNNsparaadetec¸a˜odaDHGNAapartirdetermogra-
+fia precisam ser realizados, para otimizar as te´cnicas de aplicac¸a˜o das redes. Para traba-
+lhos futuros, propo˜e-se experimentar te´cnicas adicionais da utilizac¸a˜o de CNNs, como a
+aplicac¸a˜oderedespre´-treinadaseredesdeotimizac¸a˜oautoma´tica,bemcomoexperimen-
+tar outras CNNs de refereˆncia. Um estudo da melhor representac¸a˜o da regia˜o hepa´tica
+tambe´mveˆ-senecessa´rio,paradefiniramelhorentradaparaotreinamentodasredes.
+6. Agradecimentos
+Os autores agradecem ao Conselho Nacional de Desenvolvimento Cient´ıfico e Tec-
+nolo´gico pelo financiamento do trabalho, e a` Universidade Federal do Maranha˜o pelo
+apoiofornecido.
+Refereˆncias
+Brioschi, M. L., Yeng, L. T., Colman, D., Silva, F. M. M., and Teixeira, M. J. (2006).
+Imaginologia infravermelha no estudo avanc¸ado da dor de origem visceral* infrared
+imagingintheadvancedstudyofvisceralpain.
+Brzezinski, R. Y., Levin-Kotler, L., Rabin, N., Ovadia-Blechman, Z., Zimmer, Y., Stern-
+feld, A., Finchelman, J. M., Unis, R., Lewis, N., Tepper-Shaihov, O., et al. (2020).
+
+<!-- pagina 11 -->
+Automated thermal imaging for the detection of fatty liver disease. Scientific reports,
+10(1):1–11.
+Byra, M., Styczynski, G., Szmigielski, C., Kalinowski, P., Michałowski, Ł., Paluszki-
+ewicz, R., Ziarkiewicz-Wro´blewska, B., Zieniewicz, K., Sobieraj, P., and Nowicki, A.
+(2018). Transfer learning with deep convolutional neural network for liver steatosis
+assessmentinultrasoundimages. Internationaljournalofcomputerassistedradiology
+andsurgery,13(12):1895–1903.
+Cotrim, H. P., Parise, E. R., Figueiredo-Mendes, C., Galizzi-Filho, J., Porta, G., and
+Oliveira, C. P. (2016). Nonalcoholic fatty liver disease brazilian society of hepatology
+consensus. Arquivosdegastroenterologia,53(2):118–122.
+Farooq, M. A. and Corcoran, P. (2020). Infrared imaging for human thermography and
+breast tumor classification using thermal images. In 2020 31st Irish Signals and Sys-
+temsConference(ISSC),pages1–6.IEEE.
+Ge´ron,A.(2019). Hands-onmachinelearningwithScikit-Learn,Keras,andTensorFlow:
+Concepts,tools,andtechniquestobuildintelligentsystems. O’ReillyMedia.
+Krizhevsky,A.,Sutskever,I.,andHinton,G.E.(2012). Imagenetclassificationwithdeep
+convolutional neural networks. Advances in neural information processing systems,
+25:1097–1105.
+Ozougwu, J. C. (2017). Physiology of the liver. International Journal of Research in
+PharmacyandBiosciences,4(8):13–24.
+Santana,J.T.,Mota,A.V.H.,Gonzaga,Y.H.G.,Gomes,R.M.O.P.,Melo,L.C.,Noro-
+nha,V.F.C.M.,Santos,A.C.O.L.,deJesus,J.B.,Lima,S.O.,andCruz,J.F.(2021).
+Perfilmetabo´licoeantropome´tricodospacientesobesosena˜oobesosportadoresdees-
+teatosehepa´ticana˜oalcoo´lica. RevistaEletroˆnicaAcervoSau´de,13(2):e5525–e5525.
+Schwabe,R.F.,Tabas,I.,andPajvani,U.B.(2020). Mechanismsoffibrosisdevelopment
+innonalcoholicsteatohepatitis. Gastroenterology,158(7):1913–1928.
+Shorten, C. and Khoshgoftaar, T. M. (2019). A survey on image data augmentation for
+deeplearning. JournalofBigData,6(1):1–48.
+Silva, L., Saade, D., Sequeiros, G., Silva, A., Paiva, A., Bravo, R., and Conci, A. (2014).
+A new database for breast research with infrared image. Journal of Medical Imaging
+andHealthInformatics,4(1):92–100.
+Wahab, A. A., Salim, M., Yunus, J., and Ramlee, M. H. (2018). Comparative evaluation
+ofmedicalthermalimageenhancementtechniquesforbreastcancerdetection. Journal
+ofEngineeringandTechnologicalSciences,50:40–52.
+Zuluaga-Gomez, J., Al Masry, Z., Benaggoune, K., Meraghni, S., and Zerhouni, N.
+(2020). A cnn-based methodology for breast cancer diagnosis using thermal ima-
+ges. Computer Methods in Biomechanics and Biomedical Engineering: Imaging &
+Visualization,pages1–15.

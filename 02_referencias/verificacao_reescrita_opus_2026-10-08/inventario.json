@@ -1,0 +1,78 @@
+[
+  {
+    "chave": "diversevul",
+    "pdf": "02_referencias/pdfs das referencias/Datasets e benchmarks/Chen, Y - 2023.pdf",
+    "sha256_pdf": "2522c0b461044e244b0f4bb66600cc2a92df6ea5a888fac54ed5e72c6d059c0d",
+    "paginas": 15,
+    "extracao": "02_referencias/verificacao_reescrita_opus_2026-10-08/diversevul_pdf.txt",
+    "sha256_extracao": "172a553ec221504c66d23b72e32e4a209d75527241587065edede20d8d608dc1",
+    "metadados": {
+      "/CreationDate": "D:20230810004645Z",
+      "/Creator": "LaTeX with acmart 2022/10/24 v1.88 Typesetting articles for the Association for Computing Machinery and hyperref 2023-04-22 v7.00x Hypertext links for LaTeX",
+      "/ModDate": "D:20230810004645Z",
+      "/PTEX.Fullbanner": "This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) kpathsea version 6.3.5",
+      "/Producer": "pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) kpathsea version 6.3.5",
+      "/Subject": "",
+      "/Title": "DiverseVul: A New Vulnerable Source Code Dataset for Deep Learning Based Vulnerability Detection",
+      "/Trapped": "/False"
+    }
+  },
+  {
+    "chave": "linevul",
+    "pdf": "02_referencias/pdfs das referencias/Ref Adicionadas/LineVul - 2022.pdf",
+    "sha256_pdf": "3d26eac279097ae78aa4eea73eaad59356054d979dd5525d812acdc65b3f4235",
+    "paginas": 13,
+    "extracao": "02_referencias/verificacao_reescrita_opus_2026-10-08/linevul_pdf.txt",
+    "sha256_extracao": "cf584affac413c7fb52be7ddfe8dc8e699af7ab573381addcc4b28ae5f82f50d",
+    "metadados": {
+      "/Meeting Starting Date": "23 May 2022",
+      "/ModDate": "D:20220620122913-04'00'",
+      "/IEEE Article ID": "9796256",
+      "/CreationDate": "D:20220602204626Z",
+      "/IEEE Issue ID": "9796155",
+      "/Producer": "OpenPDF 1.0.0-SNAPSHOT; modified using iText® 7.1.1 ©2000-2018 iText Group NV (AGPL-version)",
+      "/Subject": "2022 IEEE/ACM 19th International Conference on Mining Software Repositories (MSR);2022; ; ;10.1145/3524842.3528452",
+      "/IEEE Publication ID": "9796153",
+      "/Title": "LineVul: A Transformer-based Line-Level Vulnerability Prediction",
+      "/Meeting Ending Date": "24 May 2022"
+    }
+  },
+  {
+    "chave": "reveal",
+    "pdf": "02_referencias/pdfs das referencias/Ref Adicionadas/Saikat Chakraborty - 2020.pdf",
+    "sha256_pdf": "8166555c8b6237c18eb36fb76d9ea5ca889f9532ce2c38825d84203e626d7c45",
+    "paginas": 18,
+    "extracao": "02_referencias/verificacao_reescrita_opus_2026-10-08/reveal_pdf.txt",
+    "sha256_extracao": "f870ff1d8de09d765c7d1ef4eb2714d78b391a64b90032af593a2ed7ec2ba852",
+    "metadados": {
+      "/Author": "",
+      "/CreationDate": "D:20200916005714Z",
+      "/Creator": "LaTeX with hyperref package",
+      "/Keywords": "",
+      "/ModDate": "D:20200916005714Z",
+      "/PTEX.Fullbanner": "This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) kpathsea version 6.2.2",
+      "/Producer": "pdfTeX-1.40.17",
+      "/Subject": "",
+      "/Title": "",
+      "/Trapped": "/False"
+    }
+  },
+  {
+    "chave": "devign",
+    "pdf": "02_referencias/pdfs das referencias/Deteccao de vulnerabilidade métodos e modelos/Zhou, Y - 2019.pdf",
+    "sha256_pdf": "2383a2828ac4c782516285d48ecd18c6f79b5f6329d6441f78014faf3bdc75f2",
+    "paginas": 11,
+    "extracao": "02_referencias/verificacao_reescrita_opus_2026-10-08/devign_pdf.txt",
+    "sha256_extracao": "3051bd221086f85c6d4da207d6aa9b8087a22a64cbd07b97f366a2c97f5b2961",
+    "metadados": {
+      "/Producer": "dvips + GPL Ghostscript GIT PRERELEASE 9.22",
+      "/CreationDate": "D:20190909222722-04'00'",
+      "/ModDate": "D:20190909222722-04'00'",
+      "/Creator": "LaTeX with hyperref package",
+      "/Title": "",
+      "/Subject": "",
+      "/Author": "",
+      "/Keywords": ""
+    }
+  }
+]

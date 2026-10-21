@@ -1,0 +1,963 @@
+=== PÁGINA FÍSICA 1 ===
+           Vulnerability Detection with Code Language
+                                    Models: How Far Are We?
+
+                 Yangruibo Ding†, Yanjun Fu♢, Omniyyah Ibrahim♮, Chawin Sitawarin‡, Xinyun Chen∇
+                             Basel Alomair ♮,∗, David Wagner ‡, Baishakhi Ray†, Yizheng Chen♢
+
+                                                             †Columbia University
+                                                          ∗University of Washington
+                                          ♮King Abdulaziz City for Science and Technology
+                                                              ∇Google DeepMind
+                                                                  ‡UC Berkeley
+                                                          ♢University of Maryland
+
+
+
+  Abstract—In the context of the rising interest in code language               In this paper, we aim to evaluate whether code LMs are
+models  (code  LMs)  and  vulnerability  detection,  we  study  the          able to detect security vulnerabilities in real code, in settings
+effectiveness  of  code  LMs  for  detecting  vulnerabilities.  Our          representative of that needed for real-world use. This explo-
+analysis reveals significant shortcomings in existing vulnerability          ration is anchored in the belief that while code LMs possess
+datasets,includingpoordataquality,lowlabelaccuracy,andhigh                   remarkable potential, realizing their full capability to enhance
+duplication  rates,  leading  to  unreliable  model  performance  in
+realistic vulnerability detection scenarios. Additionally, the eval-         software security necessitates a rigorous validation of their
+uation methods used with these datasets are not representative               training and evaluation frameworks against the challenges of
+of real-world vulnerability detection.                                       real-world software development. In particular, we scrutinize
+  To address these challenges, we introduce PRIMEVUL, a new                  the datasets used to train code LMs and the benchmarks and
+dataset for training and evaluating code LMs for vulnerability               metrics  used  to  evaluate  their  effectiveness  at  vulnerability
+detection. PRIMEVUL incorporates a novel set of data labeling
+techniques that achieve comparable label accuracy to human-                  detection.
+verified benchmarks while significantly expanding the dataset. It
+also implements a rigorous data de-duplication and chronological             Limitation  of  existing  datasets  and  benchmarks.  First,
+data splitting strategy to mitigate data leakage issues, alongside           we meticulously analyze existing  VD benchmarks [5, 8–11],
+introducing more realistic evaluation metrics and settings. This             examining data collection methods, label accuracy, and preva-
+comprehensive approach aims to provide a more accurate assess-               lenceofdataduplication.Ourinvestigationrevealscriticaldata
+ment of code LMs’ performance in real-world conditions.                      quality problems, that impact their effectiveness for training
+  Evaluating  code  LMs  on  PRIMEVUL  reveals  that  existing
+benchmarks significantly overestimate the performance of these               and their suitability for evaluating code LMs.
+models. For instance, a state-of-the-art 7B model scored 68.26%                    Noisy labels:  In  VD literature, researchers typically la-
+F1 on BigVul but only 3.09% F1 on PRIMEVUL. Attempts to                      bel  datasets  either  automatically  or  manually.  Most  large
+improve performance through advanced training techniques and
+larger models like GPT-3.5 and GPT-4 were unsuccessful, with                 datasets  [4,  5,  9]  use  automatic  labeling  because  manual
+results akin to random guessing in the most stringent settings.              labeling is too expensive. However, automatic labeling can
+These findings underscore the considerable gap between current               introduce significant label noise. For instance, datasets like
+capabilities and the practical requirements for deploying code               BigVul [9] curate hundreds of thousands of functions from
+LMs in security roles, highlighting the need for more innovative             the real world and rely on vulnerability-fixing commits for
+research in this domain.
+                         I.  INTRODUCTION                                    labeling.  However,  they  suffer  from  a  flawed  assumption
+                                                                             that each function modified by such a commit corresponds
+  In the evolving landscape of software development, code                    to a (separate) vulnerability. In practice, vulnerability-fixing
+language  models  (code  LMs)  have  become  pivotal  in  au-                commits  often  fix  one  vulnerability  but  also  make  other
+tomating  various  software  engineering  tasks,  fundamentally              changes to surrounding code, and existing automatic labeling
+altering developers’ coding approaches [1]. Leading examples                 methods wrongly label that surrounding code as vulnerable.
+like  GitHub  Copilot  [2]  and  Amazon  CodeWhisperer  [3]                  In contrast, manual labeling offers higher accuracy, but its
+have already integrated into real-world software development,                cost means it can only be applied to smaller datasets. For
+significantly  assisting  developers  in  their  daily  work.  Con-          instance, the most accurate prior dataset, SVEN [12], which
+sequently, LM-based vulnerability detection (VD) has gained                  was  manually  labeled,  covers  only  9  Common  Weakness
+traction, with researchers utilizing code LMs’ expanding ca-                 Enumerations (CWEs) and comprises only 1.6k samples. This
+pabilities to autonomously identify security vulnerabilities in              dichotomy presents a challenge: how to acquire high-quality
+codebases [4–7].                                                             labeled  VD  data  at  scale  for  training  code  LMs  to  detect
+
+
+
+                                                                           1
+
+=== PÁGINA FÍSICA 2 ===
+security vulnerabilities.                                                      of  both  vulnerabilities  and  coding  patterns.  Chronological
+      Data duplication: Furthermore, data duplication is preva-                splitting also reduces the risks of data leakage. Second, we
+lent in these datasets. Our analysis identified significant levels             introduce the Vulnerability Detection Score (VD-S), a novel
+of exact copies and cloned vulnerabilities within the datasets.                metric designed to measure how well vulnerability detectors
+This is particularly problematic when one copy appears in the                  will perform in practice. VD-S measures the false negative
+training set and another copy in the testing set, as performance               rate,  after  the  detector  has  been  tuned  to  ensure  the  false
+metrics  become  unrepresentative  of  real-world  performance                 positiverateisbelowafixedthreshold(e.g.,0.5%).Finally,we
+and misrepresent the model’s ability to generalize to unseen                   introduce a pair-wise evaluation method to assess the model’s
+data. We found that up to 18.9% test samples are leaked from                   ability to distinguish between a vulnerable code sample and
+the train set in some benchmarks.                                              its  benign  (fixed)  counterpart,  offering  deeper  insights  into
+Limitation in existing evaluation metrics. Besides the data                    models’ vulnerability understanding.
+quality issue, the evaluation metrics used by current bench-                   Effectiveness of Code LMs in realistic vulnerability detec-
+marks fail to capture the practical utility of models at VD.                   tion. We evaluate seven code LMs with varied sizes, including
+      Accuracy:   Many  benchmarks  report  accuracy  scores,                  the state-of-the-art open-source models like StarCoder2 [13]
+but  accuracy  is  not  an  appropriate  metric  for  vulnerability            and the proprietary models from OpenAI [14], on PRIMEVUL.
+detection, because of the base rate problem (vulnerabilities                   Our findings paint a sobering picture of the current state of
+are rare in practice; most code is not vulnerable) and because                 code LMs in vulnerability detection. Across various models
+of mismatches in class balance (the proportion of vulnerable                   and  experimental  setups,  code  LMs  consistently  performed
+samples in most research datasets does not match the ratio of                  poorly, as measured on the PRIMEVUL benchmark. This is
+vulnerable code in real life). For instance, because most sam-                 in sharp contrast to prior evaluations on prior benchmarks,
+ples in realistic benchmarks are not vulnerable, it is possible to             which  reported  seemingly  good  results.  For  example,  Star-
+achieve high accuracy by always predicting “not vulnerable”.                   Coder2,whichpreviouslyshowedpromisingperformancewith
+A high accuracy score does not necessarily signify effective                   a  68.26%  F1  score  on  BigVul,  drastically  underperformed
+detection  of  security  vulnerabilities;  it  may  simply  reflect            in  our  assessment,  achieving  only  a  3.09%  F1  score  on
+the accurate identification of non-vulnerable cases, or a bias                 PRIMEVUL.
+towards predicting “not vulnerable”.                                              Our findings highlight the ineffectiveness of existing models
+      F1: While the F1 score is widely perceived to be a better                in vulnerability detection and the misleading nature of previ-
+metric for assessing classification performance on imbalanced                  ous benchmarks. This underscores the significance of PRIME-
+datasets, we argue that it is not appropriate in reality either.               VUL in offering a more challenging and realistic evaluation
+The F1 score (the harmonic mean of precision and recall)                       environment, exposing the limitations of current models when
+reflects both false positives and false negatives by combining                 confronted with real-world vulnerabilities. Additionally, the
+them into a single penalty. Yet, for  VD tools in practice, the                introduction of the Vulnerability Detection Score (VD-S) and
+overwhelming majority of code is not vulnerable, so a critical                 pairwise evaluations further elucidated the challenges faced by
+challenge is preventing excessive false alarms. The F1 score                   the models.
+fails to reflect this asymmetry, so tools with a high F1 score                    Our  attempts  at  enhancing  model  performance  through
+may be useless in practice.                                                    advanced training techniques, such as class weights and con-
+Proposed  solution.  To  address  the  above  limitations,  we                 trastive learning, resulted in marginal improvements at best.
+propose a new VD dataset and novel evaluation guidelines.                      We also evaluated state-of-the-art LLMs, including GPT-3.5
+      New  dataset:  We  introduce  PRIMEVUL  to  tackle  the                  and  GPT-4,  where  we  employed  zero-shot  prompting  and
+limitations of existing datasets through rigorous data collec-                 fine-tuning, hoping to leverage their massive pre-training and
+tion, data normalization, and data filtering process. We further               model  capacity  for  enhanced  performance.  However,  even
+introduce two rigorous labeling techniques: (i) PRIMEVUL-                      these  models  cannot  distinguish  vulnerabilities  from  their
+NVDCHECK uses expert analysis from CVE entries, and (ii)                       similar yet benign counterparts. In our pair-wise evaluation,
+PRIMEVUL-ONEFUNC utilizes unique changes within com-                           GPT-4  with  the  chain-of-thought  reasoning  could  not  even
+mits, ensuring high label accuracy. Consequently, PRIMEVUL                     outperform the random guessing. This indicates that we are
+not only ensures better label accuracy but also significantly                  a long way from being able to usefully detect security vul-
+reduces the possibility of data duplication, thereby offering                  nerabilities  with  code  language  models,  and  fundamentally
+a more realistic and less noisy  VD benchmark. To this end,                    new approaches may be needed. These findings also prompt a
+PRIMEVUL  contains  6,968  vulnerable  and  228,800  benign                    reassessment of the benchmarks used to gauge progress in the
+functions, covering 140 CWEs while maintaining similar ac-                     field, emphasizing the role of PRIMEVUL in advancing toward
+curacy as SVEN, marking a substantial advancement in both                      more realistic and rigorous evaluations.
+scale and accuracy compared to previous datasets.                                 To summarize, our contributions in this paper are as below:
+      Novel evaluation guidelines:  We propose novel evalua-
+tion guidelines, to ensure evaluation results will be predictive                  •  We conducted an in-depth analysis of existing datasets,
+of the real-world performance of these tools. First, we sug-                         uncovering significant flaws, including poor data quality,
+gest splitting samples chronologically to reflect the evolution                      low label accuracy, and a high incidence of data duplica-
+
+
+
+                                                                            2
+
+=== PÁGINA FÍSICA 3 ===
+     tion.                                                                    Unfortunately, even for the most experienced security experts,
+   •  We developed  PRIMEVUL, a new vulnerability dataset                     manually verifying the vulnerability labels of code samples
+     with high-quality, accurately labeled data and stringent                 is challenging and time-consuming. Therefore, the manually
+     de-duplication, to offer realistic training and testing data             verified datasets, though having higher label accuracy, are not
+     for code LMs.                                                            ideal for training the deep neural networks due to the limited
+   •  We introduced new evaluation guidelines, including the                  diversity  (e.g.,  SVEN  only  covers  9  CWEs)  and  a  limited
+     Vulnerability  Detection  Score  (VD-S)  and  a  pair-wise               number of samples (e.g., SVEN only has 1.6k samples).
+     evaluation method, advancing the rigor of model assess-
+     ment for vulnerability detection.                                        B. Label Accuracy
+
+   •  We evaluated a range of code LMs with PRIMEVUL. Our                        Inthissection,wequantifythelabelaccuracyoftheexisting
+     evaluation  demonstrates  that,  despite  various  attempts              benchmarks.
+     at optimization, the performance of current models sig-                     1) Experiments:  We  analyze  the  label  accuracy  by  ran-
+     nificantly falls short of the requirements for real-world                domly sampling 50 vulnerable functions from each benchmark
+     deployment, highlighting a pressing need for innovative                  and manually analyzing whether the function indeed contains
+     approaches in the training of code LMs for vulnerability                 security vulnerabilities. The manual analysis was performed
+     detection. We release our artifact at: https://github.com/               by three of the authors, including two researchers with several
+     DLVulDet/PrimeVul                                                        years  of  experience  in  computer  security  and  one  senior
+               II.  BACKGROUND & CHALLENGES                                   security expert.
+  In this section, we will revisit the existing code-LM-based                 Human Judgement.  We follow the same method from Chen
+vulnerability detection models and study the core problems                    et al. [5] to analyze whether each function is vulnerable and
+that  prevent  them  from  being  promising  and  reliable  for               categorize  nonvulnerable  functions  accordingly.  Our  human
+realistic deployment.                                                         annotators comprehensively check the commit message that
+A. Existing Data Collection Methods                                           changedthesampledfunction,thefunctionbeforeandafterthe
+                                                                              commit, the affiliated CVE, the NVD description, as well as
+  A vast amount of high-quality data is the key to successfully               the discussions among the developers in security issue trackers
+train  deep  neural  networks.  Earlier  studies  [15,  16]  train            if available. Using these information, our human annotators
+deep-learning models using synthetic datasets such as SATE                    confirm 1) whether the commit is related to fixing a security
+IV Juliet [17] and SARD [18]. However, synthetic datasets                     vulnerability, and 2) whether the sampled function is indeed
+do not adequately capture the complex and nuanced nature                      vulnerable.
+of vulnerabilities in real-world code [4]. To address this, a                    Fornonvulnerablefunctions,wecategorizetheminto1)vul-
+series of benchmarks collect vulnerabilities from real-world,                 nerability spread across multiple functions, 2) other changes
+open-source software repositories [4, 5, 8, 9, 19]. Existing                  to make the fix consistent (relevant, but not vulnerable), and
+vulnerability datasets suffer from one of the two following                   3) irrelevant changes. In the first category, common scenarios
+issues: (1) automated labeling is cheap but too coarse-grained,               where we cannot tell whether a single function is vulnerable
+and (2)  manual labeling  is reliable but  labor-intensive. We                include examples such as race condition, denial of service, or
+elaborate on this trade-off below.                                            command injection that exploits multiple functions, etc. In the
+Automated  Labeling.  The  first  strategy  uses  heuristics  to              second category, we often observe changes to nonvulnerable
+automatically  label  all  the  samples  so  that  the  size  of  the         functions as a side-effect of fixing vulnerable functions, e.g.,
+dataset  can  be  large  enough  for  training  deep  neural  net-            reportingmoreerrorsoutsidethepatchedfunction,orchanging
+works. For example, BigVul [9], ReVeal [4], CrossVul [11],                    the ways of calling the patched function. In the last category,
+CVEfixes [10], and DiverseVul [5] follow this strategy. First,                themostcommoncasesarechangingspacingandfunctionality
+they  collect  vulnerability-fixing  commits  from  open-source               while fixing a different vulnerable function.
+resources, such as the NVD database, Bugzilla, and Debian                     Majority Vote. As an improvement over Chen et al. [5], we
+security trackers. Then, they label the before-commit version                 use three human annotators with majority vote labeling for all
+of  changed  functions  as  vulnerable,  and  their  after-commit             datasets except SVEN. We label a function as vulnerable if
+version and unchanged functions as nonvulnerable. This strat-                 at least two out of the three human annotators agree that the
+egy assumes that the vulnerability-fixing commits only change                 functionisvulnerable.Ifanyoneofthethreelabelersisunsure
+vulnerable functions to fix the security flaw. In our label noise             about a function, the security expert will lead a discussion
+analysis (Section II-B), we find that this is often not the case,             among annotators to achieve an agreement. Then, the final
+which introduces wrong labels for vulnerable functions.                       decision will be made through a majority vote.
+Manual Labeling. To improve the quality of the data labels,                      2) Results:  Table I summarizes our analysis results. We
+the second strategy is to involve human experts to verify the                 conduct accuracy analysis over three benchmarks that were
+commits or functions manually. For example, the authors of                    originally constructed with some kind of manual labeling from
+SVEN [12] manually labeled 1,606 functions (half of them be-                  prior  work:  CodeXGLUE,  SVEN,  and  VulnPatchPairs.  For
+ing vulnerable), from noisy datasets like BigVul and CrossVul.                benchmarks that use automated labeling, specifically, BigVul,
+
+
+
+                                                                            3
+
+=== PÁGINA FÍSICA 4 ===
+            TABLE  I:  The  label  accuracy  across  existing  vulnerability               vulnerable samples in the training data have a wrong label,
+            benchmarks and their comparison with two PRIMEVUL auto-                        the quality of the trained model is rather concerning [21].
+            mated labeling techniques. Results show that our new labeling                     Due to the space limit, we provide a more detailed label
+            techniques achieve a high accuracy on par with SVEN which                      error analysis in the Supplementary Material I.A.
+            requires manual labeling. Moreover, PRIMEVUL contains 16.7
+            × as many vulnerable C/C++ functions as in SVEN.                               C. Data Leakage
+                                                                                              Data leakage has been identified as a significant issue in
+                                                                                           the area of machine learning for code. We consider two types
+                                                                                           of leakage: code copy and time travel. Realistic evaluation
+                                                                                           of  vulnerability  detection  models  requires  no  data  leakage
+                                                                                           to  ensure  their  performances  are  reasonably  measured.  We
+                                                                                           study  the  data  leakage  issue  of  four  most  frequently  used
+                                                                                           vulnerability benchmarks: BigVul, CVEFixes, CodeXGLUE,
+                                                                                           and DiverseVul, and they have been used by more than ten
+                                                                                           code-LM-based vulnerability detection models as training and
+                                                                                           evaluation material [5–7, 19, 22–27].
+            † The VulnPatchPairs dataset takes pairs of functions from                     Data Splits. To study the data leakage issue specifically in
+            CodeXGLUE. The dataset does not involve further manual                         the setting of fine-tuning for vulnerability detection, we need
+            verification beyond its data resource, CodeXGLUE.                              to create the train/validation/test splits. For CodeXGLUE, we
+            ∗ Refers to label accuracy numbers in Chen et al. [5].
+                                                                                           directly take the original split from the benchmark [28]. For
+                                                                                           BigVul, we take the public split [29] used by [6, 7, 27]. For
+            CrossVul, CVEFixes, and DiverseVul, we refer to label accu-                    CVEFixes and DiverseVul, we follow the methodology intro-
+            racy numbers in Chen et al. [5]. We will publicly release our                  duced in [5] to randomly split the data with 80%/10%/10%.
+            label accuracy analysis results as part of our artifacts.                         1) Code Copy: One main reason for leakage is data dupli-
+               As  shown  in  Table  I,  the  benchmarks  without  manual                  cation [30] since code data is highly repetitive [31, 32], and
+            verification have very low accuracy between 25% and 60%,                       LMs are known to be good at memorizing the code text [33].
+            for  vulnerable  functions.  On  the  other  hand,  only  one  out             Specifically, leaking exact copies across the training and eval-
+            of the three prior datasets that used manual labeling method                   uation set will inevitably inflate the evaluation performance.
+            has a high accuracy: SVEN has a 94% label accuracy for                         Experiments. We study the exact copy of vulnerable func-
+            vulnerable functions. The other two datasets, CodeXGLUE                        tions. To identify the code copy, we exhaustively compare the
+            and VulnPatchPairs have low accuracy.                                          vulnerable functions in the test set to all training samples. We
+               Surprisingly,  the  widely  used  dataset  CodeXGLUE  [8]                   normalize the formatting characters in the code samples to
+            (a.k.a.  Devign  [19]  dataset)  has  a  label  accuracy  of  only             eliminate its noisy effect and then identify the exact copy if
+            24% for vulnerable functions, even though Zhou et al. [19]                     two strings are identical after the normalization.
+            had recruited human annotators to label security-related com-                  TABLE II: The statistics of data duplication in existing vul-
+            mits. We find that their human annotation on security-related                  nerability detection benchmarks.
+            commits  is  highly  inaccurate,  such  that  many  commits  in
+            CodeXGLUE  do  not  fix  security  vulnerabilities.  Moreover,
+            they adopt the same automated labeling policy as BigVul [9]
+            to label all changed functions as vulnerable. The VulnPatch-
+            Pairs  [20]  dataset  is  derived  from  CodeXGLUE,  and  as  a
+            result, it is also inaccurate, with a label accuracy of only 36%.
+            Our  labeling  policy  is  more  stringent  than  VulnPatchPairs.
+            Similar to CodeXGLUE, we find that 24% of functions from
+            VulnPatchPairs are changed by some security-relevant com-                      Results.  Table  II  reveals  that  existing  benchmarks  suffer
+            mits, but the functions are not vulnerable. The vulnerability                  from significant exact copy, up to 18.9% of samples being
+            is either spread across multiple functions or the function is                  duplicated. Unfortunately, this simple step is overlooked by
+            changed to make the fix consistent.                                            prior  work.  Interestingly,  we  notice  that,  with  hash-based
+               The most accurate dataset from prior work is SVEN, which                    deduplication, DiverseVul still has 3.3% copies. This is mainly
+            has only 803 vulnerable functions (total ∼1.6k of vulnerable                   because they did not normalize formatting characters, and the
+            and non-vulnerable functions) across nine CWEs. In compar-                     same  code  with  varied  spacing  will  be  mapped  to  distinct
+            ison, the other noisy datasets from Table I are much larger.                   MD5 hashes, failing to be identified as copies. Further, we
+            Previous works have used different noisy datasets to fine-tune                 manually check the root cause of such duplication, but we
+            code LMs. Code LMs trained with these noisy datasets cannot                    realize the reasons are varied. For example, in CodeXGLUE,
+            be trusted for realistic deployment. When nearly half of the                   we  notice  two  different  fixing  commits  targeting  the  same
+
+
+Benchmark                     Manual      Correct (%)
+SVEN [12]                        ✓             94.0                                     4
+Benchmark                De-dup      Copy (%)
+CodeXGLUE [8, 19]                ✓             24.0
+VulnPatchPairs [20]              ✓†            36.0
+BigVul [9]                  ✗           12.7
+CVEFixes [10]               ✗           18.9
+BigVul [9]                        ✗           25.0∗
+CodeXGLUE [8]               ✗            0.6
+CrossVul [11]                     ✗           47.8∗
+DiverseVul [5]              ✓            3.3
+CVEFixes [10]                     ✗           51.7∗
+DiverseVul [5]                    ✗           60.0∗
+PRIMEVUL (Ours)             ✓            0.0
+PRIMEVUL-ONEFUNC                  ✗            86.0
+PRIMEVUL-NVDCHECK                 ✗            92.0
+
+=== PÁGINA FÍSICA 5 ===
+CVE  1  2. Consequently, this vulnerability gets sampled twice                resultinapatchedversionofafunctionthatistextuallysimilar
+while one is in the training set and the other is in the test set.            to its vulnerable counterpart. Code LMs, which primarily ana-
+Differently,inBigVul,weidentifiedexactlythesamefunctions                      lyze the textual representation of code, struggle to differentiate
+that being sampled twice before and after commits 3 4, having                 between such closely related versions [20, 34, 35]. Only by
+contradictinglabels.Suchnoiseswillconfusethemodelduring                       evaluating models on these paired data, we can expose this
+training and hurt the model’s performance as a result.                        weakness of code LMs.
+  2) Time Travel:  Existing datasets also have the issue of                                  III.  OUR BENCHMARK: PRIMEVUL
+time travel since they randomly separate functions into train,
+validation, and test sets. Consequently, it is possible to train                 As  demonstrated  in  Section  II-B,  existing  vulnerability
+on future data and test on past data. It is also possible to have             benchmarks suffer from two major data quality issues: data
+the fixed nonvulnerable function in the training set, and the                 duplicationandlowlabelaccuracy.Toaddresstheseshortcom-
+older vulnerable function in the test set.                                    ings, we introduce a new vulnerability benchmark, PRIME-
+  In addition, after manual analysis, we find that many code                  VUL. We propose a new automated data collection pipeline to
+samples from the same commit (example2) were randomly                         produce high-quality samples with accurate labels.
+separated into train, validation, and test sets. This commit fixes            A. Data Merging and Thorough Data De-duplication
+multiple occurrences of the same CVE in different functions,                     To   build   a   large   database,   we   start   by   merging   all
+in the same way. In general, developers tend to fix similar                   security-related commits and functions changed by them from
+issues altogether before merging the changes into the main                    BigVul [9], CrossVul [11], CVEfixes [10], and DiverseVul [5].
+branch. However, training and testing with samples from the                   We exclude data from Devign/CodeXGLUE [8, 19] because
+same commit is unrealistic and leaks information from the test                we discover that a large portion of its commits is unrelated to
+time to the training time. In a realistic setting, the models are             security issues during our annotation process.
+trained on the historical data to predict future samples.                        We de-deduplicate code copies as well as functions with
+D. Evaluation in Practical Settings                                           only formatting differences. For each commit, we first nor-
+  Nearly all code-LM-based vulnerability detection models                     malize the changed functions before and after commits by
+use accuracy and F1 score for evaluation. Accuracy measures                   stripping away characters such as spaces, tabs (“\t”), newline
+the proportion of correctly predicted samples (both vulnerable                characters (“\n”), and carriage return characters (“\r”). Then
+and  benign)  out  of  all  samples,  capturing  overall  model               we compute the MD5 hash of both the pre- and post-commit
+performance. The F1 score, on the other hand, is a harmonic                   versions of the changed function. If the pre- and post-commit
+mean  of  precision  and  recall,  offering  a  balanced  measure             versions of a function result in identical hash values, we regard
+of the model’s ability to identify vulnerable samples without                 this function as unchanged and discard it. Finally, we combine
+excessively  misclassifying  benign  samples.  We  argue  that                all remaining functions, and further de-duplicate the whole set
+accuracy and F1 fail to capture properties that developers care               by the MD5 hashes of the normalized functions. During the
+about in practice. Rather, developers are generally concerned                 de-duplication, we maintain a unique set of hashes. If the hash
+about (1) the detection error tradeoffs and (2) discriminative                of a normalized function is already in the set, we exclude it
+power over textually similar code samples across vulnerable                   from further processing.
+and fixed patches.                                                               As  a  result,  PRIMEVUL’s  thorough  data  de-duplication
+  1) Detection Error Tradeoffs:  Balance between false posi-                  ensures that no vulnerable function from the training set can
+tives and false negatives is critical when deploying vulnerabil-              be leaked to the test set (Table II).
+ity detection tools. Developers rely on these tools not only to               B. More Accurate Data Labeling
+catchasmanyrealvulnerabilitiesaspossible(minimizingfalse                         We  propose  two  new  labeling  techniques:  PRIMEVUL-
+negatives) but also to do so without overwhelming them with                   ONEFUNC and PRIMEVUL-NVDCHECK.
+falsealarms(minimizingfalsepositives).Thisdualexpectation
+reflectsthepracticaltradeoffsinsoftwaredevelopment:missed                     PRIMEVUL-ONEFUNC: We notice that the previous labeling
+vulnerabilities can lead to security breaches, while too many                 method has errors particularly when dealing with commits that
+false alarms can lead to alert fatigue, potentially causing real              modify multiple functions. Therefore, PRIMEVUL-ONEFUNC
+issues to be ignored. F1 and accuracy offer little insight into               regards  a  function  as  vulnerable  if  it’s  the only  function
+the tradeoff between false negatives and positives.                           changed by a security-related commit.
+  2) Textually Similar Pairs of Vulnerable & Corresponding                    PRIMEVUL-NVDCHECK:  Since  human  experts  have  an-
+Patch:  Security fixes could involve only minor modifications                 alyzed  the  CVEs  in  the  NVD  database,  the  vulnerability
+tothecodeinmanycases,suchasadjustingbuffersizes,fixing                        description in each CVE entry is a reliable reference to label
+data types, or adding security checks. These changes often                    vulnerable functions. We develop PRIMEVUL-NVDCHECK as
+
+  1https://github.com/qemu/qemu/commit/71d0770                                the following. First, we link security-related commits to their
+
+  2https://github.com/qemu/qemu/commit/902b27d                                CVE numbers and the vulnerability description in the NVD
+  3https://github.com/php/php-src/commit/3798eb6                              database. We label a function as vulnerable if it satisfies one
+  4https://github.com/torvalds/linux/commit/6062a8d                           of the two following criteria: (1) NVD description explicitly
+
+
+
+                                                                            5
+
+=== PÁGINA FÍSICA 6 ===
+           mentions its name, or (2) NVD description mentions its file                   as  possible  (can  be  measured  by  False  Negative  Rate,  or
+           name, and it is the only function changed by the security-                    FNR,  where  we  expect  low FNR).  Meanwhile,  from  a
+           related commit in that file.                                                  practical perspective, a certain level of false positives can be
+              After applying our two labeling techniques, we obtain two                  manageablewithinthedevelopmentworkflow,withoutcausing
+           sets of vulnerable functions. Next, we merge the sets and de-                 alert  fatigue  (typically  captured  by  False  Positive  Rate,  or
+           duplicate the functions again. We normalize the formatting                    FPR, where a lower rate is better). Therefore, a metric that
+           characters in the functions, and compute their MD5 hashes                     focusesonminimizingthefalsenegativeratewithinatolerable
+           to identify and remove duplicates. Subsequently, we label the                 level of false positives is essential.
+           post-commit versions of these identified vulnerable functions,                   To this end, we propose Vulnerability Detection Score (VD-
+           as  well  as  all  other  unchanged  functions  within  the  same             S), that evaluates the False Negative Rate of a vulnerability
+           commits,asbenign.Onlyasubsetofcommitsfromthemerged                            detector within an acceptable False Positive Rate, i.e., FNR
+           database  mentioned  in  Section  III-A,  meet  the  criteria  for            @ (FPR ≤ r),  where r ∈ [0%,100%]  is  a  configurable
+           labeling by our techniques. Commits without any function that                 parameter. In this paper, we choose a tolerance rate r =0.5%
+           matches these criteria are excluded from our dataset.                         to perform the evaluation in Section V.
+              Our pipeline results in a collection of 6,968 vulnerable and                  2) Paired  Functions  and  Pair-wise  Evaluation:  As  dis-
+           228,800 benign functions across 755 projects and 6,827 com-                   cussed  in  Section  II-D2,  evaluating  the  models  on  paired
+           mits. To assess our labeling accuracy, we conducted a manual                  functions—vulnerable  and  benign  versions  of  code—could
+           review following the same process used in Section II-B, with                  potentially reveal whether a model merely relies on super-
+           ourresultspresentedinTableI.Themostaccuratepriordataset                       ficial text patterns to make predictions without grasping the
+           SVEN has only 417 vulnerable functions in C/C++, and 386                      underlying security implications, indicating areas where the
+           vulnerable functions in Python. Our PRIMEVUL dataset not                      model needs improvement to reduce the false positives and
+           onlymatchesthelabelaccuracyofSVENbutalsosignificantly                         false negatives.
+           expands  the  collection  of  vulnerable  C/C++  functions  by                   We collected 5,480 such pairs in PRIMEVUL, significantly
+           16.7× compared to SVEN. PRIMEVUL is diverse, containing                       larger than existing paired datasets [12, 20]. Concretely, we
+           140 CWEs (15.6× of SVEN).                                                     match the vulnerable functions with their patches in PRIME-
+                          TABLE III: Statistics of PRIMEVUL                               VUL to construct such pairs. As we show in Table III, the
+                                                                                         paired  vulnerable  functions  are  fewer  than  all  vulnerable
+                                                                                         functions, since not all vulnerable functions have a patch (e.g.,
+                                                                                         a patch could delete the vulnerable function), and we only
+                                                                                         include those challenging pairs sharing at least 80% of the
+                                                                                         string between the vulnerable and benign version.
+                                                                                            Accordingly,   we   also   propose   a   pair-wise   evaluation
+                                                                                         method.Thecoreideaistoevaluatethemodel’spredictionson
+                          IV.  NEW EVALUATION GUIDELINES                                 the entire pair as a single entity, emphasizing the importance
+                                                                                         of  correctly  identifying  both  the  presence  and  absence  of
+              As discussed in Section II-C, we need new methods to prop-                 vulnerabilities in a textually similar context, while recording
+           erly  evaluate  vulnerability  detection  models  in  deployment              the model’s concrete predicting behaviors.
+           settings. This section proposes new evaluation guidelines.                       We define four outcomes of the pair-wise prediction:
+
+                                                                                         •  Pair-wise  Correct  Prediction  (P-C):  The  model  correctly
+           A. Temporal Splits                                                               predicts the ground-truth labels for both elements of a pair.
+              To minimize the data leakage issue and formulate a realistic               •  Pair-wise Vulnerable Prediction (P-V): The model incor-
+           train-evaluate setup for vulnerability detection, we split the                   rectly predicts both elements of the pair as vulnerable.
+           train/validation/test set of PRIMEVUL according to the commit                 •  Pair-wise Benign Prediction (P-B): The model incorrectly
+           date of the samples. Concretely, we find the original commit                     predicts both elements of the pair as benign.
+           for each sample and collect the time of that commit, tying                    •  Pair-wise Reversed Prediction (P-R): The model incorrectly
+           it with the sample. Then, we sort the samples according to                       and inversely predicts the labels for the pair.
+           the commit, where the oldest 80% will be the train set, 10%                                       V.  EXPERIMENTAL RESULTS
+           in the middle will be the validation set, and the most recent
+           10% will be the test set. We also make sure that the samples                     Considering the better data labeling and closer alignment
+           from the same commit will not be split into different sets. This              with the real-world data distribution in PRIMEVUL, coupled
+           ensures that the vulnerability detection model is trained using               with the introduction of new evaluation techniques, we re-
+           past data and tested over future data.                                        assess  code  LM’s  performance  using  PRIMEVUL  to  gauge
+                                                                                         their performance in a more realistic setting. To this end, we
+           B. More Realistic and Challenging Evaluation                                  evaluate the following three Research Questions:
+              1) Vulnerability  Detection  Score:   The  primary  goal  in               •  RQ1. How do open-source code LMs perform on PRIME-
+           vulnerability detection is to catch as many real vulnerabilities                 VUL? (Section V-B)
+
+
+
+                    All                       Paired                                   6
+Split
+          # Vuln.      # Benign       # Vuln.      # Benign
+Train       5,574       178,853        4,354         4,354
+Dev          699         24,731         562           562
+Test         695         25,216         564           564
+
+=== PÁGINA FÍSICA 7 ===
+             •  RQ2. Can employing more advanced training techniques                        BigVul [9], using which as a direct comparison to PRIMEVUL.
+               enhance the performance of code LMs in detecting vulner-                     Specifically, we additionally fine-tune code LMs on BigVul,
+               abilities? (Section V-C)                                                     and evaluate them on both BigVul and PRIMEVUL.
+             •  RQ3. Can larger language models (LLMs) improve vulner-                      Results. The empirical results are shown in Table V. The rows
+               ability detection performance? (Section V-D)                                 of “Train=PV” and “Test=PV” in each section are results for
+             A. Study Subject                                                               code LMs fine-tuned and evaluated on PRIMEVUL, and rows
+             Datasets. We mainly use PRIMEVUL to conduct our experi-                        of “Train=BV” are the comparative results for code LMs fine-
+             ments. In RQ1, we additionally use BigVul [9] as a case study                  tuned with BigVul.
+
+             of existing benchmarks due to its popularity [5–7, 27, 29].                    TABLE V: Performance of code-LM-based vulnerability de-
+             By comparing it to PRIMEVUL, we illustrate the impact of                       tection models in different settings.
+             its limitation on training and evaluating code-LM-based  VD
+             models. For RQ2 and RQ3, we will focus on PRIMEVUL to
+             improve code LMs performances for VD.
+
+               TABLE IV: The code LMs we will study in this section.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+             Models.  We  will  study  seven  code  LMs  with  varied  sizes                CT5: CodeT5, CB: CodeBERT, UC:UnixCoder, SC2: StarCoder2, CG2.5:
+             regarding  their  capabilities  for  VD,  as  shown  in  Table  IV.            CodeGen2.5. BV: BigVul, PV: PRIMEVUL. VD-S is the Vulnerability
+             Specifically, we will fine-tune all open-source models in RQ1                  Detection Score defined as false negative rate (FNR) @ false positive rate
+             and study the advanced training techniques using UnixCoder                     (FPR)≤ 0.5% in Section IV-B1. P-C, P-V, P-B, and P-R are the metrics
+             in RQ2. In RQ3, we prompt GPT-3.5 and GPT-4 with two                           defined in Section IV-B2 to evaluate the models on paired functions.
+             settings: (1) two-shot examples (2) and chain-of-thoughts [38]                    Finding-RQ1.1: Code LMs’ performance is overestimated
+             reasoning,  and  we  also  fine-tune  GPT-3.5  on  a  subset  of               on a prior benchmark and perform poorly on PRIMEVUL:
+             PRIMEVUL using the OpenAI API.                                                 ThecomparativeperformanceevaluationofcodeLMsbetween
+             Experimental Settings. For all experiments with open-source                    PRIMEVUL and BigVul lays bare a startling truth: the profi-
+             models, we implement our fine-tuning framework following                       ciencyofthesemodelsisgreatlyoverestimatedbybenchmarks
+             the existing benchmarks [5, 8], where we will use the learning                 like  BigVul,  which  fail  to  mimic  the  complexity  of  real-
+             rate of 2×10−5 for all the fine-tuning. For smaller models                     world vulnerabilities. For example, while StarCoder2 shows
+             with less than 7B parameters, we will fine-tune the models for                 a commendable F1 score of 68.26% on BigVul, it plummets
+             10 epochs, and for 7B models, we fine-tune for four epochs.                    to a paltry 3.09% on  PRIMEVUL. This precipitous drop is
+             For  GPT-3.5,  we  just  fine-tune  for  one  epoch,  due  to  the             not an isolated case but a trend observed across all models,
+             limited  budget.  We  load  the  model  weights  from  Hugging                 exemplified by the observed false negative rates.
+             Face Models5. All training tasks are conducted on a cluster                       In addition, even when code LMs are fine-tuned on PRIME-
+             withNVIDIAA100GPUs(80GB).ExperimentswithOpenAI                                 VUL, they fail to achieve the same level of performance as
+             models are performed through API using greedy decoding.                        on BigVul. For instance, when trained on PRIMEVUL, Star-
+             B. RQ1: Performance of Open-Source Code LMs on PRIME-                          Coder2’s performance shows only a modest improvement in
+             VUL                                                                            F1 score from 3.09% to 18.05%, which is still markedly lower
+                InthisRQ,wefine-tuneopen-sourcecodeLMsandevaluate                           than the 68.26% F1 score achieved on BigVul. This persistent
+             their  performances  on  PRIMEVUL.  To  illustrate  the  limita-               underperformance,  even  after  fine-tuning,  suggests  that  the
+             tions of existing  VD benchmarks on the model training and                     models cannot effectively learn from the more complex and
+Model   Trainevaluation,  we  reproduce  the  code  LMs’  performances  onTestAcc↑   F1↑  VD-S↓P-C↑  P-V↓  P-B↓  P-R↓realistic  distribution  of  vulnerabilities  in  PRIMEVUL.  This
+                                                                                            stark discrepancy confirms that code LMs trained on existing
+               5https://huggingface.co/modelsBV95.6764.9377.3024.9850.9022.791.33           benchmarks may develop a false sense of security due to the
+CT5      BV     PV    97.00   5.82   95.97    0.18    3.01  96.10    0.71
+Model    PV     PV    96.67Parameters19.789.93Arch1.06Methods12.9484.751.24
+CODET5 [25]              60 M        Enc-Dec        Fine-tune
+CODEBERT [22]BV BV    95.57125 M62.88Encoder81.7722.60Fine-tune48.3427.831.23             7
+CB              PV    97.04   4.49   95.54    0.35    1.95  96.99    0.71
+UNIXCODER [24]PVPV    96.87125 M20.86Encoder88.781.77Fine-tune11.3586.170.71
+STARCODER2 [13]BVBV   96.467 B65.46  Decoder62.3039.60Fine-tune23.7433.243.42
+UCCODEGEN2.5 [36]PV   97.277 B1.94   Decoder95.110.35Fine-tune0.3598.760.53
+         PV     PV    96.86 21.43    89.21    1.60  Fine-tune12.0685.111.24
+GPT-3.5 [37]    BV    96.20> 100B68.26Decoder69.1435.23Few-shot Prompt41.9820.612.18
+SC2      BV     PV    97.09   3.09   96.83    0.89Chain-of-thought0.8997.700.53
+GPT-4 [14]PV    PV    97.02> 100B18.05Decoder89.642.30Few-shot Prompt8.1688.301.24
+                                                 Chain-of-thought
+         BV     BV    96.57 67.30    61.73   40.84   26.02  29.63    3.51
+CG2.5           PV    97.23   1.91   95.68    1.24    0.00  98.76    0.00
+         PV     PV    96.65 19.61    91.51    3.01   10.82  84.22    1.95
+
+=== PÁGINA FÍSICA 8 ===
+            benchmarks’ failure to capture the intricate and diverse nature                  C. RQ2: Exploring to Improve the Performance on PRIME-
+            of vulnerabilities found in the wild.                                            VUL
+               Finding-RQ1.2: Vulnerability Detection Score (VD-S) offers                       Given code LMs’ poor performance on PRIMEVUL, we de-
+            a  more  concrete  sense  of  realistic  performance:  The  VD-                  cided to delve deeper into the training process, trying to figure
+            S  emerges  as  a  pivotal  metric,  capturing  the  essence  of  a              out  whether  more  advanced  training  techniques  could  help
+            model’s capability in real-world settings, where balancing the                   code LMs achieve promising performance on PRIMEVUL.
+            FNR and FPR is crucial. For example, CodeBERT reports a                             To this end, we perform analysis to inspect both the chal-
+            high accuracy of 96.86% and a satisfactory F1 of 62.88% on                       lenging samples within PRIMEVUL and monitor the models’
+            BigVul. Relying on these metrics, CodeBERT seems to be an                        behaviors  during  the  inference  time,  carefully  studying  the
+            acceptable candidate for detecting vulnerabilities. However, its                 failing predictions from these models. After these analyses and
+            astonishing false negative rate of 81.77% (as reported by VD-                    a comprehensive literature review, we decided to explore two
+            S) far exceeds the realistic tolerable limits, revealing that it is              advanced training techniques that have shown effectiveness in
+            actually useless in practice, overturning the conclusions drawn                  helping binary classifications.
+            from the accuracy and F1. Code LMs’ VD-S on PRIMEVUL is                             1) Exploration-1: Class Weights:  When we delve deeper
+            even more concerning than on BigVul, highlighting the mod-                       into  analyzing  the  experimental  results,  one  of  the  notable
+            els’ limitations in accurately identifying true vulnerabilities,                 differences between BigVul and  PRIMEVUL  is the ratio of
+            a critical factor for real-world applications where missing a                    vulnerable samples. As we have mentioned in Section II-B, a
+            single vulnerability can have serious repercussions.                             lot of samples are mislabeled as vulnerable in BigVul and
+               In addition, we realize that VD-S is not necessarily cor-                     other  resources  that  constitute  PRIMEVUL.  After  applying
+            related with accuracy or F1. The detachment of VD-S from                         our  novel  labelers,  (Section  III-B),  the  ratio  of  vulnerabil-
+            traditional  metrics  also  signals  a  shift  in  how  we  should               ities significantly decreases. Therefore, we suspect whether
+            evaluate code LMs for VD.                                                        the significantly more imbalanced ratio hinders the learning
+                                                                                             process [39].
+               Finding-RQ1.3: Code LMs are weak at differentiating vul-                         To verify our assumptions, we implement the weighted loss
+            nerabilities from their similar but benign counterparts:  As                     similar to Chen et al. [5] and integrate it into our fine-tuning
+            we  have  discussed  in  Section  II-D2  and  IV-B2,  pair-wise                  framework. The general idea is to give a higher penalty when
+            evaluation not only offers a lens into the precision of code                     models make mistakes on the rare class (i.e., the vulnerable
+            LMs  but  also  serves  as  a  stress  test  for  their  real-world              samples) by up-weighting the loss value for this class in the
+            application viability. These metrics crucially reveal whether                    cross entropy loss. With a higher weight on the rarer class,
+            a model has truly learned to identify security vulnerabilities                   the  imbalance  ratio  will  be  less  harmful,  since  the  model
+            or is merely recognizing patterns without comprehending the                      pays comparable attention to both classes when optimizing
+            implications—a distinction that’s vital for the deployment of                    the loss. To find an optimal weight, we tried several different
+            code LMs as a reliable security tool.                                            values: besides the standard binary classification with equal
+               However,  our  pair-wise  evaluation  uncovers  a  significant                weights (weight of vulnerable class = 1), we further explored
+            deficiency in this aspect. Our results reveal that code LMs                      upweighting the loss for the vulnerable class for 5, 20, 30,
+            frequently misclassify both functions in a pair as vulnerable                    and  40  times.  Note  that  the  vulnerable  to  benign  ratio  in
+            (P-V) or benign (P-B), indicating an overreliance on textual                     PRIMEVUL is roughly 1:32.
+
+            patterns rather than a substantive understanding of the code’s                      TABLE VI: The impact of class weights during training.
+            security context. For instance, StarCoder2 reports only 2.30%
+            cases  to  correctly  label  both  elements  in  paired  functions
+            while misclassifying 4× more cases as both vulnerable and
+            88.30% pairs as both benign, demonstrating their difficulty in
+            recognizing the vulnerable patterns and subtle distinctions that
+            a patch can introduce. Such unreasonable behaviors undermine
+            the trustworthiness of these models in realistic deployment.
+            Thisinsightisalsocrucialasitemphasizestheneedformodels                              Findings-RQ2.1: Class weights do not fundamentally im-
+            that  go  beyond  surface-level  text  comprehension  to  grasp                  prove  code  LMs’  performance  on PRIMEVUL:  Similar  to
+            deeper  semantic  implications  of  code  changes  for  reliable                 Chen et al. [5], we observed an increased F1 when applying
+            vulnerability detection.                                                         class weights, though not as significant as theirs due to the
+                                                                                             difficulty  of  PRIMEVUL.  However,  VD-S  scores  warn  us
+                                                                                             that such a marginal improvement is far from promising in
+                                                                                             the realistic scenario: FNR is oscillating around 90% across
+                                                                                             different weights, and such models could not be trusted to
+                                                                                             detect  security  flaws.  These  results,  though  disappointing,
+
+
+
+Result-1:   Code LMs’ significant underperformance on                                     8
+Weight     Acc↑        F1↑     VD-S↓    P-C↑      P-V↓      P-B↓     P-R↓
+PRIMEVUL highlights their limitations when faced with
+realistic, diverse, and challenging vulnerabilities.196.86     21.43        89.211.60     12.06     85.11       1.24
+   5       96.24     25.29        90.65  1.77     18.97     78.55       0.71
+  20       95.28     24.26        88.92  0.89     25.71     72.16       1.24
+  30       96.14     24.49        90.07  2.13     18.09     78.01       1.77
+  40       95.99     26.28        88.49  1.42     22.52     74.82       1.24
+
+=== PÁGINA FÍSICA 9 ===
+            help us exclude the potential impact of the class imbalance,
+            providing  convincing  evidence  regarding  the  difficulty  of
+            PRIMEVUL and the struggle of code LMs in detecting realistic
+            vulnerabilities.
+
+               2) Exploration-2: Contrastive Learning: Contrastive learn-
+            ing has been proven effective at learning better-quality repre-                  D. RQ3: Larger Code LMs on PRIMEVUL
+            sentations of text and code [24, 34, 40] since they are able                        After  getting  unsatisfying  results  with  advanced  training
+            to decrease the cosine similarity among semantically different                   techniques, we started to question whether the models we tried
+            samples, and consequently help to improve the models’ perfor-                    so far have too few parameters to solve such a challenging
+            mance in downstream classification tasks. Therefore, we hope                     benchmark. Therefore, we decided to explore the state-of-the-
+            to study whether contrastive learning could help code LMs to                     art large language models (LLM) to see whether significantly
+            achieve promising performance on PRIMEVUL.                                       more parameters could bring a performance.
+               Different  from  the  existing  works  [24,  34]  which  apply                   We perform experiments using OpenAI GPT models: GPT-
+            contrastive learning at the pre-training phase, we enforce such                  3.5 and GPT-4. Considering the cost, we only evaluate these
+            “contrasting” signals together with the classification objective.                models on the paired functions of PRIMEVUL, since it has
+            Specifically, code LMs will be fine-tuned to both classify vul-                  much  fewer  samples  than  the  full  set  while  representing
+            nerabilities and contrast representations with distinct seman-                   the more challenging scenarios in reality. For GPT-3.5, we
+            tics. We implement the objective according to Gao et al. [40]                    experiment with three settings: two-shot prompting, chain-of-
+            (referred to as CLR), where the model is trained to maximize                     thought prompting [38], and fine-tuning. We fine-tune GPT-
+            the  representation  similarity  between  each  sample  and  the                 3.5 for one epoch on all vulnerabilities plus three times more
+            perturbed versionof itselfand minimizethe similaritybetween                      randomly  sampled  benign  samples  from  the  train  split  of
+            two randomly chosen samples. The perturbation is directly                        PRIMEVUL, as fine-tuning on the full training set will run
+            applied to the code representation through dropouts [41] in                      out of the budget. For GPT-4, we only consider two-shot and
+            the Transformer model.                                                           chain-of-thought prompting since its fine-tuning API has not
+                                                                                             been released yet. More details about the prompt template will
+            TABLE VII: The impact of contrastive learning during fine-                       be discussed in Supplementary Material I.B.
+            tuning UnixCoder for vulnerability detection.
+                                                                                             TABLE VIII: Results of OpenAI GPT models on PRIMEVUL
+                                                                                             paired functions.
+
+
+
+
+
+
+               Findings-RQ2.2: Contrastive learning fails to significantly
+            improve Code LMs’ performance on PRIMEVUL:  Unfortu-
+            nately, as shown in Table VII, we could not see a significant
+            differencebyaddingtheCLRobjective.Wefurtheranalyzethe
+            results to see what might go wrong. One notable misalignment
+            we notice is that, since CLR from Gao et al. [40] is not crafted
+            for classification tasks, it will distinguish any two samples                       Results are shown in Table VIII. In general, GPT-3.5 and
+            regardless  of  whether their  labels  are  the same.  Therefore,                GPT-4 outperform open-source models for the pair-wise eval-
+            we  further  improve  CLR  to  be  a  second  approach,  called                  uation even in the basic two-shot prompting setting, and chain-
+            Class-aware Contrastive Learning (CA-CLR), which will only                       of-thoughtreasoningfurtherpushestheperformanceboundary.
+            minimize the similarity between samples with different labels.                   However,  we  realize  that  such  performance  is  actually  no
+               This time, we see a more notable improvement over F1                          better than a random guess since the majority of the pairs in
+            and  P-C  by  applying  CA-CLR  (Table  VII).  However,  the                     PRIMEVUL still cannot be distinguished by these large SOTA
+            performance change is still marginal. This result empirically                    code LMs, which might indicate the fundamental weaknesses
+            demonstrates code LMs’ inherent incapability to detect vulner-                   of code LMs to differentiate subtle vulnerabilities from their
+            abilities. It is not only because the representations are too sim-               benign versions. Furthermore, when we fine-tune GPT-3.5, we
+            ilar to draw the classification boundary, but these models fail                  notice that the model is strongly biased by the 1:3 vulnerable
+            to identify the vulnerable patterns, so that, even if enlarging                  to benign ratio and reports even lower performance than the
+            the cosine distance among representations through contrastive                    prompting approaches, showing a red flag that even such a
+            learning,codeLMsstillfailtodrawtheclassificationboundary                         large LM (LLM) still fails to capture the vulnerable patterns
+            correctly.                                                                       but take shortcuts from data instead.
+
+Result-2:  Advanced training techniques for binary clas-ModelMethodP-C ↑      P-V ↓      P-B ↓      P-R ↓
+sification, such as contrastive learning and class weights,Two-shot5.67       13.83       77.84         2.669
+could not particularly improve code LMs’ performance onGPT-3.5
+Finetune        Acc↑       F1↑     VD-S↓CoT6.21         4.79       83.51         5.50P-C↑     P-V↓     P-B↓     P-R↓
+PRIMEVUL, highlighting its realistic difficulty.
+CLS             96.86     21.43       89.21Fine-tune1.24         5.32       90.96         2.481.60     12.06     85.11       1.24
+  + CLR         96.83     21.73       90.07Two-shot5.14       71.63       21.45         1.771.77     11.35     85.82       1.06
+  + CA-CLRGPT-4 96.64     24.46       90.50 2.30     15.96     81.38       0.35
+                        CoT         12.94       54.26       24.47         8.33
+
+RANDOM GUESS              -         22.70       26.24       26.42       24.65
+
+=== PÁGINA FÍSICA 10 ===
+                                                                                          given the small percentage of mislabeling, we believe all the
+                                                                                          reported results will still hold good.
+                                                                                             For the proposed evaluation metric VD-S, there is a con-
+                                                                                          figurable parameter r to control the maximum false positive
+                                                                                          rate.Thepracticallyacceptablevaluer mightvaryfordifferent
+                     VI.  DISCUSSIONS & THREATS TO VALIDITY                               scenarios, changing the exact value of VD-S, but we expect
+            Discussion. Our study of code LMs in the realm of vulner-                     our general conclusions to hold.
+            ability detection (VD) reveals that they do not perform well                     For  experiments  with  OpenAI  models,  we  only  reported
+            enough for real-world applications. Prior evaluations looked                  results  with  default  settings,  which  could  vary  slightly  by
+            promising,butourworkrevealstheirsubtleissues:dataquality                      changing  the  hyperparameters.  However,  we  do  not  expect
+            problems, misleading metrics, and methodology that poorly                     hyperparameter tweaking would change the conclusion.
+            matches the way in which these models would be used in                                                VII.  RELATED WORK
+            practice. We highlight below several key areas where current
+            code LMs fall short.                                                             Throughout  the  paper,  we  have  reviewed  many  related
+                  a) Need for More Context:  Prior work formulates the                    works. Here, we provide a summary of the remaining ones
+            problem as: given the code of a single function, determine                    and compare them with our contribution.
+            whether that function contains a security vulnerability. How-                       Code-LM-based Vulnerability Prediction:  Two primary
+            ever, this may be asking an impossible question. Determining                  methods to use Code LMs for VD are fine-tuning and prompt-
+            whether code is vulnerable generally depends on information                   ing.  Fine-tuning  adds  a  randomly  initialized  binary  classi-
+            about other components of the system as well, such as whether                 fication  head  to  the  language  model  and  jointly  optimizes
+            inputs to the function have already been sanitized, how outputs               all weights based on ground-truth labels. Various approaches,
+            will be used, or what invariants are established by the rest of               such as encoder-decoder Transformers [25, 45], encoder-only
+            the system. This focus on function-level analysis without the                 Transformers  [22,  24],  and  decoder-only  Transformers  [13,
+            consideration of other contexts (such as interprocedural data                 36, 46] have been used for fine-tuning. On the other hand,
+            flows)  would  make  it  difficult  for  even  a  human  to  detect           prompting-based methods [42–44, 47] rely on LLMs, typically
+            vulnerabilities,  let  alone  a  model.  We  recommend  that  the             proprietary  ones  like  GPT-4.  Previous  studies  yield  mixed
+            problem be reformulated so that the model also has access                     results: Khare et al. [42] showed that LLMs perform well on
+            to a broader context. To enable such a process, PRIMEVUL                      synthetic datasets but not promising on real-world datasets.
+            maintains the metadata for the included commits, providing                    Experimentation with different prompting strategies, notably
+            resources to extract relevant contexts.                                       variations  of  Chain-of-Thought  (CoT)  prompts,  has  further
+                  b) Augmenting  Security  Awareness:  Our  empirical  re-                shown promising results [47]. Integrating LLMs into larger
+            sults,  particularly  the  shortcomings  of  code  LMs  in  pair-             frameworks has shown promise in detecting specific vulnera-
+            wise evaluations, suggest that these models make decisions                    bilities, such as Use Before Initialization vulnerabilities [43]
+            primarily based on textual similarity, without considering the                and smart contract vulnerabilities [44]. We analyzed many of
+            underlying  root  causes  or  fixes  of  the  vulnerabilities.  We            these Code LM-based VD methods in this paper and showed
+            suggest researchers explore ways to teach code LMs about                      that in a very realistic setting none of them performs well.
+            security concepts, such as pre-training methods inspired by
+            how  we  teach  human  software  developers  about  security,                       Empirical Analysis of Deep-learning-based Vulnerability
+            or  ways  to  build  hybrid  systems  that  combine  LMs  with                Prediction (DLVP):  Several works [4, 6, 20, 27, 48] have
+            traditional security analysis or program analysis tools [42, 43].             pointed out that while DLVP models make correct predictions,
+                  c) Teaching  the  model  to  reason  about   VD:   Finally,             they do so for the wrong reasons; they often rely on “spurious
+            posing vulnerability detection as a binary classification prob-               features”  that  are  not  the  root  cause  of  the  vulnerabilities.
+            lem and teaching the Code LMs accordingly might be too                        Chen  et  al.  [5]  find  that,  through  a  large-scale  evaluation
+            simplistic. This approach banks on the slim hope that a lone                  involving 26k vulnerable functions across 300 projects and
+            summary token or a condensed representation can embody                        150 CWEs, DLVP lacks generalization to unseen projects and
+            all the intricacies of code vulnerabilities—such expectation                  is still far from being deployed in the industry. Some of the
+            might be overly optimistic. Instead, we should decompose the                  prior works [20, 49] focus on the lack of robustness of ML-
+            VD problem into digestible sub-problems and teach the model                   based vulnerability detection algorithms against semantically
+            to reason about each step to reach a conclusion [44]. The                     preservingmodifications.Anotherrecentwork[27]attemptsto
+            slight yet encouraging progress observed with the chain of                    measure how much models pick up the bug semantics through
+            thought experiments in Table VIII shows some promise in this                  interpretability techniques involving the attention mechanism
+            direction.                                                                    and shows that extra annotation on the bug semantics also
+            Threats to validity. Even with our stringent labeling methods,                improves the model’s performance. Our current work comple-
+            label accuracy is less than 100% (see Table I), so there is still             ments these lines of work by focusing more on benchmark
+            a small portion of mislabeled data in PRIMEVUL. However,                      creation and evaluation techniques.
+
+
+
+Result-3:  Even the state-of-the-art OpenAI models could                               10
+not achieve a reliable performance on PRIMEVUL, calling
+for fundamentally novel approaches to improve the task.
+
+=== PÁGINA FÍSICA 11 ===
+                         VIII.  CONCLUSIONS                                               Daxin Jiang, Duyu Tang, et al. Codexglue: A machine learning
+   In this paper, we uncover significant limitations in existing                          benchmarkdatasetforcodeunderstandingandgeneration. arXiv
+vulnerability detection datasets, such as poor data quality, low                          preprint arXiv:2102.04664, 2021.
+                                                                                     [9]Jiahao Fan, Yi Li, Shaohua Wang, and Tien N Nguyen. Ac/c++
+label accuracy, and high data duplication rates, as well as the                           code  vulnerability  dataset  with  code  changes  and  cve  sum-
+limited practical utilities of current evaluation metrics.                                maries.   In Proceedings of the 17th International Conference
+   In  response  to  these  concerns,  we  present  PRIMEVUL,                             on Mining Software Repositories, pages 508–512, 2020.
+accompanied by updated evaluation criteria designed to more                        [10]Guru Bhandari, Amara Naseer, and Leon Moonen.  Cvefixes:
+accurately  gauge  practical  effectiveness  of  Code  LM-based                           automated  collection  of  vulnerabilities  and  their  fixes  from
+                                                                                          open-source software. In Proceedings of the 17th International
+vulnerability detectors. Through a series of experiments on                               Conference on Predictive Models and Data Analytics in Soft-
+PRIMEVUL, we find that even with efforts to improve per-                                  ware Engineering, pages 30–39, 2021.
+formance using sophisticated methods and expansive models,                         [11]Georgios Nikitopoulos, Konstantina Dritsa, Panos Louridas, and
+existing Code LMs consistently fail to meet the demands of                                Dimitris Mitropoulos. Crossvul: a cross-language vulnerability
+effective vulnerability detection in practical settings. This un-                         dataset with commit data.   In Proceedings of the 29th ACM
+                                                                                          Joint Meeting on European Software Engineering Conference
+derscores the urgent requirement for fundamentally innovative                             and Symposium on the Foundations of Software Engineering,
+approaches in training Code LMs for security applications,                                pages 1565–1569, 2021.
+while also establishing a new benchmark for evaluating their                       [12]Jingxuan He and Martin Vechev.  Large language models for
+efficacy.                                                                                 code:Securityhardeningandadversarialtesting. InProceedings
+                                                                                          of the 2023 ACM SIGSAC Conference on Computer and Com-
+                         ACKNOWLEDGEMENT                                                  munications Security, CCS ’23, page 1865–1879, New York,
+                                                                                          NY, USA, 2023. Association for Computing Machinery.
+   This material is based upon work supported by the National                      [13]Anton  Lozhkov,  Raymond  Li,  Loubna  Ben  Allal,  Federico
+Science Foundation under grants 2229876, 2154873, 2221943,                                Cassano, Joel Lamy-Poirier, Nouamane Tazi, Ao Tang, Dmytro
+2313055, 1845893, and 2107405, and by the Department of                                   Pykhtar, Jiawei Liu, Yuxiang Wei, Tianyang Liu, Max Tian,
+Homeland Security, IBM, the Center for AI Safety Compute                                  Denis Kocetkov, Arthur Zucker, Younes Belkada, Zijian Wang,
+                                                                                          Qian Liu, Dmitry Abulkhanov, Indraneil Paul, Zhuang Li, Wen-
+Cluster, the Noyce Foundation, C3.ai DTI, and the KACST-                                  Ding  Li,  Megan  Risdal,  Jia  Li,  Jian  Zhu,  Terry  Yue  Zhuo,
+UCB Center of Excellence for Secure Computing. Any opin-                                  Evgenii  Zheltonozhskii,  Nii  Osae  Osae  Dade,  Wenhao  Yu,
+ions, findings, conclusions, or recommendations expressed in                              Lucas  Krauß,  Naman  Jain,  Yixuan  Su,  Xuanli  He,  Manan
+this material are those of the author(s) and do not necessarily                           Dey, Edoardo Abati, Yekun Chai, Niklas Muennighoff, Xiangru
+reflect the views of the sponsors.                                                        Tang, Muhtasham Oblokulov, Christopher Akiki, Marc Marone,
+                                                                                          Chenghao Mou, Mayank Mishra, Alex Gu, Binyuan Hui, Tri
+                               REFERENCES                                                 Dao, Armel Zebaze, Olivier Dehaene, Nicolas Patry, Canwen
+                                                                                          Xu, Julian McAuley, Han Hu, Torsten Scholak, Sebastien Pa-
+ [1]Xinyi Hou, Yanjie Zhao, Yue Liu, Zhou Yang, Kailong Wang,                             quet, Jennifer Robinson, Carolyn Jane Anderson, Nicolas Cha-
+      Li Li, Xiapu Luo, David Lo, John Grundy, and Haoyu Wang.                            pados, Mostofa Patwary, Nima Tajbakhsh, Yacine Jernite, Car-
+      Large language models for software engineering: A systematic                        los Mu˜noz Ferrandis, Lingming Zhang, Sean Hughes, Thomas
+      literature review, 2024.                                                            Wolf, Arjun Guha, Leandro von Werra, and Harm de Vries.
+ [2]GitHub.    Github  copilot:  Your  ai  pair  programmer.    https:                    Starcoder 2 and the stack v2: The next generation, 2024.
+      //copilot.github.com/, 2021.                                                 [14]OpenAI. Gpt-4 technical report, 2024.
+ [3]Amazon.    Amazon  codewhisperer:  Build  applications  faster                 [15]Zhen Li, Deqing Zou, Shouhuai Xu, Xinyu Ou, Hai Jin, Sujuan
+      and  more  securely  with  your  ai  coding  companion.    https:                   Wang, Zhijun Deng, and Yuyi Zhong.  Vuldeepecker: A deep
+      //aws.amazon.com/codewhisperer/, 2023.                                              learning-basedsystemforvulnerabilitydetection. arXivpreprint
+ [4]Saikat  Chakraborty,  Rahul  Krishna,  Yangruibo  Ding,  and                          arXiv:1801.01681, 2018.
+      Baishakhi Ray.   Deep learning based vulnerability detection:                [16]Zhen  Li,  Deqing  Zou,  Shouhuai  Xu,  Hai  Jin,  Yawei  Zhu,
+      Are we there yet. IEEE Transactions on Software Engineering,                        and  Zhaoxuan  Chen.    Sysevr:  A  framework  for  using  deep
+      2021.                                                                               learning to detect software vulnerabilities.  IEEE Transactions
+ [5]Yizheng Chen, Zhoujie Ding, Lamya Alowain, Xinyun Chen,                               on Dependable and Secure Computing, 19(4):2244–2258, 2021.
+      and David Wagner. Diversevul: A new vulnerable source code                   [17]Vadim Okun, Aurelien Delaitre, Paul E Black, et al.   Report
+      dataset  for  deep  learning  based  vulnerability  detection.    In                on the static analysis tool exposition (sate) iv.   NIST Special
+      Proceedings of the 26th International Symposium on Research                         Publication, 500:297, 2013.
+      in Attacks, Intrusions and Defenses, RAID ’23, page 654–668,                 [18]National Institute of Standards and Technology.  Nist software
+      New York, NY, USA, 2023. Association for Computing Ma-                              assurance reference dataset, Last accessed on March 19, 2023.
+      chinery.                                                                     [19]Yaqin Zhou, Shangqing Liu, Jingkai Siow, Xiaoning Du, and
+ [6]Benjamin  Steenhoek,  Md  Mahbubur  Rahman,  Richard  Jiles,                          Yang  Liu.    Devign:  Effective  vulnerability  identification  by
+      and Wei Le.  An empirical study of deep learning models for                         learning  comprehensive  program  semantics  via  graph  neural
+      vulnerability detection.  In 2023 IEEE/ACM 45th International                       networks.  Advances in neural information processing systems,
+      Conference on Software Engineering (ICSE), pages 2237–2248,                         32, 2019.
+      2023.                                                                        [20]Niklas Risse and Marcel B      ¨ohme.  Limits of machine learning
+ [7]Michael  Fu  and  Chakkrit  Tantithamthavorn.      Linevul:  A                        for automatic vulnerability detection, 2023.
+      transformer-based line-level vulnerability prediction.   In 2022             [21]Curtis  Northcutt,  Lu  Jiang,  and  Isaac  Chuang.     Confident
+      IEEE/ACM 19th International Conference on Mining Software                           learning: Estimating uncertainty in dataset labels.  J. Artif. Int.
+      Repositories (MSR), pages 608–620, 2022.                                            Res., 70:1373–1411, may 2021.
+ [8]Shuai Lu, Daya Guo, Shuo Ren, Junjie Huang, Alexey Svy-                        [22]Zhangyin Feng, Daya Guo, Duyu Tang, Nan Duan, Xiaocheng
+      atkovskiy,  Ambrosio  Blanco,  Colin  Clement,  Dawn  Drain,                        Feng, Ming Gong, Linjun Shou, Bing Qin, Ting Liu, Daxin
+
+
+
+                                                                                11
+
+=== PÁGINA FÍSICA 12 ===
+      Jiang, et al.  Codebert: A pre-trained model for programming                          language models to follow instructions with human feedback,
+      and natural languages. arXiv preprint arXiv:2002.08155, 2020.                         2022.
+[23]Daya Guo, Shuo Ren, Shuai Lu, Zhangyin Feng, Duyu Tang,                           [38]Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma,
+      Shujie  Liu,  Long  Zhou,  Nan  Duan,  Alexey  Svyatkovskiy,                          brian ichter, Fei Xia, Ed H. Chi, Quoc V Le, and Denny Zhou.
+      Shengyu Fu, et al. Graphcodebert: Pre-training code represen-                         Chain of thought prompting elicits reasoning in large language
+      tations with data flow. arXiv preprint arXiv:2009.08366, 2020.                        models.   In Alice H. Oh, Alekh Agarwal, Danielle Belgrave,
+[24]Daya Guo, Shuai Lu, Nan Duan, Yanlin Wang, Ming Zhou, and                               and Kyunghyun Cho, editors, Advances in Neural Information
+      Jian Yin. UniXcoder: Unified cross-modal pre-training for code                        Processing Systems, 2022.
+      representation. In Smaranda Muresan, Preslav Nakov, and Aline                   [39]Justin M. Johnson and Taghi M. Khoshgoftaar. Survey on deep
+      Villavicencio, editors, Proceedings of the 60th Annual Meeting                        learning with class imbalance. Journal of Big Data, 2019.
+      of the Association for Computational Linguistics (Volume 1:                     [40]Tianyu Gao, Xingcheng Yao, and Danqi Chen. SimCSE: Simple
+      Long Papers), pages 7212–7225, Dublin, Ireland, May 2022.                             contrastive  learning  of  sentence  embeddings.    In  Empirical
+      Association for Computational Linguistics.                                            Methods in Natural Language Processing (EMNLP), 2021.
+[25]Yue  Wang,  Weishi  Wang,  Shafiq  Joty,  and  Steven  CH  Hoi.                   [41]Nitish  Srivastava,  Geoffrey  Hinton,  Alex  Krizhevsky,  Ilya
+      Codet5:  Identifier-aware  unified  pre-trained  encoder-decoder                      Sutskever, and Ruslan Salakhutdinov. Dropout: a simple way to
+      models for code understanding and generation.  arXiv preprint                         prevent neural networks from overfitting. J. Mach. Learn. Res.,
+      arXiv:2109.00859, 2021.                                                               15(1):1929–1958, jan 2014.
+[26]Yue Wang, Hung Le, Akhilesh Gotmare, Nghi Bui, Junnan Li,                         [42]Avishree Khare, Saikat Dutta, Ziyang Li, Alaia Solko-Breslin,
+      andStevenHoi. CodeT5+:Opencodelargelanguagemodelsfor                                  Rajeev Alur, and Mayur Naik. Understanding the effectiveness
+      code understanding and generation.  In Houda Bouamor, Juan                            of large language models in detecting security vulnerabilities.
+      Pino, and Kalika Bali, editors, Proceedings of the 2023 Confer-                       arXiv preprint arXiv:2311.16169, 2023.
+      ence on Empirical Methods in Natural Language Processing,                       [43]HAONAN LI, YU HAO, YIZHUO ZHAI, and ZHIYUN QIAN.
+      pages 1069–1088, Singapore, December 2023. Association for                            Enhancing static analysis for practical bug detection: An llm-
+      Computational Linguistics.                                                            integrated approach. In Proceedings of Proceedings of the ACM
+[27]Benjamin Steenhoek, Md Mahbubur Rahman, Shaila Sharmin,                                 on Programming Languages (PACMPL), Issue OOPSLA, 2024.
+      and Wei Le.  Do language models learn semantics of code? a                      [44]Yuqiang  Sun,  Daoyuan  Wu,  Yue  Xue,  Han  Liu,  Wei  Ma,
+      case study in vulnerability detection, 2023.                                          Lyuye  Zhang,  Miaolei  Shi,  and  Yang  Liu.     Llm4vuln:  A
+[28]Microsoft. Codexglue – defect detection, 2019.                                          unified  evaluation  framework  for  decoupling  and  enhancing
+[29]Benjamin Steenhoek. Hugging face datasets, 2024.                                        llms’ vulnerability reasoning.arXiv preprint arXiv:2401.16185,
+[30]Miltiadis Allamanis.  The adverse effects of code duplication                           2024.
+      in machine learning models of code.   In Proceedings of the                     [45]Wasi  Ahmad,  Saikat  Chakraborty,  Baishakhi  Ray,  and  Kai-
+      2019 ACM SIGPLAN International Symposium on New Ideas,                                Wei Chang.   Unified pre-training for program understanding
+      New Paradigms, and Reflections on Programming and Software,                           and generation. In Kristina Toutanova, Anna Rumshisky, Luke
+      Onward!  2019,  page  143–153,  New  York,  NY,  USA,  2019.                          Zettlemoyer, Dilek Hakkani-Tur, Iz Beltagy, Steven Bethard,
+      Association for Computing Machinery.                                                  Ryan Cotterell, Tanmoy Chakraborty, and Yichao Zhou, editors,
+[31]Miltiadis Allamanis, Earl T. Barr, Christian Bird, and Charles                          Proceedings  of  the  2021  Conference  of  the  North  American
+      Sutton. Learning natural coding conventions. In Proceedings of                        Chapter of the Association for Computational Linguistics: Hu-
+      the 22nd ACM SIGSOFT International Symposium on Founda-                               man Language Technologies, pages 2655–2668, Online, June
+      tions of Software Engineering, FSE 2014, page 281–293, New                            2021. Association for Computational Linguistics.
+      York, NY, USA, 2014. Association for Computing Machinery.                       [46]Starcoder: may the source be with you!         Transactions on Ma-
+[32]Miltiadis Allamanis, Earl T. Barr, Premkumar Devanbu, and                               chine Learning Research, 2023. Reproducibility Certification.
+      Charles Sutton. A survey of machine learning for big code and                   [47]Saad Ullah, Mingji Han, Saurabh Pujar, Hammond Pearce, Ayse
+      naturalness. ACM Comput. Surv., 51(4), jul 2018.                                      Coskun, and Gianluca Stringhini.  Can large language models
+[33]Md  Rafiqul  Islam  Rabin,  Aftab  Hussain,  Mohammad  Amin                             identify and reason about security vulnerabilities? not yet. arXiv
+      Alipour, and Vincent J. Hellendoorn. Memorization and gener-                          preprint arXiv:2312.12575, 2023.
+      alization in neural code intelligence models.  Information and                  [48]Antonio Valerio Miceli Barone, Fazl Barez, Shay B. Cohen,
+      Software Technology, 153:107066, 2023.                                                and  Ioannis  Konstas.    The  larger  they  are,  the  harder  they
+[34]Yangruibo  Ding,  Saikat  Chakraborty,  Luca  Buratti,  Saurabh                         fail:  Language  models  do  not  recognize  identifier  swaps  in
+      Pujar,  Alessandro  Morari,  Gail  Kaiser,  and  Baishakhi  Ray.                      python.    In  Anna  Rogers,  Jordan  Boyd-Graber,  and  Naoaki
+      Concord: Clone-aware contrastive learning for source code. In                         Okazaki, editors, Findings of the Association for Computational
+      Proceedings  of  the  32nd  ACM  SIGSOFT  International  Sym-                         Linguistics: ACL 2023, pages 272–292, Toronto, Canada, July
+      posium on Software Testing and Analysis, ISSTA 2023, page                             2023. Association for Computational Linguistics.
+      26–38, New York, NY, USA, 2023. Association for Computing                       [49]Saad  Ullah,  Mingji  Han,  Saurabh  Pujar,  Hammond  Pearce,
+      Machinery.                                                                            Ayse  Coskun,  and  Gianluca  Stringhini.   Can  large  language
+[35]Alex Gu, Wen-Ding Li, Naman Jain, Theo X Olausson, Celine                               models identify and reason about security vulnerabilities? Not
+      Lee, Koushik Sen, and Armando Solar-Lezama. The counterfeit                           yet, December 2023.
+      conundrum: Can code language models grasp the nuances of                        [50]Roland Croft, M Ali Babar, and Mehdi Kholoosi. Data quality
+      their incorrect generations?  arXiv preprint arXiv:2402.19475,                        for software vulnerability datasets. In 2023 IEEE/ACM 45th In-
+      2024.                                                                                 ternational Conference on Software Engineering (ICSE), 2023.
+[36]Erik   Nijkamp,   Hiroaki   Hayashi,   Caiming   Xiong,   Silvio
+      Savarese, and Yingbo Zhou.   Codegen2: Lessons for training
+      llms on programming and natural languages, 2023.
+[37]Long Ouyang, Jeff Wu, Xu Jiang, Diogo Almeida, Carroll L.
+      Wainwright, Pamela Mishkin, Chong Zhang, Sandhini Agarwal,
+      Katarina Slama, Alex Ray, John Schulman, Jacob Hilton, Fraser
+      Kelton,  Luke  Miller,  Maddie  Simens,  Amanda  Askell,  Peter
+      Welinder, Paul Christiano, Jan Leike, and Ryan Lowe. Training
+
+
+
+                                                                                  12
+
+=== PÁGINA FÍSICA 13 ===
+                     SUPPLEMENTARY MATERIAL                                            they are altered solely to align with security updates. One case12 is
+                                                                                       thewma_decode_init function that invokes a vulnerable function
+A. Detailed Label Error Analysis                                                       init_vlc. In our analysis, the function wma_decode_init is
+   As demonstrated in Section II.B and Section III.B of the main                       benign.
+paper, we assess 50 vulnerable functions randomly sampled from
+eachdataset,includingCodeXGLUE[8,19],VulnPatchPairs[20]and
+SVEN [12], along with vulnerable functions identified by our two
+techniques,  PRIMEVUL-ONEFUNC  and  PRIMEVUL-NVDCHECK.
+The manual analysis results are shown in Table 1 of the main paper.
+In this section, we provide a more detailed analysis of the wrongly
+labeled functions.
+   Chen  et  al.  [5]  identify  three  primary  sources  of  labeling  er-
+rors.  First,  irrelevant  functions—those  subject  to  formatting,  non-
+functional alterations not linked to security fixes, or contained within
+commits  unrelated  to  security  issues—were  incorrectly  tagged  as
+vulnerable.  Second,  the  vulnerability  may  spread  across  multiple
+functions, which does not match our goal of training neural networks
+to  learn  whether  a  single  function  is  vulnerable.  Third,  benign
+functions undergoing modifications during vulnerability fixes, such
+as parameter list adjustments for consistency with altered vulnerable
+functions, were erroneously marked as vulnerable. Building on these
+three categories of labeling errors, we dissect the inaccuracies iden-
+tified in our manual analysis, with the detailed breakdown presented
+in Table IX.
+   Our manual analysis reveals that only 24% of the 50 data points
+evaluated  from  CodeXGLUE  and  36%  from  VulnPatchPairs  are
+genuinely vulnerable. This is noteworthy considering CodeXGLUE’s
+manual efforts in labeling security-related commits and VulnPatch-
+Pairs is built on CodeXGLUE. Contrasting our findings, Croft et
+al. [50] acknowledge a labeling accuracy issue with CodeXGLUE,
+yet  their  review  finds  80%  of  their  sampled  vulnerable  functions
+correctly  labeled.  This  divergence  largely  stems  from  our  more
+stringent criteria for identifying vulnerable functions.
+   First,  after  a  more  careful  examination,  we  find  that  58%  of
+the samples from CodeXGLUE and 40% from VulnPatchPairs are
+irrelevant  to  security  and  most  of  them  originate  from  commits
+unrelated to security issues. Examples include commits mentioning
+“instrument memory management”6 or “remove ad-hoc leak checking
+code”.7 Previous human annotators may misinterpret these commits
+as security-related due to certain keywords in the commit messages,
+despite their irrelevance to actual security issues. Additionally, we
+discover examples like commits focused solely on code migration8
+or  operating  system  compatibility  improvements9,  which  are  not                             Fig. 1: The template for the two-shot prompt.
+security-related at all.
+   Second, contrary to the approach taken by Croft et al. [50], our
+methodology  labels  a  function  as  vulnerable  only  if  it  indepen-
+dently  constitutes  a  security  risk.  For  instance,  addressing  a  race
+condition, as seen in certain commits10, demands a comprehensive
+understanding  of  the  system  architecture,  making  it  improper  to
+assess  a  function’s  vulnerability  in  isolation.  Previous  annotators
+often  mark  all  functions  associated  with  such  race  conditions  as
+vulnerable. Another case11 involves a denial-of-service (DoS) vulner-
+ability linked to the repetitive invocation of the recvmsg function.
+The qio_channel_websock_encode  function,  which  merely
+shifts some values, does not directly lead to a DoS threat. Thus, we
+categorize qio_channel_websock_encode as non-vulnerable,
+diverging from prior analyses.
+   Third, Croft et al. [50] label the callers of vulnerable functions as
+vulnerable. Conversely, we classify such functions as benign because
+
+
+  6https://github.com/qemu/qemu/commit/cd245a1
+  7https://github.com/qemu/qemu/commit/7d1b009                                               Fig. 2: The template for the chain-of-thought prompt
+  8https://github.com/qemu/qemu/commit/60fe637
+  9https://github.com/qemu/qemu/commit/b981289
+  10https://github.com/qemu/qemu/commit/c5a49c6
+  11https://github.com/qemu/qemu/commit/eefa3d8                                           12https://github.com/FFmpeg/FFmpeg/commit/073c259
+
+
+
+                                                                                   13
+
+=== PÁGINA FÍSICA 14 ===
+          TABLE IX: Detailed breakdown for label error analysis. The error categories are adopted from Chen et al. [5].
+
+                                                                                                                Wrong Label
+                         Benchmark                          Correct Label             Vulnerability Spread
+                                                                                  Across Multiple Functions     Relevant Consistency     Irrelevant
+                         SVEN [12]                                 94%                          0%                                       0%                         6%
+                         CodeXGLUE [8, 19]                         24%                         18%                                      0%                        58%
+                         VulnPatchPairs [20]                       36%                         10%                                     14%                       40%
+                         PRIMEVUL-ONEFUNC                          86%                          4%                                       4%                         6%
+                         PRIMEVUL-NVDCHECK                         92%                          4%                                       2%                         2%
+
+
+B. Prompts for Open AI Models
+   In this section, we show the template we used for prompting the
+OpenAI models.
+   Figure 1 shows the template of two-shot prompting, where we start
+from a system prompt to warm up the model with the task it will deal
+with. Then it is followed by one benign example and one positive
+example. In the end, the new code to be predicted will be wrapped
+into the position <INSERT_NEW_CODE_HERE>.
+   Figure  2  shows  the  template  of  chain-of-though  reasoning  for
+detecting the vulnerability. Similarly, the new code to be predicted
+will be wrapped into the position <INSERT_NEW_CODE_HERE>.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                         14

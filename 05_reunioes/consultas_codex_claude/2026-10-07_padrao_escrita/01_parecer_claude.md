@@ -1,0 +1,177 @@
+# Parecer bruto do Claude — consultar decisão integrada
+
+Modelo: claude-opus-5-5. Sugestões abaixo podem ter sido revistas na integração.
+
+---
+
+Li os 12 textos e redigi a análise abaixo, sem tocar em arquivos.
+
+# Padrão de redação do corpus A01–A12 aplicado ao estudo Qwen/PrimeVul
+
+## 0. O que li e o que não li
+
+- **Lido por inteiro:** `inventario_fontes.json`, `A01.txt` a `A12.txt` (todas as páginas, inclusive referências) e `PLANO_ESCRITA.md`.
+- **Lido em parte:** do `SBC_PDF.txt`, apenas a primeira página (que está no inventário) e uma busca pelas regras de legendas, tabelas, seções e referências.
+- **Não li:** o `.tex` do projeto de PLN, as cópias do `.sty`/`.bst` e as páginas dos PDFs originais.
+- **Erros de extração** (palavras coladas, como "Osexperimentosforamrealizados", e acentos quebrados em A02, A03 e A05–A11) foram tratados como problema de extração, não como estilo.
+- **Ressalva sobre os erros de português:** alguns erros parecem estar no original, mas não conferi nos PDFs. Exemplos: "houvessem" em A03 p.8, "afim de" em A01 p.2 e "com apresenta" em A06 p.1. Classifico-os como "provável erro do original".
+
+Os textos citam o primeiro autor; não atribuo a voz a Anselmo, que é coautor em todos. A numeração de página segue os marcadores das extrações.
+
+## 1. O corpus é heterogêneo
+
+- **Veículo e formato:**
+  - A01–A03, A05–A11 usam o formato SBC: uma coluna, seções numeradas "1.", Resumo e Abstract, referências [Autor ano].
+  - A01 é exceção dentro desse grupo: cita (Autor, ano) entre parênteses.
+  - A04 (CILAMCE 2016) é de engenharia estrutural. Tem seções "1 INTRODUÇÃO" em maiúsculas, abreviações "Fig."/"Eq.", cabeçalho do congresso e extensa exposição teórica com equações (p.3–4, 6–8).
+  - A12 (Revista de Sistemas e Computação) segue o modelo ACM em duas colunas: CCS Concepts, palavras-chave e referências numéricas [19].
+- **Desenho:** quase todos propõem um "método" (sequência de etapas) e o avaliam em bases médicas pequenas. A08 (2026) é o único de PLN e o único que se define como estudo, já no subtítulo: "Um Estudo com DistilBERT".
+- **Hábitos recorrentes, que não dependem do veículo:**
+  - introdução em funil, que termina num parágrafo de objetivo e outro de organização;
+  - método descrito por etapas com figura de fluxo;
+  - resultados guiados por tabelas;
+  - conclusão que retoma objetivo e números e lista trabalhos futuros.
+- **Variação real entre textos:** voz gramatical, grau de cautela, tempo verbal no método e forma de comparar com a literatura.
+
+## 2. Exemplos mais úteis para nosso estudo
+
+| ID | O que aproveitar | O que **não** aproveitar |
+|---|---|---|
+| **A08** | Subdivisão do método em Conjunto de Dados, Pré-processamento, Arquitetura e Configurações (p.3–5). Recorte declarado (classe NEI removida, p.3–4). Decisão seguida de limitação: "Esta decisão buscou… No entanto, reconhece-se que…" (p.5). Ressalva de protocolo em tabela comparativa (p.8). Vocabulário de PLN. | Concluir "não sofreu de sobreajuste" a partir da loss de treino (p.6). Resultado final medido na validação (p.8–9). Comparar com sistemas que fazem recuperação de evidências e dizer "superando a maioria" (p.8). "Assegura que a métrica… seja representativa" (p.9). |
+| **A02** | Comparação controlada justificada: os mesmos parâmetros para todas as CNNs, "excluindo variações causadas pelo uso de parâmetros diferentes" (p.7). Cada trabalho relacionado seguido de sua limitação (p.2). "Ressalta-se que…, o que indica…" (p.8). | "O intuito… foi validado" (p.10). |
+| **A09** | Tabela comparativa que explica as diferenças de base e de vértebras (p.8–9). Admissão de resultado inferior: "ainda precisam ser otimizados" (p.10). Contribuições enumeradas (a)(b)(c) (p.3). | "Pode ser utilizado em grandes centros" (p.3). |
+| **A10** | Escopo preliminar declarado: "resultados preliminares… a fim de determinar se… é promissora" (p.3). Limitações de aquisição explícitas: "Não foi definido protocolo…" (p.6). Base pequena reconhecida na conclusão (p.10). | — |
+| **A04** | "Este artigo apresenta uma pesquisa em desenvolvimento" (p.14). Escolha de um problema com solução exata para isolar o que se avalia (p.9). | Formato CILAMCE. |
+| **A03** | Prioridade de métricas justificada pelo custo do erro (p.9–10). Separação por paciente para evitar vazamento (p.8). | "Foi estendida com resultados promissores para seres humanos" (p.10). |
+| **A06, A07** | Cadeia tabela → observação → decisão (A06 p.6–7). Generalização modalizada: "embora novas investigações devam ser realizadas" (A07 p.9). | Equivalência inferida por desvio-padrão (A06 p.8). |
+
+A08 é pertinente pela área e pela estrutura, mas não como modelo de cautela. Para isso, A02, A09 e A10 servem melhor.
+
+## 3. Matriz de evidências (observado)
+
+| Dimensão | Observação | Evidências |
+|---|---|---|
+| Progressão da introdução | Contexto → problema → limitação das abordagens → lacuna → objetivo → organização | A02 p.1–3; A06 p.1–2; A07 p.1–2; A09 p.1–3 |
+| Formulação do objetivo | Variantes: "Este trabalho tem como objetivo avaliar…"; "O objetivo geral… Como objetivo específico, busca-se…"; "esta pesquisa busca avaliar"; "este artigo tem como objetivo apresentar a avaliação" | A07 p.2; A08 p.2; A01 p.2; A12 p.2; A05 p.2 |
+| Contraste com trabalhos anteriores | "Dado esse contexto, e diferenciando-se das abordagens mencionadas, o presente trabalho propõe"; "Diferentemente, o método proposto…" | A02 p.3; A06 p.2 |
+| Retomada referencial | Parágrafo aberto por demonstrativo + nome que resume o anterior: "Essa estruturação modular", "Essa otimização", "Esta assimetria sugere", "Esse desbalanceamento", "O estudo supracitado", "Esse mecanismo, portanto" | A08 p.1–2, 7; A02 p.9; A06 p.2, 5 |
+| Conectivos e função | Enquadramento ("Nesse contexto"); consequência ("Assim", "Dessa forma", "Portanto"); restrição ("Contudo", "Entretanto", "No entanto"); linha paralela ("Paralelamente"); destaque ("Ressalta-se que", "É importante destacar", "Vale ressaltar"); síntese ("Em suma") | A08 p.1–2, 5–6; A02 p.2, 8; A06 p.3, 7–8; A09 p.8 |
+| Voz | Predomina a impessoal ("utilizou-se", "foi realizado", "observa-se", "nota-se", "verifica-se"). A 1ª pessoa do plural aparece em vários textos, às vezes misturada no mesmo texto | Impessoal: A01 p.4–7; A07 p.4–7. 1ª plural: A08 p.3, 6, 8; A05 p.1, 7–8; A06 p.8; A07 p.3, 8; A11 p.2, 4 |
+| Tempo verbal no objetivo e no resumo | Presente: "investiga", "propõe", "apresenta" | A08 p.1; A06 p.1; A01 p.1 |
+| Tempo verbal no procedimento | Pretérito perfeito ("foi realizado", "foram separadas"). Alguns textos descrevem o método no presente ("utiliza-se", "é feito") ou no futuro ("serão geradas") | A08 p.5; A06 p.6; A02 p.4–6 |
+| Tempo verbal com tabelas e figuras | Presente: "A Tabela 2 mostra/resume", "conforme ilustra a Figura 5" | A06 p.6; A08 p.8; A10 p.9 |
+| Organização do texto e trabalhos futuros | Futuro ou perífrase: "serão apresentados", "pretende-se", "permitirá" | A09 p.3; A10 p.3; A06 p.11; A08 p.9 |
+| Interpretação modalizada | "sugere", "pode indicar", "é possível que", "pode ser atribuído", "provavelmente", "infere-se", "acredita-se", "podemos supor" | A08 p.6–7; A01 p.9; A02 p.9; A11 p.4 |
+| Procedimento com propósito | Ação + finalidade ("a fim de", "com o intuito de") + motivo ("em virtude de", "por conta de") | A02 p.7; A06 p.3; A05 p.3 |
+| Integração de tabelas | Tabela anunciada → "Observa-se que…" com números → interpretação → decisão ("Portanto, … foi a rede escolhida") | A06 p.6–7; A02 p.8–9; A07 p.8–9 |
+| Integração de referências | Integral ("Sabour et al. (2017) apontou…") e parenthética ("[Thorne et al. 2018]"). Fontes de software em nota de rodapé ou citação | A01 p.2; A08 p.1; A02 p.7 |
+| Termos técnicos | Termo em inglês mantido, às vezes em itálico, com glosa em português na primeira ocorrência: "(learning rate)", "SUPPORTS (Sustentada)" | A08 p.1, 5; A11 p.1 |
+| Conclusão | Retoma objetivo e método, repete os principais números, admite limitação e lista trabalhos futuros | A01 p.10; A02 p.10–11; A10 p.9–10 |
+| Regras do template SBC | Legenda de tabela **antes** da tabela; não usar mais casas decimais do que a precisão justifica; referências [Autor ano]; Resumo e Abstract ≤10 linhas na 1ª página | `SBC_PDF.txt` seções 2, 5 e 7 |
+
+## 4. Onde o corpus não serve de modelo
+
+- **Equivalência por sobreposição de desvios:** "com o desvio padrão, podemos ver que os resultados são equivalentes" (A06 p.8).
+- **Conclusões de uma única execução ou curva:** "é capaz de convergir mais rápido" (A05 p.6); ausência de sobreajuste deduzida da loss de treino (A08 p.6).
+- **Comparação de números de protocolos diferentes como competição:** A08 p.8 e A12 p.7. A08, ao menos, explica a diferença de protocolo.
+- **Verbos de certeza:** "foi validado" (A02 p.10), "comprovou" (A03 p.3), "garante" (A08 p.6–7).
+- **Generalização de uso:** A09 p.3; A11 p.1 ("supostamente deve melhorar").
+
+Esses usos contrariam o recorte acordado (sem equivalência, sem causalidade, seeds limitadas). Recomendo adotar a arquitetura textual do corpus e **substituir esses verbos** pelo padrão modalizado que A07 p.9 e A10 p.3 já usam.
+
+## 5. Guia editorial operacional (recomendação, não regra absoluta)
+
+**Progressão e parágrafos**
+
+1. Introdução em funil:
+   - avaliação de detectores de vulnerabilidade;
+   - por que métricas globais, pares vulnerável/corrigida, prevalência baixa e recursos precisam ser lidos juntos;
+   - o que os trabalhos próximos não isolam (só após a leitura da literatura);
+   - objetivo;
+   - contribuições delimitadas;
+   - organização, se o limite de páginas permitir.
+2. Cada parágrafo começa por uma frase-tópico. O parágrafo seguinte retoma o anterior com demonstrativo + nome que resume ("Essa política de decisão…", "Essa diferença entre as noções pareadas…"). Não repetir "Este trabalho" em parágrafos seguidos.
+3. Conectivos só quando há relação lógica real:
+   - restrição: "No entanto", "Contudo";
+   - consequência: "Assim", "Dessa forma";
+   - destaque metodológico: "Ressalta-se que";
+   - "Portanto" só para decisões ou conclusões que de fato decorrem do que veio antes.
+
+**Voz e tempo verbal**
+
+4. Voz predominantemente impessoal (passiva com "se" ou passiva analítica). A 1ª pessoa do plural é admissível para decisões dos autores ("adotamos"), mas uma só convenção por seção. A08 mostra a mistura; não reproduzir a alternância.
+5. Tempo verbal por função:
+   - presente para objetivo, organização, definição de métricas e leitura de tabelas;
+   - pretérito perfeito para o que foi executado (treinamento, seleção de época, calibração);
+   - futuro só para continuidade do roteiro.
+
+**Objetivo, procedimento e resultados**
+
+6. Objetivo: "Este trabalho caracteriza/examina/compara…", com o caráter exploratório explícito. Evitar "propõe um método".
+7. Procedimento: ação + conjunto/condição + finalidade + limitação. Modelos: A02 p.7 e A08 p.5.
+8. Resultados, em quatro movimentos:
+   - (a) anunciar a tabela;
+   - (b) descrever valores com política, denominador e unidade;
+   - (c) interpretar com verbo modalizado ("sugere", "é compatível com", "não permite afirmar");
+   - (d) delimitar o alcance (uma seed, três seeds, ambiente específico).
+9. Comparações com a literatura: uma coluna ou nota informando protocolo e dados (modelos: A08 p.8, A09 p.8). Nunca ranquear protocolos diferentes.
+
+**Terminologia e formatação**
+
+10. Glossário fixo, sem sinônimos alternados:
+    - "noções pareadas (P-C/P-V/P-B/P-R)" sempre distintas de "ordenação pareada";
+    - "limiar selecionado no conjunto de desenvolvimento";
+    - "FPR observada no teste";
+    - "NF4 com adaptador" e "BF16 mesclado";
+    - "seed" ou "semente", escolher um.
+11. Termos em inglês mantidos quando são padrão da área, glosados na 1ª ocorrência; siglas definidas uma vez.
+12. Seguir o SBC: legenda de tabela antes da tabela, figura com legenda abaixo, casas decimais conforme a precisão, citação [Autor ano].
+
+## 6. Ajustes ao `PLANO_ESCRITA.md`
+
+- **§1:** substituir "Não presumir ABNT, SBC…" por um registro da decisão:
+  - template SBC local (`template_sbc/sbc-template.sty` e `sbc.bst`, proveniência em `proveniencia.json`);
+  - texto em português;
+  - referências [Autor ano] via `sbc.bst`.
+  - Continuam pendentes: limite de páginas, regras da disciplina, autoria e afiliação, título e apresentação.
+- **Discordância sobre resumo e abstract:** a decisão registrada é "abstract em inglês", mas o template SBC pede, para artigos em português, **Resumo e Abstract**, cada um com até 10 linhas na 1ª página (`SBC_PDF.txt` p.1). Sugiro registrar os dois, salvo regra contrária da disciplina.
+- **Nova subseção "Padrão de redação":** apontar para o guia (§5 acima, quando virar arquivo). Deixar explícito que o corpus orienta a construção textual, não o conteúdo nem a ordem das seções, e que a extensão dos exemplos não fixa o número de páginas.
+- **§3:** manter a tabela; acrescentar que "Resultados e Discussão" podem ser fundidos, como em A02, A07, A08 e A09, se o limite exigir.
+- **§7:** acrescentar uma revisão de estilo contra o checklist abaixo, separada da revisão técnica.
+
+## 7. Checklist
+
+- [ ] Objetivo começa com "Este trabalho…" e declara o caráter exploratório.
+- [ ] Cada parágrafo tem frase-tópico e retoma o anterior.
+- [ ] Conectivos com função identificável; nenhum "Portanto" sem premissa.
+- [ ] Voz consistente dentro de cada seção.
+- [ ] Procedimentos no pretérito; leitura de tabelas no presente.
+- [ ] Toda decisão de procedimento tem finalidade; limitações reconhecidas onde a decisão as cria.
+- [ ] Toda tabela e figura é anunciada e interpretada no texto; legenda de tabela antes da tabela.
+- [ ] Números com política (limiar do dev, FPR observada), denominador e unidade.
+- [ ] Pilotos 3B (uma seed cada) sem linguagem de efeito; 7B com dispersão entre três seeds.
+- [ ] P-C e ordenação nunca fundidas.
+- [ ] NF4/BF16 sem "equivalente", "sem perda" ou "quantização pós-treinamento".
+- [ ] Nenhum "comprova", "valida", "garante" ou "supera" sem desenho que sustente.
+- [ ] Comparações externas com a ressalva de protocolo.
+- [ ] Glossário respeitado; siglas definidas uma vez.
+- [ ] Nenhuma frase extensa copiada do corpus.
+- [ ] Nenhum conteúdo médico importado.
+
+## 8. Amostra original (método; sem resultados)
+
+> Este trabalho caracteriza, de forma exploratória, o comportamento de classificadores derivados da família Qwen na detecção de vulnerabilidades em funções C/C++ do PrimeVul. O estudo não propõe um novo modelo; seu objetivo é examinar como métricas globais, noções pareadas e configurações de implantação se relacionam quando aplicadas às mesmas configurações já treinadas.
+>
+> As configurações avaliadas dividem-se em dois grupos. No primeiro, três receitas de ajuste fino foram aplicadas ao modelo de 3B parâmetros, cada uma executada com uma única seed; no segundo, o modelo de 7B foi treinado com a receita principal em três seeds. Em ambos os grupos, a época retida foi a de melhor desempenho no conjunto de validação. Como cada receita 3B dispõe de apenas uma execução, as diferenças entre elas são tratadas como indícios descritivos, e não como estimativas de efeito; a dispersão observada entre as seeds do 7B, por sua vez, também não substitui a incerteza amostral do conjunto de teste.
+>
+> A decisão binária adota o limiar que maximiza o F1 no conjunto de desenvolvimento, aplicado sem alteração ao teste, no qual se reporta a taxa de falsos positivos efetivamente observada. Para a implantação, compara-se, dentro de cada seed, o modelo quantizado em NF4 com o adaptador acoplado e a versão em BF16 com o adaptador mesclado aos pesos. Ressalta-se que essa comparação não corresponde a uma quantização pós-treinamento completa e não permite afirmar equivalência entre as variantes; eventuais diferenças são descritas apenas para o ambiente e as medições disponíveis.
+
+Os fatos usados na amostra estão no recorte acordado e no `PLANO_ESCRITA.md` §4. Antes de usar, confirmar duas formulações minhas: "receita principal" e "melhor época na validação aplicada também aos pilotos".
+
+## 9. Discordâncias e limitações
+
+- **Resumo e Abstract:** como dito no §6, o SBC exige os dois; o pedido mencionava só o abstract.
+- **Corpus como modelo de cautela:** ele não é uniforme. Proponho adotar a estrutura e a construção frasal, mas com cautela superior à média, o que é uma adaptação deliberada.
+- **Páginas:** as páginas citadas são as das extrações. Trechos em duas colunas (A12) e com equações (A04, A07, A10) saíram embaralhados e podem estar deslocados. Conferir visualmente antes de citar.
+- **Template:** não verifiquei o `.sty`/`.bst` copiados nem o `SBC_PDF.txt` inteiro; as regras citadas vêm da primeira página e da busca.
+- **Ortografia de A04, A12 e A01:** sem ligaduras quebradas, mas com erros prováveis no original ("deseign", "Multlayer", "especifidade"), que não devem ser tomados como padrão.

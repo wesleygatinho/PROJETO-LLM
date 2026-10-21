@@ -1,0 +1,305 @@
+<!-- pagina 1 -->
+PPM-UNet: Uma Rede Neural Convolucional para a
+Segmentac¸a˜o de Rins em Imagens de TC
+MarcusViniciusOliveira1,CaioEduardoFalca˜oMatos1,GeraldoBrazJu´nior1,
+AnselmoCardosodePaiva1,Joa˜oD.SousadeAlmeida1,GabrielCosta1,
+MatheusLevy1,MarioFreitas1
+1Nu´cleodecomputac¸a˜oaplicada–UniversidadeFederaldoMaranha˜o(UFMA)
+65.080-805–Sa˜oLu´ıs–MA–Brasil1
+Abstract. Kidney cancer represents 3% of adult malignancies, and early diag-
+nosis is an essential tool. Automatic segmentation aims to assist the physician
+inthediagnosticprocess. Theobjectiveofthisworkistodevelopandevaluatea
+networktosegment,incomputedtomographyimages,theregionsofthekidneys
+and tumor, if any. We evaluated the use of Pyramid Pooling Module replacing
+convolutional layers of the U-Net network to achieve the goal. The proposed
+methodology achieves as a result 0.91 of Iou for kidney regions and 0.88 of Iou
+fortumorregions.
+Resumo. O caˆncer de rim representa 3% das doenc¸as malignas do adulto,
+sendo o diagno´stico precoce uma ferramenta essencial. A segmentac¸a˜o au-
+toma´tica tem como objetivo auxiliar o me´dico no processo de diagno´stico. O
+objetivo desse trabalho consiste em desenvolver e avaliac¸a˜o de uma rede neu-
+ralparasegmentarasimagensdetomografiacomputadorizada,dasregio˜esdos
+rins e tumor, caso existam. Avaliamos a utilizac¸a˜o de Pyramid Pooling Module
+em substituic¸a˜o de camadas convolucionais da rede U-Net para atingir o obje-
+tivo. Ametodologiapropostaatingecomoresultado0,91deIoupararegio˜esdo
+rime0,88deIoupararegio˜esdetumor.
+1. Introduc¸a˜o
+Os rins consistem em dois o´rga˜os presentes no trato urina´rio localizado na parte pos-
+terior do abdoˆmen sendo suas extremidades superiores localizadas na altura dos arcos
+costais,pro´ximosa10ªe12ªcostelastora´cicas. Esteo´rga˜o,e´ responsa´velpelaeliminac¸a˜o
+de toxinas do sangue atrave´s de um sistema de filtragem, bem como, a regularizac¸a˜o
+da pressa˜o arterial e controle de l´ıquidos do corpo [deNefrologia2022]. O caˆncer de
+rim, tambe´m conhecido como adenocarcinoma renal apresenta-se como o terceiro mais
+frequente do aparelho geniturina´rio e representa aproximadamente 3% das doenc¸as ma-
+lignas do adulto. Estat´ısticas estimam que, no Brasil, sua incideˆncia e´ de 7 a 10 casos
+paracada100milhabitanteseanualmentesurgemcercade51milnovoscasosdadoenc¸a
+[S´ırio-Libaneˆs2022,doCaˆncer2022].
+Estudos apontam alguns fatores que elevam o risco de desenvolver o caˆncer re-
+nal como obesidade, histo´rico familiar, tabagismo, hipertensa˜o e doenc¸a de Von Hippel-
+Lindau1 [S´ırio-Libaneˆs2022]. Em relac¸a˜o a localidade dos tumores renais, por volta de
+1Doenc¸agene´ticaerara, caracterizadapelaformac¸a˜odetumorescommuitavascularizac¸a˜oemva´rias
+partesdiferentesdocorpo.
+
+<!-- pagina 2 -->
+54% sa˜o encontrados confinados ao rim, 20% esta˜o localmente avanc¸ados(acometendo
+gaˆnglios regionais pro´ximos ao rim) e 25% desenvolvem a meta´stase da doenc¸a
+espalhando-seprincipalmenteparaospulmo˜es,figadoeossos[S´ırio-Libaneˆs2022].
+Desta forma, o diagno´stico precoce desta patologia torna-se ferramenta essen-
+cial para o progno´stico e tratamento da doenc¸a elevando assim, as chances de cura do
+paciente. Pacientes diagnosticados em esta´gio inicial da doenc¸a, ou seja, quando na˜o
+ha´ disseminac¸a˜o da doenc¸a, possuem cerca de 93% de taxa de sobreviveˆncia relativa
+em cinco anos. Por outro lado, quando o diagno´stico e´ efetuado em esta´gio avanc¸ado
+(meta´stasedadoenc¸a)estataxae´ reduzidapara12%,demonstrandoassim,aimportaˆncia
+destediagno´sticoprecoce[Oncoguia2022].
+Aprendizagem profunda tem sido recentemente aplicado em problemas me´dicos
+comsucesso[Trevisanetal. 2021,Jatoba´ etal. 2020,Vogadoetal. 2019],inclusiveredes
+neuraisconvolucionais(CNN)provaram-sepromissorasnasegmentac¸a˜odea´reasdosrins
+[daCruzetal. 2020]. Nestetrabalho,omodeloatingiuumDicede96,33%eumJaccard
+de93,02%,parasegmentac¸a˜odosrins.
+Do mesmo modo, surgiram outras redes que tentam superar a U-Net como
+[IsenseeandMaier-Hein2019] que fazem uso de uma rede U-Net padra˜o combinada
+com uma U-Net 3D para obter um dice do rim de 97,36%, e dice do Tumor de 85,73%.
+[Shahinetal. 2019] apresentou uma Rede Totalmente Convolucional(FCN) com o obje-
+tivo de superar os resultados da U-Net, no qual criaram uma rede inspirada na Pyramid
+SceneParsingNetwork[Zhaoetal. 2016]. Oseumodeloalcanc¸ouumDicede90,3eum
+Jaccardde83,7.
+Em [Hafhoufetal. 2020] foi proposto uma modificac¸a˜o da U-Net, na qual se in-
+seriu blocos de Pyramid pooling module(PPM) nos dois u´ltimos skip connections. O
+modelo chegou a um dice de 89.6 e um Jaccard de 82.7 sendo melhor que a U-Net sem
+modificac¸o˜es.
+Uma modificac¸a˜o de camadas de CNN, a Pyramid Pooling Module (PPM)
+[Zhaoetal. 2016], foi usado em [Yangetal. 2018], onde se incorporou o PPM em uma
+3D FCN, para se ter uma melhor campo de recepc¸a˜o de caracter´ısticas. Os resultados
+chegamaumdicenorimde0,931edicenotumorde0.802.
+O objetivo desse trabalho e´ avaliar uma versa˜o modificada da rede U-Net atrave´s
+de blocos PPM para segmentac¸a˜o de rim e tumor em imagens de tomografia computado-
+rizada. Os blocos Pyramid pooling module foram adicionados no lugar das convoluc¸o˜es
+da rede, com o objetivo de aumentar a quantidade de caracter´ısticas obtidas das imagens
+eassimmelhorarastaxasdeassertividade.
+O restante deste trabalho possui mais treˆs sec¸o˜es. A Sec¸a˜o 2 descreve a meto-
+dologia usada na aplicac¸a˜o do modelo.A Sec¸a˜o 3 que sera˜o apresentados os resultados
+e tambe´m sera˜o discutidos. Por fim, na Sec¸a˜o 4 e´ destacada a conclusa˜o e os trabalhos
+futuros.
+2. Metodologia
+A metodologia, apresentada na Figura 1, se divide em quatro etapas. A primeira sendo
+a aquisic¸a˜o das imagens usadas no trabalho, proveniente do desafio 2019 Kidney Tumor
+SegmentationChallengeouKits19[Helleretal. 2019]quepossuiimagensdetomografia
+
+<!-- pagina 3 -->
+computadorizada de 300 pacientes. A segunda etapa consiste num pre´-processamento
+dos volumes. A terceira etapa se da´ pela construc¸a˜o do modelo usando a PPM-UNet. A
+u´ltima etapa consiste na experimentac¸a˜o e avaliac¸a˜o do me´todo proposto. Cada uma das
+etapase´ detalhadanassec¸o˜esseguintes.
+Figura1. Etapasdametodologiaproposta.
+2.1. Aquisic¸a˜odeimagens
+Para o desenvolvimento e avaliac¸a˜o do me´todo, a base de imagens de tomografia com-
+putadorizada Kits19 [Helleretal. 2019] foi utilizada. Esta e´ composta por 300 paci-
+entes, sendo 210 separados para treino e 90 para a avaliac¸a˜o do modelo. As imagens
+adquiridas vieram em escala de cinza e formato Neuroimaging Informatics Technology
+Initiative (NIfTI), como um tamanho de 512 x 512. Cada imagem passou por um pre´-
+processamentoeforamredimensionadasde512x512para128x128porcontaderestric¸o˜es
+dehardware.
+2.2. Construc¸a˜odomodelo
+O modelo foi baseado nas redes neurais convolucionais, usualmente utilizadas em visa˜o
+computacional e classificac¸a˜o, essa rede e´ ana´logas as Redes Neurais Artificias(ANN),
+sendo composta de neuroˆnios que podem se otimizar a partir de aprendizagem. Cada
+neuroˆnio recebendo uma entrada e fazendo uma operac¸a˜o, a base de muitas ANNs. Na
+CNN sua imagem de entrada ate´ a sua sa´ıda final, vai expressar uma u´nica func¸a˜o de
+pontuac¸a˜o perceptiva(peso), esses pesos podem ser treinados para se obter um melhor
+resultado, a ultima camada vai ter a func¸a˜o de loss associada as classes da mesma forma
+queaANN[O’SheaandNash2015].
+A rede avaliada neste trabalho teve inspirac¸a˜o em uma rede U-Net
+[Ronnebergeretal. 2015], sendo uma rede totalmente convolucional, esse tipo de rede
+tem como caracter´ıstica ser mais ra´pida, pois evita o uso de camadas mais densas e mui-
+tos paraˆmetros, sendo poss´ıvel se utilizar para qualquer tamanho de imagem. Nessa rede
+ocorre uma reduc¸a˜o de amostragem inicial, sendo utilizados convoluc¸o˜es, pooling e por
+
+<!-- pagina 4 -->
+fim passa por um aumento de resoluc¸a˜o, no caso da UNet feito por skip connection que
+ligam a etapa de aumento de resoluc¸a˜o com a reduc¸a˜o, se aproveitando dessa etapa para
+gerarumamelhorqualidadedaimagem[Longetal. 2014].
+AU-Netrecebeessanomenclaturaporcausadoseuformato,aredesedivideem2
+etapas,aprimeiracontraiaimagemparaextrairsuascaracter´ısticas,asegundae´ composta
+peloaumentodaresoluc¸a˜odasimagensusandodeconvoluc¸o˜eseosskipconnectionspara
+nofimfimgerarapredic¸a˜opixelapixel.
+Pensando na etapa de convoluc¸a˜o onde se extrai caracter´ısticas, foi proposto a
+inserc¸a˜o de camadas de Pyramid Pooling Module representada na Figura 2, para auxiliar
+na extrac¸a˜o de caracter´ısticas de tamanhos diferentes, e assim aumentar o n´ıvel de acerto
+da rede independente do tamanho ou formato do rim e tumor. Essa suposic¸a˜o leva em
+conta que no kits19 muitos pacientes sofreram com a perda de um rim ou perda parcial
+domesmo.
+Figura2. Representac¸a˜odoPyramidPoolingModule
+OPyramidpoolingmoduleouPPMtemcomoobjetivodaredeenxergaraimagem
+em um contexto mais global, visando separar caracter´ısticas locais e globais, e junta´-las
+para ter uma visa˜o geral do que foi recebido. Com isso em vista, a aplicac¸a˜o do mesmo
+no meio da segmentac¸a˜o de rins se torna via´vel pela grande diferenc¸a de tamanho entre
+osrinsdecadaserhumanoeotamanhodostumoresquetambe´mvariamaindamais.
+A aplicac¸a˜o do PPM se da´ pela divisa˜o de va´rios n´ıveis, no qual se possui dife-
+rentes escalas, essas escalas devendo conter uma distaˆncia razoa´vel entre elas, sendo elas
+medidas no nu´cleo da convoluc¸a˜o. A quantidade de n´ıveis e o tamanho de cada um e´
+varia´vel,dependendodotamanhodomapadecaracter´ısticas.
+A representac¸a˜o de como fica uma rede U-Net com a presenc¸a do PPM esta´ na
+Figura3. Ainserc¸a˜odosblocosdePPMforamfeitosdeformaalternadacomascamadas
+deconvoluc¸a˜o,sendoinseridasapenasnapartedecontrac¸a˜odarede.
+Na nossa arquitetura o PPM, apresentada na Figura 2, substitui 2 blocos de
+convoluc¸o˜es da U-Net na parte de reduc¸a˜o da imagem. A PPM presente no trabalho se
+divide em 4 ramos, cada um deles comum tamanho de nu´cleo diferente, sendo eles 1,3,5
+e 7, esses nu´cleos presentes nas convoluc¸o˜es tambe´m sa˜o acompanhados de camadas de
+Batchnormalization,ReLUemaxpoolingnofinal,sendoascamadasasmesmasemcada
+galho a u´nica diferenc¸a se da´ no tamanho do nu´cleo. No final do PPM essas imagens de
+tamanhosdiferentessa˜oconcatenadastodasjuntasparapassarparaaoutracamada.
+
+<!-- pagina 5 -->
+Figura3. ModeloPPM-UNetpropostopelome´todo
+2.3. Avaliac¸a˜o
+Para a avaliac¸a˜o do modelo foi pensado em utilizar 50 e´pocas, se seguindo a sequeˆncia
+dos pacientes presente no Kits19. A cada 10 e´pocas, o resultado da rede e´ avaliado para
+verificac¸a˜odoaprendizado.
+Asme´tricasutilizadasnaavaliac¸a˜odomodeloforamasme´tricasdeIou(Intersec-
+tion over Union) que serve para medir o acerto de um detector de objeto em um base de
+dados,usandoboudingboxes. Sendocalculadousandoaa´readeinteressesobreaa´reade
+unia˜ocomomostranaEquac¸a˜o1.
+P ∩Gt
+IoU = (1)
+P ∪Gt
+Outra me´trica utilizada foi o Dice mostrado na equac¸a˜o 4, que e´ obtido por um
+calculo entre o recall e o precision, levando em considerac¸a˜o o verdadeiro positivo(TP) e
+ambososfalsospositivos(FP)eosfalsosnegativos(FN),comomostranaequac¸a˜o2e3.
+TP
+Recall = (2)
+TP +FP
+TP
+Precision = (3)
+TP +FN
+2∗(Recall∗Precision)
+Dice = (4)
+(Recall+Precision)
+3. Resultados
+Nessa sec¸a˜o, e´ apresentada os resultados dos experimentos realizados. O me´todo foi
+aplicado usando a biblioteca Python. Utilizou-se a biblioteca Keras, com o Tensorflow
+
+<!-- pagina 6 -->
+GPUdeback-end. Aplacadev´ıdeoutilizadafoiaNVIDIAGeForceRTX3060.
+As imagens pre´-processadas foram dividas pelo nu´mero identificador dos paci-
+entes, sendo que todas as imagens de um determinado paciente fara´ parte de apenas um
+dos conjuntos. Foram formados treˆs conjuntos: treino, validac¸a˜o e teste. Um total de
+70% das imagens foram alocadas para treino, 20% para teste e 10% para validac¸a˜o. O
+modelo foi treinado com o conjunto de treino, e avaliado a cada e´poca com o conjunto
+de validac¸a˜o. A cada 10 e´pocas, o modelo foi avaliado com a base de teste, onde no
+momentocomparadoaredeU-Netpadra˜o,treinadacomamesmabase.
+Quando a rede foi executada a cada 10 e´pocas, o crescimento dela a cada e´poca
+teve um ritmo muito similar a U-Net padra˜o como apresentado na Figura 4,. No entanto
+noresultadofinalanossaredeteveumresultadosuperioraU-Netnofinaldas50e´pocas,
+comomostranaTabela1.
+Figura4. Comparac¸a˜oacada10e´pocas
+Tabela1. Experimentoacada10e´pocas
+Rede Iou-Score Iou-Tumor Iou-Rim Dice
+PPM-UNet 0,93 0,88 0,91 0,94
+U-Net 0,92 0,86 0,88 0,93
+Tanto a Tabela 1 quanto a Figura 4 demonstram que a rede proposta e´ capaz de
+convergirmaisra´pido,eaindaaprendercommaiseficieˆnciadentrodoproblema.
+O resultado final, apo´s a`s 50 e´pocas para a PPM-UNet e´ apresentado na Tabela
+2. Verifica-se que o IoU obtido para segmentac¸a˜o do RIM chegou a 0,91, e 0,88 para a
+segmentac¸a˜odasa´reasdetumor.
+Tabela2. ExperimentonasequeˆnciadoKits19
+Rede Iou-Score Iou-Tumor Iou-Rim Dice
+PPM-UNet 0,93 0,88 0,91 0,94
+
+<!-- pagina 7 -->
+Figura5. Resultadocomparativoentrema´scaraesa´ıdadarede
+Levando em conta que o resultado obtido mostrado na Tabela 2 foi superior a U-
+Net padra˜o, se percebe que a U-Net pode ser melhorada sofrendo pequenas mudanc¸as no
+seu campo de contrac¸a˜o. Tambe´m e´ poss´ıvel se observar que a rede tem um bom grau de
+aprendizado ao se analisar a Figura 5, onde se tem a imagem de tomografia computado-
+rizada em primeiro, ao lado se possui a ma´scara do Kits19, referente ao rim, em seguida
+a imagem de sa´ıda de PPM-UNet referente ao rim, e por fim se tem a ma´scara do Kits19
+referente ao tumor, e a sa´ıda PPM-UNet em relac¸a˜o ao tumor. Pode se observar na ima-
+gem que no primeiro caso ela se saiu bem, acertando grande parte do rim e do tumor, no
+entanto no segundo caso a rede na˜o foi capaz de diferenciar o rim do tumor. Perceba que
+nestecaso,umdosrinse´ praticamenteausente,oquepodeterlevadoaredeaentenderde
+maneiraerradaaa´readetumorqueesta´ dentrodele.
+Comparando-se com os trabalhos publicados na literatura, apresentado na Ta-
+bela 3, observa-se na que os trabalhos de [Shahinetal. 2019] e [Hafhoufetal. 2020]
+que utilizaram o PPM na construc¸a˜o da sua rede possui resultados compara´veis a rede
+PPM-UNet. Verificamos que os resultados obtidos sa˜o compara´veis aos obtidos por
+[IsenseeandMaier-Hein2019],com ligeira vantagem para a PPM-UNet, deixando em
+vistaquee´ poss´ıvelaplicarmelhoriasnaU-Netparamelhorarsuaassertividade.
+Tabela3. Comparac¸a˜ocomoutrostrabalhos
+Rede Jaccard Jaccard-Tumor Jaccard-Rim Dice
+[IsenseeandMaier-Hein2019] - - - 0,91
+[Shahinetal. 2019] 0,83 - - 0,90
+[Hafhoufetal. 2020] 0,82 - - 0,89
+PPM-UNet 0,93 0,88 0,91 0,94
+4. Conclusa˜o
+Nessetrabalhofoiproduzidoumme´todoautoma´ticoparasegmentac¸a˜oderimetumorem
+imagensdetomografiacomputadorizada,utilizandoumaredequetemcomobaseumaU-
+Net padra˜o, sendo a modificac¸a˜o a adic¸a˜o do PPM em duas camadas da contrac¸a˜o. A
+rede obteve um Iou no Tumor de 0,88 e no Rim de 0,91. Obteve resultados melhores
+em comparac¸a˜o com a UNet padra˜o e resultados enquadrados dentre o estado da arte.
+
+<!-- pagina 8 -->
+Esse resultado mostra que a adic¸a˜o do PPM no lugar dos blocos de convoluc¸a˜o aumenta
+aassertividadedarede,possuindoespac¸opraoutrasmelhorias.
+A inserc¸a˜o dos blocos PPM na rede se deu de maneira emp´ırica, onde va´rios ex-
+perimentos foram realizados para checar a adequac¸a˜o do processo. O problema com esta
+conduc¸a˜oconsistenotempoparaserealizarasadaptac¸o˜es. Entendemosqueaproposic¸a˜o
+deumaautomatizac¸a˜odoprocessomelhorariasobremaneiraadescobertadaarquitetura.
+Como trabalhos futuros se pretende estudar novas modificac¸o˜es da rede U-Net,
+estudandodeoutrasmodificac¸o˜espositivasarede,ouate´ mesmoumajunc¸a˜odoPPMcom
+outrasmodificac¸o˜eseotimizardemaneiraautoma´ticaoslocaisondedevemserinseridos
+taisblocosnarede.
+Agradecimentos
+Os autores agradecem a`s instituic¸o˜es brasileiras que ajudaram no desenvolvimento desta
+pesquisa: Coordenac¸a˜odeAperfeic¸oamentodePessoaldeN´ıvelSuperior(CAPES),Con-
+selhoNacionaldeDesenvolvimentoCient´ıficoeTecnolo´gico(CNPq)eFundac¸a˜odeAm-
+paroa` PesquisaeaoDesenvolvimentoCient´ıficoeTecnolo´gicodoMaranha˜o(FAPEMA)
+pelofinanciamentoApoio.
+Refereˆncias
+da Cruz, L. B., Arau´jo, J. D. L., Ferreira, J. L., Diniz, J. O. B., Silva, A. C., de Almeida,
+J.D.S.,dePaiva,A.C.,andGattass,M.(2020). Kidneysegmentationfromcomputed
+tomography images using deep neural network. Computers in Biology and Medicine,
+123:103906.
+de Nefrologia, S. B. (2022). Compreendendo os rins. Dispon´ıvel em:
+https://www.sbn.org.br/o-que-e-nefrologia/compreendendo-os-rins/.
+do Caˆncer, I. N. (2022). Ministe´rio da sau´de amplia tratamento para caˆncer renal. Dis-
+pon´ıvel em: https://www.inca.gov.br/noticias/ministerio-da-saude-amplia-tratamento-
+para-cancer-renal.
+Hafhouf, B., Zitouni, A., Megherbi, A. C., and Sbaa, S. (2020). A modified u-net for
+skin lesion segmentation. In 2020 1st International Conference on Communications,
+ControlSystemsandSignalProcessing(CCSSP),pages225–228.
+Heller, N., Sathianathen, N., Kalapara, A., Walczak, E., Moore, K., Kaluzniak, H., Ro-
+senberg, J., Blake, P., Rengel, Z., Oestreich, M., Dean, J., Tradewell, M., Shah, A.,
+Tejpaul, R., Edgerton, Z., Peterson, M., Raza, S., Regmi, S., Papanikolopoulos, N.,
+and Weight, C. (2019). The kits19 challenge data: 300 kidney tumor cases with
+clinical context, ct semantic segmentations, and surgical outcomes. Dispon´ıvel em:
+https:https://github.com/neheller/kits19.
+Isensee,F.andMaier-Hein,K.H.(2019). Anattemptatbeatingthe3du-net.
+Jatoba´, A., Lima, L., Amorim, L., and Oliveira, M. (2020). Cnn hyperparameter opti-
+mization for pulmonary nodule classification. In Anais do XX Simpo´sio Brasileiro de
+Computac¸a˜oAplicadaa` Sau´de,pages25–36,PortoAlegre,RS,Brasil.SBC.
+Long,J.,Shelhamer,E.,andDarrell,T.(2014). Fullyconvolutionalnetworksforsemantic
+segmentation.
+
+<!-- pagina 9 -->
+Oncoguia(2022). Taxadesobrevidaparacaˆncerderim.
+O’Shea,K.andNash,R.(2015). Anintroductiontoconvolutionalneuralnetworks.
+Ronneberger, O., Fischer, P., and Brox, T. (2015). U-net: Convolutional networks for
+biomedicalimagesegmentation.
+Shahin,A.H.,Amer,K.,andElattar,M.A.(2019). Deepconvolutionalencoder-decoders
+with aggregated multi-resolution skip connections for skin lesion segmentation. In
+2019 IEEE 16th International Symposium on Biomedical Imaging (ISBI 2019), pages
+451–454.
+S´ırio-Libaneˆs, H. (2022). Caˆncer de rim: Saiba mais. Dispon´ıvel em:
+https://www.hospitalsiriolibanes.org.br/blog/urologia/cancer-de-rim-saiba-mais.
+Trevisan, V., Rodrigues, D., and Rezende, E. (2021). xrayaid detecting pneumonia using
+artificialintelligence. InAnaisdoXXISimpo´sioBrasileirodeComputac¸a˜oAplicadaa`
+Sau´de,pages1–12,PortoAlegre,RS,Brasil.SBC.
+Vogado, L., Veras, R., Araujo, F., Silva, R., and Aires, K. (2019). Rede neural con-
+volucional para o diagno´stico de leucemia. In Anais do XIX Simpo´sio Brasileiro de
+Computac¸a˜oAplicadaa` Sau´de,pages46–57,PortoAlegre,RS,Brasil.SBC.
+Yang,G.,Li,G.,Pan,T.,Kong,Y.,Wu,J.,Shu,H.,Luo,L.,Dillenseger,J.-L.,Coatrieux,
+J.-L.,Tang,L.,andZhu,X.(2018). Automaticsegmentationofkidneyandrenaltumor
+in ct images based on 3d fully convolutional neural network with pyramid pooling
+module. In201824thInternationalConferenceonPatternRecognition(ICPR),pages
+3790–3795.
+Zhao,H.,Shi,J.,Qi,X.,Wang,X.,andJia,J.(2016). Pyramidsceneparsingnetwork.

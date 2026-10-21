@@ -1,0 +1,97 @@
+{
+  "versao": 2,
+  "sha256": "400165fae1ff01f8c580c60c65765fba68872c49db939be31ab11aa4e2ba8f2d",
+  "contexto_sha256": "54f59854b20f96317483a1d94cb4e40f69e4f45180584249f493f1cb471a15b9",
+  "abrangencia": "texto_integral_da_versao",
+  "revisor": "Claude — papel revisor",
+  "escopo": "cientifico_editorial",
+  "decisao": "corrigir",
+  "itens": [
+    {
+      "id": "V2-R1",
+      "tipo": "evidencia",
+      "gravidade": "menor",
+      "trecho": "No PrimeVul, a rotulação mais rigorosa, a deduplicação e a divisão cronológica reduzem o risco de vazamento entre treino e teste [@ding2024primevul].",
+      "problema": "A frase atribui ao PrimeVul três medidas contra o vazamento, mas a fonte não diz isso. Em primevul_pdf.txt, a mitigação do vazamento vem da deduplicação e da divisão cronológica: linha 32, 'data splitting strategy to mitigate data leakage issues', e linha 67, 'splitting also reduces the risks of data leakage'. As técnicas de rotulação, na linha 107, 'two rigorous labeling techniques', tratam da exatidão dos rótulos. Elas não tratam do vazamento entre treino e teste.",
+      "acao": "Separar as duas finalidades na frase. A rotulação mais rigorosa serve à exatidão dos rótulos. A deduplicação e a divisão cronológica servem para reduzir o vazamento entre treino e teste. Manter a citação [@ding2024primevul] e não acrescentar números."
+    }
+  ],
+  "verificacoes_anteriores": [
+    {
+      "id": "V1-R1",
+      "estado": "resolvido",
+      "justificativa": "Na Seção 3.5, o texto agora diz 'o menor limiar, entre os escores das \\(n\\) funções não vulneráveis da validação, que pela regra \\(s > t\\) admite no máximo \\(\\lfloor 0{,}005\\,n \\rfloor\\) falsos positivos'. Conferi esse critério em fpr_threshold, de comum.py, como relatado: ordem decrescente e índice ⌊0,005n⌋. Pela regra estrita, valores distintos abaixo desse limiar admitem pelo menos ⌊0,005n⌋+1 falsos positivos, então 'menor' está correto. A S7 descreve o mesmo critério e diz que limiares mais altos também atenderiam à restrição. O texto não garante FPR ≤ 0,5% no teste."
+    },
+    {
+      "id": "V1-R2",
+      "estado": "resolvido",
+      "justificativa": "Resumo, Abstract, Seção 4.2, Discussão e Conclusão agora usam 'ordenação pareada de X%' ou 'pairwise ranking score', com meio crédito declarado. A Seção 3.5 diz que \\(A_{\\text{par}}\\) não é a fração de pares com escore maior para a versão vulnerável, e as Limitações repetem isso. A frase de que a maioria dos pares sem empate ficou invertida decorre algebricamente de A<50% (W<L). Não encontrei nenhuma ocorrência de 'ordenou X% dos pares'."
+    },
+    {
+      "id": "V1-R3",
+      "estado": "resolvido",
+      "justificativa": "As Limitações agora dizem: 'A época foi escolhida nas execuções originais pela ordenação pareada estrita, com a AUC como desempate; apenas a verificação com meio crédito para empates foi retrospectiva.' selecao_epocas.json confirma isso. Nos dois primeiros blocos, historica_estrita=1, ajustada_reconstruida=null e empates=null (linhas 5–6 e 36–37). No terceiro bloco, historica_estrita=3 e ajustada_reconstruida=3 (linhas 53–54). A Seção 3.4 e a S6 estão coerentes com isso."
+    },
+    {
+      "id": "V1-R4",
+      "estado": "resolvido",
+      "justificativa": "A generalização com 'portanto' foi retirada. Conferi as células nas Tabelas 4 e 5 e em tabelas_artigo.md. As configurações 3B de maior F1/AUC entre os classificadores, proporção original (0,262/0,851) e 1:1 (0,195/0,795), tiveram 37,50% e 42,38%. As configurações com controle de tamanho ficaram entre 44,68% e 55,23%, com F1 entre 0,114 e 0,148 e AUC entre 0,726 e 0,765. No 7B, a semente 2 tem o maior F1, a menor AUC e as menores ordenações; a semente 3 tem a maior AUC; a semente 1 tem as maiores ordenações. O texto declara que essa comparação não estima associação estatística."
+    },
+    {
+      "id": "V1-R5",
+      "estado": "resolvido",
+      "justificativa": "A Seção 2.3 agora distingue o TrapEval, que ajusta LLMs generativos com e sem raciocínio explícito (huang_pdf.txt, linhas 34–36), da geração local YES/NO sem exemplos e sem ajuste. Isso é coerente com as Seções 3.3 e 4.1."
+    },
+    {
+      "id": "V1-R6",
+      "estado": "resolvido",
+      "justificativa": "Li o texto e o suplemento e não encontrei mais 'Risse e Böhme', 'Ullah et al.' nem outra autoria digitada fora dos tokens. As retomadas 'esses últimos autores' e 'esses autores' remetem a [!risse2024limits] e [!ullah2024sec] no mesmo parágrafo, e o referente fica claro."
+    },
+    {
+      "id": "V1-R7",
+      "estado": "resolvido",
+      "justificativa": "Na Seção 4.3, as duas leituras agora estão separadas. O intervalo da diferença, de −1,22 a 2,54, 'não distingue as implantações' nem estabelece equivalência. Os intervalos das médias, 47,92–53,33 e 47,14–52,73, incluem 50% sem provar ordenação ao acaso. O 'portanto' sem premissa foi trocado por uma comparação verificável: os DP 5,17 e 4,63 contra as amplitudes de cerca de 5,4 e 5,6, além das sementes 1 e 2 em lados opostos de 50%."
+    },
+    {
+      "id": "V1-R8",
+      "estado": "resolvido",
+      "justificativa": "A Seção 4.2 agora define os 124 empates como pares 'em que as duas versões têm o mesmo número de tokens visíveis'. Ela diz que esses empates incluem necessariamente os pares no teto de 2.048 tokens e os 32 pares com entradas idênticas, sem decompor os 124. tokenizacao_proveniencia.json contém a chave pares_tokens_identicos_2048."
+    },
+    {
+      "id": "V1-R9",
+      "estado": "resolvido",
+      "justificativa": "A S7 agora diz 'os 564 pares de teste da configuração 3B de proporção original caíram em P-B'. O escopo fica no teste pareado, de acordo com metricas_pareadas.csv no limiar histórico zero, como registrado."
+    },
+    {
+      "id": "V1-R10",
+      "estado": "resolvido",
+      "justificativa": "A Seção 3.1 atribui o limiar de maior F1 às métricas globais e às categorias pareadas. Atribui o limiar de FPR de até 0,5% à FNR e à FPR do teste global. Isso é coerente com a Seção 3.5 e com as legendas das Tabelas 4 e 5."
+    },
+    {
+      "id": "V1-R11",
+      "estado": "resolvido",
+      "justificativa": "A Conclusão restringe a implicação: 'Nessas configurações e nesse conjunto, portanto, as métricas globais não bastaram... e a leitura conjunta... alterou a interpretação dos resultados'. A cautela é a mesma do Resumo, que diz 'nessas condições', e do Abstract, que diz 'under these conditions'."
+    }
+  ],
+  "limites": [
+    "Leitura integral: A08.txt (342 linhas), catalogo_verificado.json, tabelas_artigo.md e o manuscrito e o suplemento da versão 2 no pacote. As Tabelas 2–7, S1 e S2 coincidem célula a célula com tabelas_artigo.md. Na Tabela 2, a coluna de custo foi migrada para a S2. Também recalculei as derivações citadas no texto: 2,68% (695/25.911); cerca de 67% e cerca de 40%; FPR* de 0,52–0,69; variação máxima de 0,22 p.p.; faixas de P-C, F1, AUC e ordenação; reduções no recorte de 465 pares.",
+    "Referências: as 13 chaves usadas no corpo existem no catálogo, com ano e versão coerentes com o briefing. ReVeal é o preprint de 2020, Ullah é o arXiv v3 de 2024, Devign tem o registro NeurIPS e o texto local é preprint, LoRA é a v2 e QLoRA é a v1. O suplemento não traz autoria digitada nem URL no corpo. Não abri LEITURA_ADICIONAIS.md nem bibliografia_verificada.bib nesta sessão.",
+    "Atribuições conferidas por busca focal nos originais: LineVul ('188k+ C/C++ functions', função coarse-grained e predição de linhas por atenção, linhas 24–43 e 89–107); Saito ('deceptive with respect to conclusions', linha 25; linha de base fixa na ROC e móvel na PRC, linhas 444–455); Field (bootstrap de clusters aleatorizado e propriedades ligadas a modelos particulares, linhas 71–162 do compacto); LoRA (W0+BA, linha 211; mesclagem e cálculo explícito de W, linha 233); QLoRA (NF4, dupla quantização e paged optimizers, linhas 82–85 e 179–234); Huang (V2P/V2N, cross-dataset, perturbações que preservam a semântica, lacuna semântica medida por CodeBLEU, cinco LLMs com e sem CoT, escores altos em V2N com falha nos patched, linhas 27–39 e 117–130); Risse (overfitting a características não relacionadas introduzidas por transformações, linhas 28–101); PrimeVul (vazamento, VD-S e rotulação, linhas 32–134; daí o V2-R1). Devign, ReVeal, DiverseVul, Qwen e Ullah não foram relidos nesta sessão. Para eles, conto com a busca focal registrada no parecer V1, cujos trechos coincidem com as formulações atuais.",
+    "Código conferido por busca focal: 03_inferencia_etapa1.py (FP16, max_new_tokens=5, do_sample=False, recorte s[:60]); classificador.py (num_labels=2, computação BF16, escore logits[:,1]−logits[:,0]); 07_avaliar_classificador.py (merge_and_unload antes de reset_peak_memory_stats); 06_treinar_qlora.py (lr padrão 2e-4, lote 16, AdamW com weight_decay=0, clip 1,0, entropia cruzada com pesos [1,0, peso_vul]). Não vi o valor histórico de peso_vul, o aquecimento de 3%, a regra de pareamento por comprimento da receita com controle de tamanho nem o lado do truncamento. Para esses pontos, aceitei os registros históricos e a conferência de Codex, sem confirmação própria. 08_baseline_tamanho.py não foi lido.",
+    "Dados e artefatos: manifesto.json confirma tokenizers 0.23.2, Transformers 5.17.0, torch 2.8.0+cu128 e PEFT 0.21.0. Não vi bitsandbytes 0.50.2 nem a contagem de 33 previsões. Em auditoria_integridade.json e tokenizacao_proveniencia.json, encontrei só ocorrências dos padrões buscados, como 25430/184427/4354 e a chave dos pares idênticos; a contagem não mostra os valores. As buscas pelos nomes das cinco funções em inspecao_correspondencia_commits.json e pelos valores 1.126/1.128 em reutilizacoes_release_oficial.json não acharam nada. Por isso, a tabela da S3 (posições, funções, commits e anos) e as reutilizações da S2 não foram confirmadas por mim. Não li estatistica.json, intervalos.csv, comparacoes.csv, metricas_pareadas.csv, sensibilidade_correspondencia.csv nem pares_inspecao.json. recuperacao_dados.json e auditoria_final.json, citados no suplemento, não estão no pacote e não foram auditados.",
+    "Corpus de estilo: li A08 integralmente. Pelo índice do diagnóstico, as localizações de A01 e A06 aparecem nas linhas 12–24 de retorno.json, mas não li essas passagens de A01 e A06 por limite de orçamento da sessão. A comparação estrutural se apoia em A08: contexto com fonte, depois benchmark, eficiência, objetivo, trabalhos relacionados, método, resultados com discussão e conclusão. O manuscrito segue esse encadeamento de forma mais desenvolvida e não transcreve frases do corpus. A Introdução tem cinco parágrafos em prosa (contexto, problema, justificativa, recursos com objetivo e contribuições, organização), sem lista.",
+    "Sugestão opcional, não obrigatória: o Resumo tem cerca de 150 palavras, acima da faixa de 100–130 do briefing. O guia limita por linhas renderizadas, e isso não foi verificado.",
+    "Não houve leitura de PDF, compilação nem diagramação. Autoria, afiliação, título definitivo e regras de páginas são limites externos. A decisão vale só para o conteúdo revisado e não declara o artigo pronto para submissão. Hashes e o parecer não certificam a validade científica."
+  ],
+  "proveniencia": {
+    "arquivo": "entradas/revisao_v002.json",
+    "sha256": "765f59aee8cbec80341a3d14124dcf6edcb677c267039fb9b50f1dfe964f1e5d",
+    "origem": "claude_cli",
+    "modelos": [
+      "claude-opus-5-5"
+    ],
+    "session_id": "c5aa05d9-48b0-4336-85d2-9b1505871745",
+    "duration_ms": 273830,
+    "custo_estimado_cli": 1.6927254000000003
+  }
+}

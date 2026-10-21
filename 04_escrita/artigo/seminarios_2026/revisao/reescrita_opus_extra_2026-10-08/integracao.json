@@ -1,0 +1,36 @@
+{
+  "rodada": "artigo_opus_extra_01",
+  "versao_integrada": 3,
+  "sha256_integral": "c6529a08b3d93a68103d8b2fa12790e8198d11f3374440b819307809ca6344af",
+  "fonte_aprovada": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\texto\\secoes\\artigo_opus_extra_01.md",
+  "manuscrito_canonico": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\texto\\artigo_completo.md",
+  "sha256_canonico": "80d1d72938567369c675175df7a44768b95734932f5a6bf02de0746d43d1cf96",
+  "bibliografia_atual": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\referencias\\artigo_opus_extra.bib",
+  "bibliografia_anterior_preservada": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\referencias\\artigo.bib",
+  "transposicao": {
+    "fonte": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\revisao\\fluxo_editorial\\rodadas\\artigo_opus_extra_01\\versoes\\v003.md",
+    "sha256_fonte": "c6529a08b3d93a68103d8b2fa12790e8198d11f3374440b819307809ca6344af",
+    "tex_aberto": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\revisao\\introducao_2026-10-07\\previa_rascunho_sbc.tex",
+    "sha256_tex": "a8dafeb1d568416a1de3f459e4eb6a15dd756133f2838cf066ebe0e4cf041ea8",
+    "referencias": [
+      "chakraborty2020reveal",
+      "chen2023diversevul",
+      "dettmers2023qlora",
+      "ding2024primevul",
+      "field2007bootstrap",
+      "fu2022linevul",
+      "hu2021lora",
+      "huang2026trap",
+      "hui2024qwen",
+      "risse2024limits",
+      "saito2015metrics",
+      "ullah2024sec",
+      "zhou2019devign"
+    ],
+    "numero_citacoes": 38,
+    "labels_verificados": 28,
+    "comentario": "Somente transposição e vínculos de citações. Não certifica compilação ou layout. Texto e fontes científicas não alterados."
+  },
+  "fontes_preservadas": 150,
+  "modificacoes_experimentais": []
+}

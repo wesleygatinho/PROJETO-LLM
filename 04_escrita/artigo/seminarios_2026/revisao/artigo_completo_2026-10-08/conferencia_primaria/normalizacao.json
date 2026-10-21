@@ -1,0 +1,7 @@
+{
+  "operacao": "Remoção exclusiva da cerca Markdown externa para decodificar o JSON. Conteúdo do parecer não alterado; resposta bruta preservada.",
+  "modelos": [
+    "claude-opus-5-5"
+  ],
+  "is_error": false
+}

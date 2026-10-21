@@ -1,0 +1,12 @@
+{
+  "id": "P1",
+  "situacao": "corrigido",
+  "justificativa": "Distinguida a atualização ΔW=BA do peso adaptado W0+BA, com condição de baixo posto explicitada. Não alteradas receitas, números, conclusão ou referências.",
+  "evidencias": [
+    {
+      "fonte": "02_referencias/verificacao_introducao_seminarios_2026/lora_pdf.txt",
+      "localizador": "Página física4, linhas211–215; equação3 e definições de B∈R^(d×r), A∈R^(r×k), r≪min(d,k)",
+      "verificacao": "A fonte define W0+ΔW=W0+BA; W0 é congelado, A/B são treináveis. A versão anterior chamava indevidamente W0+BA de atualização."
+    }
+  ]
+}

@@ -1,0 +1,342 @@
+<!-- pagina 1 -->
+Verificac¸a˜o de Fatos com Transformers:
+Um Estudo com DistilBERT no Benchmark FEVER
+BeneiltonMartinsLeite1,FaelFaraydePaiva1,AnselmoCardosodePaiva1
+1Nu´cleodeComputac¸a˜oAplicada–UnivesidadeFederaldoMaranha˜o(UFMA)
+CaixaPostal: 65.085-580–Sa˜oLu´ıs,MA–Brasil
+{beneilton.martins,fael.paiva,anselmo.paiva}@nca.ufma.br
+Abstract. Automated fact-checking is an essential task in the digital age to
+combat misinformation. This work investigates claim verification using the
+FEVERdatasetwithasupervisedtransformer-basedmodel. Trainedonprovided
+claimsandevidence,ourmodelachieves91.98%,showingthathighperformance
+ispossibleevenwithlightweightarchitectures. Theresultshighlightthatcompact
+modelssuchasDistilBERTcanachieveperformancecomparabletolargerones,
+underscoring the potential of efficient solutions for large-scale fact-checking
+systems.
+Resumo. A verificac¸a˜o automatizada de fatos e´ uma tarefa essencial na era
+digitalparacombater adesinformac¸a˜o. Este trabalhoinvestigaaclassificac¸a˜o
+da veracidade de afirmac¸o˜es no dataset FEVER, adotando um modelo super-
+visionado baseado em transformers. O modelo alcanc¸a 91,98% de acura´cia,
+demonstrando que e´ poss´ıvel obter alto desempenho com arquiteturas leves.
+Osresultadosevidenciamque modeloscompactos,como oDistilBERT,podem
+alcanc¸ardesempenhocompara´velamodelosmaiores,reforc¸andoopotencialde
+soluc¸o˜eseficientesparaverificac¸a˜odefatosemlargaescala.
+1. Introduc¸a˜o
+O crescimento exponencial das redes sociais e da disseminac¸a˜o de conteu´do digital nos
+u´ltimos anos transformou o panorama informacional contemporaˆneo, trazendo a` tona
+desafios cr´ıticos relacionados a` desinformac¸a˜o e a` propagac¸a˜o de afirmac¸o˜es falsas ou
+enganosas[Guoetal. 2022]. Nessecontexto,averificac¸a˜oautoma´ticadefatostornou-se
+um problemafundamental no processamento delinguagem natural (PLN),uma vez que o
+volumemassivodeinformac¸o˜esemcirculac¸a˜oemplataformasdigitaistornaimpratica´vel
+averificac¸a˜omanual detodasas reivindicac¸o˜es. Assim, odesenvolvimentodeferramentas
+automatizadas capazes de identificar, recuperar evideˆncias e classificar a veracidade de
+afirmac¸o˜ese´ essencialparamitigarosefeitosadversosdadesinformac¸a˜onasociedade.
+Comorespostaaessademanda,obenchmarkFEVER(FactExtractionandVERifi-
+cation)emergiucomorefereˆnciafundamentalparatreinareavaliarsistemasdeverificac¸a˜o
+de fatos [Thorneetal. 2018]. O FEVER estrutura o problema de verificac¸a˜o como um
+desafiocomposto portreˆssubtarefas interdependentes: (i)arecuperac¸a˜ode documentose
+sentenc¸asrelevantesquecontenhamevideˆnciaspotenciais;(ii)averificac¸a˜odaconsisteˆncia
+lo´gicaentreasevideˆnciasrecuperadaseaafirmac¸a˜osubmetida;e(iii)aclassificac¸a˜oda
+veracidade da reivindicac¸a˜o em uma das treˆs categorias: SUPPORTS (Sustentada), REFU-
+TES (Refutada) ou NOT ENOUGH INFO (Informac¸a˜o Insuficiente). Essa estruturac¸a˜o
+
+<!-- pagina 2 -->
+modularpermitiuodesenvolvimentodesistemasmaiseficazeseaidentificac¸a˜odegargalos
+espec´ıficosempipelinesdeverificac¸a˜o.
+Paralelamente,a eficieˆnciacomputacionaltornou-se umaconsiderac¸a˜ocr´ıticano
+desenvolvimentodesistemasdeverificac¸a˜oemlargaescala. Emboramodelosdelingua-
+gemgrandes,comooBERT,demonstremaltodesempenhoemdiversastarefasdePLN,
+seus requisitos computacionais elevados limitam sua aplicabilidade em contextos com
+restric¸o˜es de recursos, como dispositivos mo´veis e servidores com orc¸amentos compu-
+tacionais limitados. Nesse cena´rio, o DistilBERT, um modelo obtido por destilac¸a˜o de
+conhecimento,apresenta-secomoumaalternativapromissora,mantendo97%dodesempe-
+nhodoBERTenquanto reduzseutamanhoem40% eaumentaavelocidadede infereˆncia
+em60%[Sanhetal. 2019]. Essaotimizac¸a˜otornavia´velaimplementac¸a˜odesistemasde
+verificac¸a˜o eficientes e escala´veis sem comprometer significativamente a qualidade das
+predic¸o˜es.
+Oobjetivogeraldestetrabalhoe´ contribuirparaoavanc¸odaverificac¸a˜oautoma´tica
+defatos,comfocoespec´ıficonaetapadeverificac¸a˜odeconsisteˆncia,queconstituiumcom-
+ponentecr´ıticodopipelinedeverificac¸a˜opropostopeloFEVER.Comoobjetivoespec´ıfico,
+busca-seinvestigaraefica´ciadoDistilBERT,ummodelocompactobaseadoemarquitetura
+Transformer,natarefadeclassificararelac¸a˜oentreumaafirmac¸a˜o(claim)eumconjuntode
+evideˆnciasextra´ıdas. Omodelopropostorecebecomoentradaaconcatenac¸a˜odaafirmac¸a˜o
+coma evideˆnciae retornaa predic¸a˜oda classeapropriada, operandocomo classificador
+de ro´tulos terna´rios. Espera-se que esta pesquisa demonstre a viabilidade de empregar
+modelosdestiladosparaaverificac¸a˜odefatos,abrindocaminhosparaaimplementac¸a˜ode
+sistemasrobustoseeficientesemambientesonderecursoscomputacionaissa˜olimitados.
+2. Trabalhos Relacionados
+Desdeolanc¸amentodomodeloBERToriginalporDevlinetal. (2019),diversasmelhorias
+evariantes veˆmsendo desenvolvidas,impactando diretamenteodesempenho desistemas
+deverificac¸a˜odefatos.
+Trabalhoscla´ssicoscomo[Nieetal. 2019]e[Hanselowskietal. 2018]utilizaram
+verso˜esdoBERT-baseouBERT-largepre´-treinadasate´ 2019,e´pocaemquete´cnicasde
+fine-tuningeregularizac¸a˜oaindaestavamemesta´giosiniciais.
+O modelo DistilBERT [Sanhetal. 2019] oferece uma versa˜o mais compacta e
+eficientedoBERT,mantendocercade97%dodesempenhodoBERT-base,commenor
+custocomputacional. Ale´mdisso,avanc¸osnopre´-treinamentoenaregularizac¸a˜otornaram
+essasverso˜esdestiladasaindamaiseficazes.
+Essatendeˆnciae´ reforc¸adaporlinhasdepesquisarecentesecomplementares. O
+trabalho mais recente das redes GhostNet [Hanetal. 2020], GhostNetV3 [Liuetal. 2024],
+aprimoraaeficieˆnciadotreinamentoemante´mdesempenhopro´ximoaoderedesmuitomai-
+oresemtarefasdevisa˜ocomputacionalusandoderedesmaioresparaaplicarKnowledge
+Distillation assim como o modelo usado no presente artigo. Ja´ o Tiny Recursive Model
+[Jolicoeur-Martineau2025]apresenta umaabordagemde redesextremamente pequenas
+com conectividade recursiva, mostrando que estruturas compactas podem generalizar bem
+eate´ superarmodelosmaioresemdeterminadastarefas.
+Esses trabalhos reforc¸am a ideia central deste estudo: modelos menores e otimiza-
+
+<!-- pagina 3 -->
+dos,quandobem projetados,podemmanterouate´ superarodesempenho dearquiteturas
+degrandeporte,equilibrandoeficieˆnciaeprecisa˜o.
+3. Materiais e Me´todos
+Nestetrabalho,abordamosatarefadeverificac¸a˜odeafirmac¸o˜esdobenchmarkFEVER,fo-
+candoexclusivamentenaetapadeclassificac¸a˜odeveracidade,assumindoqueasevideˆncias
+corretasja´ forampreviamentefornecidas.
+O objetivo foi treinar um modelo capaz de determinar se uma evideˆncia textual
+suportaourefutaumadeterminadaafirmac¸a˜o(claim). Ale´mdesimplificaratarefaparafins
+deavaliac¸a˜ocontrolada,essaabordagemtambe´mvisadesenvolverumcomponentelevee
+eficiente que possa, futuramente, ser integrado ao sistema RefChecker [Huetal. 2024],
+ondeasevideˆnciasseriamobtidasporummo´duloexternoderecuperac¸a˜o.
+3.1. ConjuntodeDados
+Cadainstaˆnciadoconjuntodedadose´ compostaporumaclaim(afirmac¸a˜otextualcujave-
+racidadedeveserverificada),umaevidence(sentenc¸aextra´ıdadaWikipediaepreviamente
+associadaa` claim)eumro´tuloqueindicaarelac¸a˜oentreambas. Osro´tulosposs´ıveissa˜o:
+SUPPORTS, quando a evideˆncia apoia a afirmac¸a˜o; REFUTES, quando a contradiz; e
+NOTENOUGHINFO(NEI),quandona˜oha´ informac¸a˜osuficienteparaconcluir.
+Paraotreinamentosupervisionado,cadaparclaim+evideˆnciae´ tratadocomouma
+instaˆnciaindependente. Nestaversa˜oinicialdotrabalho,aclasseNEIfoiremovidapara
+focarnaverificac¸a˜ocomevideˆnciasexpl´ıcitas. OconjuntodedadosFEVERpossuiapro-
+ximadamente185.445claims,rotuladasemumadastreˆsclasses: SUPPORTS,REFUTES
+ou NOT ENOUGH INFO (NEI).Paraeste trabalho, utilizamos apenas os exemplos com
+evideˆnciasva´lidas,ouseja,aquelesrotuladoscomoSUPPORTSouREFUTESresultando
+em:
+Conjunto SUPPORTS REFUTES Total Observac¸a˜o
+Treinamento(TRAIN) 79.551 29.584 109.135 Datasetdesbalanceado
+Validac¸a˜o(DEV) 6.615 6.614 13.229 Datasetbalanceado
+Tabela 1. Distribuic¸a˜o das classes SUPPORTS e REFUTES nos conjuntos de
+treinamentoedevalidac¸a˜o.
+Ou seja, enquanto o conjunto de treinamento esta´ desbalanceado (SUPPORTS:
+aproximadamente 72.9%, REFUTES: aproximadamente27.1%), oconjunto de validac¸a˜o
+foi propositalmente balanceado para permitir uma avaliac¸a˜o mais justa e imparcial do
+modelo.
+3.2. Pre´-processamento
+Foi utilizado o modelo DistilBERT, uma versa˜o compacta do BERT, com entrada no
+formato[CLS] afirmac¸˜ao [SEP] evidˆencias [SEP].Essaestruturapermite
+queomodeloprocessearelac¸a˜oentreaafirmac¸a˜oeaevideˆnciaemconjunto. Otrunca-
+mentofoiaplicadopararespeitarolimitede512tokensdomodelo.
+
+<!-- pagina 4 -->
+Figura1. Esquemadeentradaparaomodelotransformer.
+As afirmac¸o˜es (claims) e suas respectivas evideˆncias (evidences), extra´ıdas da
+Wikipedia,sa˜ocombinadasemumau´nicasequeˆnciaformatadacomo“[CLS]afirmac¸a˜o
+[SEP]evideˆncia[SEP]”ealimentadasnomodeloparaclassificac¸a˜o.
+As classes textuais foram transformadas em inteiros por meio de codificac¸a˜o
+(LabelEncoder). O conjunto de validac¸a˜o (dev) apresenta, originalmente, proporc¸o˜es
+equivalentesentreasclassesSUPPORTSeREFUTES,conformedefinidopelosorganiza-
+doresdobenchmarkFEVER.Oconjuntodetreinamentotambe´mmantevesuadistribuic¸a˜o
+original, com predominaˆncia da classe SUPPORTS. A classe NOT ENOUGH INFO foi
+exclu´ıdadestafaseinicial,deformaafocarexclusivamenteemexemploscomevideˆncia
+expl´ıcita.
+3.3. ArquiteturadoModelo
+OmodeloempregadonesteestudofoioDistilBERT-base-uncased,umaversa˜ocompactae
+eficientedafam´ıliaBERT,escolhidaporoferecerumbomequil´ıbrioentredesempenhoe
+custo computacional. Sobre ele, foi acoplado um cabec¸alho de classificac¸a˜o constru´ıdo
+comaclasseAutoModelForSequenceClassification,configuradooriginalmentecomtreˆs
+unidadesde sa´ıda, correspondentesa`sclasses SUPPORTS,REFUTESe NOTENOUGH
+INFOdobenchmarkFEVER.
+Contudo, nesta etapa do trabalho, somente as classes SUPPORTS e REFUTES
+foramutilizadasefetivamentenotreinamento,umavezqueoconjuntodedadosempregado
+ja´ exclu´ıaexemplosrotuladoscomoNEI.Poressemotivo,emboraaarquiteturamantivesse
+treˆslogitsparatestesfuturos,apenasdoisdelescontribu´ıamparaestaetapadeotimizac¸a˜o.
+Paraconverteresses logitsemprobabilidades,foi aplicadaafunc¸a˜odeativac¸a˜osoftmax
+na camada final, permitindo estimar a distribuic¸a˜o de probabilidade sobre as classes
+consideradas. Dessaforma,omodelopoˆdeaprenderadistinguirdemaneirarobustaentre
+afirmac¸o˜essuportadaserefutadascombasenasevideˆnciasfornecidas.
+
+<!-- pagina 5 -->
+Figura2. Arquiteturadomodelodeverificac¸a˜odefatosbaseadoemDistilBERT.
+A entrada consiste nos tokens da afirmac¸a˜o (claim) e da evideˆncia (evidence),
+separados pelos tokens especiais [CLS] e [SEP]. Esses tokens sa˜o processados pelo
+modelo DistilBERT, seguido por uma camada de classificac¸a˜o e uma func¸a˜o Softmax
+para determinar se a afirmac¸a˜o e´ SUPPORTS (suportada) ou REFUTES (refutada) pela
+evideˆnciafornecida.
+3.4. Configurac¸o˜esdeTreinamento
+O treinamento foi realizado com o framework PyTorch, em conjunto com a biblioteca
+HuggingFaceTransformers. OotimizadoradotadofoioAdamW,comtaxadeaprendizado
+(learning rate) definida em 2 × 10−5. O tamanho do lote (batch size) foi fixado em 16,
+e o nu´mero total de e´pocas de treinamento foi 3. A func¸a˜o de perda utilizada foi a
+CrossEntropyLoss,semaplicac¸a˜odepesosparabalanceamentoentreclasses. Aprincipal
+me´tricadeavaliac¸a˜oconsideradafoiaacura´cia.
+Otreinamentofoirealizadocomoconjuntodesequilibrado,refletindoadistribuic¸a˜o
+realdasevideˆnciasnocorpus. Estadecisa˜obuscouexporomodeloa` distribuic¸a˜onatural
+dosdadosqueeleencontrariaemcena´riospra´ticosdeverificac¸a˜odefatos,ondeafirmac¸o˜es
+suportadas por evideˆncias tendem a ser mais frequentes que as refutadas. No entanto,
+reconhece-sequeestedesbalanceamentopodeinduzirviesesnoclassificador,fazendoque
+eletendaafavoreceraclassemajorita´ria.
+A validac¸a˜o, no entanto, utilizou um conjunto balanceado, o que ajuda a garantir
+
+<!-- pagina 6 -->
+que a avaliac¸a˜o do modelo na˜o seja enviesada pela classe majorita´ria. Esta abordagem
+h´ıbrida, treinamento com dados desbalanceados e validac¸a˜o com dados balanceados,
+permite que o modelo aprenda a distribuic¸a˜o real dos dados enquanto possibilita uma
+avaliac¸a˜o justa de sua capacidade de generalizac¸a˜o para ambas as classes. A matriz de
+confusa˜oapresentadaposteriormenteconfirmaessaestrate´gia,revelandocomoomodelo
+lidoucomodesafiododesbalanceamentoduranteotreinamento.
+4. Resultados e Discusso˜es
+Osresultadosobtidospelomodelopropostoforamcomparadosaosdetrabalhosrelevantes
+daliteraturaqueatuamnatarefadeverificac¸a˜odeafirmac¸o˜escombasenodatasetFEVER.
+E´ importantedestacarque,nestetrabalho,assumimosqueasevideˆnciasrelevantesja´ foram
+fornecidas,comfocoexclusivonaetapadeverificac¸a˜odaveracidade.
+Duranteotreinamento domodelo,foiposs´ıvelobservar umareduc¸a˜oconsistente
+na training loss ao longo das e´pocas, o que indica que o modelo foi capaz de aprender
+padro˜es relevantes para a tarefa de classificac¸a˜o bina´ria entre as classes SUPPORTS e
+REFUTES. Esse comportamento pode ser visualizado no gra´fico a seguir, que ilustra a
+evoluc¸a˜odafunc¸a˜odeperdaaolongodastreˆse´pocasdetreinamento. Aconvergeˆnciada
+curvasugerequeomodelona˜osofreudesobreajusteprematuroequeoshiperparaˆmetros
+adotadosforamadequadosaocena´rioproposto.
+Figura3. Evoluc¸a˜odatrainingloss duranteotreinamentodomodeloDistilBERT.
+Aconvergeˆnciaesta´velobservadanafunc¸a˜odeperdaindicaqueomodeloassimilou
+efetivamenteospadro˜esderelac¸a˜oentreafirmac¸o˜eseevideˆncias. Noentanto,paraavaliar
+qualitativamenteotipodeaprendizadodesenvolvidopeloclassificador,e´ essencialanalisar
+suaperformancepreditivadeformamaisgranular. Amatrizdeconfusa˜o,apresentadana
+figura4aseguir,permiteidentificarna˜oapenasaacura´ciaglobaldomodelo,mastambe´m
+padro˜esespec´ıficosdeacertoseerrosentreasclassesSUPPORTSeREFUTES.
+
+<!-- pagina 7 -->
+Figura 4. Matriz de confusa˜o do modelo DistilBERT no conjunto de validac¸a˜o
+balanceado.
+Aana´lisedamatrizdeconfusa˜orevelaumdesempenhogeralrobusto,pore´mcom
+um padra˜o assime´trico interessante entre as classes. O modelo demonstrou excelente
+capacidade de identificar afirmac¸o˜es SUPPORTS, alcanc¸ando 6.364 acertos (96,2% de
+recall)comapenas251falsosnegativos(3,8%). Poroutrolado,emboraaperformancena
+classeREFUTEStambe´msejaso´lidacom5.834acertos(88,2%derecall),observa-seuma
+taxadeerrosignificativamentemaiornestaclasse,com780falsospositivos(11,8%),casos
+ondeafirmac¸o˜esrefutadasforamerroneamenteclassificadascomosuportadas.
+Estaassimetriasugerequeomodelodesenvolveuumvie´sconservador,tendendo
+a classificar afirmac¸o˜es amb´ıguas ou de dif´ıcil verificac¸a˜o como ”suportadas”. Esse
+comportamentopodeseratribu´ıdoa`distribuic¸a˜odesbalanceadadoconjuntodetreinamento,
+onde a classe SUPPORTS e´ majorita´ria (≈ 73%), influenciando o modeloa preferir esta
+classeemcasosdemaiorincerteza. Oserrosresiduaisconcentram-seprovavelmenteem
+casosqueexigeminfereˆnciaslingu´ısticascomplexas,conhecimentodemundoexternoou
+onde a relac¸a˜o entre a afirmac¸a˜o e a evideˆncia apresenta nuances semaˆnticas dif´ıceis de
+capturar.
+Os resultados indicam que, mesmo com uma arquitetura mais leve, e´ poss´ıvel
+alcanc¸ar altos n´ıveis de acura´cia. O balanceamento do conjunto de validac¸a˜o garante
+
+<!-- pagina 8 -->
+que as me´tricas reflitam adequadamente o desempenho em ambas as classes. O uso de
+DistilBERTproporcionaganhosdeeficieˆnciacomputacional,tornandoomodeloatraente
+para aplicac¸o˜es em larga escala. Alguns dos trabalhos listados abaixo incluem tanto a
+recuperac¸a˜o automa´tica de evideˆncias quanto a verificac¸a˜o, o que pode prejudicar suas
+me´tricas globais. Outros, assim como este estudo, realizam a verificac¸a˜o assumindo
+evideˆncias previamente selecionadas, o que permite uma comparac¸a˜o mais direta dos
+classificadoresemsi.
+ATabela2resumeaacura´ciareportadaporcadamodelo. Observa-sequeomodelo
+proposto, baseado em DistilBERT, alcanc¸a desempenho competitivo, com acura´cia de
+91,98%,superandoamaioriadostrabalhosanteriores,mesmosendoumaarquiteturamais
+leve.
+Modelo Acura´cia(%)
+Estetrabalho(DistilBERT,semrecuperac¸a˜o) 91,98
+[Thorneetal. 2018](DA,comrecuperac¸a˜o1) 88,00
+[Hanselowskietal. 2018](ESIM,comrecuperac¸a˜o2) 68,49
+[Nieetal. 2019](vNSMN,comrecuperac¸a˜o3) 69,90
+[Soleimanietal. 2020](BERT(Large),comrecuperac¸a˜o4) 74,59
+[Casillasetal. 2022](BERT-Based,comrecuperac¸a˜o) 88,73
+Tabela2. Comparac¸a˜odeacura´ciacomoutrostrabalhosnatarefadeverificac¸a˜o
+deafirmac¸o˜esutilizandoodatasetFEVER.
+Diversostrabalhosteˆmexploradomodelosbaseadosemtransformersparaatarefa
+de verificac¸a˜o de fatos. Por exemplo, [Liuetal. 2019] utilizou o modelo RoBERTa,
+alcanc¸andoaltaacura´cia,pore´mcommaiorcustocomputacional. Outrostrabalhos,como
+[Thorneetal. 2018]e[Hanselowskietal. 2018],exploramtantoarecuperac¸a˜oautoma´tica
+de evideˆncias quanto a classificac¸a˜o da veracidade, o que torna a tarefa mais complexa.
+Nossotrabalhofocanaetapadeclassificac¸a˜oassumindoevideˆnciaspreviamentefornecidas,
+similara[Nieetal. 2019](este,pore´m,tambe´mfazrecuperac¸a˜o,masfornecedadoscom
+as chamadas Golden Evidences, assumindo o caso em que todas as evideˆncias sa˜o as
+melhoresemaiscorretas),pore´m,comavantagemdousodeumaarquiteturamaisleve.
+Outros trabalhos recentes tambe´m utilizam oFEVER com evideˆncias previamente
+fornecidas,concentrando-seexclusivamentenaetapadeclassificac¸a˜o. Porexemplo,oes-
+tudode[Casillasetal. 2022]propo˜eumaarquiteturabaseadaemBERT,comatenc¸a˜ointer-
+preta´vel,voltadaaafirmac¸o˜essobreCOVID-19,masavaliaacapacidadedegeneralizac¸a˜o
+doseumodelousandooFEVERcomobenchmark. Nessecaso,asevideˆnciasja´ sa˜oforne-
+cidasnoparentrada(afirmac¸a˜o+evideˆncia),semenvolvimentodaetapaderecuperac¸a˜o
+automa´tica. Essa abordageme´ similara` adotadaneste trabalho, reforc¸ando aviabilidade
+do uso de arquiteturas mais enxutas em cena´rios em que as evideˆncias sa˜o previamente
+selecionadas.
+5. Conclusa˜o
+Neste trabalho, apresentamos um modelo baseado em DistilBERT para a tarefa de
+verificac¸a˜odeafirmac¸o˜esutilizandoodatasetFEVER.Ofocofoinaetapadeclassificac¸a˜o
+
+<!-- pagina 9 -->
+da veracidade com base em afirmac¸o˜es e evideˆncias fornecidas. Os resultados obtidos,
+comacura´ciade 91,98%,destacam aefica´ciado modeloesua competitividade emrelac¸a˜o
+a` literaturaexistente.
+A acura´cia de91,98% obtidaem validac¸a˜o refletea efetiva capacidade domodelo
+emdistinguirentreafirmac¸o˜essuportadaserefutadas,umavezqueaavaliac¸a˜ofoirealizada
+emum conjuntobalanceado entreessas duasclasses. Esse balanceamento,definido pelos
+criadoresdobenchmarkFEVER,asseguraqueame´tricadeacura´ciasejarepresentativae
+na˜odistorcidaporumadistribuic¸a˜oenviesadadero´tulos.
+Apesar dos resultados promissores apresentados, este trabalho ainda na˜o aborda
+plenamentetodososaspectos daverificac¸a˜oautoma´ticadefatos. Umaimportantedirec¸a˜o
+para trabalhos futuros e´ a inclusa˜o da terceira classe Not Enough Information (NEI) no
+modelo, o que permitira´ uma classificac¸a˜o terna´ria mais realista e alinhada ao desafio
+proposto pelo benchmark FEVER. A incorporac¸a˜o dessa classe permitira´ ao sistema
+distinguir melhor entre afirmac¸o˜es para as quais ha´ evideˆncias claras e aquelas para as
+quaisa informac¸a˜odispon´ıvele´ insuficiente, aprimorandoa precisa˜oe autilidade pra´tica
+domodelo.
+Ale´mdisso,aadaptac¸a˜odomodeloparausocomoverificador(checker)nobench-
+mark RefChecker [Huetal. 2024] representa uma oportunidade significativa para ampliar
+aaplicabilidadedosistema. Essaintegrac¸a˜opermitira´ avaliarodesempenhodomodelo
+emumcena´riodiferente,comdadoserequisitosespec´ıficosdoRefChecker,contribuindo
+paraavalidac¸a˜oegeneralizac¸a˜odaabordagememcontextosmaisamplos. Acombinac¸a˜o
+dessas duas melhorias, a inclusa˜o da classe NEI e a adaptac¸a˜o para o RefChecker, tem
+o potencial de tornar o sistema mais robusto e versa´til para aplicac¸o˜es reais na a´rea de
+verificac¸a˜odefatos.
+Refereˆncias
+Casillas,R.,Go´mez-Adorno,H.,Lomas-Barrie,V.,andRamos-Flores,O.(2022). Auto-
+maticfactcheckingusinganinterpretablebert-basedarchitectureoncovid-19claims.
+AppliedSciences,12(20):10644.
+Devlin, J., Chang, M.-W., Lee, K., and Toutanova, K. (2019). BERT: Pre-training of
+deepbidirectionaltransformersforlanguageunderstanding. InBurstein,J.,Doran,C.,
+and Solorio, T., editors, Proceedings of the 2019 Conference of the North American
+ChapteroftheAssociationforComputationalLinguistics: HumanLanguageTechnolo-
+gies, Volume 1(Long and ShortPapers), pages 4171–4186, Minneapolis, Minnesota.
+AssociationforComputationalLinguistics.
+Guo,Z.,Schlichtkrull,M.,andVlachos,A.(2022). Asurveyonautomatedfact-checking.
+Transactionsoftheassociationforcomputationallinguistics,10:178–206.
+Han,K.,Wang,Y.,Tian,Q.,Guo,J.,Xu,C.,andXu,C.(2020). Ghostnet: Morefeatures
+fromcheapoperations. InProceedingsoftheIEEE/CVFconferenceoncomputervision
+andpatternrecognition,pages1580–1589.
+Hanselowski, A., Zhang, H., Li, Z., Sorokin, D., Schiller, B., Schulz, C., and Gurevych,
+I. (2018). UKP-athene: Multi-sentence textual entailment for claim verification. In
+Thorne,J.,Vlachos,A.,Cocarascu,O.,Christodoulopoulos,C.,andMittal,A.,editors,
+
+<!-- pagina 10 -->
+ProceedingsoftheFirstWorkshoponFactExtractionandVERification(FEVER),pages
+103–108,Brussels,Belgium.AssociationforComputationalLinguistics.
+Hu, X., Ru, D., Qiu, L., Guo, Q., Zhang, T., Xu, Y., Luo, Y., Liu, P., Zhang, Y., and
+Zhang,Z.(2024). Refchecker: Reference-basedfine-grainedhallucinationcheckerand
+benchmarkforlargelanguagemodels. arXivpreprintarXiv:2405.14486.
+Jolicoeur-Martineau, A. (2025). Less is more: Recursive reasoning with tiny networks.
+arXivpreprintarXiv:2510.04871.
+Liu,Y.,Ott, M.,Goyal, N.,Du,J., Joshi,M., Chen, D.,Levy,O., Lewis,M.,Zettlemoyer,
+L.,and Stoyanov,V.(2019). Roberta: Arobustly optimizedbertpretraining approach.
+arXivpreprintarXiv:1907.11692.
+Liu, Z., Hao, Z., Han, K., Tang, Y., and Wang, Y. (2024). Ghostnetv3: Exploring the
+trainingstrategiesforcompactmodels. arXivpreprintarXiv:2404.11202.
+Nie, Y., Chen, H., and Bansal, M. (2019). Combining fact extraction and verification
+with neural semantic matching networks. In Proceedings of the Thirty-Third AAAI
+Conference on Artificial Intelligence and Thirty-First Innovative Applications of Artifi-
+cialIntelligenceConferenceandNinthAAAISymposiumonEducationalAdvancesin
+ArtificialIntelligence,AAAI’19/IAAI’19/EAAI’19.AAAIPress.
+Sanh,V.,Debut,L.,Chaumond,J.,andWolf,T.(2019). Distilbert,adistilledversionof
+bert: smaller,faster,cheaperandlighter. arXivpreprintarXiv:1910.01108.
+Soleimani,A.,Monz,C.,andWorring,M.(2020). Bertforevidenceretrievalandclaim
+verification. InAdvancesinInformationRetrieval: 42ndEuropeanConferenceonIR
+Research,ECIR2020,Lisbon,Portugal,April14–17,2020,Proceedings,PartII,page
+359–366,Berlin,Heidelberg.Springer-Verlag.
+Thorne,J.,Vlachos,A.,Christodoulopoulos,C.,andMittal,A.(2018). FEVER:alarge-
+scale dataset for fact extraction and VERification. In Walker, M., Ji, H., and Stent,
+A.,editors,Proceedingsofthe2018ConferenceoftheNorthAmericanChapterofthe
+AssociationforComputationalLinguistics: HumanLanguageTechnologies,Volume1
+(LongPapers),pages809–819,NewOrleans,Louisiana.AssociationforComputational
+Linguistics.

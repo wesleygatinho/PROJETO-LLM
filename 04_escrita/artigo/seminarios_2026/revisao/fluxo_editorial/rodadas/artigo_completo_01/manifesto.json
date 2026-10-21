@@ -1,0 +1,503 @@
+{
+  "schema": 1,
+  "id": "artigo_completo_01",
+  "finalidade": "artigo",
+  "criado_utc": "2026-10-08T23:34:17.850400+00:00",
+  "fontes": [
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/artigo_completo_2026-10-08/briefing.md",
+      "sha256": "aabbd250a472042dbcd94bda3e833ab202519852e654a4f0be7689304662c812"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/PADRAO_ESCRITA.md",
+      "sha256": "fa3e79d07d726bb778d16efcbe50aec731288f02eed0152cbdbeaa9e98cf0841"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/MATRIZ_EVIDENCIAS.md",
+      "sha256": "3f373c0e20775ea951c85ed1f75394246dc397122b48316dce830be38f9f2132"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/PLANO_ESCRITA.md",
+      "sha256": "ded6b9ae3b2bc1db7b55b4e62a088b5a2dd2e5202fda2ce0c3af721628bba5b4"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/prompts/redigir.md",
+      "sha256": "201eefb01eb59b01d0d2fb94e0dc00c4002180db21140f316c5546b390f51fe9"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/prompts/revisar.md",
+      "sha256": "7398693cc2742c7e03649a3c5aa5291742adaebfed923f28e18b07bc0cfc3ebb"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/prompts/corrigir.md",
+      "sha256": "16d3326d6930050e56a57d0967b1e187ad8a7282598b4859b387e5920a971323"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/referencias/artigo.bib",
+      "sha256": "b8824d5da4a7b9c7d575986a7b35a262acc49aee2d0da1e327331a542c0ba0c4"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/referencias/MATRIZ_INTRODUCAO.md",
+      "sha256": "9e1cf708ddf53927846216ae681d8a3d38021c948aca2a53f1b0dd3231237a41"
+    },
+    {
+      "arquivo": "01_planejamento/artigo_seminarios_2026/PLANO_EXECUCAO.md",
+      "sha256": "5982b95c8e9f7154a1637a65574f62ac9bf9816fad3ea8bcc2856cc7a0a21bb8"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/manifesto.json",
+      "sha256": "64623cd4fa993af65b07f501167f850d58fca8227c6084bcfc1fb1901e499b13"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/auditoria_integridade.json",
+      "sha256": "f19417d848e540abdb5d46ee45c9460d59f41901c1e856cf5f4ab61fb6f70401"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/metricas_por_execucao.csv",
+      "sha256": "d3bac1e65333f99e764bc01d4495d340d00866b8ede3ad844fe2e97c6db255c6"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/metricas_pareadas.csv",
+      "sha256": "ccdca8b99d4bed244fb5adacbe9604388b73467014dfebf9d58fbd6b8ad93c8e"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/selecao_epocas.json",
+      "sha256": "76cface8862b6f66f45eb9e2eb9597fd73f3a35dcc46b81a7fcc51c4018be967"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/sensibilidade_truncamento.csv",
+      "sha256": "ff79ea11172d72bbf129e10499b46cd06ec7c8f9960a8b062f325c4b651badd7"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/estatistica.json",
+      "sha256": "5c69079f788d28f7798d58300a423de1ddbdf643cda75998ffc3a90f01be6202"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/inspecao_correspondencia_commits.json",
+      "sha256": "a6374634a8665c3e80d803c7c286f3ccce569ed5a648384fd231368b279b6c95"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/pares_inspecao.json",
+      "sha256": "d223186c15e3af47e7607a48ef56faa93b50fddb9776c0e4008cedf511655998"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/tokenizacao_proveniencia.json",
+      "sha256": "b4303e46fdbe9a27d675faf7bfe493f09e5a3b1fcdaff69c852bf2e3065eead1"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/divergencias.json",
+      "sha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/tabelas_artigo.md",
+      "sha256": "0e8eb1dc8e90af59e24b61201604ad53b8f46b78c6278e664cccef9de75cddf3"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/proveniencia_exports.json",
+      "sha256": "d7621c0289abe0f6ba03337d7568b8d2ef133d0b4240034a171ed4c4eb2bacad"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/01_inventariar.py",
+      "sha256": "1c93123dc23c5434f3e7348bcad1c42b50853fca506a96fd1b1f03c702c95548"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/02_consolidar_metricas.py",
+      "sha256": "887bb92cef4f8cc5bba024b7296800159b6aebafde3a7ce7887cc11e8a37bdd8"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/03_estatistica.py",
+      "sha256": "eec1be5d2e299f37003b257c59f738901bb8395ce10e19eba41695020028721f"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/04_exportar_artigo.py",
+      "sha256": "b83f80e7eff74f57ad0293ec9883efe4255d1bbfefeb95569e277d7d43673171"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/comum.py",
+      "sha256": "b67f64b4759f98ba593165046d748612d48cf817d1e6966c97f10607276f816d"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/conferir_funcoes_commits.py",
+      "sha256": "f177b2937d8c79b95aebd29c542e8bd9acc75bb9fdfe04607f8e85fb4acfa987"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/inspecionar_commits.py",
+      "sha256": "4dad257e1d1368cfab3d04c9aaf4ef1bc031191cffed3646ae97d35b1ec3af9d"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/recuperar_dados.py",
+      "sha256": "548be245a7c3367b85f90e7221ed713cee147ce175e52b036d0667a60d93e629"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/recuperar_fontes.py",
+      "sha256": "304bea76fb198b1d67e99796cecc7fb2200da44984a3920f194d78eed9bbc026"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/recuperar_tokenizer.py",
+      "sha256": "e7dee640d967205c5f7e8becd14d90df69f9424b1c119a5df97e561264cb0d9b"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/tests_cientificos.py",
+      "sha256": "42f4a402273e5b7abe8530649a43a4459e337d6b39d4d015eccb6d2c0568242f"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/classificador.py",
+      "sha256": "850ba2cb500d5e88dd461c2013faf15d68fa1d7e97b14178c3fd3680a0028470"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/03_inferencia_etapa1.py",
+      "sha256": "4012cf1b63188dc83d066951300a0cc743f0a5cacc21fb0fe0cb16ba0f66305f"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/06_treinar_qlora.py",
+      "sha256": "a720c4c6f04cc6ef09df341f09bf4c195866cceaaeabedb25501b1d88969427f"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/07_avaliar_classificador.py",
+      "sha256": "a1428cca9620866c439e6903ff2f4a2483ac16df32498227e526d508aa11620e"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/08_baseline_tamanho.py",
+      "sha256": "1ea6ed21f2a13dc55e344f3f7dd7d6f28546d986ade056678fd9bee56b5ecdf4"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/primevul_pdf.txt",
+      "sha256": "381094a9f4d78b6ae175ed76893c3f827db199bda7800b53a088e30fb6e1d2ef"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/risse_pdf.txt",
+      "sha256": "ac8be5c42dd6d717201350d4273ac33df43a5ffbfbedd1d1791b34ef6d0b023a"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/huang_pdf.txt",
+      "sha256": "9209bf7a95841e004d9b71f038b21990ad4678b93cf1897a72c30b0a1f48630d"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/qwen_pdf.txt",
+      "sha256": "9dac1a064dba2d4a018793aab41e29eab14ba681cce44e2568e4133dad833887"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/lora_pdf.txt",
+      "sha256": "e6b9fe1d772ed8af6785a703d15e6138e81daa592ddd310cffa2af9d4977f45a"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/qlora_pdf.txt",
+      "sha256": "3920c399de2f00bc0720ecfcefed5519d015fc86b2d83075ddd45d6899807542"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/LEITURA_FONTES.md",
+      "sha256": "d666a1eadaa1ea6e5f1cb2359eaf68030b0b6868678b351d5a0ea0e5eb451ce6"
+    },
+    {
+      "arquivo": "03_experimentos/dados/artigo_seminarios_2026/fontes_publicas/calc_vd_score_oficial.py",
+      "sha256": "f1c91ac0fb5d70072f9e09948d6d30c0a47291b0e8ad589b91d7876560bb87bf"
+    },
+    {
+      "arquivo": "03_experimentos/dados/artigo_seminarios_2026/fontes_publicas/primevul_readme_oficial.md",
+      "sha256": "ff2b630d652221ae25d9740f01cde8d66823a2d04d868abada591fced39ab2aa"
+    },
+    {
+      "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/drogon_pai.cc",
+      "sha256": "8c0863ecfc67ec00e7be841b414a3835a9db46c3830f87df9c525f5946e7bdd0"
+    },
+    {
+      "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/drogon_commit.cc",
+      "sha256": "02bbe5f53dad4270bc4bb393a51b207569a98de935d035295af81c2c79225766"
+    },
+    {
+      "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/libjpeg_pai.cpp",
+      "sha256": "489335790863e7bd399527a49e7fd5a75742c01a3181cc2668840470d60e5faf"
+    },
+    {
+      "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/libjpeg_commit.cpp",
+      "sha256": "955623e3a611b2081a7a1f608a7aa30c4f04fed29d24546f081ce2d333a94b6d"
+    },
+    {
+      "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/php-src_pai.c",
+      "sha256": "c5aeec3b05716207b78db3150be9aa34d3e5468b7e85a4fc84cff67f93f6549d"
+    },
+    {
+      "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/php-src_commit.c",
+      "sha256": "cf7a857ad3ac7bb259bb77dcae8ba2b85457ea01b6e675bf4bb8286649fd97f4"
+    },
+    {
+      "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/rizin_pai.c",
+      "sha256": "9351b775881664541bacd524dab9fe4c5467fcb56762715c0d4f98f9420f46d6"
+    },
+    {
+      "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/rizin_commit.c",
+      "sha256": "e962fbad270c29b6ff08b7b88cc422a0aa55fcb33eea783afc20749148c690d7"
+    },
+    {
+      "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/linux-2.6_pai.c",
+      "sha256": "d4777c1829dcfc3ab9839fa77784cde1605804c00b43d0dd29635b42cc92eb48"
+    },
+    {
+      "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/linux-2.6_commit.c",
+      "sha256": "0067072baaff8ee252a8c26b0eb875a203d865a8ea321e941ffe059354884301"
+    }
+  ],
+  "artefatos": [
+    {
+      "arquivo": "briefing.md",
+      "sha256": "90c4ea9e2c1ab48603bdb073244d7e34d6eb269dbc1bab65ad3446be8bdfe4fa"
+    },
+    {
+      "arquivo": "versoes/v001.md",
+      "sha256": "22d5ad0b75b45c5aae7b0db180f92a069a8ca630645d106cd202fb1af81472f3"
+    },
+    {
+      "arquivo": "pedidos/001_revisar.txt",
+      "sha256": "7f44a9c99c85786860b77fc95eccb6bc9885c3a7b30967e7eec549d950809f97"
+    },
+    {
+      "arquivo": "consultas/001_revisar.json",
+      "sha256": "3a63786b5dedd53655630e03011463c7ea7e2fb25c3766c9237d495387276280"
+    },
+    {
+      "arquivo": "entradas/revisao_v001.json",
+      "sha256": "3a63786b5dedd53655630e03011463c7ea7e2fb25c3766c9237d495387276280"
+    },
+    {
+      "arquivo": "pareceres/v001.json",
+      "sha256": "9b9e527a5e4749620b7ae87782194ddce02a75372500d7281dd39d174f22f80c"
+    },
+    {
+      "arquivo": "pedidos/002_corrigir.txt",
+      "sha256": "75aee4b8e884d0ab9935dee998b9724e45ea5e9a86ec275a31cf3c2d7863dd0b"
+    },
+    {
+      "arquivo": "entradas/correcao_v002.json",
+      "sha256": "c44bd6d808e862f569b3078a51e725af69636100f80dea16b9eb70aa4ca11a98"
+    },
+    {
+      "arquivo": "versoes/v002.md",
+      "sha256": "d1867188b3d67b8da82dea0091e973a32f9ed99f6a418d020e8f34e33c1dadbf"
+    },
+    {
+      "arquivo": "pedidos/003_revisar.txt",
+      "sha256": "9e5e634e69267f9aa7dd0e69daaeb065a455c20c766fa2466476f09e847e95b3"
+    },
+    {
+      "arquivo": "consultas/003_revisar.json",
+      "sha256": "78a0f72dfdc00f0d4dda7c6d3467eba098a1b5e4106be7ad7e5b2c5c2f180561"
+    },
+    {
+      "arquivo": "entradas/revisao_v002.json",
+      "sha256": "78a0f72dfdc00f0d4dda7c6d3467eba098a1b5e4106be7ad7e5b2c5c2f180561"
+    },
+    {
+      "arquivo": "pareceres/v002.json",
+      "sha256": "fe8fd0a65982139481e8cab79d556f0666bffbe3cb74ff3e9ced27d4a1f023c7"
+    }
+  ],
+  "versoes": [
+    {
+      "numero": 1,
+      "texto": {
+        "arquivo": "versoes/v001.md",
+        "sha256": "22d5ad0b75b45c5aae7b0db180f92a069a8ca630645d106cd202fb1af81472f3"
+      },
+      "autor": "Codex — redator do manuscrito completo",
+      "data_utc": "2026-10-08T23:34:18.030159+00:00",
+      "pareceres": [
+        {
+          "arquivo": "pareceres/v001.json",
+          "sha256": "9b9e527a5e4749620b7ae87782194ddce02a75372500d7281dd39d174f22f80c"
+        }
+      ],
+      "entrada": null,
+      "respostas": [],
+      "estado": "aguarda_correcao"
+    },
+    {
+      "numero": 2,
+      "texto": {
+        "arquivo": "versoes/v002.md",
+        "sha256": "d1867188b3d67b8da82dea0091e973a32f9ed99f6a418d020e8f34e33c1dadbf"
+      },
+      "autor": "Codex — papel corretor",
+      "data_utc": "2026-10-08T23:42:04.047826+00:00",
+      "pareceres": [
+        {
+          "arquivo": "pareceres/v002.json",
+          "sha256": "fe8fd0a65982139481e8cab79d556f0666bffbe3cb74ff3e9ced27d4a1f023c7"
+        }
+      ],
+      "entrada": {
+        "arquivo": "entradas/correcao_v002.json",
+        "sha256": "c44bd6d808e862f569b3078a51e725af69636100f80dea16b9eb70aa4ca11a98",
+        "origem": "arquivo_json"
+      },
+      "respostas": [
+        {
+          "id": "V1-R1",
+          "situacao": "corrigido",
+          "justificativa": "Aplicado arredondamento usual a duas casas: 0,22393 p.p. torna-se 0,22 p.p. Não foi usado arredondamento por excesso.",
+          "evidencias": [
+            {
+              "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/estatistica.json",
+              "localizador": "sensibilidade_cinco; id etapa3_aval_nf4_20261005_135446, campo variacao_pp; máximo absoluto das seis linhas 7B",
+              "verificacao": "Conferida a maior alteração de aproximadamente 0,22393 p.p.; nenhuma métrica subjacente foi alterada."
+            }
+          ]
+        },
+        {
+          "id": "V1-R2",
+          "situacao": "corrigido",
+          "justificativa": "A afirmação no limiar zero foi restringida às 564 decisões pareadas P-B; o resultado global aparece separadamente com o limiar reconstruído do dev.",
+          "evidencias": [
+            {
+              "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/metricas_pareadas.csv",
+              "localizador": "id etapa3_aval_nf4_20260929_072628; politica historico; limiar 0; P_B=564 e P_C=P_V=P_R=0",
+              "verificacao": "A evidência abrange 1.128 membros do teste pareado, não todas as funções de todos os splits."
+            },
+            {
+              "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/metricas_por_execucao.csv",
+              "localizador": "id etapa3_aval_nf4_20260929_072628; f1",
+              "verificacao": "O F1 global no limiar do dev é aproximadamente 0,262, e é outra política de decisão."
+            }
+          ]
+        },
+        {
+          "id": "V1-R3",
+          "situacao": "corrigido",
+          "justificativa": "A tabela de incerteza passou a 5 e a de recursos a 6, incluindo chamadas; a numeração agora segue a aparição no artigo. Os identificadores T5/T6 dos arquivos derivados históricos foram preservados.",
+          "evidencias": []
+        },
+        {
+          "id": "V1-R4",
+          "situacao": "corrigido",
+          "justificativa": "A estabilidade máxima foi expressa como 0,10 p.p. com arredondamento a duas casas.",
+          "evidencias": [
+            {
+              "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/estatistica.json",
+              "localizador": "parametros.estabilidade_endpoint_max=0.0010448182744481338",
+              "verificacao": "Multiplicação por 100 resulta em 0,1044818 p.p.; duas casas resultam em 0,10. Não é alegação de precisão de treino."
+            }
+          ]
+        },
+        {
+          "id": "V1-R5",
+          "situacao": "corrigido",
+          "justificativa": "Mantida a definição semente de aleatoriedade (seed); as demais ocorrências e tabelas utilizam seed/seeds, inclusive no Resumo e na Introdução.",
+          "evidencias": []
+        },
+        {
+          "id": "V1-R6",
+          "situacao": "corrigido",
+          "justificativa": "Resumo e Abstract identificam explicitamente o modelo 7B, as três seeds e as duas variantes. Também incluído o contraste da referência de tamanho já sustentado nas tabelas.",
+          "evidencias": [
+            {
+              "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/estatistica.json",
+              "localizador": "seeds_7b; variantes nf4 e bf16; campo media",
+              "verificacao": "Médias das três seeds: 0,5062056738 e 0,4997044917, sem ensemble ou triplicação da amostra."
+            },
+            {
+              "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/metricas_por_execucao.csv",
+              "localizador": "id baseline_tamanho_tokens_20260924_012407; auc",
+              "verificacao": "AUC global arredondada 0,810."
+            },
+            {
+              "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/metricas_pareadas.csv",
+              "localizador": "id baseline_tamanho_tokens_20260924_012407; politica dev_f1; ordenacao",
+              "verificacao": "Ordenação com meio crédito 21,10%; o contraste não demonstra um mecanismo semântico."
+            }
+          ]
+        },
+        {
+          "id": "V1-R7",
+          "situacao": "corrigido",
+          "justificativa": "Removida a nota de trabalho da referência Hui; a bibliografia foi ordenada alfabeticamente. A entrada completa permanece no BibTeX e na transposição LaTeX.",
+          "evidencias": []
+        },
+        {
+          "id": "V1-R8",
+          "situacao": "corrigido",
+          "justificativa": "Explicitados os dois modelos Instruct e seus dois splits. A expressão 14 logs foi corrigida para 14 avaliações/33 arquivos: 4 de prompting, 27 de classificadores e 2 da referência de tamanho.",
+          "evidencias": [
+            {
+              "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/manifesto.json",
+              "localizador": "execucoes; tipo prompting/classificador/tamanho; lista de fontes por execução",
+              "verificacao": "Conferida a contagem de 14 avaliações e dos arquivos correspondentes; avaliações de classificadores reúnem dev, teste e pareado."
+            }
+          ]
+        }
+      ],
+      "estado": "apto_integrar"
+    }
+  ],
+  "pedidos": [
+    {
+      "arquivo": "pedidos/001_revisar.txt",
+      "sha256": "7f44a9c99c85786860b77fc95eccb6bc9885c3a7b30967e7eec549d950809f97",
+      "papel": "revisar",
+      "versao": 1
+    },
+    {
+      "arquivo": "pedidos/002_corrigir.txt",
+      "sha256": "75aee4b8e884d0ab9935dee998b9724e45ea5e9a86ec275a31cf3c2d7863dd0b",
+      "papel": "corrigir",
+      "versao": 1
+    },
+    {
+      "arquivo": "pedidos/003_revisar.txt",
+      "sha256": "9e5e634e69267f9aa7dd0e69daaeb065a455c20c766fa2466476f09e847e95b3",
+      "papel": "revisar",
+      "versao": 2
+    }
+  ],
+  "eventos": [
+    {
+      "data_utc": "2026-10-08T23:34:17.850400+00:00",
+      "acao": "iniciar",
+      "detalhe": "artigo"
+    },
+    {
+      "data_utc": "2026-10-08T23:34:18.030159+00:00",
+      "acao": "rascunho",
+      "detalhe": "Codex — redator do manuscrito completo"
+    },
+    {
+      "data_utc": "2026-10-08T23:38:14.936560+00:00",
+      "acao": "pedido",
+      "detalhe": "revisar"
+    },
+    {
+      "data_utc": "2026-10-08T23:40:10.336089+00:00",
+      "acao": "consulta_claude",
+      "detalhe": "revisar; modelo solicitado=claude-opus-5-5; exit=0"
+    },
+    {
+      "data_utc": "2026-10-08T23:40:59.807163+00:00",
+      "acao": "parecer",
+      "detalhe": "corrigir"
+    },
+    {
+      "data_utc": "2026-10-08T23:41:00.109316+00:00",
+      "acao": "pedido",
+      "detalhe": "corrigir"
+    },
+    {
+      "data_utc": "2026-10-08T23:42:04.047826+00:00",
+      "acao": "correcao",
+      "detalhe": "v1 -> v2; exige nova revisão"
+    },
+    {
+      "data_utc": "2026-10-08T23:42:09.370475+00:00",
+      "acao": "pedido",
+      "detalhe": "revisar"
+    },
+    {
+      "data_utc": "2026-10-08T23:43:12.339743+00:00",
+      "acao": "consulta_claude",
+      "detalhe": "revisar; modelo solicitado=claude-opus-5-5; exit=0"
+    },
+    {
+      "data_utc": "2026-10-08T23:45:42.941828+00:00",
+      "acao": "parecer",
+      "detalhe": "aprovar"
+    }
+  ],
+  "integracao": null
+}

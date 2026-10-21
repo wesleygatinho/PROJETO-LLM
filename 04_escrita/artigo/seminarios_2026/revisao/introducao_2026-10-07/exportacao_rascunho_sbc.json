@@ -1,0 +1,8 @@
+{
+  "estado": "rascunho não revisado por Claude",
+  "fonte_md": "D:/UFMA UNIVERSIDADE/MESTRADO - ESTUDO LLM/04_escrita/artigo/seminarios_2026/revisao/introducao_2026-10-07/rascunho_codex.md",
+  "sha256_md": "0b5e67a1dd869f81f62116587c332a0c4746b66eea075098736d9f3daabdb463",
+  "asset_sty_sha256": "dbe513d56dde32bedc53dcf7b9efba052ff1b3b747037ed2f284f7095a91e895",
+  "modo": "prévia de seção autocontida com definições SBC embutidas; bibliografia explícita autor–ano; fragmento e BibTeX para montagem via sbc.bst",
+  "alteracoes_textuais": "somente markup, citações parentéticas SBC e nocite para citações narrativas; sem mudança científica"
+}

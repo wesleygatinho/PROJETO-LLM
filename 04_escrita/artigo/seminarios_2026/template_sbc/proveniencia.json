@@ -1,0 +1,12 @@
+[
+  {
+    "source": "D:\\UFMA UNIVERSIDADE\\MESTRADO - PLN\\trabalho final\\ARTIGO_PLN_WESLEY_DOS_SANTOS_GATINHO\\Template_SBC\\template-latex\\sbc-template.sty",
+    "destination": "04_escrita\\artigo\\seminarios_2026\\template_sbc\\sbc-template.sty",
+    "sha256": "dbe513d56dde32bedc53dcf7b9efba052ff1b3b747037ed2f284f7095a91e895"
+  },
+  {
+    "source": "D:\\UFMA UNIVERSIDADE\\MESTRADO - PLN\\trabalho final\\ARTIGO_PLN_WESLEY_DOS_SANTOS_GATINHO\\Template_SBC\\template-latex\\sbc.bst",
+    "destination": "04_escrita\\artigo\\seminarios_2026\\template_sbc\\sbc.bst",
+    "sha256": "d884c6793e4ea54d13f5c751b3d6f4ea529a62d0906cd9774f2ec350b394691f"
+  }
+]

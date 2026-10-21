@@ -1,0 +1,508 @@
+{
+  "schema": 1,
+  "id": "introducao_01",
+  "finalidade": "artigo",
+  "criado_utc": "2026-10-08T02:27:07.863995+00:00",
+  "fontes": [
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/introducao_2026-10-07/briefing.md",
+      "sha256": "a3e34b89a9799026859c2f663bd4204e14e1b194a51a7160757738855dff52c9"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/PADRAO_ESCRITA.md",
+      "sha256": "fa3e79d07d726bb778d16efcbe50aec731288f02eed0152cbdbeaa9e98cf0841"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/MATRIZ_EVIDENCIAS.md",
+      "sha256": "3f373c0e20775ea951c85ed1f75394246dc397122b48316dce830be38f9f2132"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/PLANO_ESCRITA.md",
+      "sha256": "ded6b9ae3b2bc1db7b55b4e62a088b5a2dd2e5202fda2ce0c3af721628bba5b4"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/prompts/redigir.md",
+      "sha256": "201eefb01eb59b01d0d2fb94e0dc00c4002180db21140f316c5546b390f51fe9"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/prompts/revisar.md",
+      "sha256": "7398693cc2742c7e03649a3c5aa5291742adaebfed923f28e18b07bc0cfc3ebb"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/prompts/corrigir.md",
+      "sha256": "16d3326d6930050e56a57d0967b1e187ad8a7282598b4859b387e5920a971323"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/huang_pdf.txt",
+      "sha256": "9209bf7a95841e004d9b71f038b21990ad4678b93cf1897a72c30b0a1f48630d"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/inventario_pdf.json",
+      "sha256": "bf4d1edbc21557cca81e0f325966d3a64de857bc3b1f05f1678857a5a84657ec"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/LEITURA_FONTES.md",
+      "sha256": "d666a1eadaa1ea6e5f1cb2359eaf68030b0b6868678b351d5a0ea0e5eb451ce6"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/lora_pdf.txt",
+      "sha256": "e6b9fe1d772ed8af6785a703d15e6138e81daa592ddd310cffa2af9d4977f45a"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/primevul_pdf.txt",
+      "sha256": "381094a9f4d78b6ae175ed76893c3f827db199bda7800b53a088e30fb6e1d2ef"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/qlora_pdf.txt",
+      "sha256": "3920c399de2f00bc0720ecfcefed5519d015fc86b2d83075ddd45d6899807542"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/qwen_pdf.txt",
+      "sha256": "9dac1a064dba2d4a018793aab41e29eab14ba681cce44e2568e4133dad833887"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/risse_pdf.txt",
+      "sha256": "ac8be5c42dd6d717201350d4273ac33df43a5ffbfbedd1d1791b34ef6d0b023a"
+    },
+    {
+      "arquivo": "02_referencias/pdfs das referencias/Datasets e benchmarks/Ding, Y - 2024.pdf",
+      "sha256": "a0e8c207f246576f9b4c78e86726fc2056cef00143a4644849ab14e15f889287"
+    },
+    {
+      "arquivo": "02_referencias/pdfs das referencias/Ref Adicionadas/Niklas Risse - 2024.pdf",
+      "sha256": "82f020c35d6a08ebd428da80f45269b155a06bba486d028ecab7e1936c019f69"
+    },
+    {
+      "arquivo": "02_referencias/pdfs das referencias/Deteccao de vulnerabilidade métodos e modelos/Feiyang Huang - 2026.pdf",
+      "sha256": "9925549e2ccacc5ec0fb645a80645fe18588289ae3836cc09ddf0f5584be1223"
+    },
+    {
+      "arquivo": "02_referencias/pdfs das referencias/Modelos de código/Hui, B - 2024.pdf",
+      "sha256": "8416ad8d885737ed15f757180499f5202fa93e791180a6d3fcd6f0381d79595e"
+    },
+    {
+      "arquivo": "02_referencias/pdfs das referencias/Eficiência quantizacao PEFT e destilacao/Hu, E - 2021.pdf",
+      "sha256": "e9a0d3128767db616085dc0f4e6e455e672e89af823e8ed1282793682787395a"
+    },
+    {
+      "arquivo": "02_referencias/pdfs das referencias/Eficiência quantizacao PEFT e destilacao/Dettmers, T - 2023.pdf",
+      "sha256": "33a4e757c19d6ea8d3cca8958fce8fe405e290272e135c99ee66065c775d5bd1"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/referencias/introducao.bib",
+      "sha256": "1a309be69ab72dda6b8b3c1afc4364da8bc8540e047d539d19177fafc6210ab2"
+    },
+    {
+      "arquivo": "01_planejamento/artigo_seminarios_2026/PLANO_EXECUCAO.md",
+      "sha256": "5982b95c8e9f7154a1637a65574f62ac9bf9816fad3ea8bcc2856cc7a0a21bb8"
+    },
+    {
+      "arquivo": "02_referencias/padrao_escrita_anselmo_2026/ANALISE_CORPUS.md",
+      "sha256": "19cf61c865dab1eeafecb096679d475a1bc665c068fc1666fc4316bd4c06507f"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/treinos_etapa3.csv",
+      "sha256": "45852d549bca31f8a0e0332809901f81230f6aae1f9aebfab06bdf869059c43b"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/resultados_etapa3.csv",
+      "sha256": "16d52db21109ef535caefd703a2a7438c9020cdeff7375422101da6025df526a"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/resultados_etapa1.csv",
+      "sha256": "512210e16536c5fa020c7062f2ca0c6eef886427848a82c09897022ba6a7fb3b"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/classificador.py",
+      "sha256": "850ba2cb500d5e88dd461c2013faf15d68fa1d7e97b14178c3fd3680a0028470"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/07_avaliar_classificador.py",
+      "sha256": "a1428cca9620866c439e6903ff2f4a2483ac16df32498227e526d508aa11620e"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/08_baseline_tamanho.py",
+      "sha256": "1ea6ed21f2a13dc55e344f3f7dd7d6f28546d986ade056678fd9bee56b5ecdf4"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/03_inferencia_etapa1.py",
+      "sha256": "4012cf1b63188dc83d066951300a0cc743f0a5cacc21fb0fe0cb16ba0f66305f"
+    },
+    {
+      "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-3B_ben1tam_s1_20260929_012851_depuracao.json",
+      "sha256": "aa02dfa5d5c43d3d8fb37747edca1024e62c47da3b4c11bc365f1ac3c2a2f050"
+    },
+    {
+      "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-3B_ben1tam_s1_20260929_013715.json",
+      "sha256": "88f4eba195d3bed3dd4410e0ab07877fdb1cd1eb34e2271780900b79d8e10e80"
+    },
+    {
+      "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-3B_ben1_s1_20260923_233514_depuracao.json",
+      "sha256": "777d64212a5170229a6acd304b3d324b1a83579b53039d805e3e01dc399e6b40"
+    },
+    {
+      "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-3B_ben1_s1_20260924_172035.json",
+      "sha256": "9dbe7fe9a9f03ec48e6a902d2093c289756fc8be3e5ad660c06691d1ada3ccf6"
+    },
+    {
+      "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-3B_benreal_s1_20260924_210301.json",
+      "sha256": "7ca3154de7b89649cd79443d475aad40689847de3de51d876255f3d945d71bb4"
+    },
+    {
+      "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-7B_ben1tam_s1_20261004_183725_depuracao.json",
+      "sha256": "5a05d1da6fc3817a5816df2d50b3228c5429f4802e59195c634521602e746ff4"
+    },
+    {
+      "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-7B_ben1tam_s1_20261004_192443.json",
+      "sha256": "e82fcf00ceb8b0ccaa2c153caeeb504d2fd83cc7427c6d446dfa4e7880f1f793"
+    },
+    {
+      "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-7B_ben1tam_s2_20261005_052812.json",
+      "sha256": "eda7b8ace25df18ecef7cb70d4edc7759b2b03cd6f5d84315f6a7d0f25679e97"
+    },
+    {
+      "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-7B_ben1tam_s3_20261005_153159.json",
+      "sha256": "2dfd11e63fe67d94b73fdd0919e2303030e915527241e17fa23079cbceb8201c"
+    }
+  ],
+  "artefatos": [
+    {
+      "arquivo": "briefing.md",
+      "sha256": "a3e34b89a9799026859c2f663bd4204e14e1b194a51a7160757738855dff52c9"
+    },
+    {
+      "arquivo": "versoes/v001.md",
+      "sha256": "0b5e67a1dd869f81f62116587c332a0c4746b66eea075098736d9f3daabdb463"
+    },
+    {
+      "arquivo": "pedidos/001_revisar.txt",
+      "sha256": "0136aeaa004c6d883a896f0b3495bf9584fbcffbdec070c1e0de1eb3171f7a3c"
+    },
+    {
+      "arquivo": "consultas/001_revisar.json",
+      "sha256": "2c897d489dd0bf2fdff62a126c977c382d3d31d5e33198fbe4985007d6922869"
+    },
+    {
+      "arquivo": "pedidos/002_revisar.txt",
+      "sha256": "0136aeaa004c6d883a896f0b3495bf9584fbcffbdec070c1e0de1eb3171f7a3c"
+    },
+    {
+      "arquivo": "consultas/002_revisar.json",
+      "sha256": "7254ac31158b4116ddd8d61916738c7caf5105273b7d240778e2fd4058d82532"
+    },
+    {
+      "arquivo": "entradas/revisao_v001.json",
+      "sha256": "7254ac31158b4116ddd8d61916738c7caf5105273b7d240778e2fd4058d82532"
+    },
+    {
+      "arquivo": "pareceres/v001.json",
+      "sha256": "b3cc043dd1d22ce7ac5cd24076156525f1436110ee8786fc1dab3a1a332c85fd"
+    },
+    {
+      "arquivo": "pedidos/003_corrigir.txt",
+      "sha256": "f32b03c02eab9f6d1c302986dd55edfd1dadc4ffd9325e5302f5cde334fcca50"
+    },
+    {
+      "arquivo": "entradas/correcao_v002.json",
+      "sha256": "529dc541933826da0fac0ca6c7819e6ff1339b450c0b76ab03938e46a3d816fa"
+    },
+    {
+      "arquivo": "versoes/v002.md",
+      "sha256": "378ea07f1e35885c9020d43f04eca7e4ed76686647173eacf8dfe9aacbcc077c"
+    },
+    {
+      "arquivo": "pedidos/004_revisar.txt",
+      "sha256": "c51b986960a23b6b069cf7fdda5ce38e9cb7c4e84f41d694fc0409c97a4acece"
+    },
+    {
+      "arquivo": "consultas/004_revisar.json",
+      "sha256": "224bffc17dbd622664c80014ffe32421d399db47b474cc309a41698a0986a294"
+    },
+    {
+      "arquivo": "entradas/revisao_v002.json",
+      "sha256": "224bffc17dbd622664c80014ffe32421d399db47b474cc309a41698a0986a294"
+    },
+    {
+      "arquivo": "pareceres/v002.json",
+      "sha256": "a4fc1edf01123bcd0bc5c71af6ca176664b493e94d95eab0285b16bd40e84a95"
+    },
+    {
+      "arquivo": "pedidos/005_corrigir.txt",
+      "sha256": "57392f7000d36ebd3941ab20a36e091283d805bf604fc89af2d78bb88b4d5d79"
+    },
+    {
+      "arquivo": "entradas/correcao_v003.json",
+      "sha256": "7b8ee7d16a78004d7327c83973f5d66fe530cd79eb5d4916ceaa3c94e63d9c95"
+    },
+    {
+      "arquivo": "versoes/v003.md",
+      "sha256": "bb424d8ba924f3f15fb9421f9dee0e850f3db61d7b6a953cb5f3c70b1e5b6edb"
+    },
+    {
+      "arquivo": "pedidos/006_revisar.txt",
+      "sha256": "629a796ce2b3e3b9384568f3b01d671bf4b8d668ba272d8890d44b386ab8b14a"
+    },
+    {
+      "arquivo": "consultas/006_revisar.json",
+      "sha256": "469e9d2b75caf3ab832b67d9eeb9227360bb234fbd9e2dcd9d720fc101d1a72a"
+    },
+    {
+      "arquivo": "entradas/revisao_v003.json",
+      "sha256": "469e9d2b75caf3ab832b67d9eeb9227360bb234fbd9e2dcd9d720fc101d1a72a"
+    },
+    {
+      "arquivo": "pareceres/v003.json",
+      "sha256": "6c7c5c560f2e37859953f4047015a161532aceb178e706b5fd10089c5b0366bb"
+    },
+    {
+      "arquivo": "entradas/verificacao_integracao.json",
+      "sha256": "be68818f65091eadcb065a1fd6412035ba49678bfd959dae32ef930f43b70515"
+    }
+  ],
+  "versoes": [
+    {
+      "numero": 1,
+      "texto": {
+        "arquivo": "versoes/v001.md",
+        "sha256": "0b5e67a1dd869f81f62116587c332a0c4746b66eea075098736d9f3daabdb463"
+      },
+      "autor": "Codex — redator",
+      "data_utc": "2026-10-08T02:27:07.990692+00:00",
+      "pareceres": [
+        {
+          "arquivo": "pareceres/v001.json",
+          "sha256": "b3cc043dd1d22ce7ac5cd24076156525f1436110ee8786fc1dab3a1a332c85fd"
+        }
+      ],
+      "entrada": null,
+      "respostas": [],
+      "estado": "aguarda_correcao"
+    },
+    {
+      "numero": 2,
+      "texto": {
+        "arquivo": "versoes/v002.md",
+        "sha256": "378ea07f1e35885c9020d43f04eca7e4ed76686647173eacf8dfe9aacbcc077c"
+      },
+      "autor": "Codex — corretor",
+      "data_utc": "2026-10-08T02:37:24.771867+00:00",
+      "pareceres": [
+        {
+          "arquivo": "pareceres/v002.json",
+          "sha256": "a4fc1edf01123bcd0bc5c71af6ca176664b493e94d95eab0285b16bd40e84a95"
+        }
+      ],
+      "entrada": {
+        "arquivo": "entradas/correcao_v002.json",
+        "sha256": "529dc541933826da0fac0ca6c7819e6ff1339b450c0b76ab03938e46a3d816fa",
+        "origem": "arquivo_json"
+      },
+      "respostas": [
+        {
+          "id": "V1-R1",
+          "situacao": "corrigido",
+          "justificativa": "Substituída a aproximação genérica por duas diferenças verificadas: avaliação global/pareada do próprio PrimeVul e cabeça de classificação com escores no bloco ajustado, frente a conjuntos V2P/V2N multifuentes e respostas geradas com/sem raciocínio de Huang. Nenhuma alegação de novidade, superioridade ou diagnóstico Semantic Trap foi inserida.",
+          "evidencias": [
+            {
+              "fonte": "02_referencias/verificacao_introducao_seminarios_2026/huang_pdf.txt",
+              "localizador": "página física 4, III-B e III-C; página física 7, Figura 3 e IV-A; página física 8, continuação da configuração experimental (linhas 239–257 e 450–514)",
+              "verificacao": "TrapEval deriva V2P/V2N de DiverseVul, PrimeVul e CVEFixes e utiliza template de resposta safe/vulnerable, com reason no braço de raciocínio; LoRA via ms-swift. Não se compara seu F1 aos números locais."
+            },
+            {
+              "fonte": "03_experimentos/codigo/classificador.py",
+              "localizador": "carregar_base, linhas 58–78; pontuar, linhas 120–135",
+              "verificacao": "AutoModelForSequenceClassification com num_labels=2; escore logit vulnerável menos logit benigno. É mecanismo classificatório, não geração de explicação. Apenas leitura do código, sem execução."
+            },
+            {
+              "fonte": "03_experimentos/codigo/07_avaliar_classificador.py",
+              "localizador": "linhas 65–105 e 144–154, conjuntos validacao/teste/pareado",
+              "verificacao": "Configuração aponta aos conjuntos PrimeVul global e pareado e pontua cada função. Confere o desenho registrado, sem certificar identidade da release ou integridade dos pares."
+            }
+          ]
+        },
+        {
+          "id": "V1-R2",
+          "situacao": "corrigido",
+          "justificativa": "A frase agora define os desfechos de classificação das duas versões e a comparação dos escores da vulnerável/corrigida. A ordenação é restrita aos classificadores com escores disponíveis para não estendê-la ao prompting de resposta discreta.",
+          "evidencias": []
+        },
+        {
+          "id": "V1-R3",
+          "situacao": "corrigido",
+          "justificativa": "Trocado o demonstrativo ambíguo por avaliações global e pareada; o mecanismo passa a reunir versões semelhantes que diferem pela correção da vulnerabilidade.",
+          "evidencias": []
+        }
+      ],
+      "estado": "aguarda_correcao"
+    },
+    {
+      "numero": 3,
+      "texto": {
+        "arquivo": "versoes/v003.md",
+        "sha256": "bb424d8ba924f3f15fb9421f9dee0e850f3db61d7b6a953cb5f3c70b1e5b6edb"
+      },
+      "autor": "Codex — corretor",
+      "data_utc": "2026-10-08T02:38:49.524365+00:00",
+      "pareceres": [
+        {
+          "arquivo": "pareceres/v003.json",
+          "sha256": "6c7c5c560f2e37859953f4047015a161532aceb178e706b5fd10089c5b0366bb"
+        }
+      ],
+      "entrada": {
+        "arquivo": "entradas/correcao_v003.json",
+        "sha256": "7b8ee7d16a78004d7327c83973f5d66fe530cd79eb5d4916ceaa3c94e63d9c95",
+        "origem": "arquivo_json"
+      },
+      "respostas": [
+        {
+          "id": "V2-R1",
+          "situacao": "corrigido",
+          "justificativa": "Unidas as duas frases em um contraste explícito, introduzido por Diferentemente do TrapEval. Mantido o mesmo conteúdo documental, sem acrescentar diferenças ou reivindicações. A definição de decisões pareadas e ordenação permanece imediatamente após a descrição do desenho local, mantendo a progressão entre recorte e leitura das avaliações.",
+          "evidencias": []
+        }
+      ],
+      "estado": "integrado"
+    }
+  ],
+  "pedidos": [
+    {
+      "arquivo": "pedidos/001_revisar.txt",
+      "sha256": "0136aeaa004c6d883a896f0b3495bf9584fbcffbdec070c1e0de1eb3171f7a3c",
+      "papel": "revisar",
+      "versao": 1
+    },
+    {
+      "arquivo": "pedidos/002_revisar.txt",
+      "sha256": "0136aeaa004c6d883a896f0b3495bf9584fbcffbdec070c1e0de1eb3171f7a3c",
+      "papel": "revisar",
+      "versao": 1
+    },
+    {
+      "arquivo": "pedidos/003_corrigir.txt",
+      "sha256": "f32b03c02eab9f6d1c302986dd55edfd1dadc4ffd9325e5302f5cde334fcca50",
+      "papel": "corrigir",
+      "versao": 1
+    },
+    {
+      "arquivo": "pedidos/004_revisar.txt",
+      "sha256": "c51b986960a23b6b069cf7fdda5ce38e9cb7c4e84f41d694fc0409c97a4acece",
+      "papel": "revisar",
+      "versao": 2
+    },
+    {
+      "arquivo": "pedidos/005_corrigir.txt",
+      "sha256": "57392f7000d36ebd3941ab20a36e091283d805bf604fc89af2d78bb88b4d5d79",
+      "papel": "corrigir",
+      "versao": 2
+    },
+    {
+      "arquivo": "pedidos/006_revisar.txt",
+      "sha256": "629a796ce2b3e3b9384568f3b01d671bf4b8d668ba272d8890d44b386ab8b14a",
+      "papel": "revisar",
+      "versao": 3
+    }
+  ],
+  "eventos": [
+    {
+      "data_utc": "2026-10-08T02:27:07.863995+00:00",
+      "acao": "iniciar",
+      "detalhe": "artigo"
+    },
+    {
+      "data_utc": "2026-10-08T02:27:07.990692+00:00",
+      "acao": "rascunho",
+      "detalhe": "Codex — redator"
+    },
+    {
+      "data_utc": "2026-10-08T02:27:09.479534+00:00",
+      "acao": "pedido",
+      "detalhe": "revisar"
+    },
+    {
+      "data_utc": "2026-10-08T02:30:18.424948+00:00",
+      "acao": "consulta_claude",
+      "detalhe": "revisar; modelo solicitado=claude-opus-5-5; exit=1"
+    },
+    {
+      "data_utc": "2026-10-08T02:34:07.902541+00:00",
+      "acao": "pedido",
+      "detalhe": "revisar"
+    },
+    {
+      "data_utc": "2026-10-08T02:35:40.236619+00:00",
+      "acao": "consulta_claude",
+      "detalhe": "revisar; modelo solicitado=claude-opus-5-5; exit=0"
+    },
+    {
+      "data_utc": "2026-10-08T02:36:27.580616+00:00",
+      "acao": "parecer",
+      "detalhe": "corrigir"
+    },
+    {
+      "data_utc": "2026-10-08T02:36:27.866185+00:00",
+      "acao": "pedido",
+      "detalhe": "corrigir"
+    },
+    {
+      "data_utc": "2026-10-08T02:37:24.771867+00:00",
+      "acao": "correcao",
+      "detalhe": "v1 -> v2; exige nova revisão"
+    },
+    {
+      "data_utc": "2026-10-08T02:37:27.741525+00:00",
+      "acao": "pedido",
+      "detalhe": "revisar"
+    },
+    {
+      "data_utc": "2026-10-08T02:38:06.990123+00:00",
+      "acao": "consulta_claude",
+      "detalhe": "revisar; modelo solicitado=claude-opus-5-5; exit=0"
+    },
+    {
+      "data_utc": "2026-10-08T02:38:46.484000+00:00",
+      "acao": "parecer",
+      "detalhe": "corrigir"
+    },
+    {
+      "data_utc": "2026-10-08T02:38:46.812337+00:00",
+      "acao": "pedido",
+      "detalhe": "corrigir"
+    },
+    {
+      "data_utc": "2026-10-08T02:38:49.524365+00:00",
+      "acao": "correcao",
+      "detalhe": "v2 -> v3; exige nova revisão"
+    },
+    {
+      "data_utc": "2026-10-08T02:38:53.126934+00:00",
+      "acao": "pedido",
+      "detalhe": "revisar"
+    },
+    {
+      "data_utc": "2026-10-08T02:39:29.300085+00:00",
+      "acao": "consulta_claude",
+      "detalhe": "revisar; modelo solicitado=claude-opus-5-5; exit=0"
+    },
+    {
+      "data_utc": "2026-10-08T02:40:58.447950+00:00",
+      "acao": "parecer",
+      "detalhe": "aprovar"
+    },
+    {
+      "data_utc": "2026-10-08T02:41:12.480935+00:00",
+      "acao": "integrar",
+      "detalhe": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\texto\\secoes\\introducao_01.md"
+    }
+  ],
+  "integracao": {
+    "arquivo": "04_escrita/artigo/seminarios_2026/texto/secoes/introducao_01.md",
+    "sha256": "bb424d8ba924f3f15fb9421f9dee0e850f3db61d7b6a953cb5f3c70b1e5b6edb",
+    "verificacao": {
+      "arquivo": "entradas/verificacao_integracao.json",
+      "sha256": "be68818f65091eadcb065a1fd6412035ba49678bfd959dae32ef930f43b70515",
+      "origem": "arquivo_json"
+    },
+    "data_utc": "2026-10-08T02:41:12.480935+00:00"
+  }
+}

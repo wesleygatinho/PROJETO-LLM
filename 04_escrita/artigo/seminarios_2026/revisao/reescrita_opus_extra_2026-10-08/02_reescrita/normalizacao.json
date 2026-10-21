@@ -1,0 +1,9 @@
+{
+  "alteracao": "Mapeamento de campos autor_redacao/pendencias_cientificas para autor/pendencias e concatenação determinística artigo+suplemento. Nenhuma frase reescrita.",
+  "sha256_texto_artigo": "6b92f0594d8c86451c20733a92d84d5e4c82c533081c52561e29643a61635404",
+  "sha256_texto_integral_registrado": "d39876cb28943a6eb96e87ac7443fa238b62b4c18eebcc1ca308ca0362b12aa6",
+  "modelo": [
+    "claude-opus-5-5"
+  ],
+  "session_id": "402eb376-5fce-4a64-8b85-e32d788dc802"
+}

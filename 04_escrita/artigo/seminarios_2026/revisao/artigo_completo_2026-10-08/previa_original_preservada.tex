@@ -1,0 +1,257 @@
+% Prévia isolada da introdução, sem título/autoria/resumos do artigo completo.
+% Bibliografia da prévia é explícita; manuscrito montado usará referencias/introducao.bib e sbc.bst.
+\documentclass[12pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\makeatletter
+% Asset SBC embutido, SHA256: dbe513d56dde32bedc53dcf7b9efba052ff1b3b747037ed2f284f7095a91e895
+% LaTeX definitions for SBC 2001 style
+%
+% Created by Jomi Hubner & Rafael Bordini, june 2001
+% updated march 2005
+% updated december 2017
+
+
+% margem sup 3.5 cm: hï¿½ 1,5 cm para header, + 2 cm para top
+% margem inf 2.5 cm: hï¿½ 1,5 cm para foot, + 1 cm para bottom
+% margem esq/dir 3 cm
+\RequirePackage[a4paper,top=3.5cm,left=3cm,right=3cm,bottom=2.5cm]{geometry}
+
+\parindent 1.27cm
+\parskip   6pt
+
+\flushbottom
+
+% captions
+%updated 2017. Change deprecated caption2 to caption package
+\RequirePackage[bf,sf,footnotesize,indent]{caption}
+\setlength{\captionmargin}{0.8cm}
+\renewcommand{\captionfont}{\sffamily\footnotesize\bfseries}
+%\renewcommand{\captionlabeldelim}{.}
+\captionsetup{labelsep=period}
+
+% font
+\RequirePackage{times}
+
+\renewcommand{\normalsize}{\@setfontsize\normalsize\@xiipt\@xivpt}
+\newcommand{\XIIIPT}{\@setfontsize\xiiipt{13}{17}}
+\newcommand{\XVIPT}{\@setfontsize\xvipt{16}{20}}
+
+% new commands
+\newcounter{instn}
+\setcounter{instn}{1}
+\newcommand{\instnum}{\arabic{instn}}
+\newcommand{\inst}[1]{\ensuremath{^{#1}}}
+\newcommand{\nextinstitute}{\\\mbox{}\\[-6pt] \addtocounter{instn}{1}\inst{\instnum}}
+\newcommand{\email}[1]{\\\mbox{}\\[-6pt]\footnotesize\texttt{#1}}
+\renewcommand{\and}{, }
+
+% to avoid [...] in the bibliography
+% \item[] instead of \item[\@biblabel{#1}\hfill]
+\def\@lbibitem[#1]#2{\item[]\if@filesw
+      {\let\protect\noexpand
+       \immediate
+       \write\@auxout{\string\bibcite{#2}{#1}}}\fi\ignorespaces}
+\renewenvironment{thebibliography}[1]
+     {\section*{\refname
+        \@mkboth{\MakeUppercase\refname}{\MakeUppercase\refname}}%
+      \list{\@biblabel{\@arabic\c@enumiv}}%
+           {\settowidth\labelwidth{\@biblabel{#1}}%
+            \leftmargin\labelwidth
+            \advance\leftmargin\labelsep
+            %% changed!
+               \itemindent -\leftmargin
+               \itemsep 6pt
+            %%%%%%%%%%%
+            \@openbib@code
+            \usecounter{enumiv}%
+            \let\p@enumiv\@empty
+            \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+      \sloppy
+      \clubpenalty4000
+      \@clubpenalty \clubpenalty
+      \widowpenalty4000%
+      \sfcode`\.\@m}
+     {\def\@noitemerr
+       {\@latex@warning{Empty `thebibliography' environment}}%
+      \endlist}
+
+
+% itens
+\setlength\leftmargini   {1.27cm}
+\setlength\leftmargin    {\leftmargini}
+\setlength\leftmarginii  {\leftmargini}
+\setlength\leftmarginiii {\leftmargini}
+\setlength\leftmarginiv  {\leftmargini}
+\setlength  \labelsep    {.5em}
+\setlength  \labelwidth  {\leftmargini}
+\addtolength\labelwidth  {-\labelsep}
+\def\@listI{\leftmargin\leftmargini
+            \parsep 0\p@ \@plus1\p@ \@minus\p@
+            \topsep 0\p@ \@plus2\p@ \@minus4\p@
+            \itemsep0\p@}
+\let\@listi\@listI
+\@listi
+\def\@listii {\leftmargin\leftmarginii
+              \labelwidth\leftmarginii
+              \advance\labelwidth-\labelsep
+              \topsep    0\p@ \@plus2\p@ \@minus\p@}
+\def\@listiii{\leftmargin\leftmarginiii
+              \labelwidth\leftmarginiii
+              \advance\labelwidth-\labelsep
+              \topsep    0\p@ \@plus\p@\@minus\p@
+              \parsep    \z@
+              \partopsep \p@ \@plus\z@ \@minus\p@}
+
+
+% sections
+\renewcommand\section{\@startsection{section}{1}{\z@}%
+                       {-6\p@ \@plus -4\p@ \@minus -4\p@}%
+                       {0\p@ \@plus 4\p@ \@minus 4\p@}%
+                       {\normalfont\XIIIPT\bfseries\boldmath
+                        \rightskip=\z@ \@plus 8em\pretolerance=10000 }}
+
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+                       {-6\p@ \@plus -4\p@ \@minus -4\p@}%
+                       {0\p@ \@plus 4\p@ \@minus 4\p@}%
+                       {\normalfont\normalsize\bfseries\boldmath
+                        \rightskip=\z@ \@plus 8em\pretolerance=10000 }}
+
+%\renewcommand{\thesection}{\arabic{section}.}
+%\renewcommand{\thesubsection}{\thesection\arabic{subsection}.}
+%\renewcommand{\thesubsubsection}{\thesubsection\arabic{subsubsection}.}
+
+\RequirePackage{titlesec}
+\titlelabel{\thetitle.\hspace{1ex}}
+
+% first page
+
+\pagestyle{empty}
+
+\newcommand{\authortag}[1]{$^{#1}$}
+
+\def\address#1{\gdef\@address{#1}}
+
+\def\@maketitle{\newpage
+ %\null % isso dava um espaco extra antes do title
+ \begin{center}
+   %\vglue -6pt
+%   \vspace*{12pt}
+\vspace*{-.7cm}
+  {\XVIPT\bf\@title\par}
+   \vglue 6pt plus 3pt minus 3pt
+  {\normalsize
+   \textbf{\begin{tabular}[t]{c}\@author\end{tabular}}\par}
+   \vglue 6pt plus 3pt minus 3pt
+  {\normalsize
+   \begin{tabular}[t]{c}\inst{\instnum}\@address\end{tabular}\par}
+   \vglue 6pt plus 3pt minus 3pt
+   \end{center}\par
+}
+\let\maketitleOLD\maketitle
+\renewcommand{\maketitle}{\maketitleOLD\thispagestyle{empty}}
+
+\renewenvironment{abstract}{%
+      \list{}{\advance\topsep by6pt\relax%\small
+      \leftmargin=0.8cm
+      \labelwidth=\z@
+      \listparindent=\z@
+      \itemindent\listparindent
+      \rightmargin\leftmargin}\item[\hskip\labelsep
+                                    \bfseries\itshape Abstract.]\itshape}%
+      {\endlist}
+
+\newenvironment{resumo}{%
+      \list{}{\advance\topsep by6pt\relax%\small
+      \leftmargin=0.8cm
+      \labelwidth=\z@
+      \listparindent=\z@
+      \itemindent\listparindent
+      \rightmargin\leftmargin}\item[\hskip\labelsep
+                                    \bfseries\itshape Resumo.]\itshape}%
+      {\endlist}
+
+%Updated 2017. If hyperref is used, do not change references styles
+\RequirePackage{etoolbox}%
+\AtEndPreamble{\@ifpackageloaded{hyperref}
+	{%
+		\makeatletter
+		  \def\@lbibitem[#1]#2{%
+			\@skiphyperreftrue
+			\H@item[%
+			  \ifx\Hy@raisedlink\@empty
+				\hyper@anchorstart{cite.#2\@extra@b@citeb}%
+				\hyper@anchorend
+			  \else
+				\Hy@raisedlink{%
+				  \hyper@anchorstart{cite.#2\@extra@b@citeb}\hyper@anchorend
+				}%
+			  \fi
+			  \hfill
+			]%
+			\@skiphyperreffalse
+			\if@filesw
+			  \begingroup
+				\let\protect\noexpand
+				\immediate\write\@auxout{%
+				  \string\bibcite{#2}{#1}%
+				}%
+			  \endgroup%
+			\fi%
+			\ignorespaces%
+		  }% 
+		\makeatother%
+	}%
+}%
+\makeatother
+\begin{document}
+\section{Introdução}
+\label{sec:introducao}
+
+A avaliação de modelos de linguagem de código para detecção de vulnerabilidades exige distinguir o desempenho agregado de classificação da capacidade de reconhecer a diferença entre uma função vulnerável e sua versão corrigida. Em conjuntos nos quais as funções não vulneráveis predominam, a acurácia pode permanecer elevada mesmo quando poucas vulnerabilidades são identificadas. Além disso, uma medida agregada como F1 não explicita, isoladamente, o comportamento do detector sob uma restrição de falsos alarmes. Ding et al. (2024) discutem essas limitações e mostram que a composição dos dados e as condições de avaliação alteram a interpretação do desempenho dos modelos. Para essa tarefa, a questão não se restringe a classificar funções corretamente em média, mas envolve examinar quais erros ocorrem e em quais condições o modelo distingue a presença da vulnerabilidade.
+
+O PrimeVul foi desenvolvido para investigar esse problema em funções C/C++ provenientes de projetos de código aberto. O conjunto combina procedimentos de rotulação, remoção de duplicatas e divisão temporal dos dados com diretrizes que complementam as métricas globais. Entre essas diretrizes estão a avaliação de pares formados por uma função vulnerável e sua versão corrigida e a análise da taxa de falsos negativos sob uma restrição de falsos positivos \cite{ding2024primevul}. A avaliação pareada é relevante porque mantém versões de código semelhantes e examina as decisões sobre ambas, tornando visíveis erros que uma avaliação agregada não descreve diretamente. Essas duas perspectivas oferecem, portanto, informações complementares sobre o comportamento do detector, embora não constituam, por si só, uma demonstração de compreensão semântica do código.
+
+Essa cautela encontra respaldo em estudos sobre as limitações dos detectores aprendidos. Risse e Böhme (2024) observaram, nas técnicas e nos conjuntos avaliados, dificuldades em distinguir funções vulneráveis de suas correções e dependência de características sem relação com a vulnerabilidade, investigada por transformações que preservam a semântica. Huang et al. (2026) estenderam essa investigação a modelos de linguagem ajustados, incluindo Qwen2.5-Coder-7B-Instruct, por meio do TrapEval. Seu protocolo contrasta pares vulnerável/corrigida com exemplos vulneráveis associados a funções não vulneráveis sem correspondência, além de examinar perturbações e supervisão de raciocínio. Esses trabalhos justificam avaliar conjuntamente o desempenho global e o pareado, mas seus resultados não podem ser transferidos automaticamente a outras receitas, variantes de modelo ou condições de implantação.
+
+A análise dessas condições também envolve os recursos computacionais associados à adaptação e à inferência. A família Qwen2.5-Coder disponibiliza modelos especializados em código em diferentes escalas, entre elas as variantes de 3 e 7 bilhões de parâmetros utilizadas neste estudo \cite{hui2024qwen}. LoRA, ou adaptação de baixo posto, permite ajustar matrizes adicionais mantendo congelados os pesos pré-treinados \cite{hu2021lora}. QLoRA combina essa adaptação com uma base quantizada em quatro bits e introduz o formato NormalFloat de quatro bits (NF4) para reduzir a memória necessária ao ajuste \cite{dettmers2023qlora}. Essas técnicas tornam pertinente examinar qualidade de classificação e recursos nas configurações disponíveis, sem pressupor que a redução de memória preserve o desempenho na detecção de vulnerabilidades ou produza o mesmo comportamento em diferentes formas de implantação.
+
+Nesse contexto, este trabalho tem como objetivo analisar, de forma exploratória, o comportamento das configurações Qwen2.5-Coder de 3B e 7B efetivamente avaliadas no PrimeVul, articulando métricas globais, avaliação pareada e recursos computacionais registrados. A pergunta que orienta o estudo é: como essas configurações se comportam nas avaliações global e pareada, e quais recursos são observados nas formas de implantação executadas? O recorte reúne avaliações por instruções textuais (\textit{prompting}) das variantes Instruct, classificadores ajustados e uma referência de classificação baseada no tamanho das funções em tokens. A inclusão dessa referência permite contextualizar o desempenho dos modelos diante de uma característica simples do código, sem assumir que o tamanho explique todos os erros ou que seu controle elimine outros atalhos.
+
+Os registros experimentais compreendem três receitas exploratórias de ajuste do modelo 3B, cada uma com uma semente de aleatoriedade (\textit{seed}), e uma receita principal do 7B executada com três sementes. Os pilotos 3B incluem amostragem 1:1 entre classes, manutenção da proporção original e amostragem 1:1 com controle de tamanho; o bloco 7B utiliza a última dessas receitas. As diferenças de composição e de orçamento de treinamento restringem a interpretação das comparações entre os pilotos e entre as escalas. Para os modelos 7B, foram registradas avaliações em NF4 com adaptador e em BF16, formato de ponto flutuante de 16 bits, com o adaptador mesclado aos pesos. Como essa comparação modifica tanto a representação dos pesos quanto a incorporação do adaptador, seu objeto são as configurações completas de implantação, sem atribuição causal das diferenças apenas à quantização.
+
+A contribuição do estudo consiste em reunir esse bloco experimental em uma caracterização delimitada, relacionando as perspectivas global e pareada com a referência de tamanho, as repetições do 7B e os registros de recursos. Esse enquadramento aproxima o artigo das investigações de Ding et al. (2024), Risse e Böhme (2024) e Huang et al. (2026), com foco nas configurações efetivamente disponíveis e em suas condições de comparação. Na leitura dos registros, decisões de classificação e ordenação dos escores das duas versões são tratadas como objetos distintos, e as medições de memória e tempo permanecem vinculadas ao ambiente e ao procedimento que as produziram. O estudo não propõe uma nova arquitetura nem um novo teste de compreensão semântica; sua contribuição é empírica e descritiva, sem reivindicação de novidade para a avaliação pareada ou para o uso de adaptação de baixo posto.
+
+O alcance dessa caracterização é limitado a uma família de modelos, a um conjunto de dados e às execuções realizadas. O desenvolvimento teve caráter exploratório, com acesso ao conjunto de teste durante a investigação, o que restringe sua interpretação como avaliação confirmatória independente. As três sementes do 7B permitem examinar as execuções observadas, mas não sustentam uma generalização robusta sobre futuros treinamentos. Da mesma forma, as configurações NF4 e BF16 não abrangem uma comparação completa de métodos de quantização ou uma determinação de implantação ótima. Esses limites orientam a interpretação da evidência e mantêm o objetivo centrado no comportamento verificável dos classificadores e nos recursos registrados.
+
+% Citações narrativas no texto também constam na bibliografia.
+\nocite{ding2024primevul,risse2024limits,huang2026trap,hui2024qwen,hu2021lora,dettmers2023qlora}
+
+\begin{thebibliography}{99}
+\bibitem[Dettmers et~al. 2023]{dettmers2023qlora}
+Dettmers, T., Pagnoni, A., Holtzman, A. e Zettlemoyer, L. (2023).
+QLoRA: Efficient Finetuning of Quantized LLMs. arXiv:2305.14314v1. Preprint, versão 1.
+
+\bibitem[Ding et~al. 2024]{ding2024primevul}
+Ding, Y., Fu, Y., Ibrahim, O., Sitawarin, C., Chen, X., Alomair, B., Wagner, D., Ray, B. e Chen, Y. (2024).
+Vulnerability Detection with Code Language Models: How Far Are We? arXiv:2403.18624v2. Preprint, versão 2.
+
+\bibitem[Hu et~al. 2021]{hu2021lora}
+Hu, E. J., Shen, Y., Wallis, P., Allen-Zhu, Z., Li, Y., Wang, S., Wang, L. e Chen, W. (2021).
+LoRA: Low-Rank Adaptation of Large Language Models. arXiv:2106.09685v2. Preprint, versão 2.
+
+\bibitem[Huang et~al. 2026]{huang2026trap}
+Huang, F., Sun, Y., Zhang, F., Yang, Z., Liu, H. e Liu, Y. (2026).
+Do Fine-Tuned LLMs Understand Vulnerabilities? An Investigation into the Semantic Trap. arXiv:2601.22655v3. Preprint, versão 3.
+
+\bibitem[Hui et~al. 2024]{hui2024qwen}
+Hui, B., Yang, J., Cui, Z., Yang, J., Liu, D., Zhang, L., Liu, T., Zhang, J., Yu, B., Lu, K., Dang, K., Fan, Y., Zhang, Y., Yang, A., Men, R., Huang, F., Zheng, B., Miao, Y., Quan, S., Feng, Y., Ren, X., Ren, X., Zhou, J. e Lin, J. (2024).
+Qwen2.5-Coder Technical Report. arXiv:2409.12186v3. Relatório técnico, versão 3.
+
+\bibitem[Risse and B{\"o}hme 2024]{risse2024limits}
+Risse, N. e Böhme, M. (2024).
+Uncovering the Limits of Machine Learning for Automatic Vulnerability Detection.
+In \textit{33rd USENIX Security Symposium (USENIX Security 24)}, páginas 4247--4264. USENIX Association.
+\end{thebibliography}
+\end{document}

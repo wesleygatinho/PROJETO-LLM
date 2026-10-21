@@ -1,0 +1,1002 @@
+=== PÁGINA FÍSICA 1 ===
+                            2022 IEEE/ACM 19th International Conference on Mining Software Repositories (MSR)
+
+
+
+
+
+
+LineVul:               A               Transformer-based               Line-Level               Vulnerability               Prediction
+
+                                               Michael     Fu                                                                              Chakkrit     Tantithamthavorn∗
+                                    michael.fu@monash.edu                                                                                            chakkrit@monash.edu
+                                         Monash    University                                                                                            Monash    University
+                                                   Australia                                                                                                      Australia
+ABSTRACT                                                                                                               Server,    that    allowed    an    attacker    to    bypass    the    authentication    and
+Software    vulnerabilities    are    prevalent    in    software    systems,    caus-                                 impersonating.    Therefore,    an    unauthenticated    attacker    could    ex-
+ing    a    variety    of    problems    including    deadlock,    information    loss,    or                          ecute    arbitrary    commands    on    the    server.    Cybersecurity    Ventures
+system    failures.    Thus,    early    predictions    of    software    vulnerabilities                              expects    global    cybercrime    costs    to    reach    $10.5    trillion    USD    by    2025,
+are    critically    important    in    safety-critical    software    systems.    Various                             up    from    $3    trillion    USD    in    2015    [4].    As    cyberattacks    become    the
+ML/DL-based   approaches   have   been   proposed   to   predict   vulnerabil-                                         main    contributing    factors    to    revenue    loss    of    some    businesses    [10],
+ities    at    the    file/function/method    level.    Recently,    IVDetect    (a    graph-                          ensuring    the    safety    of    software    systems    becomes    one    of    the    critical
+based    neural    network)    is    proposed    to    predict    vulnerabilities    at    the                         challenges    of    private    and    public    sectors.
+function    level.    Yet,    the    IVDetect    approach    is    still    inaccurate    and                               To   mitigate   this   challenge,   program   analysis   (PA)   tools   [1,   2,   5,   9]
+coarse-grained.    In    this    paper,    we    propose    LineVul,    a    Transformer-                              have      been      introduced      to      analyze      source      code      using      predefined
+based    line-level    vulnerability    prediction    approach    in    order    to    ad-                             vulnerability     patterns.     For     instance,     Gupta     et     al.     [19]     found     that
+dress    several    limitations    of    the    state-of-the-art    IVDetect    approach.                              there    are    static    analysis    approaches    that    were    used    to    detect    SQL
+Through   an   empirical   evaluation   of   a   large-scale   real-world   dataset                                    injection     and     cross-site     scripting     vulnerabilities.     Both     PA-based
+with    188k+    C/C++    functions,    we    show    that    LineVul    achieves    (1)                               and    ML/DL-based    approaches    fall    short    of    the    capability    to    detect
+160%-379%     higher     F1-measure     for     function-level     predictions;     (2)                                fine-grained    vulnerabilities.”    –    PA    tools,    including    ones    cited    in    the
+12%-25%     higher     Top-10     Accuracy     for     line-level     predictions;     and                             paper,    highlight    the    specific    lines    in    code    that    contain    the    detected
+(3)    29%-53%    less    Effort@20%Recall    than    the    baseline    approaches,                                   vulnerabilities.
+highlighting   the   significant   advancement   of    LineVul   towards   more                                             On   the   other   hand,   Machine   Learning   (ML)   /   Deep   Learning   (DL)
+accurate   and   more   cost-effective   line-level   vulnerability   predictions.                                     approaches    have    been    proposed.    Specifically,    these    ML/DL-based
+Our    additional    analysis    also    shows    that    our    LineVul    is    also    very                         approaches     [12,     32,     33,     43,     65]     first     generate     a     representation     of
+accurate    (75%-100%)    for    predicting    vulnerable    functions    affected                                     source    code    in    order    to    learn    vulnerability    patterns.    Finally,    such
+by    the    Top-25    most    dangerous    CWEs,    highlighting    the    potential                                  approaches    will    learn    the    relationship    between    the    representation
+impact    of    our    LineVul    in    real-world    usage    scenarios.                                              of    source    code    and    the    ground-truth    (i.e.,    whether    a    given    piece    of
+ACM   Reference   Format:                                                                                              code    is    vulnerable).    Despite    the    advantages    of    dynamically    learn-
+Michael   Fu   and   Chakkrit   Tantithamthavorn.   2022.   LineVul:   A   Transformer-                                ing    the    vulnerability    patterns    without    manual    predefined    vulner-
+based   Line-Level   Vulnerability   Prediction.   In   19th   International   Conference                              ability    patterns,    previous    ML/DL-based    approaches    still    focus    on
+on   Mining   Software   Repositories   (MSR   ’22),   May   23–24,   2022,   Pittsburgh,   PA,                        coarse-grained    vulnerability    prediction    where    models    only    point
+USA.   ACM,   New   York,   NY,   USA,   13   pages.   https://doi.org/10.1145/3524842.                                out    vulnerabilities    at    the    file    level    or    the    function    level—which    is
+3528452                                                                                                                still    coarse-grained.
+                                                                                                                            Recently,   Li   et   al.   [30]   proposed   an   IVDetect   approach   to   address
+1                    INTRODUCTION                                                                                      the    need    of    fine-grained    vulnerability    prediction.    IVDetect    lever-
+Software    vulnerabilities    are    weaknesses    in    an    information    system,                                 ages   a   FA-GCN   (i.e.,   Feature-attention   Graph   Convolution   Network)
+security      procedures,      internal      controls,      or      implementations      that                          approach    to    predict    function-level    vulnerabilities    and    a    GNNEx-
+could    be    exploited    or    triggered    by    a    threat    source    [26].    Those    unre-                  plainer    to    locate    the    fine-grained    location    of    vulnerabilities.    Li   et
+solved    weaknesses    associated    with    software    systems    may    result    in                               al.    [30]    found    that    the    IVDetect    approach    achieves    a    F-measure    of
+extreme    security    or    privacy    risks.    For    instance,    in    2021,    a    criminal                     0.35,    which    outperforms    the    state-of-the-art    approaches.    However,
+group   leveraged   the   ProxyLogon   flaw   [8]   to   access   highly   confiden-                                   IVDetect    has    the    following    three    limitations.
+tial  data  of  PC-maker  Acer  and  issued  an  opening  ransom  demand  of
+$50    million    USD    [7].    The    vulnerability    was    on    Microsoft    Exchange                                    •       First,      the      training      process      of      IVDetect      is      limited      to
+
+      ∗Corresponding   Author.                                                                                                     project-specific      dataset.     Due      to      the      limited      amount      of
+Permission   to   make   digital   or   hard   copies   of   all   or   part   of   this   work   for   personal   or              training   data   used   by   IVDetect,   the   language   models   may   not
+classroom   use   is   granted   without   fee   provided   that   copies   are   not   made   or   distributed                    be    able    to    capture    the    most    accurate    relationship    between
+for  profit  or  commercial  advantage  and  that  copies  bear  this  notice  and  the  full  citation                            tokens    and    their    surrounding    tokens.    Thus,    the    vectors    rep-
+on   the   first   page.   Copyrights   for   components   of   this   work   owned   by   others   than   ACM                     resentation    of    source    code    by    IVDetect    are    still    suboptimal.
+must  be  honored.  Abstracting  with  credit  is  permitted.  To  copy  otherwise,  or  republish,                            •       Second,    the    RNN-based    architecture    of    the    IVDetect
+to   post   on   servers   or   to   redistribute   to   lists,   requires   prior   specific   permission   and/or   a
+fee.   Request   permissions   from   permissions@acm.org.                                                                         approach    is    still    not    effective    to    capture    the    meaning-
+MSR   ’22,   May   23–24,   2022,   Pittsburgh,   PA,   USA                                                                        ful    long-term    dependencies    and    semantics    of    source
+©   2022   Association   for   Computing   Machinery.                                                                              code.    IVDetect    relies    on    RNN-based    models    to    generate    vec-
+ACM   ISBN   978-1-4503-9303-4/22/05. . . $15.00
+https://doi.org/10.1145/3524842.3528452                                                                                            tor    representations    to    be    used    by    its    graph    model    during    the
+
+
+
+                                                                                                                608
+
+     Authorized licensed use limited to: Monash University. Downloaded on December 12,2023 at 11:35:10 UTC from IEEE Xplore.  Restrictions apply.
+
+=== PÁGINA FÍSICA 2 ===
+MSR   ’22,   May   23–24,   2022,   Pittsburgh,   PA,   USA                                                                                                                                                                                                                                                                                                                                                                                                                                                               Michael   Fu   and   Chakkrit   Tantithamthavorn
+
+             prediction   step.   However,  RNN-based   models   often   have   diffi-                                              These     results     lead     us     to     conclude     that     LineVul     is     more     accu-
+             culties   in   learning   the   long   sequence   of   source   code.   Such   the                                rate,    more    cost-effective,    and    more    fine-grained    than    existing    vul-
+             limitation    could    make    the    generated    vector    representations                                      nerability    prediction    approaches.    Thus,    we    expect    that    our    Line-
+             less    meaningful,    resulting    in    inaccurate    predictions.                                              Vul    may    help    security    analysts    to    find    vulnerable    lines    in    a    cost-
+         •       Third,    the    sub-graph    interpretation    of    IVDetect    is    still                                 effective    manner.    In    addition,    we    recommend    the    attention    mech-
+             coarse-grained.      IVDetect      leveraged      a      GNNExplainer      to                                     anism    be    used    in    future    research    to    improve    the    explainability    of
+             identify    which    sub-graph    contributed    the    most    to    the    pre-                                 the    Transformer-based    models,    since    this    paper    has    shown    the    sub-
+             dictions.    Although    such    sub-graph    interpretation    can    help                                       stantial     benefits     of     using     the     attention     mechanism     for     line-level
+             developers     narrow     down     to     locate     vulnerable     lines,     such                               vulnerability   localization,   which   outperforms   other   model-agnostic
+             sub-graphs    still    contain    many    lines    of    code.    Thus,    security                               techniques    (e.g.,    DeepLift,    LIG,    and    SHAP).
+             analysts    still    need    to    manually    locate    which    lines    of    these                                 Novelty    &    Contributions.        To    the    best    of    our    knowledge,    the
+             sub-graphs    are    actually    vulnerable.                                                                      main      contribution      of      this      paper      is      as      follows:      (1)      our      LineVul,
+      In    this    paper,    we    propose    LineVul,    a    Transformer-based    fine-                                     a    Transformer-based    line-level    vulnerability    prediction    approach,
+ grained    vulnerability    prediction    approach    to    address    the    three    im-                                    which      address      various      limitations      of      existing      vulnerability      pre-
+ portant    limitations    of    IVDetect.    First,    instead    of    using    RNN-based                                    diction    approaches;    and    (2)    the    experimental    results    confirm    that
+ models     to     generate     representation     of     code,     we     leverage     a     BERT                             our    LineVul    is    more    accurate,    more    cost-effective,    and    more    fine-
+ architecture    [15]    with    self-attention    layers    that    are    capable    of    cap-                              grained    than    existing    vulnerability    prediction    approaches.
+ turing    long    term    dependencies    within    a    long    sequence    using    dot-                                         Open    Science.             To      support      the      open      science      community,      we
+ product    operations.    Second,    instead    of    using    project-specific    train-                                     publish     the     studied     dataset,     scripts     (i.e.,     data     processing,     model
+ ing    data,    we    leverage    a    CodeBERT    pre-trained    language    model    to                                     training,   and   model   evaluation),   and   experimental   results   in   GitHub
+ generate     vector     representation     of     source     code.     Third,     instead     of                              (https://github.com/awsm-research/LineVul).
+ using     a     GNNExplainer     to     identify     sub-graphs     that     contribute     to                                     Paper    Organization.Section  2  discusses  the  IVDetect  approach
+ the    predictions,    we    leverage    the    attention    mechanism    of    the    BERT                                   and    its    limitations.    Section    3    presents    our    LineVul    approach.    Sec-
+ architecture    to    locate    vulnerable    lines,    which    is    finer-grained    than                                  tion      4      presents      the      motivation      of      our      three      research      questions,
+ the    IVDetect    approach.    Finally,    we    conduct    an    experiment    to    com-                                   our    studied    datasets,    and    our    experimental    setup,    while    Section    5
+ pare    our    LineVul    approach    with    seven    baseline    approaches    (i.e.,                                       presents    the    experimental    results.    Section    6    presents    the    ablation
+ IVDetect     [30],     Reveal     [12],     SySeVR     [32],     Devign     [65],     Russell     et                          study    of    our    LineVul.    Section    8    discloses    the    threats    to    validity.
+ al.    [43],    VulDeePecker    [33],    and    BoW+RF),    and    evaluated    on    both                                    Section    9    draws    the    conclusions.
+ coarse-grained    (i.e.,    function-level)    and    fine-grained    (i.e.,    line-level)
+ vulnerability    prediction    scenarios.    Through    an    extensive    evalua-
+ tion    of    our    approach    on    188k+    C    functions    including    91    different                                2                    BACKGROUND
+ types    of    CWEs    (Common    Weakness    Enumeration),    we    answer    the                                            A      software      vulnerability      is      a      defect      or      a      weakness      in      software
+ following    three    research    questions:                                                                                  implementation     due     to     the     way     the     software     is     designed     or     the
+                                                                                                                               way     the     software     is     coded.     In     computer     security,     such     software
+(RQ1)       How    accurate    is    our    LineVul    for    function-level    vul-                                           vulnerabilities   could   lead   to   inner   system   crash   or   allow   an   attacker
+             nerability    predictions?                                                                                        to    gain    control    of    a    system    by    crossing    privilege    boundaries    within
+             Results.       Our   LineVul   achieves   an   F-measure   of   0.91,   which                                     a     computer     system.     Thus,     two     types     of     automated     vulnerability
+             is      160%-379%      better      than      the      state-of-the-art      approaches                            prediction    approaches,    Program    Analysis    (PA)-based    and    ML/DL-
+             with     a     median     improvement     of     250%.     Similarly,     our     Line-                           based,    have    been    proposed    to    early    predict    software    vulnerabilities.
+             Vul    achieves    a    Precision    of    0.97    and    a    Recall    of    0.86,    which                          PA-based    techniques    use    pre-defined    patterns    to    detect    software
+             outperform     the     baseline     approaches     by     322%     and     19%,     re-                           vulnerabilities.     Hence,     PA-based     methods     only     focus     on     specific
+             spectively.                                                                                                       types    of    vulnerabilities.    For    instance,    the    FlawFinder    [5]    supports
+(RQ2)       How    accurate    is    our    LineVul    for    line-level    vulnerabil-                                        common    weakness    enumeration    (CWE),    which    takes    C/C++    pro-
+             ity    localization?                                                                                              gram    as    input    and    generates    a    list    of    vulnerabilities    sorted    by    risk
+             Results.        Our    LineVul    achieves    a    Top-10    Accuracy    of    0.65,                              level.    RATS    [9]    is    another    static    program    analysis    tool,    which    can
+             which    is    12%-25%    more    accurate    than    the    other    baseline    ap-                             detect    the    vulnerabilities    such    as    buffer    overflows    and    TOCTOU
+             proaches.    In    addition,    LineVul    achieves    the    lowest    median                                    (Time    of    Check,    Time    of    Use)    race    conditions.    Cppcheck    [2]isa
+             IFA   of   1,   while   the   baseline   approaches   achieve   a   median   IFA                                  static    analysis    tool    for    C/C++    code    using    unique    code    analysis    and
+             of    3-4.                                                                                                        focuses    on    detecting    undefined    behaviour    and    dangerous    coding
+(RQ3)       What    is    the    cost-effectiveness    of    our    LineVul    for    line-                                    constructs.   Checkmarx   [1]   provides   automatic   scans   of   uncompiled
+             level    vulnerability    localization?                                                                           source  code  that  can  be  integrated  into  DevOps,  enabling  developers
+             Results.     Our  LineVul  achieves  the  lowest  Effort@20%Recall                                                to    identify    security    vulnerabilities    during    development.    However,
+             of   0.75,   which   is   29%-53%   less   than   other   baseline   approaches.                                  such    the    pre-defined    patterns    for    PA-based    techniques    need    to    be
+             In    addition,    LineVul    achieves    the    highest    Recall@1%LOC                                          manually    crafted    by    security    experts,    which    are    time-consuming.
+             of      0.24,      which      is      26%-85%      higher      than      other      baseline      ap-                  ML/DL-based    approaches    leverage    Machine    Learning    (ML)    and
+             proaches.                                                                                                         Deep   Learning   (DL)   techniques   to   automatically   learn   vulnerability
+
+
+
+
+
+
+
+
+                                                                                                                        609
+
+      Authorized licensed use limited to: Monash University. Downloaded on December 12,2023 at 11:35:10 UTC from IEEE Xplore.  Restrictions apply.
+
+=== PÁGINA FÍSICA 3 ===
+LineVul:   A   Transformer-based   Line-Level   Vulnerability   Prediction                                                                                                                                                                                                                                                                                                                                                      MSR   ’22,   May   23–24,   2022,   Pittsburgh,   PA,   USA
+
+ patterns    to    detect    software    vulnerabilities.    Specifically,    code    pro-
+ grams     are     transformed     into     vector     representation     for     the     model
+ to    learn    the    implicit    patterns    of    vulnerabilities    from    prior    vulner-
+ able      programs.      Recently,      several      DL      models      have      been      applied
+ to    vulnerability    prediction    tasks.    For    instance,    VulDeePecker    [33]
+ leverages    symbolic    representations    on    program    slices,    Devign    [65]
+ uses     graph     embedding     on     code     property     graphs     (i.e.,     AST,     CFG,
+ DFG),    SySeVR    [32]    relies    on    semantic    information    induced    by    data
+ dependency,   Reveal   [12]   adopted   graph   embedding   with   triplet   loss
+ function    for    representation    learning,    Russell    et    al.    [43]    leverages
+ CNNs    and    RNNs    to    extract    representation.    Despite    these    DL    mod-
+ els    are    able    to    generate    better    representation,    they    still    focus    on
+ coarse-grained    vulnerability    prediction    that    provides    vulnerability
+ prediction    at    the    file    level    or    the    function    level.                                                    Figure    1:    A    motivating    example    of    our    LineVul    vs    IVDetect.
+
+
+ 2.1                    IVDetect:     A     state-of-the-art     fine-grained
+             vulnerability     prediction     &     Limitations                                                                vulnerability    predictions    from    the    FA-GCN    model.    The    goal    of    GN-
+ Both    PA-based    and    ML/DL-based    approaches    fall    short    of    the    capa-                                    NExplainer    is    to    find    out    a    sub-graph    G𝑚         from    the    whole    PDG   𝐺𝑚
+ bility    to    detect    fine-grained    vulnerabilities.    Therefore,    developers                                         of    the    method   𝑚 that    minimizes    the    difference    in    the    prediction
+ would    still    need    to    inspect    many    lines    of    code    to    look    for    and    fix                      scores    between    using    the    entire    graph   𝐺𝑚         and    using    the    minimal
+ the    vulnerabilities    in    their    code.    Recently,    Li    et    al.    [30]    proposed                             graph    G𝑚     .   To   do   so,   GNNExplainer   learns   the   set   of   edge-mask   𝐸𝑀
+ IVDetect—a    fine-grained    graph-based    vulnerability    prediction    ap-                                                that    derives    the    minimal    graph    G𝑚   .Asan       𝐸𝑀is    applied,    GNNEx-
+ proach,    which    consists    of    three    steps:                                                                          plainer    checks    if    the    FA-GCN    model    produces    the    same    result    (i.e.,
+      Step  1:  Code  Representation  Learning.  IVDetect  leverages  the                                                       predicted    as    vulnerable).    If    yes,    the    edge    in    the    edge-mask    is    not
+ GloVe    word    embedding    (Global    Vectors    for    Word    Representation)                                             important    and    not    included    in    G𝑚     .    Otherwise,    the    edge    is    impor-
+ to    capture    semantic    similarity    among    tokens    and    a    GRU    model    to                                   tant    and    included    in    G𝑚     .    IVDetect    then    utilizes    the    best    sub-graph
+ summarize   the   sequence   of   vectors   into   one   feature   vector.   IVDetect                                          G𝑚         learnt    from    GNNExplainer    as    an    interpretation    for    the    given
+ generates    four    feature    vectors    from    the    given    code    statement:    1)    a                               function   to   detect   fine-grained   vulnerabilities.   However,   there   exist
+ sequence    of    sub-tokens    to    capture    lexical    information,    2)    variable                                     the    following    limitations.
+ names    and    types    to    be    used    as    node    information    in    graph    model,                                    Limitation             1   :    The    training    process    of    IVDetect    is    limited
+ 3)     data     dependency     context,     and     4)     control     dependency     context.                                 to    project-specific    dataset.   The    quality    of    vector    representation
+ In     addition,     a     Tree-LSTM     is     used     to     generate     the     representation                            heavily    relies    on    the    language    models    of    code    being    used.    For    the
+ for    AST    trees.    After    obtaining    all    of    the    five    feature    vectors    (i.e.,                         IVDetect    approach,    Li    et    al.    [30]    leveraged    a    GloVE    (see    Step    1    of
+ 𝐹1,  ...,  𝐹5),    IVDetect    uses    a    Bi-GRU    and    an    attention    layer    to    learn                           IVDetect),     which     is     an     unsupervised     learning     algorithm     for     ob-
+ the   weight   vector 𝑊𝑖 for   each   feature   vector   𝐹𝑖.   Finally,   each   feature                                       taining    vector    representations    of    words.    However,    their    Glove    lan-
+ vector    is    multiplied    by    the    computed    weight    vector:    𝐹𝑖        =   𝑊′             𝑖𝐹𝑖.                  guage    models    are    trained    on    the    project-specific    dataset    without
+      Step     2:     Vulnerability     Prediction     with     FA-GCN.     Given     an                                        pre-training    on    large    code    base,    which    may    not    be    able    to    generate
+ input     method    𝑚,     IVDetect     first     processes    𝑚  into     a     program     de-                               the     most     meaningful     code     representation.     Thus,     the     suboptimal
+ pendency     graph     (PDG)     consisting     of     many     statements,     for     each                                  vector    representation    of    source    code    by    IVDetect    may    lead    to    inac-
+ statement,    the    five    feature    vectors    will    be    generated    through    the                                   curate    predictions.
+ process    discussed    in    Step    1.    FA-GCN    performs    sliding    a    small    win-                                    Limitation             2   :   The   RNN-based   architecture   of   the   IVDetect
+ dow    along    all    the    nodes    (statements)    of    the    PDG    and    leverages    a                               approach   is   still   not   effective   to   capture   the   meaningful   long-
+ joint   layer   to   link   all   generated   feature   vectors   into   a   feature   matrix                                  term    dependencies    and    semantics    of    source    code.    IVDetect
+ F𝑚         where    each    row    corresponds    to    a    small    window    in    PDG.    Then,                            relies    on    RNN-based    architectures    to    generate    code    representation
+ the    symmetric    normalized    Laplacian    matrix    [29]    L𝑚         is    calculated                                   in    Step    1,    which    will    encounter    problems    when    processing    a    long
+ and    combined    with    feature    matrix    F𝑚         through    the    convolution    to                                 sequence.    RNN-based    models    process    a    sequence    token    by    token,
+ generate    the    representation    matrix    M𝑚         for    the    method   𝑚.    Finally,                               where    the    models    consider    a    context    vector    and    a    hidden    vector    of
+ FA-GCN     uses     a     spatial     pyramid     pooling     layer     for     normalization                                  the    last    token    when    processing    each    token.    The    hidden    vector    is
+ purpose    followed    by    a    fully    connected    layer    to    transform    matrix                                     used    to    capture    short-term    dependencies    between    tokens    while    the
+ M𝑚         into    vector   𝑉𝑚         and    performs    classification    using    two    hidden                             context    vector    is    used    for    long-term    dependencies.    However,    the
+ layers    and    a    softmax    function    to    produce    a    prediction    score    for   𝑚.                             context    vector    has    problems    capturing    adequate    long-term    depen-
+ The    scores    are    used    as    vulnerability    scores    to    rank    the    functions.                               dencies   given   a   long   sequence   (e.g.,   a   sequence   of   500   tokens)   due   to
+      Step    3:    Fine-grained    Vulnerability    Prediction    by    GNNEx-                                                 its    limited    memory.    Thus,    this    limitation    could    make    the    generated
+ plainer.    IVDetect    leverages    GNNExplainer    [64]    with    a    masking                                              feature    representations    less    meaningful,    which    further    negatively
+ technique    to    explain    which    sub-graphs    contribute    the    most    to    the                                    impact    the    accuracy    of    the    vulnerability    prediction    models.
+
+
+
+
+
+
+
+
+                                                                                                                        610
+
+      Authorized licensed use limited to: Monash University. Downloaded on December 12,2023 at 11:35:10 UTC from IEEE Xplore.  Restrictions apply.
+
+=== PÁGINA FÍSICA 4 ===
+MSR   ’22,   May   23–24,   2022,   Pittsburgh,   PA,   USA                                                                                                                                                                                                                                                                                                                                                                                                                                                               Michael   Fu   and   Chakkrit   Tantithamthavorn
+
+      Limitation             3   :    The    sub-graph    interpretation    of    IVDetect    is                                 common    word    "Image"    was    preserved    and    other    rare    words    were
+ still    coarse-grained.    Third,    in    Step    3,    IVDetect    leverages    GNNEx-                                       split.    The    use    of    BPE    subword    tokenization    will    help    reduce    the    vo-
+ plainer    to    generate    PDG    sub-graph    interpretations    as    fine-grained                                          cabulary   size   when   tokenizing   various   of   function   names   because   it
+ vulnerability   predictions.   Such   sub-graph   interpretations   could   con-                                                will    split    rare    function    name    into    multiple    subcomponents    instead
+ sist    of    multiple    lines    of    code,    and    they    are    not    fine    enough    to    ef-                      of    adding    the    full    function    name    into    dictionary    directly.    In    this
+ fectively     reduce     the     manual     code     inspection     effort.     For     instance                                paper,    we    apply    BPE    approach    on    the    CodeSearchNet    [20]    corpus
+ in    Figure    1,    the    vulnerable    function   𝑢𝑛𝑃𝑟𝑒𝑚𝑢𝑙𝑆𝑘𝐼𝑚𝑎𝑔𝑒𝑇𝑜𝑃𝑟𝑒𝑚𝑢𝑙to    produce    a    subword    tokenizer    that    is    suitable    for    a    pre-trained
+ contains    a    vulnerable    line    (i.e.,    the    ninth    line)    in    which    the    variable                        language    model    of    source    code    corpus.
+ type    was    wrongly    defined    and    further    caused    a    vulnerable    type    of                                        2          LineVul      Model      Building.             In      Step      2   ,      we      build      a      Line-
+ CWE-787    [3].    IVDetect    generated    a    PDG    sub-graph    using    IVDe-                                             Vul    model    based    on    the    BERT    architecture    and    leverage    the    initial
+ tect,    which    pointed    out    the    fifth,    seventh,    eighth,    and    ninth    line                                weights    pre-trained    by    Feng    et    al.    [17].    In    Step               2a   ,    LineVul    per-
+ as     a     vulnerable     pattern.     On     the     other     hand,     our     LineVul     gener-                          forms     a     word     &     positional     encoding     for     the     subword-tokenized
+ ated    a    line-level    interpretation,    which    directly    pinpoint    the    actual                                    function    in    order    to    generate    an    embedding    vector    of    each    word
+ vulnerable    line.                                                                                                             and     its     position     in     the     function.     Then,     in     Step         2b   ,     the     vector     is
+                                                                                                                                 fed    into    the    BERT    architecture,    which    is    a    stack    of    12    Transformer
+ 3                    LINEVUL:     A     LINE-LEVEL     VULNERABILITY                                                            encoder   blocks.   Each   encoder   consists   of   a   multi-head   self-attention
+         PREDICTION     APPROACH                                                                                                 layer    and    a    fully    connected    feed-forward    neural    network.    Finally,
+ In   this   section,   we   present   the   design   rationale   and   the   architecture                                       in   Step     2c   ,   the   output   vector   is   fed   into   a   single   linear   layer   in   order
+ of    our    LineVul    approach.                                                                                               to    perform    binary    classification    for   the    given    function.    We    describe
+      Design   Rationale.      To   address   the   three   key   limitations   of   IVDe-                                       each    step    below.
+ tect,    we    propose    the    architecture    of    our    LineVul,    a    Transformer-                                           2a       Word    &    Positional    Encoding.    Source    code    consists    of    mul-
+ based     line-level     vulnerability     prediction     approach.     First,     instead                                      tiple    tokens    where    the    meaning    of    each    token    heavily    relies    on    the
+ of     using     RNN-based     models     to     generate     representation     of     code,                                   context    (i.e.,    surrounding    tokens)    and    its    position    of    each    token    in
+ we    leverage    BERT    architecture    [15]    with    self-attention    layers    that                                      a    function.    Therefore,    it    is    important    to    capture    the    code    context
+ are     capable     of     capturing     long     term     dependencies     within     a     long                               and    its    position    within    the    function,    especially,    for    function-level
+ sequence    using    dot-product    operations.    Second,    instead    of    using                                            vulnerability    predictions.    The    purpose    of    this    step    is    to    generate
+ project-specific    training    data,    we    leverage    a    CodeBERT    pre-trained                                         encoding     vectors     that     capture     the     semantic     meaning     of     code     to-
+ language    model    to    generate    vector    representation    of    source    code.                                        kens    and    their    positions    in    the    input    sequence.    To    do    so,    for    each
+ The     pre-trained     CodeBERT     language     model     was     pre-trained     on                                          subword-tokenized    token,    we    generate    two    vectors:    (1)    a    word    en-
+ 20GB    of    code    corpus    (i.e.,    CodeSearchNet)    using    a    Robustly    Opti-                                     coding    vector    to    represent    the    meaningful    relationship    between    a
+ mized    BERT    pre-training    approach    [34].    Therefore,    our    approach                                             given    code    token    and    the    other    code    tokens    and    (2)    the    positional
+ is    able    to    capture    more    lexical    and    logical    semantics    for    the    given                            encoding   vector   to   represent   the   position   of   a   given   token   in   the   in-
+ code    input    and    generate    a    more    meaningful    vector    representation.                                        put    sequence.    The    token    encoding    vectors    are    generated    according
+ Third,    instead    of    using    a    GNNExplainer    to    identify    sub-graphs    that                                   to    the    word    embedding    matrix    W |𝑉    |×𝑑𝑡𝑒                        where    |𝑉|    is    the    vocabulary
+ contribute     to     the     predictions,     we     leverage     the     attention     mecha-                                 size    and   𝑑is    an    embedding    size.    The    positional    encoding    vectors
+ nism    of    the    BERT    architecture    to    locate    vulnerable    lines,    which    is                                are    generated    according    to    the    positional    embedding    matrix    W𝑐×𝑑𝑝𝑒
+ finer-grained    than    the    IVDetect    approach.                                                                           where  𝑐is   the   context   size   and  𝑑is   the   embedding   size.   Finally,   both
+      We     design     our     LineVul     approach     as     a     two-step     approach:     to                              the    word    encoding    vector    and    the    positional    encoding    vector    are
+ predict   vulnerable   functions   and   to   locate   vulnerable   lines.   Figure   2                                         concatenated    in    order    to    produce    input    vectors    of    the    Transformer
+ presents    an    overview    architecture    of    our    LineVul    approach.                                                 encoder    blocks.
+                                                                                                                                       2b       A   Stack   of   12   Transformer   Encoders   with   Bidirectional
+ 3.1                    Function-level     Vulnerability     Prediction                                                          Self-attention.    In    this    Step,    the    encoding    vectors    are    fed    into    a
+ The    function-level    vulnerability    prediction    consists    of    2    main    steps:                                   stack     of     12     encoder-only     Transformer     blocks     (i.e.,     the     BERT     ar-
+       1         BPE     Subword     Tokenization.     In     Step                   1   ,     we     leverage     the           chitecture    [15]).    Each    encoder    block    consists    of    two    components,
+ Byte     Pair     Encoding     (BPE)     approach     [44]     to     build     our     tokenizer                               i.e.,    a    bidirectional    multi-head    self-attention    [15]    layer    and    a    fully-
+ with     two     main     steps.          1a        generating     merge     operations     to     deter-                       connected   feed-forward   neural   network.   Below,   we   briefly   describe
+ mine     how     a     word     should     be     split,     and         1b        applying     merge     oper-                 the    multi-head    self-attention    and    the    feed-forward    neural    network.
+ ations    based    on    the    subword    vocabularies.    Specifically,    BPE    will                                             The    multi-head    self-attention    layer    is    used    to    compute    an    atten-
+ split    all    words    into    sequences    of    characters    and    identify    the    most                                tion    weight    of    each    code    token,    that    produces    an    attention    vector.
+ frequent    symbol    pair    (e.g.,    the    pair    of    two    consecutive    characters)                                  The    use    of    bidirectional    self-attention    allows    every    token    to    attend
+ that    should    be    merged    into    a    new    symbol.    BPE    is    an    algorithm    that                           context    to    its    left    and    right.    The    generated    attention    weights    are
+ will    split    rare    words    into    meaningful    subwords    and    preserve    the                                      used     to     indicate     which     code     statements     the     Transformer     model
+ common    words    (i.e.,    will    not    split    the    common    words    into    smaller                                  should    pay    attention    to.    Generally,    the    self-attention    mechanism
+ subwords)    at    the    same    time.    For    instance    in    Figure    1,    the    function                             is    used    to    obtain    global    dependencies    where    the    attention    weights
+ name,   𝑢𝑛𝑃𝑟𝑒𝑚𝑢𝑙𝑆𝑘𝐼𝑚𝑎𝑔𝑒𝑇 𝑜𝑃𝑟𝑒𝑚𝑢𝑙,    will    be    split    into    a    list    of    sub-                                     represent    how    each    code    token    in    the    sequence    is    influenced    by    all
+ words,    i.e.,    ["un",    "Prem",    "ul",    "Sk",    "Image",    "To",    "Prem",    "ul"].    The                         the   other   words   in   the   sequence,   allowing   our   LineVul   approach   to
+
+
+
+
+
+
+
+
+
+                                                                                                                         611
+
+      Authorized licensed use limited to: Monash University. Downloaded on December 12,2023 at 11:35:10 UTC from IEEE Xplore.  Restrictions apply.
+
+=== PÁGINA FÍSICA 5 ===
+LineVul:   A   Transformer-based   Line-Level   Vulnerability   Prediction                                                                                                                                                                                                                                                                                                                                                      MSR   ’22,   May   23–24,   2022,   Pittsburgh,   PA,   USA
+
+
+  Training Phase                                                                      2   Model Building                                   2b   12 x Stacking Transformer Encoders
+
+                         1   Subword Tokenization (BPE)                                  2a                                                               Feed-Forward                                                         2c
+ Static sk_sp<SkImage> …                                                                                                                                                                                                                                                                                                    [“Static”, “sk”, …]Word Embedding &Neural NetworkHidden States
+                                                                                             Positional Encoding          Embedding                                                                              of Encoder 12       Linear
+                                       Codesearchnet
+                                                                       vectors                                                                  …                             Classiﬁer
+                                                                     Subword                           +                                              Bidirectional Multi-Head ead
+     Training Data                                                                               Exp                                            Position #1Self-Attention
+    (Source code+                                                   Tokenized
+     Binary labels)   1a                      1b                    Functions
+                             Merge                 Subword
+                          Operations             Vocabularies
+                                                                                                                                   Function-level Prediction                               or
+                                                                                                                                                                                Vulnerable                                                 Clean
+
+                                       Subword                                                                                 3
+     Testing Data                     Tokenizer                      Subword                                                       Attention                     Line-level
+                                                                    Tokenized                                                                                                                                                           Security
+    (Source code)                                                                                                                   Scores                      Prediction                                                             Analysts
+                                                                    Functions                   LineVul Model
+  Inference Phase
+
+                                                                           Figure    2:    An    overview    architecture    of    our    LineVul.
+
+
+capture    dependencies    between    every    code    token    to    generate    more                                               the    final    encoder    is    meaningful.    We    only    need    a    single    linear    layer
+meaningful    representation.                                                                                                        to    map    the    code    representation    into    binary    label,    i.e.,      ˆ𝑦=   𝑊𝑇  𝑋+  𝑏.
+     The    self-attention    mechanism    [59]    employs    a    concept    of    infor-
+mation    retrieval,    that    computes    the    relevant    scores    of    each    code                                          3.2                    Line-level     Vulnerability     Localization
+token    using    the    dot    product    operation    where    each    token    interacts                                          Given   a   function   predicted   as   vulnerable   by   LineVul,   we   perform   a
+with   other   token   once.   The   self-attention   mechanism   relies   on   three                                                line-level    vulnerability    localization    by    leveraging    the    self-attention
+main    components,    Query    (𝑄),    Key    (𝐾),    and    Value    (𝑉).    The    Query    is                                    mechanism    inside    the    Transformer    architecture    to    locate    the    vul-
+a    representation    of    the    current    code    token    used    to    score    against    all                                nerable   lines.   The    intuition   is   that   tokens   that    are    most   contributed
+the    other    tokens    based    on    their    keys    stored    in    the    Key    vectors.    The                              to    the    predictions    are    likely    to    be    vulnerable    tokens.
+attention    scores    of    each    token    are    obtained    by    taking    the    dot    prod-                                      For  each  subword  token  in  the  function,  in  Step                               3    ,  we  summarize
+uct    between    Query    vectors    and    Key    vectors.    The    attention    scores                                           the    self-attention    scores    from    each    of    the    12    Transformer    encoder
+is    then    normalized    to    probabilities    using    the    Softmax    function    in                                         blocks.   After   obtaining   the   attention   subword-token   scores,   we   then
+order    to    get    the    attention    weights.    Finally,    the    Value    vectors    can    be                               integrate    those    scores    into    line    scores.    We    split    a    whole    function
+updated    by    taking    dot    product    between    the    Value    vectors    and    the                                        into    many    lists    of    tokens    (each    list    of    tokens    represents    a    line)    by
+attention    weight    vectors.    The    self-attention    used    in    our    LineVul    is                                       the   Newline   control   character   (i.e.,   \n).   Finally,   for   each   list   of   token
+a    scaled    dot-product    self-attention,    in    which    the    attention    scores                                           scores,    we    summarize    it    into    one    attention    line    score    and    rank    line
+are    divide    by    √𝑑𝑘 .    The    self-attention    mechanism    we    adopted    can                                           scores    in    a    descending    order.
+be    summarized    by    the    following    equation:
+
+                                                                                        𝑇                                            4                    EXPERIMENTAL     DESIGN
+                        𝐴𝑡𝑡𝑒𝑛𝑡𝑖𝑜𝑛(𝑄, 𝐾,𝑉)         =    softmax( 𝑄𝐾√                        )𝑉.                                       In     this     section,     we     present     the     motivation     of     our     three     research
+                                                                                     𝑑𝑘                                              questions,    our    studied    dataset,    and    our    experimental    setup.
+     To    capture    richer    semantic    meanings    of    the    input    sequence,    we                                        4.1                    Research     Questions
+used     multi-head     mechanism     to     realize     the     self-attention,     which
+allows  the  model  to  jointly  attend  to  information  from  different  code                                                     To     evaluate     our     LineVul     approach,     we     formulate     the     following
+representation    subspaces    at    different    positions.    For  𝑑-dimension   𝑄,                                                three    research    questions.
+𝐾,    and   𝑉,    we    split    those    vectors    into   ℎheads    where    each    head    has                                        (RQ1)   How    accurate   is    our   LineVul   for   function-level    vul-
+𝑑                                                                                                                                    nerability    predictions?    Recently,    Li    et    al.[                30]    proposed    IVDetect,
+ℎ  -dimension.    After    all    of    the    self-attention    operation,    each    head                                          a    state-of-the-art    fine-grained    vulnerability    predictions    approach.
+will    then    be    concatenated    back    again    to    feed    into    a    fully-connected                                    However,    as    mentioned    in    Section    2.1,    IVDetect    has    three    key    limi-
+feed-forward    neural    network    including    two    linear    transformations                                                   tations,   leading   to   inaccurate   and   coarse-grained   predictions.   There-
+with   a   ReLU   activation   in   between.   The   multi-head   mechanism   can
+be    summarized    by    the    following    equation:                                                                              fore,   we   propose   our   LineVul   approach   to   address   these   challenges.
+                                                                                                                                    Thus,   we   investigate   if   the   accuracy   of   our   LineVul   outperforms   the
+                                                                                                                                     state-of-the-art    function-level    vulnerability    prediction    approaches.
+            𝑀𝑢𝑙𝑡𝑖𝐻𝑒𝑎𝑑(𝑄, 𝐾,𝑉)         =   𝐶𝑜𝑛𝑐𝑎𝑡(head1,  ...,   headℎ )𝑊𝑂   ,                                                             (RQ2)    How    accurate    is    our    LineVul    for    line-level    vulnera-
+                                                       𝑄                                                                             bility    localization?    Line-level    vulnerability    prediction    is    needed
+where   ℎ𝑒𝑎𝑑𝑖   =    Attention(𝑄𝑊𝑖       ,    𝐾𝑊𝑖       ,   𝑉𝑊𝐾                 𝑖      )    and   𝑊𝑂         is    used    to𝑉       to    help    developers    identify    the    fine-grained    locations    of    vulnera-
+linearly    project    to    the    expected    dimension    after    concatenation.                                                 ble    lines,    instead    of    wasting    their    time    inspecting    non-vulnerable
+      2c       Single    Linear    Layer.    Multiple    linear    transformations    with                                           lines.    Although    IVDetect    can    identify    the    sub-graphs    of    a    vulner-
+non-linear    activation    functions    (i.e.,    ReLU)    are    built    in    the    stacking                                    able    function,    such    sub-graphs    still    consist    of    many    lines    of    code
+Transformer   encoder   blocks,   therefore,   the   representation   output   by                                                    that    security    analysts    need    to    inspect,    which    is    still    coarse-grained.
+
+
+
+
+
+
+
+                                                                                                                            612
+
+     Authorized licensed use limited to: Monash University. Downloaded on December 12,2023 at 11:35:10 UTC from IEEE Xplore.  Restrictions apply.
+
+=== PÁGINA FÍSICA 6 ===
+MSR   ’22,   May   23–24,   2022,   Pittsburgh,   PA,   USA                                                                                                                                                                                                                                                                                                                                                                                                                                                               Michael   Fu   and   Chakkrit   Tantithamthavorn
+
+ Thus,     we     investigate     the     accuracy     of     our     LineVul     for     line-level                                                                                    /summationdisplay.1
+ vulnerability    predictions.                                                                                                                                    𝐻(𝑝, 𝑞)         =    −       𝑝(𝑥)    𝑙𝑜𝑔𝑞  (𝑥)                                                                                                              (1)
+      (RQ3)    What    is    the    cost-effectiveness    of    our    LineVul    for                                                                                                     𝑥
+ line-level    vulnerability    localization?    One    of    the    primary    objec-                                           Line-level    Model    Implementation.                               To  implement  our  LineVul  ap-
+ tives    of    vulnerability    prediction    is    to    help    security    analysts    locate                                proach    for    the    line-level    vulnerability    prediction,    we    use    the    self-
+ vulnerable    lines    in    a    cost-effective    manner    by    uncovering    the    max-                                   attention   matrix   returned   by   the   fine-tuned   model   during   inference.
+ imum     number     of     vulnerabilities     with     the     least     amount     of     effort.                             We   summarize   the   dot   product   attention   score   for   each   token,   hence,
+ Thus,    the    amount    of    effort    requires    to    inspect    source    code    becomes                                every    token    has    one    attention    score.    We    integrate    tokens    into    lines
+ a   critical   concern   when   security   analysts   decide   to   deploy   advanced                                           and    summarized    the    score    of    each    token    to    get    the    line    scores.    The
+ approaches    in    practice.    Thus,    we    investigate    the    cost-effectiveness                                        line    scores    are    then    used    to    prioritize    the    lines    where    a    higher    line
+ of    our    LineVul    for    line-level    vulnerability    predictions.                                                      score    represents    that    the    line    is    likely    to    be    a    vulnerable    line.
+                                                                                                                                 Hyper-Parameter    Settings    for    Fine-tuning.                                    For     the     model     ar-
+ 4.2                    Studied     Dataset                                                                                      chitecture    of    our    LineVul    approach,    we    use    the    default    setting    of
+ We   use   the   benchmark   dataset   provided   by   Fan   et   al.   [16]   due   to   the                                   CodeBERT,    i.e.,    12    Transformer    Encoder    blocks,    768    hidden    size,
+ following    reasons.    First    is    to    establish    a    fair    comparison    with    the                               and    12    attention    heads.    We    follow    the    same    fine-tuning    strategy
+ IVDetect    approach.    Seconds    is    to    evaluate    our    line-level    vulnerabil-                                    provided    by    Feng    et    al.    [17].    During    training,    the    learning    rate    is
+ ity    approach,    since    Fan    et    al.    [16]’s    dataset    is    the    only    vulnerability                        set    to    2e-5    with    a    linear    schedule    where    the    learning    rate    decays
+ dataset    that    provides    line-level    ground-truths    (i.e.,    which    lines    in                                    linearly    throughout    the    training    process.    We    use    backpropagation
+ a    function    are    vulnerable).    On    the    other    hand,    other    existing    vul-                                with    AdamW    optimizer    [35]    which    is    widely    adopted    to    fine-tune
+ nerability    datasets    (i.e.,    Devign    [65],    Reveal    [12])    only    provide    the                                Transformer-based    models    to    update    the    model    and    minimize    the
+ ground-truths   at   the   function   level,   but   not   the   line   level—which   are                                       loss    function.
+ not  suitable  for  our  scope.  The  Fan  et  al.’s  dataset  is  one  of  the  largest                                        5                    EXPERIMENTAL     RESULTS
+ vulnerability    datasets    that    includes    line-level    ground-truths.    The                                            In    this    section,    we    present    the    experiment    results    with    respect    to
+ dataset    is    collected    from    348    open-source    Github    projects,    which                                        our    three    research    questions.
+ includes    91    different    CWEs    from    2002    to    2019,    188,636    C/C++    func-
+ tions     with     a     ratio     of     vulnerability     functions     of     5.7%     (i.e.,     10,900                     (RQ1)     How     accurate     is     our     LineVul     for
+ vulnerable    functions),    and    5,060,449    LOC    with    a    ratio    of    vulnerable
+ lines    of    0.88%    (i.e.,    44,603    vulnerable    lines).    Among    the    10,900    vul-                             function-level     vulnerability     predictions?
+ nerable   functions,   the   ratio   of   vulnerable   lines   varies   from   2.5%   (1st                                      Approach.              To      answer      this      RQ,      we      focus      on      the      function-level
+ quantile)    -    20%    (3rd     quantile)    with    a    median    of    7%.                                                 vulnerability    predictions    and    compare    our    LineVul    with    the    other
+                                                                                                                                 seven    baseline    models    described    as    follows:
+ 4.3                    Experimental     Setup                                                                                         (1)       IVDetect    [30]    leverages    Feature-Attention    Graph    Convolu-
+ Data    Splitting.            Similar    to    Li    et    al.    [30],    we    use    the    same    data    split-                       tional   Network   (GCN)   for   vulnerability   predictions   using   five
+ ting    approach,    i.e.,    the    whole    dataset    is    split    into    80%    of    training                                       types    of    feature    representation    (i.e.,    sequence    of    sub-tokens,
+ data,    10%    of    validation    data,    and    10%    of    testing    data.                                                           AST    sub-tree,    variable    names    and    types,    data    dependency
+ Function-level    Model    Implementation.To  implement  our  Line-                                                                         context,    and    control    dependency    context)    from    the    source
+ Vul    approach    for    the    function-level    vulnerability    prediction,    we                                                       code;
+ mainly     use     two     Python     libraries,     i.e.,     Transformers     [62]     and     Py-                                  (2)       ReVeal  [12]  leverages  a  Gated  Graph  Neural  Network  (GGNN)
+ torch     [13].     The     Transformers     library     provides     API     access     to     the                                         in    order    to    learn    the    graph    properties    of    source    code;
+ transformer-based    model    architectures    and    the    pre-trained    weight,                                                   (3)       Devign  [65]  leverages  a  Gated  Graph  Neural  Network  (GGNN)
+ while     the     PyTorch     library     supports     the     computation     during     the                                               to    automatically    learn    the    graph    properties    of    source    code
+ training    process    (e.g.,    back-propagation    and    parameter    optimiza-                                                          (i.e.,    AST,    CFG,    DFG,    and    code    sequences);
+ tion).   We   download   the   CodeBERT   tokenizer   and   CodeBERT   model                                                          (4)       SySeVR    [32]    uses    code    statements,    program    dependencies,
+ pre-trained    by    Feng    et    al.    [17].    We    use    our    training    dataset    to    fine-                                   and    program    slicing    as    features    for    several    RNN-based    mod-
+ tune    the    pre-trained    model    to    get    suitable    weights    for    our    vulner-                                            els    (LR,    MLP,    DBN,    CNN,    LSTM,    etc.)    for    classification;
+ ability    prediction    task.    The    model    was    fine-tuned    on    an    NVIDIA                                             (5)       VulDeePecker    [33]    leverages    a    Bidirectional    LSTM    network
+ RTX    3090    graphic    card    and    the    training    time    was    around    7    hours                                             for    statement-level    vulnerability    predictions;
+ and    10    minutes.    As    shown    in    Equation    1,    the    Cross    Entropy    Loss                                       (6)       Russell    et    al.    [43]    leverages    an    RNN-based    model    for    vulner-
+ was    used    to    update    the    model    and    optimize    between    the    function-                                               ability    predictions.
+ level    predicted    values    and    the    ground-truth    labels,    where   𝑥is    the                                           (7)       BoW+RF     (LineDP/JITLine)     uses     bag     of     words     as     features
+ number    of    classes,    𝑝is    the    ground    truth    probability    distribution                                                    together    with    a    Random    Forest    model    for    software    defect
+ (one-hot),   and  𝑞is   the   predicted   probability   distribution.   To   retrieve                                                       predictions    [38,    60].
+ the    best    fine-tuned    weight,    we    used    the    validation    set    to    monitor                                      Similar     to     Li     et     al.     [30],     we     evaluate     our     LineVul     with     three
+ the     training     process     by     epoch,     and     the     best     model     was     selected                          binary    classification    measures    i.e.,    Precision,    Recall,    and    F1-score.
+ based    on    the    optimal    F1-score    against    the    validation    set    (not    the                                 Precision  measures  the  proportion  of  the  functions  that  are  correctly
+ testing    set).                                                                                                                predicted    as    vulnerable    and    the    number    of    functions    predicted    as
+
+
+
+
+
+
+
+
+                                                                                                                          613
+
+      Authorized licensed use limited to: Monash University. Downloaded on December 12,2023 at 11:35:10 UTC from IEEE Xplore.  Restrictions apply.
+
+=== PÁGINA FÍSICA 7 ===
+LineVul:   A   Transformer-based   Line-Level   Vulnerability   Prediction                                                                                                                                                                                                                                                                                                                                                      MSR   ’22,   May   23–24,   2022,   Pittsburgh,   PA,   USA
+
+
+
+
+
+                                               F1                                                                             Precision                                                                             Recall
+       1.00       91%                                                                      1.00       97%                                                                      1.00
+                                                                                                                                                                                          86%
+       0.75                                                                                0.75                                                                                0.75               74%     74%     72%
+
+       0.50                                                                                0.50               48%                                                              0.50                                       52%     49%     48%
+
+                          35%     30%     27%                                                                                                                              24%
+       0.25                                       26%     25%             19%              0.25                       23%     19%                                              0.25
+                                                                                                                                      18%     16%     15%     12%                                                                                  17%
+
+       0.00                                                                                0.00                                                                                0.00
+                     T                                                      er                           T                                                       er                          T                                       er
+                                                                         eck                                                       Devign                    eck                               Reveal                            eck
+          CodeBERIVDetect   RevealSySeVR  DevignBoW+RF                                        CodeBERBoW+RFIVDetect   Reveal                     SySeVR                           CodeBER            SySeVRIVDetect  Devign                  BoW+RF
+                                                        Russell et al.VulDeeP                                                        Russell et al.VulDeeP                                                             VulDeePRussell et al.
+
+
+
+Figure    3:    (RQ1)    The    experimental    results    of    our    LineVul    and    the    seven    baseline    comparisons    for    function-level    vulnerability
+prediction.    (↗)    Higher    F1,    Precision,    Recall    =    Better.
+
+
+vulnerable    by    the    model,    which    is    computed    as                     𝑇𝑃𝑇𝑃 +𝐹𝑃          .    Recall    mea-       the    RNN-based    approaches    (e.g.,    RNN,    LSTM,    GRU)    used    as    a    base-
+sures   the   proportion   of   the   functions   that   are   correctly   predicted   as                                          line     in     prior     studies     (1)     are     trained     on     a     project-specific     dataset;
+vulnerable    and    the    number    of    actual    vulnerable    functions,    which                                            and    (2)    suffer    from    capturing    the    long-term    dependencies    of    source
+is     computed     as                               𝑇𝑃(𝑇𝑃 +𝐹𝑁          )   .     F-measure     is     a     harmonic     mean     of     pre-code,    as    discussed    in    Section    2.1    (cf.    Limitations         1   , 2   ).    Different
+cision    and    recall,    which    is    computed    as      2×Precision×Recall                                                  from    prior    studies,    our    results    confirm    that    our    LineVul    approach
+                                                                             Precision+Recall                                 .Weuseis    more    accurate    than    the    state-of-the-art    approaches,    highlighting
+the    probability    threshold    of    0.5    as    a    cut-off    value    to    indicate    the                               the   substantial   benefits   of   the   use   of   the   CodeBERT   pre-trained   lan-
+prediction    label.    The    values    of    these    measures    range    from    0    to    1                                  guage    model    trained    on    million    GitHub    repositories    and    the    use    of
+where    1    indicates    the    highest    accuracy.                                                                             Transformer    architecture    to    capture    the    long-term    dependencies    of
+Results.         Figure    3    presents    the    experimental    results    of    our    Line-                                   source   code,   leading   to   significant   improvement   of   the   vulnerability
+Vul      and      the      seven      baseline      approaches      according      to      our      three                          prediction    approach    at    the    function    level.
+evaluation    measures    (i.e.,    F1,    Precision,    Recall).
+     Our   LineVul   achieves   an   F-measure   of   0.91,   which   is   160%-
+379%    better    than    the    state-of-the-art    approaches    with    a    me-                                                (RQ2)     How     accurate     is     our     LineVul     for     line-level
+dian      improvement      of      250%.      In      terms      of      F-measure,      Figure      3                             vulnerability     localization?
+shows    that    LineVul    achieves    the    highest    F-measure    of    0.91,    while                                        Approach.To   answer   this   RQ,   we   focus   on   evaluating   the   accuracy
+the    state-of-the-art    approaches    achieve    an    F-measure    of    0.19-0.35.
+This    finding    shows    that    LineVul    substantially    improves    the    state-                                          of    the    line-level    vulnerability    localization.    Thus,    we    start    from    the
+of-the-art    by    160%-379%    with    a    median    improvement    of    250%.    In                                           vulnerable    functions    that    are    correctly    predicted    by    our    approach.
+terms    of    Precision,    Figure    3    shows    that    LineVul    achieves    the    high-                                   Then,    we    perform    the    Step                3        (see    Section    3.2)    to    identify    which
+est    Precision    of    0.97,    while    the    state-of-the-art    approaches    achieve                                       lines    are    likely    to    be    vulnerable    for    a    given    function    predicted    as
+a    Precision    of    0.12-0.48.    This    finding    shows    that    LineVul    substan-                                      vulnerable.    Thus,    each    line    in    the    given    function    will    have    their
+tially    improves    the    state-of-the-art    by    102%-708%    with    a    median                                            own    score    (i.e,    line-level    score).    Since    other    approaches    in    RQ1    are
+improvement    of    439%.    In    terms    of    Recall,    Figure    3    shows    that    Line-                                not    designed    for    the    line-level    localization,    we    do    not    compare    our
+Vul    achieves    the    highest    Recall    of    0.86,    while    the    state-of-the-art                                     approach    with    them.    Instead,    we    compare    our    LineVul    approach
+approaches    achieve    a    Recall    of    0.17-0.86.    This    finding    shows    that                                       with    5    other    model-agnostic    techniques    that    are    commonly    used
+LineVul    substantially    improves    the    state-of-the-art    by    16%-406%                                                  for    deep    learning    models    as    follows:
+with    a    median    improvement    of    65%.
+     In      other      words,      our      results      demonstrate      that      the      use      of      se-                       (1)       Layer    Integrated    Gradient    (LIG)    [48]    is    an    axiomatic    path-
+mantic    and    syntactic    features    with    a    Transformer    architec-                                                                 attribution    method    that    attributes    an    importance    score    to
+ture    outperforms    existing    work    that    use    graph    properties    of                                                             each   input   feature   by   approximating   the   integral   of   gradients
+source    code.    Our    finding    is    different    from    the    findings    of    many                                                   of    the    model’s    output    with    respect    to    the    inputs    along    the
+recent   studies   who   found   that   the   use   of   graph   properties   (e.g.,   Data                                                     path    (straight    line)    from    given    baselines    to    inputs.;
+Dependency   Graph,   Abstract   Syntax   Tree,   Control   Flow   Graph,   and                                                          (2)       Saliency      [47]      takes      a      first-order      Taylor      expansion      of      the
+Data   Flow   Graph)   often   outperform   the   use   of   syntactic   and   seman-                                                           network    at    the    input,    and    the    gradients    are    simply    the    co-
+tic   features   for   vulnerability   predictions   [12,   29,   65].   This   is   because                                                    efficients    of    each    feature    in    the    linear    representation    of    the
+                                                                                                                                                model.    The    absolute    value    of    these    coefficients    can    be    taken
+                                                                                                                                                to    represent    feature    importance.;
+
+
+
+
+
+
+
+
+                                                                                                                           614
+
+     Authorized licensed use limited to: Monash University. Downloaded on December 12,2023 at 11:35:10 UTC from IEEE Xplore.  Restrictions apply.
+
+=== PÁGINA FÍSICA 8 ===
+MSR   ’22,   May   23–24,   2022,   Pittsburgh,   PA,   USA                                                                                                                                                                                                                                                                                                                                                                                                                                                               Michael   Fu   and   Chakkrit   Tantithamthavorn
+
+       (3)       DeepLift     [11,     46]     compares     the     activation     of     each     neuron                                                 Top−10 Accuracy                                                      IFA
+
+                                                                                                                                               65%                                                   20
+             to    its    reference    activation    and    assigns    contribution    scores
+                                                                                                                                        0.6           58%                        57%                        57%
+             according    to    the    difference;                                                                                                                         53%    52%                15
+       (4)       DeepLiftSHAP    [36]    extends    DeepLift    algorithm    and    approx-                                             0.4
+             imates    SHAP    values    using    DeepLift    approach;                                                                                                                              10
+       (5)       GradientSHAP    [36]    approximates    SHAP    values    by    comput-                                                0.2                                              15%          5
+             ing   the   expectations   of   gradients   by   randomly   sampling   from
+             the    distribution    of    baselines;                                                                                    0.0                                                           0
+       (6)       CppCheck   [2]   is   a   static   code   analysis   tool   for   the   C   and   C++                                           ul                        LIG                              ul                                 LIG
+                                                                                                                                             LineV Saliency        DeepLift                              LineV        DeepLift        Saliency   CppCheck
+             programming    languages.                                                                                                                       DeepLiftSHAP  GradientSHAPCppCheck            DeepLiftSHAP         GradientSHAP
+      To    evaluate    our    LineVul    approach    for    line-level    vulnerability
+ localization,    we    use    the    following    two    measures    described    below:                                           Figure     4:     (RQ2)     The     Top-10     Accuracy     and     IFA     of     our     self-
+        1)       Top-10  Accuracy  measures  the  percentage  of  vulnerable  func-                                                 attention    approach    and    five    other    methods.    (↗)    Higher    Top-
+             tions     where     at     least     one     actual     vulnerable     lines     appear     in                         10    Accuracy    =    Better,    (↘)    Lower    IFA    =    Better.
+             the    top-10    ranking.    The    intuition    is    that    security    analysts
+             may   ignore   line-level   recommendations   if   they   do   not   appear
+             in    the    top-10    ranking,    similar    to    any    recommendation    sys-
+             tems    [37].    Thus,    top-10    accuracy    will    help    security    analysts                                   explain    the    prediction    of    Transformer-based    models,    highlighting
+             better   understand   the   accuracy   of   the   line-level   vulnerability                                           the    substantial    benefits    of    the    attention    mechanism    for    line-level
+             localization    approaches.                                                                                            vulnerability    localization.
+        2)       Initial    False    Alarm    (IFA)    measures    the    number    of    incorrectly
+             predicted     lines     (i.e.,     non-vulnerable     lines     incorrectly     pre-
+             dicted    as    vulnerable    or    false    alarms)    that    security    analysts                                   (RQ3)     What     is     the     cost-effectiveness     of     our
+             need    to    inspect    until    finding    the    first    actual    vulnerable    line                              LineVul     for     line-level     vulnerability     localization?
+             for    a    given    function.    IFA    is    calculated    as    the    total    number                              Approach.              To    answer    this    RQ,    we    focus    on    evaluating    the    cost-
+             of    false    alarms    that    security    analysts    have    to    inspect    until                                effectiveness    of    our    LineVul    approach    for    line-level    vulnerability
+             finding    the    first    actual    vulnerable    line.    A    low    IFA    value    indi-                          localization.    In    the    real-world    scenario,    the    most    cost-effective    line-
+             cates    that    security    analysts    only    spend    less    amount    of    effort                               level    vulnerability    prediction    approaches    should    help    security    ana-
+             in    inspecting    false    alarms.                                                                                   lysts    to    find    the    highest    number    of    actual    vulnerable    lines    with    the
+ Results.          Figure    4    presents    the    experimental    results    of    our    Line-                                  least    amount    of    effort.    Thus,    let’s    assume    that    the    18,864    functions
+ Vul    and    the    five    baseline    approaches    according    to    our    two    evalua-                                    (i.e.,    504,886    LOC)    in    the    testing    dataset    are    functions    that    security
+ tion    measures    (i.e.,    Top-10    Accuracy    and    IFA).                                                                   analysts    have    to    inspect.    To    measure    the    cost-effectiveness    of    our
+      Our    LineVul    achieves    a    Top-10    Accuracy    of    0.65,    which    is                                           approach,     we     first     obtain     the     predictions     from     our     LineVul     ap-
+ 12%-25%    more    accurate    than    the    other    baseline    approaches.                                                     proach.     Then,     we     sort     the     predicted     functions     according     to     the
+ In   terms   of   Top-10   Accuracy,   Figure   4   shows   that   LineVul   achieves                                              predicted   probability.   Among   the   functions   predicted   as   vulnerable,
+ the    highest    Top-10    Accuracy    of    0.65    while    the    state-of-the-art    ap-                                      we    sort    the    lines    according    to    the    line    score    obtained    from    Step                     3
+ proaches    achieve    a    Top-10    Accuracy    of    0.52-0.58.    In    terms    of    IFA,                                    of    our    approach    in    descending    order.    Thus,    lines    with    the    highest
+ Figure    4    shows    that    LineVul    achieves    the    lowest    median    IFA    of    1                                   score    (i.e.,    likely    to    be    vulnerable)    will    be    ranked    at    the    top.    Then,
+ while    the    baseline    approaches    achieve    a    median    IFA    of    3-4.    This                                      we    evaluate    the    cost-effectiveness    using    the    following    measures:
+ finding    shows    that    LineVul    substantially    improves    the    baseline
+ approaches    by    67%-75%    with    a    median    improvement    of    67%.    These                                                  1)       Effort@20%Recall    measures    the    amount    of    effort    (measured
+ results    confirm    that    our    LineVul    approach    is    more    accurate    than                                                     as    LOC)    that    security    analysts    have    to    spend    to    find    out    the
+ the    baseline    approaches    for    line-level    vulnerability    localization.                                                           actual   20%   vulnerable   lines.   It   is   computed   as   total   LOC   used
+      In      other      words,      our      results      demonstrate      that      the      attention                                        to    locate    20%    of    the    actual    vulnerable    lines    divided    by    total
+ mechanism    outperforms    other    model-agnostic    techniques.                                                                             LOC     in     the     testing     set.     A     low     value     of     Effort@20%Recall
+ In    the    line-level    defect    prediction    literature,    prior    studies    [38,    60]                                              indicates      that      the      security      analysts      may      spend      a      smaller
+ often     leverage     a     LIME     model-agnostic     technique     [42]     to     explain                                                 amount    of    effort    to    find    the    20%    actual    vulnerable    lines.
+ the     predictions     of     DL/ML-based     defect     prediction     models.     How-                                                 2)       Recall@1%LOC   measures   the   proportion   of   actual   vulnerable
+ ever,    such    model-agnostic    techniques    are    considered    as    a    extrinsic                                                     lines   that   can   be   found   (i.e.,   correctly   predicted)   given   a   fixed
+ model-agnostic    technique    (i.e,.    a    model-agnostic    is    applied    to    ex-                                                     amount    of    effort    (i.e.,    the    top    1%    of    LOC    of    the    given    testing
+ plain     a     black-box     DL/ML     model     after     the     model     is     trained),     not                                         dataset).    Recall@1%LOC    is    computed    as    the    total    number    of
+ an    intrinsic    model-agnostic    technique    (i.e.,    a    DL/ML    model    that    is                                                  correctly    located    vulnerable    lines    within    the    top    1%    lines    in
+ interpretable    by    itself    so    extrinsic    model-agnostic    techniques    are                                                        the    testing    set    divided    by    total    number    of    actual    vulnerable
+ not    needed    to    apply    afterward).    Although    it    is    widely    known    that                                                 lines    in    the    testing    set.    A    high    value    of    Recall@1%LOC    in-
+ deep     learning     is     complex     and     hardly     interpretable,     this     paper     is                                           dicates    that    an    approach    can    rank    many    actual    vulnerable
+ among     the     first     attempt     to     leverage     the     attention     mechanism     to                                             lines    at    the    top.
+
+
+
+
+
+
+
+
+                                                                                                                            615
+
+       Authorized licensed use limited to: Monash University. Downloaded on December 12,2023 at 11:35:10 UTC from IEEE Xplore.  Restrictions apply.
+
+=== PÁGINA FÍSICA 9 ===
+LineVul:   A   Transformer-based   Line-Level   Vulnerability   Prediction                                                                                                                                                                                                                                                                                                                                                      MSR   ’22,   May   23–24,   2022,   Pittsburgh,   PA,   USA
+
+                                                                                                                                        Table   1:   The   contribution   of   each   component   of    LineVul   for
+                          Effort@20%Recall                                                Recall@1%LOC                                  function-level    vulnerability    predictions.
+     15                                                            0.25    24%
+                                                       13%
+                                                                   0.20           19%
+     10                                                            0.15                                                                                                 Model                                                                                                                                F1                        Precision                 Recall
+                                                                                         13%                       13%                       13%13%
+                                                                   0.10                                                                    LineVul    (BPE+PretrainingCode+BERT)                 0.91                                 0.97                                      0.86
+       5
+                                                                   0.05                                               4%                             BPE+No    Pretraining+BERT                                                     0.80                                    0.86                                         0.75
+           0.75%               1.06%                                                                                                               1.51%1.51%               1.51%                                                                  1.6%
+       0                                                           0.00                                                                      Word-Level+PretrainingCode+BERT                          0.42                                    0.55                                         0.34
+
+             ul                               LIG                            ul                             LIG                               Word-Level+No    Pretraining+BERT                             0.39                                    0.43                                         0.36
+
+         LineV         DeepLift       Saliency                           LineV        DeepLift             SaliencyCppCheck                                          IVDetect                                                                                                                  0.35                                    0.23                                         0.72
+
+                          DeepLiftSHAP   GradientSHAPCppCheck                            DeepLiftSHAPGradientSHAP
+
+
+ Figure    5:    (RQ3)    The    Effort@20%Recall    and    Recall@1%LOC
+ of    our    self-attention    approach    and    five    other    methods.    (↘)                                                          We   find   that  the   BPE   component   of   our   LineVul   is   the   most
+ Lower  Effort@20%Recall  =  Better,  (↗)  Higher  Recall@1%LOC                                                                         important.  Within  our  LineVul,  the  BPE  component  contributes  to
+ =    Better.                                                                                                                           53.8%   of   the   F-measure.   When   comparing   between   (BPE+Pre+BERT
+                                                                                                                                        and    Word-level+Pre+BERT)    where    the    BPE    component    is    changed
+ Results.          Figure    5    presents    the    experimental    results    of    our    Line-                                      to    a    word-level    tokenizer,    we    observe    a    performance    decrease    from
+ Vul    and    the    five    baseline    approaches    according    to    our    two    evalua-                                        0.91    to    0.42,    accounting    for    53.8%.    This    finding    indicates    that    BPE
+ tion    measures    (i.e.,    Effort@20%Recall    and    Recall@1%LOC).                                                                subword-level    tokenization    is    very    beneficial    for    source    code    pre-
+      Our   LineVul   achieves   an   Effort@20%Recall   of   0.75,   which                                                             processing    than    word-level    tokenization.    We    suspect    that    source
+ is    29%-53%    less    than    other    baseline    approaches.    In    terms    of                                                 code     often     contains     uncommon     keywords     (e.g.,     variable     names,
+ Effort@20%Recall,   Figure   5   shows   that   LineVul   achieves   the   lowest                                                      identifies)      than      the      natural      languages      (e.g.,      English).      Thus,      lan-
+ Effort@20%Recall    of    0.75%    while    the    baseline    approaches    achieve                                                   guage    models    of    code    may    not    be    to    generate    the    most    meaningful
+ an   Effort@20%Recall   of   1.06%-1.60%.   It   means   that   security   analysts                                                    vector    representation    for    such    uncommon    keywords    in    the    source
+ may    spend    effort    to    inspect    0.75%    of    the    total    LOC    in    the    testing                                  code      when      using      word-level      tokenization.      Instead,      when      using
+ dataset   (0.75%*504,886=3,786   LOC)   in   order   to   find   20%   of   the   actual                                               BPE    subword-level    tokenization,    such    uncommon    words    (e.g.,    [’un-
+ vulnerable    lines    (i.e.,    20%Recall).    Thus,    this    finding    indicates    that                                          PremulSkImageToPremul’])    are    broken    into    common    subwords    (e.g.,
+ our   approach   may   help   security   analysts   spend   less   amount   of   effort                                                [’un’,     ’Prem’,     ’ul’,     ’Sk’,     ’Image’,     ’To’,     ’Prem’,     ’ul’]).     Karampatsis     et
+ in    order    to    find    the    same    amount    of    actual    vulnerable    lines.                                             al.    [27]    conduct    a    study    of    how    different    modelling    choices    affects
+      In  terms  of  Recall@1%LOC,  Figure  5  shows  that  LineVul  achieves                                                           the    model    performance    of    language    models    of    source    code    and    find
+ the    highest    Recall@1%LOC    of    0.24,    while    the    baseline    approaches                                                the    advancement    of    leveraging    BPE    model    for    language    modeling
+ achieve    a    Recall@1%LOC    of    0.13-0.19,    indicating    that    LineVul    sub-                                              of    source    code.    Similar    to    their    results,    we    find    that    the    use    of    BPE
+ stantially    improves    the    baseline    approaches    by    26%-85%    with    a    me-                                           will   not   only   reduce   the   size   of   the   unique   vocabulary   but   also   help
+ dian    improvement    of    85%.    This    finding    implies    that    our    approach                                             the    language    models    of    code    to    better    understand    the    relationship
+ may   help   security   analysts   to   find   more   actual   vulnerable   lines   than                                               between    a    given    subword    and    their    surrounding    subwords    in    or-
+ other     baseline     approaches     given     the     same     amount     of     effort     that                                     der    to    generate    more    meaningful    vector    representation,    achieving
+ they    have    to    inspect.                                                                                                         higher    accuracy.
+                                                                                                                                             Within    our    LineVul,    the    pre-training    component    contributes    to
+ 6                    DISCUSSION                                                                                                        12.1%   of   the   F-measure.   When   comparing   between   (BPE+Pre+BERT
+                                                                                                                                        and   BPE+No   Pre+BERT)   where   the   pre-training   component   is   elim-
+ 6.1                    Why     LineVul     performs     so     well     for                                                            inated,    we    observe    a    performance    decrease    from    0.91    to    0.80,    ac-
+             vulnerability     predictions?                                                                                             counting   for   12.1%.   This   is   because   the   pre-training   language   model
+ We    conduct    an    ablation    study    on    function-level    vulnerability    pre-                                              of    code    has    learnt    the    relationship    of    tokens    from    million    GitHub
+ diction     to     quantify     the     contributions     of     the     components     of     our                                     repositories,     therefore,     generating     more     meaningful     vector     rep-
+ LineVul    approach.    Generally,    our    LineVul    approach    consists    of    3                                                resentation    than    the    approach    without    pre-training.    This    finding
+ components:    BPE+PretrainingCode+BERT.    To    understand    the    con-                                                            confirms    that    the    use    of    pre-training    language    model    of    code    (i.e.,
+ tribution    of    each    component,    we    alter    each    of    the    components    as                                          CodeBERT)    to    generate    vector    representation    outperforms    an    ap-
+ follow    (highlighted    as    underline):                                                                                            proach    that    is    only    trained    on    project-specific    dataset.
+         •       Word-Level+PretrainingCode+BERT:   Remove  the  BPE  subword                                                                Within    our    LineVul,    BPE    component    combined    with    the    pre-
+             tokenization,    but    use    a    word-level    tokenization    instead.                                                 training    component    contribute    to    57.1%    of    the    F-measure.    When
+         •       BPE+No    Pretraining+BERT:    Remove    the    pretraining,    but    use                                             comparing  between  (BPE+Pre+BERT  and  Word-level+No  Pre+BERT)
+             non-pretrained    weights    to    initialize    BERT    instead.                                                          where    both    BPE    and    Pre-training    are    altered,    we    observe    a    perfor-
+         •       Word-Level+No    Pretraining+BERT:    Remove    the    BPE    and    the                                               mance    decrease    from    0.91    to    0.39,    accounting    for    57.1%.
+                                                                                                                                             Last    but    not    least,    we    find    that    our    LineVul    that    leverages
+             pre-training   on   source   code   components,   but   use   Word-Level                                                   both  BPE  and  pre-training  provides  the  best  F-measure  among
+             tokenization    and    non-pretrained    weights    to    initialize    BERT.                                              all    variants,    which    is    160%    better    than    IVDetect,    highlighting    the
+
+
+
+
+
+
+
+
+                                                                                                                                616
+
+       Authorized licensed use limited to: Monash University. Downloaded on December 12,2023 at 11:35:10 UTC from IEEE Xplore.  Restrictions apply.
+
+=== PÁGINA FÍSICA 10 ===
+MSR   ’22,   May   23–24,   2022,   Pittsburgh,   PA,   USA                                                                                                                                                                                                                                                                                                                                                                                                                                                               Michael   Fu   and   Chakkrit   Tantithamthavorn
+
+ Table    2:    (Discussion)    The    Accuracy    of    our    LineVul    for    the                                               Therefore,     an     RNN-based     architecture     (i.e.,     LSTM)     is     used     to
+ Top-25    Most    Dangerous    CWEs    (https://cwe.mitre.org/top25/                                                          automatically    learn    the    semantic    and    syntactic    features    of    source
+ archive/2021/2021_cwe_top25.html).                                                                                            code     [14,     43].     For     example,     Russell     et     al.     [43]     proposed     an     RNN-
+                                                                                                                               based    architecture    to    automatically    extract    feature    of    source    code
+    Rank       CWE Type                             Name                           TPR         Proportion                      for   vulnerability   prediction.   Dam   et   al.   [14]   proposed   a   LSTM-based
+       1        CWE-787                  Out-of-bounds Write                       75%              18/24                      architecture    to    automatically    learn    the    semantic    and    syntactic    fea-
+                                                                                                                               tures    of    source    code.    However,    the    RNN-based    approaches    often
+       4         CWE-20              Improper Input Validation                     86%             98/114                      assume    that    source    code    is    a    sequence    of    tokens    without    consider-
+       8         CWE-22                      Path Traversal                       100%                4/4                      ing    the    graph    structure    of    source    code    (e.g.,    Abstract    Syntax    Trees),
+       12       CWE-190                     Integer Overflow                       90%              27/30                      leading    to    inaccurate    predictions.
+                                                                                                                                    Therefore,     Li     et     al.     [33]     proposed     VulDeePecker     which     is     an
+       17        CWE-119                 Improper Restriction                      88%            173/197                      RNN-based    model    that    is    learnt    from    different    types    of    graph    prop-
+       20       CWE-200             Exposure of Sensitive Info                     85%              45/53                      erties    of    source    code    (e.g.,    Data    Dependency    Graph).    However,    the
+       25        CWE-77                Improper Neutralization                    100%                2/2                      VulDeePecker     approach     still     learns     the     graph     properties     in     a     se-
+                                                                    TOTAL          87%            367/424                      quential     fashion,     without     leveraging     the     graph     neural     network.
+                                                                                                                               Therefore,   a   Graph   Neural   Network   has   been   recently   used   to   learn
+                                                                                                                               the    graph    properties    of    source    code    for    vulnerability    predictions.
+                                                                                                                               For    example,    Zhou    et    al.    [65]    leveraged    a    Graph    Neural    Network    to
+                                                                                                                               learn    four    types    of    graph    properties    of    source    code,    i.e.,    Abstract
+ significant     advancement     of       LineVul     for     line-level     vulnerability                                     Syntax    Tree,    Control    Flow    Graph,    Data    Flow    Graph,    and    syntactic
+ predictions.                                                                                                                  features.    Chakraborty    et    al.    [12]    proposed    Reveal,    which    is    a    Gated
+                                                                                                                               Graph    Neural    Network    (GGNN)    that    learns    the    graph    properties    of
+ 6.2                    How     accurate     is     our     LineVul     for     predicting                                     source    code.
+             the     Top-25     Most     Dangerous     CWEs?                                                                        While    these    studies    focus    on    the    vulnerability    predictions    at    the
+ Our     LineVul     can     correctly     predict     87%     of     the     vulnerable                                       file/function    level,    our    LineVul    focuses    on    the    line-level    vulnera-
+ functions   affected   by   the   Top-25   most   dangerous   CWEs.  CWE                                                      bility    prediction    problem—which    still    remains    largely    unexplored.
+ (Common    Weakness    Enumeration)    is    a    list    of    vulnerability    weak-
+ nesses    in    software    that    can    lead    to    security    issues    with    its    severity                        7.2                    Line-Level     Vulnerability     Prediction
+ of   risk,   providing   guidance   to   organizations   and   security   analysts   to                                       Although   various   vulnerability   prediction   approaches   are   proposed,
+ best   secure   their   software   systems.   To   better   understand   the   signifi-                                       they      mainly      focus      on      the      granularity      of      file,      function,      method
+ cance    of    our    LineVul    on    the    practical    usage    scenarios,    we    perform                               levels—which     is     still     coarse-grained.     Thus,     Li         et     al.     [31,     32]pro-
+ a    further    investigation    to    better    understand    our    accuracy    for    the                                  posed    VulDeeLocator,    which    is    based    on    a    program    slicing    tech-
+ Top-25    most    dangerous    CWEs.    The    Top-25    most    dangerous    CWEs                                            nique    to    narrow    down    the    scope    of    vulnerability    localization.    In
+ are   the   most   common   and   impactful   issues   experienced   over   the   pre-                                        addition,    Li    et    al.    [30]    also    proposed    IVDetect,    which    leverages    a
+ vious    two    calendar    years.    Such    weaknesses    are    dangerous    because                                       Graph    Neural    Network    (GNN)    for    function-level    predictions    and    a
+ they    are    often    easy    to    find,    exploit,    and    can    allow    adversaries    to                           GNNExplainer    to    identify    which    sub-graph    contributes    the    most    to
+ completely    take   over   a    system,    steal   data,    or   prevent   an    application                                 the    predictions.    Yet,    security    analysts    still    need    to    manually    locate
+ from    working.    Since    not    all    of    the    Top-25    most    dangerous    CWEs                                   which    lines    in    the    sub-graph    are    actually    vulnerable.
+ are    included    in    the    studied    datasets,    Table    2    presents    the    results    for                            Similarly,    line-level    defect    prediction    has    recently    received    high
+ the    ones    that    are    included    in    the    dataset.    We    compute    the    accuracy                           attention    from    the    research    community    [38,    39,    60].    For    example,
+ as   the   True   Positive   Rate   (TPR)   to   focus   on   the   vulnerable   functions                                    Pornprasit    and    Tantithamthavorn    [38]    and    Wattanakriengkrai    et
+ that    are    correctly    predicted    by    our    LineVul.    We    find    that    LineVul                               al.    [60]    proposed    a    machine    learning-based    approach    with    LIME
+ achieves    an    accuracy    of    75%    (CWE-787    Out-of-bounds    Write)    to                                          model-agnostic    technique    (BoW+RF+LIME)    to    predict    which    lines
+ 100%    (CWE-22    Path    Traversal,    CWE-77    Improper    Neutralization),                                               are    likely    to    be    defective    in    the    future.    However,    such    approaches
+ depending    on    the    CWE    types    in    the    dataset.                                                               only    learn    the    frequency    of    the    appearance    of    code    tokens    in    a    file
+ 7                    RELATED     WORK                                                                                         (i.e.,    Bag-of-Word),    without    considering    the    lexical    and    semantic    of
+                                                                                                                               source    code    (i.e.,    the    sequence    of    code    tokens).
+ 7.1                    DL-based     Vulnerability     Prediction                                                                   To    the    best    of    our    knowledge,    this    paper    is    among    the    first    to
+ Traditionally,     ML-based     vulnerability     prediction     approaches     are                                           leverage    the    attention    mechanism    inside    the    BERT    architecture    for
+ proposed     by     using     software     metrics     as     features     (e.g.,     code     com-                           line-level    vulnerability    predictions.
+ plexity)     [45,     66].     The     use     of     software     metrics     is     also     widely     use                 7.3                    Explainable     AI     for     SE
+ in    the    defect    prediction    literature    [24,    25,    49,    50,    53–57,    63].    How-
+ ever,    the    collection    of    such    software    metrics    is    manual    and    time-                               The    explainability    of    AI    models    in    SE    becomes    one    of    the    research
+ consuming.    Thus,    multiple    DL-based    approaches    have    been    pro-                                             grand    challenges    [51]    (see    http://xai4se.github.io),    since    practition-
+ posed    to    automatically    learn    the    vulnerability    patterns    from    histor-                                  ers    often    do    not    trust    the    predictions    [52],    hindering    the    adoption
+ ical    data    [12,    30–33,    39,    43,    65].                                                                          of    AI-powered    software    development    tools    in    practices.    Recently,
+
+
+
+
+
+
+
+
+                                                                                                                        617
+
+      Authorized licensed use limited to: Monash University. Downloaded on December 12,2023 at 11:35:10 UTC from IEEE Xplore.  Restrictions apply.
+
+=== PÁGINA FÍSICA 11 ===
+LineVul:   A   Transformer-based   Line-Level   Vulnerability   Prediction                                                                                                                                                                                                                                                                                                                                                      MSR   ’22,   May   23–24,   2022,   Pittsburgh,   PA,   USA
+
+ Explainable     AI     has     been     actively     investigated     in     the     domain     of                              hyperparameter    settings    as    specified    by    Feng   et    al.    [17].    As    hyper-
+ defect    prediction    [52,    58].    For    example,    recent    works    have    shown                                     parameter    tuning    is    extremely    expensive    for    a    BERT-based    model
+ some   successful   case   studies   to   make   defect   prediction   models   more                                            that    consists    of    millions    of    parameters,    we    only    tune    the    learning
+ practical   [38,   60],   explainable   [22,   28],   and   actionable   [40,   41].   How-                                     rate    and    set    it    to    2𝑒−5             in    the    end.
+ ever,   these   studies   only   focus   on   explaining   the   traditional   machine                                               The    window    size    of    our    approach    is    limited    to    512    tokens.    Thus,
+ learning    models,    not    the    complex    black-box    deep    learning    models.                                        our    approach    may    not    be    able    to    fully    learn    any    function    that    is
+      Recently,     researchers     start     to     explore     the     explainability     of     AI                            longer    than    512    tokens.    Nevertheless,    to    maximize    the    benefit    of
+ models    in    various    SE    tasks    (i.e.,    leveraging    the    attention    weights                                   using    the    CodeBERT    pre-trained    model,    it    is    best    to    not    extend    the
+ to    provide    meaningful    ‘explanations’    for    predictions).    For    exam-                                           window    size.    Thus,    extending    the    window    size    of    our    approach    can
+ ple,    Fu    and    Tantithamthavorn    [18]    proposed    a    GPT-2    based    Agile                                       be    explored    in    future    work.
+ story    point    estimation,    by    leveraging    the    Integrated    Gradient    at-                                            In    RQ1,    the    IVDetect    result    is    reused    from    Li    et    al.    [30],    which
+ tention    to    interpret    the    GPT-2    model    and    understand    what    words                                       cannot    verified    by    us.    While    Li    et    al.    [30]    published    a    replication
+ in    a    JIRA    issue    report    contributed    to    the    estimation    of    Agile    story                            package    for    future    research,    we    attempted    our    best    to    reproduce
+ points.    Similarly,    Pornprasit    and    Tantithamthavorn    [39]    proposed                                              the   results   of   the   IVDetect   approach.   Unfortunately,   we   are   not   able
+ a    Hierarchical    Attention    Network    (HAN)    architecture    for    line-level                                         to    rerun    their    experimental    scripts.    This    concern    is    also    shared    by
+ defect     prediction,     by     leveraging     the     attention     mechanism     of     the                                 others    [6].    To    mitigate    this    threat,    we    have    to    reuse    the    IVDetect
+ HAN   architecture   to   understand   what   code   tokens   in   a   source   code                                            result   for   RQ1   in   order   to   ensure   that   there   exists   no   potential   bias   in
+ contributed     to     the     prediction     of     defective     files.     However,     Jain    et                           the   re-implementation   of   the   baseline   approaches.   Nevertheless,   we
+ al.    [21]    argued    that    the    learned    attention    weights    are    frequently                                    strictly    followed    the    experimental    setup    of    IVDetect    to    ensure    that
+ uncorrelated    with    gradient-based    measures    of    feature    importance,                                              we    used    the    same    data    splitting    strategy    for    a    fair    comparison    (80%
+ while    Wiegreffe   et    al.    [61]    argued    that    the    accuracy/reliability    of                                   for    training,    10%    for    validation,    and    10%    for    testing).    In    addition,
+ such    attention    weights    could    provide    meaningful    explanations,    de-                                          time-wise     evaluation     scenarios     are     not     considered     in     this     paper,
+ pending    on    the    definition    and    the    rigor    of    experimental    design.                                      since     the     dataset     is     at     the     function     level     (not     the     commit     level).
+      To    the    best    of    our    knowledge,    this    paper    is    among    the    first    to                         To    mitigate    these    threats,    we    publish    our    replication    package    to
+ leverage    the    attention    mechanism    of    BERT    architecture    for    line-                                         improve    the    transparency    of    our    work.
+ level   vulnerability   predictions.   This   concept   is   directly   aligned   with                                               In     RQ2,     Top-10     accuracy     is     only     meaningful     for     the     function
+ findings    from    AI    discipline    by    Wiegreffe   et    al.    [61].    However,    this                                size     of     greater     than     10     lines.     We     observed     that     there     are     16%     of
+ concept    is    still    novel    for    line-level    vulnerability    predictions,    since                                  vulnerable  functions  (1,840/10,900)  that  have  less  than  10  lines.  Thus,
+ prior   works   [18,   39]   only   focused   on   explaining   Agile   story   point   es-                                     Top-10    accuracy    is    still    sensible    for    the    majority    of    the    vulnerable
+ timations   and   defect   predictions—not   CodeBERT-based   line-level   vul-                                                 functions   (84%).   To   mitigate   this   threat,   we   experiment   with   other  𝑘
+ nerability    predictions.    Our    results    in    RQ2    and    RQ3    confirm    that    the                               values   (i.e.,   Top-3   and   Top-5   Accuracy).   We   found   that   the   attention
+ use    of    self-attention    mechanism    outperforms    other    model-agnostic                                              mechanism     used     in     our     approach     is     still     top-performing     (see     in
+ techniques    for    line-level    vulnerability    predictions.                                                                Appendix    in    our    replication    package).    Thus,    the   𝑘value    does    not
+                                                                                                                                 pose    any    threats    to    the    validity    of    our    results.
+ 8                    THREATS     TO     VALIDITY                                                                                     Threats    to    the    external    validity    relate    to    the    generalizability
+                                                                                                                                 of   our   LineVul   approach.   We   conduct   our   experiment   using   a   large-
+ Threats    to    the    construct    validity    relate    to    the    dataset    selection.                                   scale   line-level   vulnerability   dataset   (i.e.,   Fan   et   al.   dataset)   to   ensure
+ We    use    Fan    et    al.    [16]    dataset    when    conducting    our    experiments.                                   a     fair     comparison     with     the     IVDetect     approach     [30].     Thus,     other
+ Other    datasets    [12,    65]    are    not    selected    because    they    only    provide                                line-level    vulnerability    datasets    can    be    explored    in    future    work.
+ ground-truths    at    the    function    level,    which    is    not    suitable    for    our
+ research    scope.    Thus,    we    use    the    same    dataset    that    was    used    by
+ IVDetect    for    a    fair    comparison.                                                                                     9                    CONCLUSION
+      Moreover,    our    line-level    prediction    results    (RQ2    and    RQ3)    are
+ not   compared   with   IVDetect   [30],   since   their   interpretation   is   based                                          In   this   paper,   we   propose   LineVul,   a   Transformer-based   vulnerabil-
+ on    subgraphs,    not    lines.    The    different    granularity    of    local    interpre-                                ity    prediction    approach    to    predict    which    functions    will    be    vulnera-
+ tation    makes    the    comparison    infeasible.    In    addition,    LIME    [42]    that                                  ble   and   which   lines   are   vulnerable.   Through   an   empirical   evaluation
+ is    widely    used    in    prior    defect    prediction    studies    [22,    23,    38,    40,    41]                      of    a    large-scale    real-world    dataset    with    188k+    C/C++    functions,    we
+ is    not    used    since    it    is    best    designed    for    ML    techniques,    not    com-                           show    that    LineVul    achieves    (1)    160%-379%    higher    F1-measure    for
+ plex     deep     neural     networks.     To     mitigate     this     threat,     we     compare                              function-level    predictions;    (2)    12%-25%    higher    Top-10    Accuracy    for
+ our      approach      with      many      other      advanced      model-agnostic      tech-                                   line-level    predictions;    and    (3)    29%-53%    less    Effort@20%Recall    than
+ niques    that    are    suitable    for    deep    neural    networks,    e.g.,    Layer    In-                                the   state-of-the-art   approaches.   Our   results   confirm   that   LineVul   is
+ tegrated     Gradient     [48],     Saliency     [47],     DeepLift     [46],     and     SHAP-                                 more    accurate    and    more    fine-grained    than    existing    vulnerability
+ based     techniques     [36].     Our     experiment     results     still     confirm     that                                prediction   approaches.   Thus,   we   expect   that   our   LineVul   may   help
+ the    self-attention    used    by    our    LineVul    outperforms    other    baseline                                       security    analysts    to    find    vulnerable    lines    in    a    cost-effective    manner.
+ approaches.                                                                                                                          Acknowledgement.        Chakkrit    Tantithamthavorn    is    partially
+      Threats    to    the    internal    validity    relate    to    hyperparameter    set-                                     supported    by    the    Australian    Research    Council’s    Discovery    Early
+ tings     when     fine-tuning     our     LineVul     model.     We     use     the     default                                Career   Researcher   Award   (DECRA)   funding   scheme   (DE200100941).
+
+
+
+
+
+
+
+
+                                                                                                                         618
+
+      Authorized licensed use limited to: Monash University. Downloaded on December 12,2023 at 11:35:10 UTC from IEEE Xplore.  Restrictions apply.
+
+=== PÁGINA FÍSICA 12 ===
+MSR   ’22,   May   23–24,   2022,   Pittsburgh,   PA,   USA                                                                                                                                                                                                                                                                                                                                                                                                                                                               Michael   Fu   and   Chakkrit   Tantithamthavorn
+
+  REFERENCES                                                                                                                                    [28]       Chaiyakarn    Khanan,    Worawit    Luewichana,    Krissakorn    Pruktharathikoon,    Ji-
+    [1]       [n.d.].    Checkmarx.    https://checkmarx.com/.                                                                                          rayus  Jiarpakdee,  Chakkrit  Tantithamthavorn,  Morakot  Choetkiertikul,  Chaiyong
+    [2]       [n.d.].    Cppcheck.    https://cppcheck.sourceforge.io/.                                                                                 Ragkhitwetsagul,   and   Thanwadee   Sunetnanta.   2020.    JITBot:   An   Explainable   Just-
+    [3]       [n.d.].    CWE-787.    https://cwe.mitre.org/data/definitions/787.html.                                                                   In-Time   Defect   Prediction   Bot.   In   2020   35th   IEEE/ACM   International   Conference
+    [4]       [n.d.].     Cybercrime   To   Cost   The   World   $10.5   Trillion   Annually   By   2025.     https:                                    on   Automated   Software   Engineering   (ASE).   IEEE,   1336–1339.
+          //cybersecurityventures.com/hackerpocalypse-cybercrime-report-2016/.                                                                  [29]       Thomas  N  Kipf  and  Max  Welling.  2016.   Semi-supervised  classification  with  graph
+    [5]       [n.d.].    Flawfinder.    https://dwheeler.com/flawfinder/.                                                                               convolutional   networks.    arXiv   preprint   arXiv:1609.02907    (2016).
+    [6]       [n.d.].    IVDectect   Replication   Package   Issue   #1:   Cannot   reproduce.    https://github.                               [30]       Yi  Li,  Shaohua  Wang,  and  Tien  N  Nguyen.  2021.   Vulnerability  detection  with  fine-
+          com/vulnerabilitydetection/VulnerabilityDetectionResearch/issues/1.                                                                           grained  interpretations.  In  29th  ACM  Joint  Meeting  European  Software  Engineering
+    [7]       [n.d.].                              Microsoft          Exchange          Flaw:          Attacks          Surge          After          Code          Pub-Conference   and   Symposium   on   the   Foundations   of   Software   Engineering,   ESEC/FSE
+          lished.    https://www.bankinfosecurity.com/ms-exchange-flaw-causes-spike-in-                                                                 2021.   Association   for   Computing   Machinery,   Inc,   292–303.
+          trdownloader-gen-trojans-a-16236.                                                                                                     [31]       Zhen   Li,   Deqing   Zou,   Shouhuai   Xu,   Zhaoxuan   Chen,   Yawei   Zhu,   and   Hai   Jin.
+    [8]       [n.d.].    ProxyLogon   Flaw.    https://proxylogon.com/.                                                                                 2021.    Vuldeelocator:   a   deep   learning-based   fine-grained   vulnerability   detector.
+    [9]       [n.d.].               RATS.               https://code.google.com/archive/p/rough-auditing-tool-for-                                      IEEE   Transactions   on   Dependable   and   Secure   Computing   (2021).
+          security/.                                                                                                                            [32]       Zhen  Li,  Deqing  Zou,  Shouhuai  Xu,  Hai  Jin,  Yawei  Zhu,  and  Zhaoxuan  Chen.  2021.
+  [10]       [n.d.].  THE  COST  OF  CYBERCRIME.  https://www.accenture.com/_acnmedia/pdf-                                                              SySeVR:   A   framework   for   using   deep   learning   to   detect   software   vulnerabilities.
+          96/accenture-2019-cost-of-cybercrime-study-final.pdf .                                                                                        IEEE   Transactions   on   Dependable   and   Secure   Computing   (2021).
+  [11]       Marco   Ancona,   Enea   Ceolini,   Cengiz   Öztireli,   and   Markus   Gross.   2018.    Towards                                  [33]       Zhen   Li,   Deqing   Zou,   Shouhuai   Xu,   Xinyu   Ou,   Hai   Jin,   Sujuan   Wang,   Zhijun
+          better    understanding    of    gradient-based    attribution    methods    for    Deep    Neural                                            Deng,   and   Yuyi   Zhong.   2018.    VulDeePecker:   A   Deep   Learning-Based   System   for
+          Networks.    In    6th    International    Conference    on    Learning    Representations    (ICLR).                                         Vulnerability   Detection.    arXiv   e-prints   (2018),   arXiv–1801.
+          Arxiv-Computer   Science,   0–0.                                                                                                      [34]       Yinhan  Liu,  Myle  Ott,  Naman  Goyal,  Jingfei  Du,  Mandar  Joshi,  Danqi  Chen,  Omer
+  [12]       Saikat   Chakraborty,   Rahul   Krishna,   Yangruibo   Ding,   and   Baishakhi   Ray.   2021.                                              Levy,   Mike   Lewis,   Luke   Zettlemoyer,   and   Veselin   Stoyanov.   2019.      Roberta:   A
+          Deep   learning   based   vulnerability   detection:   Are   we   there   yet.    IEEE   Transactions                                         robustly   optimized   bert   pretraining   approach.    arXiv   preprint   arXiv:1907.11692
+          on   Software   Engineering   (2021).                                                                                                         (2019).
+  [13]       R.   Collobert,   K.   Kavukcuoglu,   and   C.   Farabet.   2011.    Torch7:   A   Matlab-like   Envi-                             [35]       Ilya   Loshchilov   and   Frank   Hutter.   2018.    Decoupled   Weight   Decay   Regularization.
+          ronment   for   Machine   Learning.   In   BigLearn,   NIPS   Workshop.                                                                       In   International   Conference   on   Learning   Representations.
+  [14]       Hoa   Khanh   Dam,   Truyen   Tran,   Trang   Pham,   Shien   Wee   Ng,   John   Grundy,   and                                     [36]       Scott    M    Lundberg    and    Su-In    Lee.    2017.          A    unified    approach    to    interpreting
+          Aditya    Ghose.    2017.        Automatic    feature    learning    for    vulnerability    prediction.                                      model   predictions.   In   Proceedings   of   the   31st   international   conference   on   neural
+          arXiv   preprint   arXiv:1708.02368   (2017).                                                                                                 information   processing   systems.   4768–4777.
+  [15]       Jacob  Devlin,  Ming-Wei  Chang,  Kenton  Lee,  and  Kristina  Toutanova.  2019.    BERT:                                          [37]       Chris   Parnin   and   Alessandro   Orso.   2011.    Are   automated   debugging   techniques
+          Pre-training   of   Deep   Bidirectional   Transformers   for   Language   Understanding.   In                                                actually  helping  programmers?.  In  Proceedings  of  the  2011  international  symposium
+          Proceedings  of  the  2019  Conference  of  the  North  American  Chapter  of  the  Association                                               on   software   testing   and   analysis.   199–209.
+          for   Computational   Linguistics:   Human   Language   Technologies,   Volume   1   (Long   and                                      [38]       Chanathip   Pornprasit   and   Chakkrit   Tantithamthavorn.   2021.    JITLine:   A   Simpler,
+          Short   Papers).   4171–4186.                                                                                                                 Better,   Faster,   Finer-grained   Just-In-Time   Defect   Prediction.   In   Proceedings   of   the
+  [16]       Jiahao    Fan,    Yi    Li,    Shaohua    Wang,    and    Tien    N    Nguyen.    2020.        AC/C++    Code                              International   Conference   on   Mining   Software   Repositories   (MSR).
+          Vulnerability   Dataset   with   Code   Changes   and   CVE   Summaries.   In   Proceedings   of                                      [39]       Chanathip   Pornprasit   and   Chakkrit   Tantithamthavorn.   2022.    DeepLineDP:   To-
+          the   17th   International   Conference   on   Mining   Software   Repositories.   508–512.                                                   wards   a   Deep   Learning   Approach   for   Line-Level   Defect   Prediction.    IEEE   Trans-
+  [17]       Zhangyin   Feng,   Daya   Guo,   Duyu   Tang,   Nan   Duan,   Xiaocheng   Feng,   Ming   Gong,                                             actions   on   Software   Engineering   (2022).
+          Linjun   Shou,   Bing   Qin,   Ting   Liu,   Daxin   Jiang,   et   al.   2020.       CodeBERT:   A   Pre-                             [40]       Chanathip   Pornprasit,   Chakkrit   Tantithamthavorn,   Jirayus   Jiarpakdee,   Michael
+          Trained   Model   for   Programming   and   Natural   Languages.   In   Findings   of   the   Asso-                                           Fu,  and  Patanamon  Thongtanunam.  2021.  PyExplainer:  Explaining  the  Predictions
+          ciation   for   Computational   Linguistics:   EMNLP   2020.   1536–1547.                                                                     of   Just-In-Time   Defect   Models.   In   2021   36th   IEEE/ACM   International   Conference
+  [18]       Michael    Fu    and    Chakkrit    Tantithamthavorn.    2022.        GPT2SP:    A    Transformer-                                         on   Automated   Software   Engineering   (ASE).   IEEE,   407–418.
+          Based   Agile   Story   Point   Estimation   Approach.      IEEE   Transactions   on   Software                                       [41]       Dilini   Rajapaksha,   Chakkrit   Tantithamthavorn,   Christoph   Bergmeir,   Wray   Bun-
+          Engineering   (2022).                                                                                                                         tine,   Jirayus   Jiarpakdee,   and   John   Grundy.   2021.    SQAPlanner:   Generating   data-
+  [19]       Mukesh    Kumar    Gupta,    MC    Govil,    and    Girdhari    Singh.    2014.         Static    analysis                                 informed   software   quality   improvement   plans.     IEEE   Transactions   on   Software
+          approaches    to    detect    SQL    injection    and    cross    site    scripting    vulnerabilities    in                                  Engineering   (2021).
+          web   applications:   A   survey.   In   International   Conference   on   Recent   Advances   and                                    [42]       Marco   Tulio   Ribeiro,   Sameer   Singh,   and   Carlos   Guestrin.   2016.    "   Why   should   i
+          Innovations   in   Engineering   (ICRAIE-2014).   IEEE,   1–5.                                                                                trust   you?"   Explaining   the   predictions   of   any   classifier.   In  Proceedings   of   the   22nd
+  [20]       Hamel    Husain,    Ho-Hsiang    Wu,    Tiferet    Gazit,    Miltiadis    Allamanis,    and    Marc                                        ACM   SIGKDD   international   conference   on   knowledge   discovery   and   data   mining.
+          Brockschmidt.   2019.    Codesearchnet   challenge:   Evaluating   the   state   of   semantic                                                1135–1144.
+          code   search.    arXiv   preprint   arXiv:1909.09436   (2019).                                                                       [43]       Rebecca   Russell,   Louis   Kim,   Lei   Hamilton,   Tomo   Lazovich,   Jacob   Harer,   Onur
+  [21]       Sarthak   Jain   and   Byron   C   Wallace.   2019.     Attention   is   not   Explanation.   In   Pro-                                    Ozdemir,   Paul   Ellingwood,   and   Marc   McConley.   2018.    Automated   vulnerability
+          ceedings   of   the   2019   Conference   of   the   North   American   Chapter   of   the   Association                                      detection   in   source   code   using   deep   representation   learning.   In   2018   17th   IEEE
+          for   Computational   Linguistics:   Human   Language   Technologies,   Volume   1   (Long   and                                              international    conference    on    machine    learning    and    applications    (ICMLA).    IEEE,
+          Short   Papers).   3543–3556.                                                                                                                 757–762.
+  [22]       Jirayus    Jiarpakdee,    Chakkrit    Tantithamthavorn,    Hoa    Khanh    Dam,    and    John                                     [44]       Rico    Sennrich,    Barry    Haddow,    and    Alexandra    Birch.    2016.         Neural    Machine
+          Grundy.   2020.       An   Empirical   Study   of   Model-Agnostic   Techniques   for   Defect                                                Translation   of   Rare   Words   with   Subword   Units.   In   54th   Annual   Meeting   of   the   As-
+          Prediction   Models.    IEEE   Transactions   on   Software   Engineering   (TSE)   (2020),   To                                              sociation  for  Computational  Linguistics.  Association  for  Computational  Linguistics
+          Appear.                                                                                                                                       (ACL),   1715–1725.
+  [23]       Jirayus   Jiarpakdee,   Chakkrit   Tantithamthavorn,   and   John   Grundy.   2021.    Practi-                                     [45]       Yonghee   Shin   and   Laurie   Williams.   2008.    An   empirical   model   to   predict   security
+          tioners’   Perceptions   of   the   Goals   and   Visual   Explanations   of   Defect   Prediction                                            vulnerabilities   using   code   complexity   metrics.   In   Proceedings   of   the   Second   ACM-
+          Models.   In   Proceedings   of   the   International   Conference   on   Mining   Software   Reposi-                                         IEEE  international  symposium  on  Empirical  software  engineering  and  measurement.
+          tories   (MSR).   To   Appear.                                                                                                                315–317.
+  [24]       Jirayus   Jiarpakdee,   Chakkrit   Tantithamthavorn,   and   Ahmed   E   Hassan.   2021.    The                                    [46]       Avanti   Shrikumar,   Peyton   Greenside,   and   Anshul   Kundaje.   2017.    Learning   im-
+          Impact   of   Correlated   Metrics   on   Defect   Models.    IEEE   Transactions   on   Software                                             portant    features    through    propagating    activation    differences.    In    International
+          Engineering   (2021).                                                                                                                         Conference   on   Machine   Learning.   PMLR,   3145–3153.
+  [25]       Jirayus    Jiarpakdee,    Chakkrit    Tantithamthavorn,    and    Christoph    Treude.    2018.                                    [47]       Karen   Simonyan,   Andrea   Vedaldi,   and   Andrew   Zisserman.   2013.      Deep   inside
+          AutoSpearman:   Automatically   Mitigating   Correlated   Software   Metrics   for   Inter-                                                   convolutional   networks:   Visualising   image   classification   models   and   saliency
+          preting   Defect   Models.   In   ICSME.   92–103.                                                                                            maps.    arXiv   preprint   arXiv:1312.6034   (2013).
+  [26]       Arnold   Johnson,   Kelley   Dempsey,   Ron   Ross,   Sarbari   Gupta,   Dennis   Bailey,   et   al.                               [48]       Mukund   Sundararajan,   Ankur   Taly,   and   Qiqi   Yan.   2017.    Axiomatic   attribution
+          2011.        Guide    for    security-focused    configuration    management    of    information                                             for  deep  networks.  In  International  Conference  on  Machine  Learning.  PMLR,  3319–
+          systems.    NIST   special   publication   800,   128   (2011),   16–16.                                                                      3328.
+  [27]       Rafael-Michael   Karampatsis,   Hlib   Babii,   Romain   Robbes,   Charles   Sutton,   and   An-                                   [49]       Chakkrit  Tantithamthavorn.  2016.   Towards  a  Better  Understanding  of  the  Impact
+          drea   Janes.   2020.    Big   code!=   big   vocabulary:   Open-vocabulary   models   for   source                                           of    Experimental    Components    on    Defect    Prediction    Modelling.    In    Companion
+          code.   In   2020   IEEE/ACM   42nd   International   Conference   on   Software   Engineering                                                Proceeding   of   the   International   Conference   on   Software   Engineering   (ICSE).   867—-
+          (ICSE).   IEEE,   1073–1085.                                                                                                                  870.
+                                                                                                                                                [50]       Chakkrit   Tantithamthavorn,   Ahmed   E   Hassan,   and   Kenichi   Matsumoto.   2018.
+                                                                                                                                                        The  impact  of  class  rebalancing  techniques  on  the  performance  and  interpretation
+
+
+
+
+
+
+
+
+                                                                                                                                        619
+
+        Authorized licensed use limited to: Monash University. Downloaded on December 12,2023 at 11:35:10 UTC from IEEE Xplore.  Restrictions apply.
+
+=== PÁGINA FÍSICA 13 ===
+LineVul:   A   Transformer-based   Line-Level   Vulnerability   Prediction                                                                                                                                                                                                                                                                                                                                                      MSR   ’22,   May   23–24,   2022,   Pittsburgh,   PA,   USA
+
+
+           of   defect   prediction   models.      IEEE   Transactions   on   Software   Engineering    46,   11                                           need.  In   Advances   in   neural   information   processing   systems   (NeurIPS).   5998–6008.
+           (2018),   1200–1219.                                                                                                                    [60]       Supatsara        Wattanakriengkrai,        Patanamon        Thongtanunam,        Chakkrit        Tan-
+  [51]       Chakkrit  Tantithamthavorn  and  Jirayus  Jiarpakdee.  2021.    Explainable  AI  for  Soft-                                                   tithamthavorn,   Hideaki   Hata,   and   Kenichi   Matsumoto.   2020.    Predicting   defective
+           ware   Engineering.   In   2021   36th   IEEE/ACM   International   Conference   on   Automated                                                 lines  using  a  model-agnostic  technique.   IEEE  Transactions  on  Software  Engineering
+           Software   Engineering   (ASE).   IEEE,   1–2.                                                                                                  (TSE)   (2020).
+  [52]       Chakkrit   Tantithamthavorn,   Jirayus   Jiarpakdee,   and   John   Grundy.   2021.    Action-                                        [61]       Sarah   Wiegreffe   and   Yuval   Pinter.   2019.       Attention   is   not   not   Explanation.   In
+           able   Analytics:   Stop   Telling   Me   What   It   Is;   Please   Tell   Me   What   To   Do.      IEEE                                      Proceedings   of   the   2019   Conference   on   Empirical   Methods   in   Natural   Language   Pro-
+           Software   38,   4   (2021),   115–120.                                                                                                         cessing   and   the   9th   International   Joint   Conference   on   Natural   Language   Processing
+  [53]       Chakkrit   Tantithamthavorn,   Shane   McIntosh,   Ahmed   E.   Hassan,   Akinori   Ihara,                                                    (EMNLP-IJCNLP).   11–20.
+           and   Kenichi   Matsumoto.   2015.    The   Impact   of   Mislabelling   on   the   Performance                                         [62]       Thomas  Wolf,  Lysandre  Debut,  Victor  Sanh,  Julien  Chaumond,  Clement  Delangue,
+           and   Interpretation   of   Defect   Prediction   Models.   In   ICSE.   812–823.                                                               Anthony   Moi,   Pierric   Cistac,   Tim   Rault,   Rémi   Louf,   Morgan   Funtowicz,   et   al.
+  [54]       Chakkrit  Tantithamthavorn,  Shane  McIntosh,  Ahmed  E  Hassan,  and  Kenichi  Mat-                                                          2019.    Huggingface’s   transformers:   State-of-the-art   natural   language   processing.
+           sumoto.   2016.    Automated   Parameter   Optimization   of   Classification   Techniques                                                      arXiv   preprint   arXiv:1910.03771   (2019).
+           for   Defect   Prediction   Models.   In   ICSE.   321–332.                                                                             [63]       Suraj   Yatish,   Jirayus   Jiarpakdee,   Patanamon   Thongtanunam,   and   Chakkrit   Tan-
+  [55]       Chakkrit    Tantithamthavorn,    Shane    McIntosh,    Ahmed    E    Hassan,    and    Kenichi                                                tithamthavorn.   2019.     Mining   Software   Defects:   Should   We   Consider   Affected
+           Matsumoto.   2016.    Comments   on   “Researcher   Bias:   The   Use   of   Machine   Learning                                                 Releases?.   In   ICSE.   654–665.
+           in   Software   Defect   Prediction”.   TSE   42,   11   (2016),   1092–1094.                                                           [64]       Rex  Ying,  Dylan  Bourgeois,  Jiaxuan  You,  Marinka  Zitnik,  and  Jure  Leskovec.  2019.
+  [56]       Chakkrit    Tantithamthavorn,    Shane    McIntosh,    Ahmed    E    Hassan,    and    Kenichi                                                Gnnexplainer:   Generating   explanations   for   graph   neural   networks.    Advances   in
+           Matsumoto.   2017.    An   Empirical   Comparison   of   Model   Validation   Techniques   for                                                  neural   information   processing   systems   (NeurIPS)   32   (2019),   9240.
+           Defect   Prediction   Models.    TSE   (2017),   1–18.                                                                                  [65]       Yaqin    Zhou,    Shangqing    Liu,    Jingkai    Siow,    Xiaoning    Du,    and    Yang    Liu.    2019.
+  [57]       Chakkrit   Tantithamthavorn,   Shane   McIntosh,   Ahmed   E.   Hassan,   and   Kenichi                                                       Devign:  effective  vulnerability  identification  by  learning  comprehensive  program
+           Matsumoto.   2019.    The   Impact   of   Automated   Parameter   Optimization   on   Defect                                                    semantics   via   graph   neural   networks.   In   Proceedings   of   the   33rd   International
+           Prediction   Models.    TSE   (2019).                                                                                                           Conference   on   Neural   Information   Processing   Systems.   10197–10207.
+  [58]       Chakkrit    Kla    Tantithamthavorn    and    Jirayus    Jiarpakdee.    2021.       Explainable    ai                                 [66]       Thomas  Zimmermann,  Nachiappan  Nagappan,  and  Laurie  Williams.  2010.   Search-
+           for    software    engineering.    In    2021    36th    IEEE/ACM    International    Conference    on                                          ing   for   a   needle   in   a   haystack:   Predicting   security   vulnerabilities   for   windows
+           Automated   Software   Engineering   (ASE).   IEEE,   1–2.                                                                                      vista.   In   2010   Third   international   conference   on   software   testing,   verification   and
+  [59]       Ashish     Vaswani,     Noam     Shazeer,     Niki     Parmar,     Jakob     Uszkoreit,     Llion     Jones,                                  validation.   IEEE,   421–428.
+           Aidan   N   Gomez,   Łukasz   Kaiser,   and   Illia   Polosukhin.   2017.    Attention   is   all   you
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                                                                           620
+
+        Authorized licensed use limited to: Monash University. Downloaded on December 12,2023 at 11:35:10 UTC from IEEE Xplore.  Restrictions apply.

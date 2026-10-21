@@ -1,0 +1,719 @@
+<!-- pagina 1 -->
+APLICAÇÃO DE REDES NEURAIS ARTIFICIAIS NA
+OTIMIZAÇÃO DE PLACAS LAMINADAS
+Jorge Artur França de Mendonça
+Evandro Parente Junior
+Antônio Macário Cartaxo de Melo
+Elias Saraiva Barroso
+jorgeartur.f@gmail.com
+evandro@ufc.br
+macario@ufc.br
+elias.barroso@gmail.com
+Universidade Federal do Ceará
+Anselmo Cardoso de Paiva
+paiva@deinf.ufma.br
+Universidade Federal do Maranhão
+Resumo. A utilização de técnicas de otimização ao projeto de estruturas reais tem sido limitada
+pelo alto custo computacional da análise estrutural, normalmente realizada através do Método
+dos Elementos Finitos. A fim de evitar este problema, este trabalho apresenta uma estratégia
+de metamodelagem, usando Redes Neurais Artificiais (RNA), do comportamento de placas
+laminadas de material compósito reforçado por fibras. Esta estratégia é utilizada na
+otimização de uma placa laminada compósita. O hipercubo latino é usado como técnica de
+amostragem. Após o treinamento, as redes foram utilizadas para aproximar o cálculo da
+segurança à flambagem das placas durante a otimização. Os resultados obtidos mostraram
+que uma aproximação adequada foi obtida, levando à mesma solução ótima obtida utilizando
+a solução exata.
+Palavras-chaves: Otimização estrutural, Redes Neurais Artificiais, Materiais Compósitos.
+CILAMCE 2016
+Proceedings of the XXXVII Iberian Latin-American Congress on Computational Methods in Engineering
+Suzana Moreira Ávila (Editor), ABMEC, Brasília, DF, Brazil, November 6-9, 2016
+
+<!-- pagina 2 -->
+Aplicação de Redes Neurais Artificiais na otimização de placas laminadas
+1 INTRODUÇÃO
+Na otimização de problemas de engenharia, é muito comum a utilização de algoritmos
+metaheurísticos, como os Algoritmos Genéticos (AGs) e Nuvem de Partículas (Particle Swarm
+Optimization - PSO). Estes algoritmos são métodos de buscas estocásticas capazes de encontrar
+o ótimo global de um problema com múltiplos ótimos locais, além da capacidade de resolver
+problemas de otimização com variáveis discretas e funções descontínuas e não diferenciáveis
+(Arora, 2004; Bratton e Kennedy, 2007).
+Esses algoritmos possuem diversas vantagens em relação aos algoritmos baseados em
+gradientes (programação matemática), como a capacidade de trabalhar com variáveis discretas
+e de otimizar funções descontínuas. O problema de se trabalhar com esses algoritmos é que,
+apesar de robustos, eles requerem muitas análises estruturais.
+Atualmente, a maioria das estruturas reais é analisada utilizando o Método dos Elementos
+Finitos (MEF). Este método permite a consideração de efeitos dinâmicos e não lineares.
+Contudo, possui um custo computacional elevado, como explica Simpson et al. (2001) ao dizer
+que uma análise por MEF pode durar horas. Como os algoritmos de otimização requerem um
+grande número de análises, o custo computacional pode ser proibitivamente alto, inviabilizando
+a aplicação de técnicas de otimização.
+Uma forma de evitar este problema é substituir o modelo de alta fidelidade, baseado no
+MEF, por um metamodelo ou modelo substituto (surrogate model), de acordo com Wang e
+Shan (2006). O metamodelo irá aproximar a resposta do modelo de alta fidelidade com um
+custo computacional inferior. Existem diversas técnicas de metamodelagem, como a Superfície
+de Resposta, Redes Neurais Artificiais (RNA), Kriging, Funções de Base Radial (Radial Basis
+Function - RBF) e Máquina de Vetor Suporte (MVS).
+Berthelemy e Haftka (1993) apresentam uma discussão da utilização dos conceitos de
+aproximação (Redes Neurais Artificiais e Superfície de Resposta) no projeto ótimo. Uma
+revisão e comparação entre os métodos pode ser encontrado em Simpson et al. (2001) que
+apontam algumas recomendações para o uso dos metamodelos e algumas armadilhas que
+devem ser evitadas.
+Forrester e Keane (2009) fazem uma apresentação dos avanços dos modelos substitutos
+(Kriging, RBF, MVS). Algumas aplicações da técnica de Kriging podem ser encontradas em:
+Leary et al. (2004), que utilizaram esta técnica para otimizar problemas complexos; Souza et
+al. (2010) que aplicaram o Kriging em problemas de gerenciamento de reservatórios; e Gaspar
+et al. (2014), onde essa técnica foi aplicado em problemas de reabilitação estrutural.
+Quanto às técnicas de Máquina de Vetor Suporte para Regressão (MVSR) e RBF, pode-se
+citar: Jayawardena e Fernando (1998) que usaram RBF em uma rede neural e aplicaram em
+simulações de escoamento em sistema hidrológico; Tiago e Leitão (2002) aplicaram RBF em
+problemas unidimensionais de engenharia, como treliças e vigas; Awruch et al.(2010)
+utilizaram RBF na construção de um metamodelo de painéis sujeitos a flambagem; Pan et al.
+(2010) aplicaram as técnicas de MVSR na otimização de um carro sujeito à colisões e, por fim,
+Pal e Deswal (2011) utilizaram MVSR para analisar a resistência ao cisalhamento em vigas
+altas.
+Um problema que vem ganhando interesse é a otimização de estruturas laminadas feitas de
+material compósito reforçado por fibras. Isso porque, em geral, não existe solução analítica para
+estruturas mais especificas, como o caso de placas com geometria não retangular ou com furos.
+CILAMCE 2016
+Proceedings of the XXXVII Iberian Latin-American Congress on Computational Methods in Engineering
+Suzana Moreira Ávila (Editor), ABMEC, Brasília, DF, Brazil, November 6-9, 2016
+
+<!-- pagina 3 -->
+J.A.F de Mendonça, E. Parente Jr., A.M.C. de Melo, E.S. Barroso, A.C. Paiva
+Em problemas desse tipo se faz necessário a aplicação do Método dos Elementos Finitos (MEF)
+que pode demandar elevado tempo de execução.
+Tendo em vista a vasta usabilidade desse tipo de estrutura e as dificuldades de otimização
+inerentes, o uso de modelos substitutos, combinados com AGs e PSO, pode se tornar de grande
+valor. Sendo assim, neste artigo é apresentada uma metodologia para otimização de placas
+laminadas baseadas no uso de Redes Neurais Artificiais.
+2 MATERIAIS COMPÓSITOS LAMINADOS
+Os compósitos reforçados por fibras são formados pela combinação de fibras de alta
+resistência (e.g. fibras de carbono ou vibro) envolvidas por uma matriz polimérica (e.g. resina
+epóxi). As fibras consideradas neste trabalho são unidirecionais, assim os compósitos formados
+por estas apresentam desempenho mecânico superior na direção das fibras. Uma estrutura
+laminada é obtida pelo empilhamento de várias camadas de compósitos, de modo a se obter
+características estruturais eficientes, como ilustrado na Fig. 1.
+Figura 1. Compósito Laminado (Barroso, 2015).
+O comportamento mecânico da lâmina pode ser analisado macroscopicamente como um
+material ortotrópico. Assim, o material resultante da estrutura laminada pode apresentar
+comportamento anisotrópico. Este tipo de abordagem é classificada na literatura como uma
+abordagem macromecânica (Daniel e Ishai, 2006), pois trata o compósito como um material
+homogêneo resultante, ao invés de considerar fibra e matriz separadamente.
+O comportamento mecânico do laminado é obtido em função de cada lâmina do compósito.
+Neste trabalho, é utilizada a Teoria Clássica da Laminação, que é descrita na próxima seção.
+2.1 Teoria Clássica da Laminação
+A Teoria Clássica da Laminação (TCL) utiliza as premissas da teoria de placa de Kirchhoff.
+A relação tensão-deformação de uma lâmina é dada por:
+ Q Q 0   
+1 11 12 1
+σ Qε       Q Q 0     (1)
+1 1  2  12 22   2
+   0 0 Q   
+     
+12 66 12
+onde σ e ε são, respectivamente, as tensões e deformações no sistema local da lâmina e Q é a
+1 1
+matriz constitutiva do compósito. Os termos da matriz constitutiva são dados por:
+E ν E E
+Q = 1 ; Q = 12 2 ; Q = 2 ; Q =G (2)
+11 1 ν ν 12 1 ν ν 22 1 ν ν 66 12
+12 12 12 21 12 21
+CILAMCE 2016
+Proceedings of the XXXVII Iberian Latin-American Congress on Computational Methods in Engineering
+Suzana Moreira Ávila (Editor), ABMEC, Brasília, DF, Brazil, November 6-9, 2016
+
+<!-- pagina 4 -->
+Aplicação de Redes Neurais Artificiais na otimização de placas laminadas
+onde E é o módulo de elasticidade na direção das fibras, E é o módulo de elasticidade na
+1 2
+direção perpendicular às fibras, G é o módulo de cisalhamento do compósito e ν é o
+12 12
+coeficiente de Poisson do compósito.
+Uma transformação de eixos é realizada para obter a relação tensão- deformação no sistema
+de eixos do laminado. Uma matriz de transformação T é definida para cada lâmina
+considerando a orientação das fibras desta em relação ao eixo do laminado, dada por:
+CILAMCE 2016
+Proceedings of the XXXVII Iberian Latin-American Congress on Computational Methods in Engineering
+Suzana Moreira Ávila (Editor), ABMEC, Brasília, DF, Brazil, November 6-9, 2016
+
+
+
+    
+   
+     
+T
+- 2 s
+c
+s
+e
+o
+e
+n
+s
+n
+²
+²
+c o s 2 s
+s
+c
+e
+e
+o
+n
+n
+s
+²
+²
+c o s c
+s e n
+- s e n
+o s ²
+c o
+c o
+s
+s
+s
+e n ²
+(3)
+Assim matriz constitutiva da lâmina no sistema do laminado é:
+QTTQT (4)
+e a relação tensão-deformação no sistema do laminado é:
+σ  Q ε (5)
+Considerando as hipóteses da TCL, as deformações em planos paralelos ao da superfície
+média do laminado são dadas por:
+εε z (6)
+m
+onde ε representa as deformações de membrana e κ representa as curvaturas do laminado. Os
+m
+esforços resultantes (forças e momentos) são obtidos integrando as tensões ao longo da
+espessura t do laminado:
+
+ N
+N
+N
+x
+y
+xy
+
+
+t / 2
+
+ t / 2
+
+x
+y
+xy
+
+d z e 
+ M
+M
+M
+x
+y
+xy
+
+
+t / 2
+
+ t / 2
+
+x
+y
+xy
+
+z d z
+ 
+ 
+ 
+N M (7)
+Utilizando as Eq. (5) e Eq.(7), a relação entre os esforços internos e deformações pode ser
+escrita como:
+ 
+
+    
+
+N
+M
+A
+B
+B
+D
+m (8)
+onde A é a matriz de rigidez de membrana, D é a matriz de rigidez à flexão e B é matriz de
+acoplamento membrana-flexão. Tais matrizes são avaliadas pelas expressões:
+Q (z2 z2 ) Q (z3 z3 )
+A = ∑ n Q k (z +z ); B = ∑ n ij k+1 k ; D = ∑ n ij k+1 k (9)
+ij ij k+1 k ij 2 ij 3
+k=1 k=1 k=1
+É importante observar que em laminados simétricos, a matriz B é nula, desacoplando as
+respostas de membrana e de flexão.
+
+<!-- pagina 5 -->
+J.A.F de Mendonça, E. Parente Jr., A.M.C. de Melo, E.S. Barroso, A.C. Paiva
+3 PROJETO DE EXPERIMENTOS E METAMODELAGEM
+Han e Zhang (2012) afirmam que na construção de um metamodelo o Projeto de
+Experimentos (Design of Experiments - DoE) é comumente utilizado para determinar a
+localização de pontos de uma amostra no espaço de projeto.
+Uma técnica simples de amostragem é a geração aleatória dos pontos, pois permite o
+controle direto do tamanho da amostra. Embora seja simples, esta abordagem nem sempre
+fornece uma amostra de qualidade, pois pode deixar espaços do domínio sem representação
+adequada, como ilustrado na Fig. 2.
+Figura 2. Amostra obtida de forma aleatória para 10 pontos.
+Neste trabalho é utilizada a técnica do Hipercubo Latino (HL), em que as amostras são
+geradas de forma estratificada (Frisso et al., 2011). O HL divide o domínio em faixas com igual
+probabilidade de representação e seleciona um ponto em cada uma dessas faixas. Esse
+procedimento garante a representação de todo o espaço amostral. Viana (2013) mostra, a
+proposta inicial, do HL é usar um processo aleatório para determinar a posição dos pontos, em
+cada faixa, que irão compor a amostra.
+O HL é muito utilizada por permitir uma amostragem sem redundâncias e inferências, além
+de apresentar flexibilidade, podendo gerar amostras de duas formas: com os pontos centrados
+em cada faixa do domínio, Fig. 3(a), ou alocados de forma aleatória, como mostra a Fig. 3(b).
+Comparando as amostragens das Fig. 2 e Fig. 3, percebe-se que o HL cobre melhor o espaço
+amostral que a amostragem aleatória, utilizando o mesmo número de pontos.
+CILAMCE 2016
+Proceedings of the XXXVII Iberian Latin-American Congress on Computational Methods in Engineering
+Suzana Moreira Ávila (Editor), ABMEC, Brasília, DF, Brazil, November 6-9, 2016
+
+<!-- pagina 6 -->
+Aplicação de Redes Neurais Artificiais na otimização de placas laminadas
+(a) Centrado. (b) Aleatório.
+Figura 3. Amostra obtida pelo Hipercubo Latino.
+3.1 Metamodelagem
+Um metamodelo consiste em um modelo aproximado e computacionalmente eficiente
+utilizado para substituir a solução exata ou um modelo de alta fidelidade do problema (Simpson
+et al.,2001). Segundo Wang e Shan (2006), as técnicas de metamodelagem desenvolveram-se
+por meio da estatística, matemática, ciência da computação e engenharia, com o objetivo de
+substituir simulações complexas e demoradas por modelos mais simples e eficientes. Os
+metamodelos são também conhecidos como modelos substitutos (surrogate models).
+De acordo com Simpson et al. (2001), hoje a maior parte das análises de engenharia
+consiste em executar códigos complexos em computadores, com objetivo de obter um conjunto
+de respostas (y) para um conjunto de variáveis de entrada (x). Isto porque as análises numéricas
+dos problemas de engenharia feitas por meio do Método dos Elementos Finitos (MEF), que
+hoje é uma das principais ferramentas de análise, não fornecem diretamente uma relação
+explícita da forma y = f(x). É importante ressaltar que a análise por MEF se torna onerosa para
+problemas complexos, principalmente quando incorpora efeitos dinâmicos e não lineares.
+A abordagem básica é construir um modelo aproximado a partir do modelo original de alta
+fidelidade, que seja mais eficiente na execução e ainda possa encontrar uma relação funcional
+na forma y = f(x). Essa aproximação é dada por ˆy= g(x), sendo
+CILAMCE 2016
+Proceedings of the XXXVII Iberian Latin-American Congress on Computational Methods in Engineering
+Suzana Moreira Ávila (Editor), ABMEC, Brasília, DF, Brazil, November 6-9, 2016
+y = ˆy + e r r o . É importante
+notar que o erro é determinante para obtenção de uma aproximação adequada. As maneiras de
+encontrá-lo são discutidas mais adiante.
+Assim, a ideia da metamodelagem é ensinar o computador a “pensar” de maneira similar à
+função que será substituída. Esse ensinamento, de acordo com Duda et al. (2000) e Haykin
+(2001), se divide em dois grandes grupos: o aprendizado supervisionado e o não
+supervisionado.
+O aprendizado supervisionado é caracterizado pela presença de um “treinador” que avaliará
+as respostas do metamodelo. Para tal, se faz necessário iniciar o treinamento com uma amostra
+pré-estabelecida (obtida pela avaliação do modelo de alta fidelidade). De posse dessas
+informações, o metamodelo, na etapa final de treinamento, fornecerá uma resposta (output) que
+
+<!-- pagina 7 -->
+J.A.F de Mendonça, E. Parente Jr., A.M.C. de Melo, E.S. Barroso, A.C. Paiva
+será comparada com a reposta certa (target), fornecida pela função ou etapa que pretende-se
+substituir. Já no aprendizado não-supervisionado, ao contrário do primeiro, não há “treinador”,
+ou seja, um conjunto de respostas pré-estabelecidas que auxiliará no treinamento. Nessa
+situação o metamodelo precisará mensurar, de maneira independente, os valores dos parâmetros
+que fornecerão a melhor resposta (Coppin, 2013; Haykin, 2001).
+3.2 Redes Neurais Artificiais
+Haykin (2001) define as redes neurais como sendo um processador maciço, trabalhando
+com uma estrutura altamente paralelizada, que tem uma disposição natural a aprender e tornar
+esse aprendizado disponível para uso. O autor afirma ainda que uma rede neural se assemelha
+ao cérebro humano em dois aspectos: (a) o conhecimento da RNA ocorre através de um
+processo de aprendizagem e (b) pesos sinápticos são utilizados para armazenar o conhecimento
+adquirido. Desse modo, pode-se dizer que a RNA é uma técnica de aprendizagem de máquina
+(machine learning) desenvolvida com o intuito de “imitar” a capacidade de aprendizado de um
+cérebro humano.
+As RNAs mais comuns, segundo Simpson et al. (2001), são as de múltiplas camadas
+(Multlayer Perceptron - MLP), visto que são capazes de resolver problemas não-lineares,
+diferentemente dos perceptrons simples (ou de uma camada). Alguns autores, como Nicholas
+et al. (2016), Koide et al. (2015) e Cardozo et al. (2011), já utilizaram metamodelos baseados
+nessa técnica para problemas de placas laminadas.
+Neste trabalho, optou-se por utilizar uma rede MLP alimentada adiante (feed forward). Um
+exemplo desse modelo é apresentado na Fig. 4.
+Figura 4. MLP com alimentação adiante (Haykin,2001).
+CILAMCE 2016
+Proceedings of the XXXVII Iberian Latin-American Congress on Computational Methods in Engineering
+Suzana Moreira Ávila (Editor), ABMEC, Brasília, DF, Brazil, November 6-9, 2016
+
+<!-- pagina 8 -->
+Aplicação de Redes Neurais Artificiais na otimização de placas laminadas
+Uma RNA precisa passar por um processo de aprendizagem, seja ele supervisionado ou
+não, onde será determinado o vetor de pesos sinápticos que minimizará o erro do metamodelo.
+O erro de aproximação, no neurônio j, é expresso por:
+e = y -ˆy (10)
+i i i
+Como o objetivo do metamodelo é aproximar o resultado esperado do resultado calculado,
+ou seja, minimizar o erro, normalmente utiliza-se o erro quadrático médio: (Mean Square Error
+- MSE):
+CILAMCE 2016
+Proceedings of the XXXVII Iberian Latin-American Congress on Computational Methods in Engineering
+Suzana Moreira Ávila (Editor), ABMEC, Brasília, DF, Brazil, November 6-9, 2016
+M S E 
+1
+n
+n
+i
+1
+ y
+i
+ ˆy
+i
+
+2
+(11)
+onde n é o número de pontos avaliados.
+O processo de minimização do erro resulta, segundo Haykin (2001), na regra delta (regra
+de Widrow-Hoff). Nessa regra, o ajuste ∆w aplicado ao peso sináptico w é dado por:
+ji ji
+Δ w
+ij
+= η e
+i
+x
+j
+(12)
+onde η é a taxa de aprendizado.
+Pelo algoritmo de retropropagação (back propagation), a correção aplicada ao peso
+sináptico conectado do neurônio i ao neurônio j é proporcional à derivada do erro em relação
+ao peso:
+∂ e
+Δw = η (13)
+ij ∂ w
+ij
+Uma explicação mais detalhada desse algoritmo pode ser encontrado em Haykin (2001).
+4 MODELO DE OTIMIZAÇÃO
+O problema tratado neste trabalho consiste na otimização de uma placa laminada quadrada
+sujeita a um carregamento biaxial, conforme ilustrado na Fig. 5. A escolha desse modelo
+ocorreu pelo fato de já existir uma solução exata para ele, facilitando a avaliação da rede neural
+na otimização do problema.
+Figura 5. Placa laminada sujeita a carregamento biaxial (Barroso, 2015).
+
+<!-- pagina 9 -->
+J.A.F de Mendonça, E. Parente Jr., A.M.C. de Melo, E.S. Barroso, A.C. Paiva
+Para uma placa laminada retangular simplesmente apoiada, o fator de segurança à
+flambagem (λ ) é dado pelo mínimo da seguinte equação (Reddy, 1996):
+cr
+CILAMCE 2016
+Proceedings of the XXXVII Iberian Latin-American Congress on Computational Methods in Engineering
+Suzana Moreira Ávila (Editor), ABMEC, Brasília, DF, Brazil, November 6-9, 2016
+cr
+( p , q )  2
+
+D
+1 1
+ p
+a
+ 4
+ 2
+
+D
+1 2
+
+
+p
+a
+2
+
+D
+2
+6
+
+6
+
+k
+
+p
+a
+q
+b
+
+
+2
+2
+ q
+b
+ 2
+ D
+2 2
+ q
+b
+ 4 
+  (14)
+onde p e q são o número de meias ondas nos eixos x e y, respectivamente, e k =N /N , onde,
+y x
+para k = 0, tem-se um carregamento uniaxial e para k = 1, um carregamento biaxial com
+magnitude N = N . Neste trabalho, o fator de segurança mínimo foi realizado considerando
+y x
+valores de p e q variando de 1 a 20, sendo considerado o menor valor obtido como o fator de
+segurança devido à flambagem.
+Como é comum no projeto de estruturas laminadas, serão utilizados o mesmo material e a
+mesma espessura para todas as lâminas. Assim, as variáveis de projeto são as orientações das
+fibras em cada lâmina. O objetivo do problema de otimização é determinar o esquema de
+laminação que maximiza a carga à flambagem da placa laminada. Matematicamente:
+Determinar x = [θ , ..., θ ] que
+1 nv
+Maximiza λ cr
+com 9 0 < θ
+i
+≤ 9 0
+(15)
+Nesta equação, nv representa o número de variáveis de projeto e λ representa o fator de
+cr
+segurança à flambagem. Serão consideradas laminações balanceadas-simétricas. Neste caso, o
+número de lâminas (nlam) é igual a quatro vezes o número de variáveis de projeto (nv). Por
+exemplo, um conjunto de variáveis x = [θ , θ ] representa o laminado x = [θ , -θ , θ , -θ ] .
+1 2 1 1 2 2 S
+O problema de otimização será resolvido utilizando o Bio-Inspirated Optimization System
+(BIOS), que é um programa de otimização, em linguagem C++, desenvolvido no Laboratório
+de Mecânica Computacional e Visualização (LMCV) da Universidade Federal do Ceará. O
+BIOS permite uma otimização usando algoritmos bio-inspirados como os Algoritmos
+Genéticos (AGs) e Nuvem de Partículas (Particle Swarm Optimization - PSO).
+A solução analítica dada pela Eq. (14) permite o cálculo rápido da carga de flambagem
+desta placa, não sendo necessário o uso de modelos substitutos para viabilizar a otimização
+deste problema. Por outro lado, a existência da solução analítica torna este problema ideal para
+verificar a utilização das RNA’s como um metamodelo para a otimização de estruturas
+laminadas.
+Assim, para cada exemplo a ser otimizado é criada uma rede neural alimentada adiante
+(feed forward) com uma camada escondida. O processo de construção da rede é apresentado na
+Fig. 6.
+
+<!-- pagina 10 -->
+Aplicação de Redes Neurais Artificiais na otimização de placas laminadas
+Figura 6. Fluxograma da criação da rede.
+O treinamento da rede foi feito utilizando o toolbox de redes neurais do MATLAB (Beale
+et al., 2016), e a arquitetura sofreu variação para cada exemplo estudado.
+5 EXEMPLO NUMÉRICO
+No presente tópico serão apresentados dois exemplos de otimização de placa laminada
+submetida ao carregamento biaxial (k=1), com laminação balanceada-simétrica. As
+características do material adotado e da geometria da placa estão apresentadas na Tabela 1.
+Inicialmente, são consideradas duas variáveis de projeto, Exemplo 1, o que corresponde a um
+laminado simétrico-balanceado com 8 lâminas e em seguida, Exemplo 2, consideram-se 16
+lâminas.
+Tabela 1. Características do material e geometria da placa.
+Geometria (m) Material: Carbono-Epóxi
+a b Espessura E (GPa) E (GPa) G (GPa) ν
+1 2 12 12
+0.508 0.508 1.272e-4 130.71 6.36 4.18 0.32
+Para a criação das redes, considerou-se como função de ativação da camada oculta, a
+função tangente hiperbólica. Para a camada de saída, foi considerada a função linear (visto que
+o problema é de regressão). As redes foram configuradas e treinadas com 1000 épocas e a
+amostragem foi realizada através do hipercubo latino.
+CILAMCE 2016
+Proceedings of the XXXVII Iberian Latin-American Congress on Computational Methods in Engineering
+Suzana Moreira Ávila (Editor), ABMEC, Brasília, DF, Brazil, November 6-9, 2016
+
+<!-- pagina 11 -->
+J.A.F de Mendonça, E. Parente Jr., A.M.C. de Melo, E.S. Barroso, A.C. Paiva
+5.1 Exemplo 1 – Placa com 8 lâminas
+Para esse primeiro caso, considerou-se uma rede com 15 neurônios na camada escondida,
+conforme apresentado na Fig. 7, e a amostra foi de 300 pontos. Vale salientar que para esse
+exemplo, os valores possíveis para o ângulo das fibras sofreu variação de ∆θ = 5°.
+Figura 7. Arquitetura da rede utilizada.
+Realizando o procedimento descrito na seção anterior, após o treinamento, a rede foi
+avaliada para 10 pontos. Os resultados obtidos são apresentados na Tabela 2 e representados
+graficamente na Fig. 8. Estes erros obtidos foram aceitáveis para fins de otimização, com o erro
+máximo sendo aproximadamente igual a 6%.
+Tabela 2. Resultados de validação.
+Laminação λ λ Erro (%)
+exato RNA
+[0 4 ] s 212,83 226,44 6,01042
+[0 2 ±15] s 227,67 240,15 5,19675
+[±15 90 2 ] s 309,22 301,65 -2,5095
+[±45 0 2 ] s 438,08 434,66 -0,7868
+[±30 ±60] s 413,54 416,08 0,61046
+[±75 90 2 ] s 309,21 299,28 -3,31800
+[±45 90 2 ] s 438,08 443,76 1,27997
+[±45 ±30] s 456,49 455,13 -0,2988
+[±30 90 2 ] s 395,13 394,9 -0,0582
+[±30 0 2 ] s 395,13 398,05 0,73358
+CILAMCE 2016
+Proceedings of the XXXVII Iberian Latin-American Congress on Computational Methods in Engineering
+Suzana Moreira Ávila (Editor), ABMEC, Brasília, DF, Brazil, November 6-9, 2016
+
+<!-- pagina 12 -->
+Aplicação de Redes Neurais Artificiais na otimização de placas laminadas
+Figura 8. Gráfico de simulação entre λ e a λ
+exato RNA.
+A Fig. 9 apresenta as superfícies de resposta exata e a calculada pela RNA. Verifica-se
+que as duas respostas são qualitativamente similares, com a RNA apresentando capacidade de
+capturar o comportamento global do problema.
+(a) Exato (b) RNA
+Figura 9. Superfície de resposta.
+A otimização foi realizada pelo AG com operadores de laminados implementado no BIOS
+(Rocha, 2013). Foram utilizados 60 indivíduos e 60 gerações na otimização, com probabilidade
+de cruzamento igual a 90%, probabilidade de mutação igual a 5% e probabilidade de troca de
+lâmina (swap) igual a 5%. Vale citar que foi utilizado a Engine API C do MATLAB
+CILAMCE 2016
+Proceedings of the XXXVII Iberian Latin-American Congress on Computational Methods in Engineering
+Suzana Moreira Ávila (Editor), ABMEC, Brasília, DF, Brazil, November 6-9, 2016
+
+<!-- pagina 13 -->
+J.A.F de Mendonça, E. Parente Jr., A.M.C. de Melo, E.S. Barroso, A.C. Paiva
+(MathWorks, Inc., 2011) para fazer a comunicação do BIOS (escrito em C++) com o
+MATLAB. Os resultados obtidos estão apresentados na Tabela 3.
+Tabela 3. Resultado da otimização da RNA.
+Laminação λ λ Erro(%)
+Exato RNA
+[45 -45 45 -45]s 462,63 458,77 -0,84
+Apesar de haver uma pequena diferença nas cargas críticas máximas obtidas, tendo a RNA
+fornecido um valor ligeiramente inferior ao exato, a mesma laminação ótima foi encontrada
+tanto usando a solução exata quanto utilizando a RNA.
+5.2 Exemplo 2 – Placa com 16 lâminas
+O exemplo em questão aplica-se para uma placa laminada com um total de 16 lâminas, o
+que se traduz em 4 variáveis independentes, haja vista que a laminação é balanceada-simétrica.
+Para esse exemplo foram treinadas três redes neurais, todas com uma camada escondida. O
+número de neurônios e de pontos na amostra são apresentados na Tabela 4.
+Tabela 4. Amostra e arquitetura das redes neurais.
+Rede Amostra Arquitetura*
+1 360 [4 – 10 – 1]
+2 360 [4 – 12 – 1]
+3 720 [4 – 15 – 1]
+*[x –y –z ] = x neurônios na camada de entrada, y na escondida e z na de saída.
+Como é possível perceber, o aumento da quantidade de neurônios da camada escondida
+tornou necessário aumentar o tamanho da amostra para o treino da Rede 3, visto que a saída
+dessa rede não fornecia um resultado adequado.
+Inicialmente, as redes foram utilizadas na otimização da placa considerando uma variação
+de ∆θ = 45° no ângulo de laminação. Adicionalmente, a Rede 2 foi utilizada na otimização
+considerando ∆θ = 5°. Os resultados obtidos, na otimização, são apresentados na Tabela 5.
+Além disso, a Tabela 6 apresenta a comparação das cargas de flambagem exata e aproximada
+por cada rede após o processo de otimização, vale ressaltar que a laminação ótima, para a Eq.
+(14), foi [±45 ] .
+4 s
+Tabela 5. Laminação obtida na otimização da RNA.
+Rede Arquitetura Laminação λcrRNA
+1 [4 – 10 – 1] [±45 90 ] 3694,972
+3 2 s
+2 [4 – 12 – 1] [±45 50 20] 3708,013
+2 s
+2 [4 – 12 – 1] [±45 0 ] 3706,65
+3 2 s
+3 [4 – 15 – 1] [±45 90 ] 3697,473
+3 2 s
+CILAMCE 2016
+Proceedings of the XXXVII Iberian Latin-American Congress on Computational Methods in Engineering
+Suzana Moreira Ávila (Editor), ABMEC, Brasília, DF, Brazil, November 6-9, 2016
+
+<!-- pagina 14 -->
+Aplicação de Redes Neurais Artificiais na otimização de placas laminadas
+Tabela 6. Comparação entre os resultados otimizados.
+Rede Arquitetura Laminação λcr λcr Diferença (%)
+RNA EXA
+1 [4 – 10 – 1] [±45 90 ] 3694,972 3701,042 0,164
+3 2 s
+2 [4 – 12 – 1] [±45 50 20] 3708,013 3701,042 -0,188
+2 s
+2 [4 – 12 – 1] [±45 0 ] 3706,65 3701,042 -0,152
+3 2 s
+3 [4 – 15 – 1] [±45 90 ] 3697,473 3701,042 0,096
+3 2 s
+Percebe-se que os erros foram bem pequenos nas duas situações, menor que 1%, ou seja, a
+laminação ótima que o metamodelo encontrou fornece um valor próximo do ótimo da função
+real. Nesse caso, a divergência nas laminações ocorreu pelo fato de se trabalhar com técnicas
+aproximadas. Por fim, a rede que apresentou melhor configuração otimizada foi a Rede 3, com
+erro de aproximadamente 0,1%, e laminação [±45 90 ] . Dessa forma, o metamodelo, apesar
+3 2 s
+da diferença na laminação ótima, forneceu uma solução para a função objetivo próxima da
+solução real e isso, em termos de Engenharia, é aceitável pois é uma metodologia aproximada,
+que permite reduzir o custo computacional frente às técnicas usais que envolvem MEF.
+6 CONCLUSÃO
+Esse artigo tratou do uso de metamodelos, baseados em Redes Neurais Artificiais, para
+aproximar a resposta de mecânica de estruturas laminadas durante a otimização destas
+estruturas. O problema considerado foi o de maximização da carga crítica de uma placa com
+laminação balanceada-simétrica, a priori, com 8 lâminas e em seguida com 16 lâminas. As
+RNAs foram criadas com uso do toolbox de redes neurais do MATLAB, e otimizada pelo BIOS.
+Os resultados obtidos mostram que uma rede bem treinada pode substituir uma formulação mais
+complexa e computacionalmente mais cara. Este artigo apresenta uma pesquisa em
+desenvolvimento. Nessa primeira etapa, buscou-se entender a filosofia do metamodelo e a
+funcionalidade da rede em conjunto com BIOS. Nas próximas etapas, a metodologia será
+aplicada na otimização de cascas laminadas, onde não existe solução analítica, sendo necessário
+o uso de elementos finitos.
+AGRADECIMENTOS
+Os autores deste trabalho agradecem ao suporte financeiro da Capes e do CNPq.
+REFERÊNCIAS
+Arora, J. S., 2004.Introduction to optimun deseign. 2. ed. Elsevier Inc.
+Awruch, M.D.F., Hernandes, J.A., & Bussamra, F.L.S., 2010.Utilização de metamodelos de
+painéis reforçados integrais otimizados sujeitos à flambagem. In: VI Congresso Nacional de
+Engenharia Mecânica (CONEM), Campina Grande.
+Barroso, E.S., 2015. Análise e otimização de estruturas laminadas utilizando a formulação
+isogeométrica. Dissertação, Universidade Federal do Ceará/Fortaleza.
+Barthelemy, J.-F.M., & Haftka, R.A., 1993. Approximation concepts for optimum structural
+design – a review. Structural Optimization, vol. 5, pp. 129-144.
+CILAMCE 2016
+Proceedings of the XXXVII Iberian Latin-American Congress on Computational Methods in Engineering
+Suzana Moreira Ávila (Editor), ABMEC, Brasília, DF, Brazil, November 6-9, 2016
+
+<!-- pagina 15 -->
+J.A.F de Mendonça, E. Parente Jr., A.M.C. de Melo, E.S. Barroso, A.C. Paiva
+Beale, M. H., Hagan, M. T., & Demuth, H. B., 2016. MATLAB: Neural Network ToolboxTM
+User’s Guide. MathWorks, Inc.
+Bratton, D. & Kennedy, J., 2007. Defining a Standard for Particle Swarm Optimization.
+Proceedings of the 2007 IEEE Swarm Intelligence Symposium, pp. 120-127.
+Cardozo, S. D., Gomes, H. M., & Awruch, A. M., 2011. Optimization of laminated composite
+plates and shells using genetic algorithms, neural networks and finite elements. Latin
+American Journal of Solids and Structures, vol. 8, pp. 413-427.
+Coppin, B., 2012. Inteligência Artificial. LTC.
+Daniel, I.M., & Ishai, O., 2006. Engineering mechanics of composite materials. 2. ed. Oxford
+University Press.
+Duda, R.O., Hart, P. E., & Stork, D.G., 2000. Pattern Classification. 2. ed. John Wiley &
+Sons, INC.
+Forrester, A.I.J., & Keane, A.J., 2009. Recent advances in surrogate-based optimization.
+Progress in Aerospace Sciences, vol. 45, pp. 50-79.
+Frisso, C., Scarpel, R.A., & Ferrari, D.B.T.P.A., 2011. Metamodelagem de funções
+determinísticas por composição integrada de especialistas locais. In: XLIII Simpósio
+Brasileiro de Pesquisa Operacional, Ubatuba.
+Gaspar, B., Texeira, A.P., & Soares, C.G., 2014. Assessment of the efficiency of Kriging
+surrogate models for structural reliability analysis. Probabilistic Engineering Mechanics, vol.
+37, pp. 24-34.
+Han, Z.-H., & Zhang, K.-S., 2012. Surrogate-Based Optimization. In: Real-World
+Applications of Genetic Algorithms. Disponível em: < http://www.intechopen.com/books/real-
+world-applications-of-genetic-algorithms/surrogate-based-optimization > Acesso: 08/09/2016.
+Haykin, S., 2001. Redes Neurais: Princípio e prática. 2. ed. Bookman.
+Jayawardena, A.W., & Fernando, A.K. 1998.Use of radial basis function type artificial neural
+networks for runoff simulation. Computer-Aided Civil and Infrastructure Engineering, vol.
+13, pp.91-99.
+Kennedy, J., & Eberhart, R.C., 1995. Particle swarm optimization. In: Proceedings of the
+IEEE international conference on neural networks, pp. 1942–1948.
+Koide, R.M., Ferreira, A.P.C.S., & Luersen, M. A., 2015. Laminated Composites Buckling
+Analysis Using Lamination Parameters, Neural Networks and Support Vector Regression.
+Latin American Journal of Solids and Structures, vol. 12, pp. 271-294.
+Leary, S.J., Bhaskar, A., & Keane, A.J., 2004. A derivative Based Surrogate Model for
+Approximating and Optimizing the Output of an Expensive Computer Simulation. Journal of
+Global Optimization, vol. 30. pp. 39-58.
+Nicholas, P.E., Babu, M. C. L., & Sofia, A. S., 2016. Multiobjective optimization of
+laminated composite plate with elliptical cut-out using ANN based NSGA-II. Journal of
+Mechanics of Materials and Strutuctures, vol. 11, n. 2, pp. 157-172.
+Pal, M., & Deswal, S., 2011. Support vector regression based shear strengh modelling of deep
+beams. Computers and Structures, vol. 89, pp. 1430-1439.
+Pan, F., Zhu, P., & Zhang, Y., 2010. Metamodel-based lightweight design of B-pillar with TB
+structure via support vector regression. Computers and Structures. vol. 88, pp. 36-44.
+CILAMCE 2016
+Proceedings of the XXXVII Iberian Latin-American Congress on Computational Methods in Engineering
+Suzana Moreira Ávila (Editor), ABMEC, Brasília, DF, Brazil, November 6-9, 2016
+
+<!-- pagina 16 -->
+Aplicação de Redes Neurais Artificiais na otimização de placas laminadas
+Reddy, J.N., 1996. Mechanics of laminated composite plates: Theory and analysis. CRC
+press, Inc.
+Rocha, I. B. C. M., 2013. Análise e otimização de cascas laminadas considerando não-
+linearidade geométrica e falha progressiva. Dissertação, Universidade Federal do
+Ceará/Fortaleza.
+Simpson, T.W., Peplinski, J. D., Koch, P. N., & Allen, J. K., 2001. Metamodels for
+Computer-based Engineering Design: Survey and recommendations. Engineering with
+Computer, vol. 17, pp. 129-150.
+Souza, S.A., Oliveira, L.C., &Afonso, S.M.B., 2010. Otimização de estratégia de produção de
+petróleo utilizando algoritmo evolucionário e modelos substitutos. In: VI Congresso Nacional
+de Engenharia Mecânica (CONEM), Campina Grande.
+Tiago, C.M., & Leitão, V.M.A., 2002. Utilização de Funções de base radial em problemas
+unidimensionais de análise estrutural. In: Métodos Numéricos en Ingeniería V, Espanha.
+The MathWorks, Inc., 2011. MATLAB® R2011b, Getting Started Guide.
+Viana, F.A.C., 2013. Things you wanted to know about the Latin hypercube design and were
+afraid to ask. In: 10° World Congress in Structural and Multidisciplinary Optimization.
+Orlando/Florida.
+Wang, G.G., & Shan, S., 2006. Review of Metamodeling Techniques in Support of
+Engineering Design Optimization. Journal of Mechanical design, vol 129, pp.370-380
+CILAMCE 2016
+Proceedings of the XXXVII Iberian Latin-American Congress on Computational Methods in Engineering
+Suzana Moreira Ávila (Editor), ABMEC, Brasília, DF, Brazil, November 6-9, 2016

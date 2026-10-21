@@ -1,0 +1,624 @@
+<!-- pagina 1 -->
+Diagnóstico de Glaucoma em Retinografias Usando
+Índices Taxonômicos e Aprendizado de Máquina
+Layane M Azevedo João D S Almeida Anselmo C Paiva
+NúcleodeComputação NúcleodeComputação NúcleodeComputação
+Aplicada Aplicada Aplicada
+UniversidadeFederaldo UniversidadeFederaldo UniversidadeFederaldo
+Maranhão Maranhão Maranhão
+Brasil Brasil Brasil
+layane@nca.ufma.br jdallyson@nca.ufma.br paiva@nca.ufma.br
+Geraldo Braz Junior Rodrigo M S Veras
+NúcleodeComputação Departamentode
+Aplicada Computação
+UniversidadeFederaldo UniversidadeFederaldoPiauí
+Maranhão Brasil
+Brasil rveras@ufpi.edu.br
+geraldo@nca.ufma.br
+ABSTRACT se manifestam quando a doenc¸a esta´ em esta´gio avan¸cado.
+Nesse contexto, este trabalho apresenta um m´etodo com-
+Glaucoma is an irreversible disease that degrades the optic
+putacionalutilizandodescritoresdetexturaparadetectaro
+nerve until the complete loss of the visual field. The World
+glaucoma automaticamente em imagens de fundo de olho.
+Health Organization estimates that glaucoma accounts for
+Paradescreveratexturaforamutilizados´ındicestaxonoˆmi-
+approximately5.2millioncasesofblindness. Thesymptoms
+cos e na defini¸ca˜o do melhor modelo de classificac¸a˜o das
+only manifest when the disease is at an advanced stage. In
+imagensutilizou-set´ecnicasdeaprendizadodema´quinaau-
+thiscontext,thispaperaimstopresentanautomatedcom-
+tomatizado com otimizac¸˜ao Bayesiana. O m´etodo proposto
+putational method using texture descriptors to detect glau-
+esta´organizadoemcincoetapas: (1)Pr´e-processamento,(2)
+coma in eye fundus images. To describe the texture, taxo-
+Conversa˜oemEspac¸osdeCores,(3)Extrac¸a˜odecaracter´ıs-
+nomic indexes were used. To define the best image classifi-
+ticas,(4)Classificac¸a˜oe(5)Validac¸a˜oderesultados. Osex-
+cation model, automated machine learning techniques were
+perimentosforamrealizadosem922imagensderetinografia
+used along with the Bayesian optimization approach. The
+debasespu´blicas,sendo455daRIM-ONEversa˜o2,400da
+proposedmethodisorganizedintofivesteps: (1)Preprocess-
+iChallenge-GON e 67 da base Kaggle1000fundusimages. O
+ing,(2)ColorConversions,(3)FeatureExtraction,(4)Clas-
+m´etodo apresentou resultados promissores obtendo 90,20%
+sification, and (5) Validation. The experiments were per-
+de sensibilidade, 94,03% de especificidade , f1 score de 0,82
+formedon922publicretinographyimagesdatabases: RIM-
+e 92,97% de acura´cia.
+ONEversion2,iChallenge-GONandKaggle1000fundusimages.
+Themethodobtained90.20%ofsensitivity,94.03%ofspeci-
+ficity, f1-score of 0.82 and 92.97% of accuracy. CCSConcepts
+•Computing methodologies→Computer vision rep-
+RESUMO resentations; •Applied computing → Health informat-
+ics; •General and reference → Experimentation;
+O glaucoma ´e uma doen¸ca o´ptica irrevers´ıvel que degrada
+o nervo ´optico at´e a completa perda do campo visual. A
+Keywords
+Organizac¸a˜o Mundial de Sau´de estima que o glaucoma seja
+responsa´vel por aproximadamente 5,2 milho˜es de casos de Glaucoma; Diagnosis; Retinography; Taxonomic Indexes;
+cegueiraqueequivalea15%dototaldecegueiramundial,e Machine Learning.
+at´e2020podechegara11,2milho˜esdecasos. Ossintomasso´
+Palavras-chave
+Glaucoma; Diagno´stico; Retinografia;´Indices Taxonoˆmicos;
+Aprendizado de Ma´quina.
+Permissiontomakedigitalorhardcopiesofallorpartofthisworkforpersonalor
+classroomuseisgrantedwithoutfeeprovidedthatcopiesarenotmadeordistributed 1. INTRODUÇÃO
+forprofitorcommercialadvantageandthatcopiesbearthisnoticeandthefullcitation
+onthefirstpage.Tocopyotherwise,orrepublish,topostonserversortoredistribute Segundo o Conselho Brasileiro de Oftalmologia, o glau-
+tolists,requirespriorspecificpermissionand/orafee. coma ´e a maior causa de cegueira irrevers´ıvel no mundo e
+estima-sequeonu´merodepessoascomglaucomaemtodoo
+Revista de Sistemas e Computação, Salvador, v. 10, n. 1, p. 69-78, jan./abr. 2020
+http://www.revistas.unifacs.br/index.php/rsc
+
+<!-- pagina 2 -->
+70
+mundoaumentara´para111,8milho˜esat´e2040[19]. Oglau- al. (2017)propuseramumametodologiaparadiagnosticaro
+coma´e uma doenc¸a ocular, inicialmente assintoma´tica, que glaucomautilizandofun¸co˜esgeoestat´ısticascomo: semivari-
+causa dano ao nervo ´optico ocasionando, posteriormente, a ograma, semimadograma, covariograma e correlograma. As
+perdairrevers´ıveldocampovisualepossuicomomaiorfator imagens passaram por um pr´e-processamento sendo trans-
+de risco o aumento da pressa˜o intraocular (pressa˜o dentro formadas para n´ıvel de cinza e em seguidas equalizadas.
+do olho) [26]. Paraarepresentac¸a˜odaregia˜ododiscoo´pticofoiaplicadoo
+Ademais, o glaucoma tem a caracter´ıstica de ser hered- Padra˜o Bina´rio Local (LBP) e func¸o˜es geoestat´ısticas para
+ita´rio, sendo extremamente relacionado a pressa˜o intraocu- descrever os padro˜es de textura.
+lar. Normalmentepessoasdessegrupoderiscofazemacom- Al-Banderetal. (2017)apresentamumaabordagempara
+panhamentodapressa˜ointraocular,masodiagn´ostico´efeito odiagno´sticoautoma´ticodeglaucomausandoredesneurais
+por meio de alguns exames, sendo a retinografia um dos convolucionais (CNN). A metodologia consiste em trˆes eta-
+principais. A retinografia ´e uma forma muito comum de se pas: pr´e-processamentocomredimensionamentodeimagem,
+diagnosticaralgumasdoenc¸asoculares,ondefaz-seautiliza- recursosdeextrac¸a˜ousandoCNNeclassifica¸ca˜ousandoSup-
+c¸˜aodaimagemdofundodeolhoparaanalisarasestruturas port Vector Machine. Foi utilizado um modelo CNN pr´e-
+da retina: disco, cavidade e nervo o´ptico [8]. treinado(AlexNet)com23camadas. Estem´etodoalcanc¸ou
+O diagno´stico do glaucoma atrav´es de imagens requer umaacura´ciade88,22%,especificidadede90,8%esensibil-
+ana´lise e interpretac¸a˜o de um especialista da a´rea. Por idade de 85%.
+outrolado,aolongodosanospesquisasnaa´readediagno´s- Araujo et al. (2018) propuseram uma metodologia para
+tico assistido por computador (CAD) vem crescendo, onde o diagno´stico de glaucoma em imagens de retinografia, us-
+´e feita a an´alise de imagens computadorizadas com a final- ando como descritor os´ındices de diversidade. O m´etodo´e
+idade de auxiliar a interpretac¸a˜o de exames com imagens dividido em pr´e-processamento; extrac¸a˜o de caracter´ısticas
+m´edicas fornecendo uma automatiza¸ca˜o nas ana´lises e uma usandoos´ındicesdediversidadedeShannoneMcIntosh;na
+segunda opinia˜o para o especialista [13]. As principais for- terceira etapa o algoritmo gen´etico´e usado para selec¸a˜o de
+masencontradasnaliteraturaparaadetecc¸a˜oediagn´ostico recursos e para a classificac¸a˜o foi utilizado o SVM (Support
+doglaucomasa˜o: porsegmentac¸a˜odaregia˜ododiscoo´ptico Vector Machine). Os resultados alcanc¸aram uma acura´cia
+edacavidade;eporextrac¸a˜odecaracter´ısticascomt´ecnicas de 93,4%, uma sensibilidade de 92,8% e especificidade de
+de classifica¸ca˜o. 93,6%.
+Na detecc¸a˜o por segmentac¸a˜o ´e calculado o CDR (cup- Semelhanteaocitadoanteriormente,nestetrabalho´epro-
+to-disc ratio), que ´e a raza˜o do DO (Disco O´ptico) com a postaumametodologiaparaautilizac¸a˜ode´ındicesecolo´gi-
+CDO(escavac¸a˜ododiscoo´ptico)e,segundoSpaeth(1981), coscomodescritoresdetextura,os´ındicestaxonoˆmicos. Os
+se o valor gerado for maior ou igual a 0,65 normalmente dois trabalhos se diferem na etapa de pr´e-processamento,
+indica que o paciente possui glaucoma. Um problema desse onde Arau´jo et al. (2018) propo˜em a utilizac¸a˜o de filtros
+m´etodo´eencontrarasregio˜esdeinteresse(ROI).Essaabor- e equalizac¸a˜o de histograma; e na etapa de extrac¸a˜o de
+dagem, por utilizar algoritmos de segmenta¸ca˜o, pode apre- caracter´ısticas, onde este utiliza os´ındices de Shannon, de
+sentar problemas de localiza¸ca˜o para determinac¸a˜o de val- McIntosh e de Diversidade Total. No m´etodo proposto, o
+ores de limiar ou demarcac¸a˜o que levam a erros no diag- pr´e-processamento ´e feito utilizando reduc¸a˜o de ru´ıdo, nor-
+no´stico[24]. Uma abordagem diferente desta ´e a extrac¸a˜o malizac¸a˜o de cor, CLAHE e Especificac¸a˜o de Histograma,
+de caracter´ısticas que consideram a imagem como um todo ´e realizada a transformac¸a˜o de espac¸os de cores e sa˜o uti-
+descrevendo-asbaseadasemcor,texturae/ouforma. Igual- lizadosoitodescritores(´ındicestaxonoˆmicos),diferentesdos
+mente, alguns autores [7, 2, 3] obtiveram resultados rele- utilizados por Arau´jo et al., al´em de utilizar uma base de
+vantes com esta abordagem. imagens maior.
+Este artigo tem como objetivo apresentar a avalia¸ca˜o da
+utilizac¸˜ao dos ´ındices taxonoˆmicos, comumente utilizados
+na ecologia, como descritores de textura, com a finalidade 3. MATERIAISEMÉTODOS
+de serem aplicados no diagno´stico do glaucoma em retino-
+Esta sec¸a˜o apresenta as tecnologias, as bases de imagens
+grafias. Para tal, sa˜o utilizadas bases pu´blicas de imagens
+e o m´etodo proposto neste estudo. Para a implementa¸ca˜o
+de retinografia com casos de glaucoma, nas quais, sa˜o apli-
+das t´ecnicas utilizadas no pr´e-processamento e extrac¸a˜o de
+cadast´ecnicasdepr´e-processamentodeimagens,seguidada
+caracter´ısticas, foi utilizada a linguagem de programac¸a˜o
+extrac¸a˜odos´ındicestaxonˆomicosadequadosparaaproposta
+Python. Amanipulac¸a˜odasimagensfoirealizadaatrav´esda
+e da classificac¸a˜o.
+biblioteca OpenCV [16], de co´digo livre. Os classificadores
+Orestantedesteartigoesta´organizadodaformadescrita
+foramestimadosatrav´esdabibliotecaAutoSklearn,tamb´em
+a seguir. Na Sec¸a˜o ??, sa˜o apresentados o objetivo geral e
+de co´digo livre.
+espec´ıficos deste trabalho. Na Sec¸˜ao 3, s˜ao descritos os ma-
+Om´etodopropostoesta´estruturadoemcincoetapas: pr´e-
+teriais e m´etodos utilizados. Os resultados obtidos, as dis-
+processamento,transformac¸a˜oemcincoespa¸cosdecores,ex-
+cusso˜essobreessesresultadoseumcomparativocomoutros
+tra¸ca˜o de caracter´ısticas, classificac¸a˜o e valida¸ca˜o de resul-
+trabalhosequivalentesaonossosa˜oapresentadosnaSec¸a˜o4.
+tados. AFigura1apresentaasetapasdom´etodoproposto.
+Concluindo, na Sec¸a˜o 5 sa˜o apresentados as concluso˜es da
+OsprimeirostestesforamrealizadosapenasnabaseRIM-
+pesquisaeostrabalhosfuturosemandamentoouarealizar.
+ONEversa˜o2. Conformeforamsendoobservadososresulta-
+dos,percebeu-seanecessidadederealizaraespecificac¸a˜odo
+2. TRABALHOSRELACIONADOS
+histograma na etapa de pr´e-processamento, com o objetivo
+Estase¸ca˜oapresentatrabalhosexistentesnaliteraturaso- de tentar corrigir as diferenc¸as de contraste e ilumina¸ca˜o
+breautiliza¸ca˜odedescritoresdetexturaemimagensm´edi- que elas possu´ıam entre si por serem adquiridas de forma
+casparadiagnosticaroglaucomaemretinografias. Sousaet diferente.
+Revista de Sistemas e Computação, Salvador, v. 10, n. 1, p. 69-78, jan./abr. 2020
+http://www.revistas.unifacs.br/index.php/rsc
+
+<!-- pagina 3 -->
+71
+Figure 1: Etapas do M´etodo Proposto.
+3.1 BasedeImagens a manipulac¸a˜o de histograma para obter uma distribuic¸a˜o
+Antes de realizar o estudo, sa˜o necessa´rias a defini¸ca˜o e uniforme da intensidade [21]. Esse m´etodo de aprimora-
+aquisic¸a˜o de bases de imagens de fundo de olho com pa- mento ´e muito utilizado na oftalmologia, como, por exem-
+cientes com glaucoma e sem glaucoma. A primeira base plo, em detecc¸a˜o de micro aneurismas. Esse m´etodo, por
+utilizada neste trabalho foi a RIM-ONE [27]. A RIM-ONE sua vez, funciona espalhando a distribui¸ca˜o de intensidade
+´e uma base pu´blica e esta´ dispon´ıvel na internet. Foi uti- nohistogramaeajustandoaintensidadedaimagemoriginal.
+lizadaaversa˜o2,quepossui455imagensnoformatoRGB, A informac¸a˜o de cor na imagem tamb´em pode ser muito
+e sa˜o separadas em duas classes, Glaucoma and suspicious u´til na etapa de classificac¸a˜o, justificando assim a utiliza-
+(200 imagens) e Normal (255 imagens). c¸a˜o da t´ecnica de normalizac¸a˜o de cor [32]. Para ser usada
+Al´emdabaseRIM-ONE,foramadquiridasmaisduasbases: como pr´e-processamento, no entanto, essa informac¸˜ao deve
+iChallenge-GON [31] e Kaggle1000fundusimages [17]. As estar intrinsecamente relacionada a`s propriedades dos obje-
+duasbasessa˜opu´blicaseesta˜odispon´ıveis. AbaseiChallenge- toscaptados,nessecaso,deveoferecerinforma¸co˜esarespeito
+GONpossui400imagens,sendodestas360sinalizadascomo da sau´de do paciente fotografado. Assim, a cor da imagem
+pacientes sem glaucoma e 40 glaucomatosos. A base Kag- devepossuircorrelac¸a˜ocomasau´dedopacienteapresentado
+gle1000fundusimages ´e uma base que possui 1000 imagens nela.
+deretinografia,estando13destassinalizadascomopacientes ParaasbasesiChallenge-GONeKaggle1000fundusimages,
+com glaucoma e 54 sem glaucoma. A Figura 2 demonstra a al´em dopr´e-processamentopassado, antesdaetapade con-
+diversidade de imagens encontradas nas bases adquiridas. versa˜o em espac¸os de cores, foi aplicada tamb´em a especi-
+Portanto, para o desenvolvimento desta pesquisa, foram ficac¸a˜o de histograma (matching), para que apresentassem
+utilizadas um total de 922 imagens, sendo 669 delas de pa- caracter´ısticas mais semelhantes a`s imagens da RIM ONE
+cientes sem glaucoma e 253 glaucomatosos. v2. Ap´osaespecificac¸a˜odehistograma,todaametodologia
+´e ana´loga a` realizada apenas na etapa anterior.
+3.2 Pré-Processamento
+3.3 TransformaçãodeEspaçosdeCores
+Aetapadepr´e-processamentotevecomoobjetivomelho-
+raraimagemeevidenciarcaracter´ısticasdaregia˜ododisco Apo´sopr´e-processamento,asimagenssa˜otransformadas
+o´pticoedacavidadedodiscoo´ptico,paraafasedeextrac¸a˜o paraoutrosespac¸osdecores,oHSV,LUV,Lab[14],YCrCb
+de caracter´ısticas. Para tal foram utilizados alguns m´eto- eRGB.Essesespa¸cosdecoresforamutilizadosparaavaliar
+dos: aReduc¸a˜odeRu´ıdoporNon-local Means,Equalizac¸a˜o se existem caracter´ısticas relevantes para distinguir as ima-
+deHistogramaAdaptativa(CLAHE)eaaNormalizac¸a˜ode gens de pacientes glaucomatosos de pacientes sauda´veis. O
+Cor. espa¸co de cor HSV, por exemplo,´e um sistema de core for-
+O propo´sito principal da utilizac¸a˜o do algoritmo Non- mado pela matiz, saturac¸a˜o e valor de intensidade (brilho)
+Local Means ´e de remover o ru´ıdo de uma imagem – que da imagem [29], enquanto o RGB´e um sistema constitu´ıdo
+pode ter sido inserido durante a sua aquisic¸a˜o – a fim de das cores vermelho, azul e verde.
+recuperar a imagem original. Comumente, os algoritmos de Primeiramente,foramrealizadostestesemcadaespac¸ode
+remo¸ca˜o de ru´ıdo realizam esse procedimento de forma lo- cor separadamente. Observando-se os resultados, resolveu-
+cal, como sugerem o filtro Gaussiano e o filtro da Mediana. se utilizar todos os espac¸os de cores para a gerac¸a˜o de car-
+Aprincipaldiferenc¸adoalgoritmoNon-Local Means emre- acter´ısticas. Dessa forma, para cada espac¸o de cor foram
+lac¸a˜oaosfiltroslocaisouaosfiltrosnodom´ıniodafrequˆencia separadososcanaisgerandotrˆesimagensemn´ıveisdecinza
+´e o uso sistema´tico de todas as informac¸o˜es poss´ıveis que a para cada espac¸o de cor. Assim, para cada espac¸o de cor,
+imagem pode oferecer [6]. tem-se 3 n´ıveis de cinza correspondentes.
+Um m´etodo comum em processamento de imagens ´e a
+3.4 ExtraçãodeCaracterísticas
+equalizac¸a˜o do histograma por ser um m´etodo simples pos-
+suir baixo custo computacional. O CLAHE (Contrast Lim- Apo´s o pr´e-processamento, as imagens sa˜o submetidas a
+ited Adaptative Histogram Equalization) tem como objetivo extrac¸a˜o de caracter´ısticas. Essas caracter´ısticas sa˜o defini-
+principalmelhoraraimagemderetinografiacoloridausando dascomopropriedadespresentesemobjetosregistradosnas
+Revista de Sistemas e Computação, Salvador, v. 10, n. 1, p. 69-78, jan./abr. 2020
+http://www.revistas.unifacs.br/index.php/rsc
+
+<!-- pagina 4 -->
+72
+Figure 2: Exemplos de imagens das bases RIM-ONE v2 (esquerda), iChallenge-GON (meio) e Kag-
+gle1000fundusimages (direita).
+Figure 3: Exemplo de imagem da base iChallenge-GON antes e apo´s a especificac¸˜ao de histograma.
+Figure 4: Exemplo de imagem da base RIM ONE v2 apo´s a divis˜ao em n´ıveis de cinza para o espac¸o de cores
+BGR. (a) B - Azul; (b) G - Verde; (c) R - Vermelho
+Revista de Sistemas e Computação, Salvador, v. 10, n. 1, p. 69-78, jan./abr. 2020
+http://www.revistas.unifacs.br/index.php/rsc
+
+<!-- pagina 5 -->
+73
+imagens,quepodemserusadoscomodescritoresdaimagem • ´Indice de Distinc¸a˜o Taxonoˆmica:
+[23]. Paraestetrabalho,om´etododeextrac¸a˜odecaracter´ıs-
+Representa a distaˆncia taxonoˆmica m´edia entre dois
+ticas utiliza´ındices taxonoˆmicos.
+indiv´ıduos [18].
+Os ´ındices taxonoˆmicos, ou ´ındices de diversidade, sa˜o
+´ındices comumente utilizados na ecologia para descrever a
+(cid:80)(cid:80)
+v re a g r i i a˜ ed o. ad E´ e p d o e ss e ´ı s v p e ´e l c m ie e s d e i m ra u d m iv a er d s e id te a r d m e in d a e d d a ua co s m fo u r n m id a a s: de pe o l u a ∆∗ = (cid:80)(cid:80) i<j ω i x j x x i x j (2)
+i<j i j
+riqueza de esp´ecies, representada pelo nu´mero de esp´ecies
+encontradas em uma regi˜ao, e pela abundaˆncia relativa, ou Onde x (i,j = 1, ..., s) ´e a abundaˆncia da i-´esima
+i
+seja, o nu´mero de indiv´ıduos de uma esp´ecie espec´ıfica em esp´ecie; ω ´e a distaˆncia da esp´ecie i a` esp´ecie j e s´e o
+uma regia˜o. nu´mero de esp´ecies.
+Para que os´ındices de diversidade possam ser utilizados
+• Soma da Distaˆncias Filogen´eticas:
+na ana´lise de textura em imagens, ´e necessa´rio fazer uma
+analogia entre o que eles representam na Ecologia e o que Representa a soma das distaˆncias filogen´eticas entre
+representamemProcessamentodeImagens. Dessaforma,a pares de esp´ecies [28].
+comunidade´eabstra´ıdacomoumaimagem(oupartedela),
+a o s s e in sp d ´e iv c ´ı i d es uo s s a˜o sa˜ o o s n o ´ s ıve p i i s xe d ls e . ci A nza Ta e b n e c l o a nt 3 r . a 4 d s o u s m n a a ri i z m a a a ge c m or e - SPD= (cid:18) s(s−1) (cid:19)(cid:18)(cid:80) (cid:80) (cid:80) (cid:80) m<n d mn a m a n (cid:19) (3)
+2 a a
+respondˆencia entre os termos utilizados quando se trata de m<n m n
+´ındicesdediversidadetaxonoˆmicaemrelac¸˜aoaotermosem
+Onded (m,n=1,...,s)´eadistaˆnciadaesp´eciema`
+processamento de imagens. mn
+esp´ecie n; a´e a abundaˆncia da esp´ecie e s´e o nu´mero
+A Figura 5 demonstra um exemplo contendo trˆes esp´e-
+de esp´ecies.
+cies (n´ıveis de cinza): preto (P), cinza (C) e branco (B). A
+quantidade de indiv´ıduos (pixels) de P´e 4, C´e 2 e B´e 3. • Distaˆncia M´edia do Vizinho Mais Pro´ximo:
+Representaadistaˆnciam´ediaat´eota´xonmaispro´ximo
+[28].
+s
+(cid:88)
+MNND= min(d )a (4)
+mn m
+Onded (m,n=1,...,s)´eadistaˆnciadaesp´eciema`
+mn
+esp´ecie n; a´e a abundaˆncia da esp´ecie e s´e o nu´mero
+de esp´ecies.
+• Entropia Quadra´tica Intensiva:
+Representa o nu´mero de esp´ecies e suas relac¸˜oes tax-
+onoˆmicas [1].
+Figure 5: Exemplo de uma imagem contendo 3 es-
+p´ecies (n´ıveis de cinza). (cid:80)
+( d )
+J = ij (5)
+s2
+Uma representac¸a˜o gen´erica de uma a´rvore taxonoˆmica e
+sua matriz de distˆancias para a Figura 5 esta´ representada Onde d (i,j = 1, ..., s) ´e a distaˆncia da esp´ecie i a`
+ij
+a seguir. esp´ecie j e s´e o nu´mero de esp´ecies.
+A diversidade taxonoˆmica ´e uma abordagem baseada no
+• Entropia Quadra´tica Extensiva:
+conjunto de distaˆncias entre pares de esp´ecies a partir de
+a´rvorestaxonoˆmicas[20]. Paraesteartigofoiescolhidauma Representaasomadasdistaˆnciasentreasesp´ecies[1].
+forma de representar a a´rvore taxonoˆmica a partir de uma
+matriz. Assim, as distaˆncias entre uma esp´ecie e outra ´e (cid:88)
+F = d (6)
+representada pela distaˆncia entre os pixels. ij
+Oito´ındices foram utilizados neste trabalho, sendo estes:
+Onde d (i,j = 1, ..., s)´e a distˆancia entre as esp´ecies
+ij
+• ´Indice de Diversidade Taxonˆomica: i e j; e s´e o nu´mero de esp´ecies.
+Considera a abundaˆncia das esp´ecies e a rela¸ca˜o tax- • Distinc¸a˜o Taxonoˆmica M´edia:
+onoˆmica entre elas [18].
+Representaadistaˆnciataxonoˆmicam´ediaentrequais-
+quer duas esp´ecies escolhidas aleatoriamente [1].
+(cid:80)(cid:80)
+ω x x
+∆= i<j ij i j (1) (cid:80)(cid:80)
+n(n−1)/2 AvTD= i<j d ij (7)
+s(s−1)/2
+Onde x (i,j = 1, ..., n) ´e a abundaˆncia da i-´esima
+i
+esp´ecie;n´eonu´merototaldeesp´ecieseω´eadistaˆncia Onde d (i,j = 1, ..., s)´e a distˆancia entre as esp´ecies
+ij
+da esp´ecie i a` esp´ecie j. i e j; e s´e o nu´mero de esp´ecies.
+Revista de Sistemas e Computação, Salvador, v. 10, n. 1, p. 69-78, jan./abr. 2020
+http://www.revistas.unifacs.br/index.php/rsc
+
+<!-- pagina 6 -->
+74
+Table 1: Correspondˆencia entre termos na biologia e os utilizados neste artigo. Adaptado de [22].
+Biologia M´etodo Proposto
+Comunidade Imagem
+Esp´ecie N´ıveis de Cinza
+Riqueza de Esp´ecie Nu´mero de n´ıveis de cinza em uma imagem (intensidades)
+Indiv´ıduos Pixels (em 2D) ou Voxels (3D)
+Abundaˆncia da Esp´ecie Nu´mero de n´ıveis de cinza dada uma a´rea
+Figure 6: Exemplo representando uma ´arvore taxonoˆmica (`a esquerda) e sua matriz de distˆancias (`a direita).
+Adaptado de [18].
+• Distinc¸a˜o Taxonoˆmica Total: Representa a distin¸ca˜o
+m´edia filogen´etica somada ao longo de todas as esp´e-
+(d +d +d ) (2+4+4)
+cies [1]. J = pc pb bc = =1,11
+s2 32
+(cid:80)
+TTD= (cid:88) i i(cid:54)=j d ij (8) F =d pc +d pb +d bc =2+4+4=10
+s−1
+Onde d (i,j = 1, ..., s)´e a distˆancia entre as esp´ecies
+ij d +d +d 2+4+4
+i e j; e s´e o nu´mero de esp´ecies. AvTD= pc pb bc = =3,33
+s(s−1)/2 3(3−1)/2
+Sendoosdoisprimeiros´ındicesbaseadosnariquezadees-
+p´ecie e os outros seis, na distaˆncia entre pares de esp´ecies. TTD=(p+b+c) d pc +d pb +d bc =
+E´ importante destacar que os´ındices se complementam, ou s−1
+seja, um grupo pode ser capaz de complementar uma pro- 2+4+4
+(4+3+2) =45
+priedade da imagem que outro talvez na˜o possa. 3−1
+Baseado na Figura 6, a aplica¸ca˜o dos ´ındices ´e demon-
+Analogamente,todosos´ındicesforamaplicadosacadaim-
+strada abaixo:
+agemdaRIMONEv2geradanopr´e-processamentoeacada
+imagemdaiChallenge-GONeKaggle1000fundusimagesapo´s
+ω x x +ω x x +ω x x
+∆= pc p c pb p b bc b c = a especifica¸ca˜o de histograma. Assim, para cada um dos 5
+n(n−1)/2 espa¸cos de cores, tem-se 3 n´ıveis de cinza, originando um
+2.4.3+4.4.2+4.3.2 totalde15imagensresultantesdatransformac¸a˜odoespac¸o
+=26,67
+3(3−1)/2 decor. Ap´osessaetapa,paracadaimagemgeradasa˜oapli-
+cados todos os 8 ´ındices, gerando um total de 120 carac-
+ter´ısticas por imagem, que sa˜o passadas para a etapa de
+ω x x +ω x x +ω x x
+∆∗ = pc p c pb p b bc b c = classificac¸a˜o.
+x x +x x +x x
+p c p b b c
+2.4.3+4.4.2+4.3.2 3.5 Classificação
+=3,08
+4.3+4.2+3.2 Esta etapa tem como objetivo realizar o reconhecimento
+dasimagensclassificando-asemsauda´veisouglaucomatosas.
+(cid:18) s(s−1) (cid:19)(cid:18) d x x +d a a +d a a (cid:19) Apo´srealizac¸a˜odopr´e-processamentoedaextrac¸a˜odecar-
+SPD= pc p c pb p b bc b c = acter´ısticas, separou-se aleatoriamente 80% da base para
+2 a a +a a +a a
+p c p b b c
+treino e 20% para teste. Na classificac¸a˜o foi utilizada uma
+(cid:18) (cid:19)(cid:18) (cid:19)
+3(3−1) 2.4.3+4.4.2+4.3.2
+=9,24 abordagemdeaprendizadodema´quinaautomatizada,base-
+2 4.3+4.2+3.2 ada em Auto Machine Learning (Auto ML) [10] para obter
+o melhor classificador para as caracter´ısticas dadas. A clas-
+sifica¸ca˜ofoirealizadasegundoro´tulosatribu´ıdasnabasede
+MNND=d a +d a +d a +d a +d a
+pc p cp c pb p bp b cp c imagens.
++d bc a b +d cb a c = No Auto Sklearn [10], cada conjunto de treinamento foi
+2.4+2.2+4.3+4.4+4.3+4.2=60 treinado por cerca de 10 horas, o tempo usado tanto para
+Revista de Sistemas e Computação, Salvador, v. 10, n. 1, p. 69-78, jan./abr. 2020
+http://www.revistas.unifacs.br/index.php/rsc
+
+<!-- pagina 7 -->
+75
+gerarummodelo(estimarclassificadores)quantoparatreina´-
+lo. Essa ferramenta oferece a funcionalidade de utilizar se- VP
+REC = (13)
+le¸ca˜o e otimizac¸˜ao de hiperparaˆmetros (110 ao todo) de 15 VP +FN
+algoritmosdeclassificac¸a˜ocomMachine Learning pormeio
+F1 Score ´e a combinac¸a˜o entre a precisa˜o e o recall de
+deotimizac¸a˜oBayesiana,meta-aprendizadoeconstruc¸a˜ode
+forma a trazer um nu´mero u´nico que indique a qualidade
+um ensemble[9].
+geral do modelo gerado.
+E´ importantedestacarque,paraodesenvolvimentodeste
+m´etodo,foramdesabilitadasasconfigurac¸o˜esdepr´e-proces- 2∗PREC∗REC
+samento de caracter´ısticas da ferramenta, assim como foi F1= (14)
+PREC+REC
+configuradodeformaqueelaretorneapenasumclassificador
+por conjunto de caracter´ısticas. 4. RESULTADOS
+Para a construc¸a˜o do m´etodo, foram utilizados sete clas-
+Esta sec¸a˜o descreve os resultados obtidos nos experimen-
+sificadores, sendo estes: Gradient Boosting [11], Ada Boost
+tos realizados utilizando apenas a bases pu´blicas de retino-
+[30], Random Forest [5], Extra Trees [12], Quadratic Dis-
+grafiadescritasnasSec¸a˜o3.1. Osresultadosalcan¸cadospelo
+criminant Analysis (QDA) [4], Support Vector Machine
+m´etodo proposto foram avaliados pelas seguintes m´etricas:
+(SVM)eLinearSupportVectorClassification (LinearSVC)
+Acur´acia(ACU),Sensibilidade(SEN),Especificidade(ESP)
+[15].
+eF1-Score(F1). Paraesteartigo,escolheu-seasensibilidade
+3.6 ValidaçãodosResultados comoonu´merodeimagenscorretamenteclassificadascomo
+glaucomatosas e especificidade, como sauda´veis.
+A validac¸˜ao dos resultados tem como objetivo medir o Para validar o m´etodo proposto, inicialmente, foram uti-
+desempenho e promover a avalia¸ca˜o dos resultados obtidos. lizadas todas as 455 imagens da base RIM ONE v2. A
+Neste trabalho foram utilizadas as estat´ısticas: Acura´cia, Tabela 2 mostra os melhores resultados obtidos nos exper-
+Sensibilidade (SEN), Especificidade (ESP) e F1 Score. imentos realizados com a base RIM ONE v2. Comparando
+Segundo [24] para a an´alise de amostra de determinada com os resultados para cada espac¸o de cor,´e poss´ıvel notar
+doenc¸acomcasopositivoenegativo,osresultadosdostestes que os ´ındices taxonoˆmicos apresentaram o melhor resul-
+declassificac¸a˜odoscasosanalisadospodemserdivididosem tadoquandofoifeitaaconcatenac¸a˜odascaracter´ısticaspara
+quatro grupos: todos os espac¸os de cores, alcan¸cando acura´cia de 98,90%,
+-VP:VerdadeiroPositivo-oteste´epositivoeopaciente sensibilidadede100%eespecificidadede98,25%comoclas-
+tem glaucoma. sificador Extra Trees [12]. Considerando o F1-score, a sen-
+- FP : Falso Positivo - o teste ´e positivo, mas o paciente sibilidade e a especificidade, este tamb´em obteve melhores
+na˜o tem glaucoma. resultados que os demais experimentos.
+-VN:VerdadeiroNegativo-oteste´enegativoeopaciente A Tabela 3 mostra uma comparac¸a˜o dos resultados en-
+na˜o tem glaucoma. contrados neste trabalho com os resultados dos trabalhos
+-FN:FalsoNegativo-oteste´enegativo,masopaciente relacionadosquetamb´emutilizamcaracter´ısticasdetextura
+tem glaucoma. para diagnosticar o glaucoma usando imagens de retino-
+ASensibilidade´eonu´merodeimagenscorretamenteclas- grafia. Todos os trabalhos utilizam a base RIM-ONE v2
+sificadas como glaucomatosas. com a mesma quantidade de imagens.
+ApartirdaTabela3,observa-sequeasm´etricasdeacura´-
+VP cia igual a 98,9%, sensibilidade igual a 100% e a especifici-
+SEN = (9)
+VP +FN dadede98,25%obtidaspelom´etodopropostoforamsuperi-
+ores aos resultados obtidos pelos autores citados, indicando
+Especificidade ´e o nu´mero de imagens classificadas como
+que a metodologia apresentada´e promissora.
+sauda´veis corretamente.
+Apo´s testes iniciais com as imagens da base RIM-ONE
+v2, foram realizados testes incluindo as imagens das bases
+VN
+ESP = (10) iChallenge-GONeKaggle1000fundusimages. ATabela4ap-
+VN +FP
+resenta os resultados para o m´etodo utilizando base gerada
+Acur´acia´eapropor¸ca˜ototaldosresultadoscorretos. Definida com 922 imagens.
+como a raza˜o entre o nu´mero de casos na amostra em es- Para a gerac¸a˜o dos resultados na Tabela 4, foram extra´ı-
+tudo que foram classicados corretamente e o nu´mero total das caracter´ısticas para todos os canais de cor e, ainda, a
+de amostras. ferramentaAuto Sklearn foiutilizadamaisdeumavez,jus-
+tificando, assim, a quantidade de classificadores (Quadratic
+VP +VN Discriminant Analysis, Support Vector Machine e Linear
+ACU = (11)
+VP +FP +FN +VN Support Vector Classification) encontrados para a mesma
+configura¸ca˜o da base. Observa-se, ainda, que a especifi-
+Precisa˜o´eaproporc¸a˜oentreasimagensqueforamclassifi-
+cidade ´e sempre superior ao valor da sensibilidade, o que
+cadascomoglaucomatosascorretamenteeototaldeimagens
+se deve ao fato de que as bases possuem mais imagens de
+glaucomatosas.
+pacientes sauda´veis do que de glaucomatosos. O resultado
+geralde92,97%deacerto´epromissorepro´ximoaoresultado
+VP
+PREC = (12) obtido nos trabalhos relacionados que utilizaram apenas a
+VP +FP base RIM-ONE v2.
+Recall´e a propor¸ca˜o entre as imagens que foram classifi- NaTabela 4tamb´emnota-seoimpactopositivodaapli-
+cadascomoglaucomatosascorretamenteeototaldeimagens cac¸a˜o da especificac¸a˜o de histograma (matching. Compara-
+que foram classificadas como glaucomatosas. ndo com o resultado obtido com o classificador Quadratic
+Revista de Sistemas e Computação, Salvador, v. 10, n. 1, p. 69-78, jan./abr. 2020
+http://www.revistas.unifacs.br/index.php/rsc
+
+<!-- pagina 8 -->
+76
+Table 2: Resultado da classificac¸˜ao para a base RIM ONE v2.
+CLASSIFICADOR CANAL ACU. (%) SEN. (%) ESP. (%) F1
+Gradient Boosting HSV 81,32 85,00 78,43 0,80
+Ada Boost LUV 90,11 90,00 90,20 0,89
+Gradient Boosting Lab 83,52 77,50 88,24 0,81
+Random Forest YCrCb 86,81 90,00 84,31 0,86
+Extra Trees BGR 92,31 85,00 98,04 0,91
+Extra Trees Todos 98,90 100,00 98,25 0,99
+Table 3: Comparac¸˜ao com os trabalhos relacionados.
+Classificador T´ecnicas ACU. (%) SEN. (%) ESP. (%)
+Sousa et al. [7] Func¸˜oes Geoestat´ısticas 91,20 95,00 88,20
+Al-Bander et al. [2] CNN 88,20 85,00 90,80
+Arau´jo et al. [3] ´Indices de diversidade 93,41 92,83 93,69
+M´etodo proposto ´Indices Taxonˆomicos 98,90 100,00 98,25
+Table 4: Resultado da classificac¸˜ao nas bases RIM-ONE v2, iChallenge-GON e Kaggle1000fundusimages.
+CLASSIFICADOR Matching ACU. (%) SEN. (%) ESP. (%) F1
+Gradient Boosting Na˜o 90,81 76,47 96,26 0,82
+Quadratic Discriminant Analysis Sim 92,97 90,20 94,03 0,88
+Support Vector Machine Sim 85,94 72,55 91,04 0,74
+Linear Support Vector Classification Sim 91,35 78,43 96,27 0,83
+Discriminant Analysis, nota-se, apesar de haver uma perda
+em especificidade (relativa a` classe de pacientes sauda´veis),
+o ganho em sensibilidade ´e maior, justificando o uso da es-
+pecificac¸a˜o de histograma. Isso se d´a porque, como dito
+anteriormente, as bases inicialmente eram muito distintas,
+logo,geravamcaracter´ısticasquena˜orepresentavamaclasse
+depacientesglaucomatosos–classecomnu´meroinferiorde
+amostras. Assim, para classificar esses pacientes, a escolha
+pode muitas vezes ter sido feita de forma aleat´oria. Isso
+pode ser observado no resultado gerado para o classificador
+GradientBoosting. Nele,apesardeaespecificidadeseralta,
+a sensibilidade´e insuficiente para a proposta.
+E´ poss´ıvel melhorar este resultado fazendo um balancea-
+mento das bases — fazendo com que a quantidade de ima- Figure 7: Retinografias classificadas como glauco-
+gensdepacientesglaucomatosossejapro´ximaaquantidade matosas. A` esquerda, uma imagem corretamente
+deimagensdepacientessaud´aveis—etestandom´etodosde classificada e `a direita, incorretamente.
+selec¸a˜o de caracter´ısticas.
+E´ poss´ıvelverpelaFigura7queasimagens,apesardevi-
+sualmente possu´ırem caracter´ısticas de cor pro´ximas, pare-
+cemdispordetexturasdiferentes,tornandopertinenteasua
+classificac¸a˜oemclassesdistintas. Omesmopodesernotado
+na Figura 8, onde nota-se que na imagem a` esquerda, ex-
+istem vasos mais espessos que na imagem da direita, esta-
+belecendo assim caracter´ısticas muito distintas para ambas
+as imagens.
+5. CONCLUSÃO
+A utilizac¸a˜o de processamento de imagens esta´ cada vez
+maispresenteemva´riasa´reas,comonaa´readasau´de,ofere-
+cendoummeiodeaux´ılioaoprofissionaldaa´rea. Esteartigo Figure8: Retinografiasclassificadascomosaud´aveis.
+apresentou uma abordagem capaz de fornecer um descritor A` esquerda, uma imagem corretamente classificada
+quepossaservircomomeioparaauxiliarosespecialistasna e `a direita, incorretamente.
+elaborac¸a˜ododiagno´sticodoglaucomaemimagensdofundo
+de olho.
+Para o objetivo deste artigo, foram comparadas t´ecnicas
+Revista de Sistemas e Computação, Salvador, v. 10, n. 1, p. 69-78, jan./abr. 2020
+http://www.revistas.unifacs.br/index.php/rsc
+
+<!-- pagina 9 -->
+77
+de extrac¸a˜o de textura — a proposta e as ja´ presentes na [9] M. Feurer, A. Klein, K. Eggensperger,
+literatura—,visandoousonodiagno´sticodeimagensglau- J. Springenberg, M. Blum, and F. Hutter. Efficient
+comatosas. Os resultados mostraram que os ´ındices tax- and robust automated machine learning. In C. Cortes,
+onoˆmicos sa˜o descritores de textura promissores na ana´lise N. D. Lawrence, D. D. Lee, M. Sugiyama, and
+deimagensglaucomatosas,alcanc¸andoumataxadesucesso R. Garnett, editors, Advances in Neural Information
+de 92,97% nos experimentos realizados em uma base for- Processing Systems 28, pages 2962–2970. Curran
+mada por 922 exames de retinografia. Associates, Inc., 2015.
+Como trabalhos futuros, a fim de ampliar e melhorar os [10] M. Feurer, A. Klein, K. Eggensperger, J. T. Springenberg,
+resultados, sugere-se: M. Blum, and F. Hutter. Auto-sklearn: Efficient and
+robust automated machine learning. In Automated
+1. Buscareincorporaraom´etodooutrasbasesderetino-
+Machine Learning, pages 113–134.
+grafia, como a Drishti-GS;
+Springer, 2019.
+2. Usar outros tipos de pr´e-processamento para verificar [11] J. Friedman. Greedy function approximation: A
+seaindaexistemformasdepotencializaralgumascar- gradient boosting machine. The Annals of Statistics, 29,
+acter´ısticas das imagens de forma a melhor diferir os 11 2000.
+pacientes sauda´veis dos glaucomatosos; [12] P. Geurts, D. Ernst, and L. Wehenkel. Extremely
+randomized trees, Apr 2006.
+3. Utilizar m´etodos de sele¸ca˜o de caracter´ısticas, como
+[13] M. L. Giger and K. Suzuki. Computer-aided diagnosis.
+o Select K Best, visando que algumas caracter´ısticas
+In Biomedical information technology, pages
+que foram passadas pro classificador podem n˜ao ser
+359–XXII. Elsevier, 2008.
+ta˜o relevantes para o modelo.
+[14] R. C. E. Gonzalez, S. L. Woods, R. E. R. E. R. C.
+Gonzalez, R. E. Woods, and S. L. Eddins. Digital image
+6. AGRADECIMENTOS
+processing using MATLAB. Number 04;
+Esta pesquisa foi inteiramente financiada pelo Conselho TA1637, G6. 2004.
+NacionaldeDesenvolvimentoCient´ıficoeTecnolo´gico(CNPq), [15] M. A. Hearst. Support vector machines. IEEE Intelligent
+atrav´es do Programa Institucional de Bolsas de Iniciac¸a˜o Systems, 13(4):18–28, July 1998.
+Cient´ıfica(PIBIC).Agradecemostamb´emaosnossoscolegas [16] INTEL. Opencv, open computer vision library, 2016.
+doNu´cleodeComputac¸˜aoAplicada(NCA)daUniversidade Dispon´ıvel em:
+Federaldo Maranha˜o, por todoosuporte oferecidodurante <http://www.sourceforge.net/projects/opencvlibrary/>.
+a realizac¸a˜o desta pesquisa.
+[17] Linchundan. 1000 fundus images with 39 categories, Jun
+2019.
+7. REFERENCES
+[18] F. S. S. d. Oliveira. Classificac¸a˜o de tecidos da mama em
+[1] M´etodos para sistemas CAD e CADx de no´dulo massa e na˜o-massa usando ´ındice de diversidade
+pulmonar baseada em tomografia computadorizada taxonˆomico e ma´quina de vetores de suporte, 2013.
+usando ana´lise de forma e textura. PhD thesis, 2016. [19] J. A. A. Ottaiano, M. P. de A´ vila, C. C. Umbelino,
+DEPARTAMENTO DE ENGENHARIA DA and A. C. Taleb. As condic¸o˜es de sau´de ocular no brasil.
+ELETRICIDADE/CCET. Conselho Brasileiro de Oftalmologia, 1, 2019.
+[2] B. Al-Bander, W. Al-Nuaimy, M. A. Al-Taee, and [20] C. Ricotta. A parametric diversity measure combining
+Y. Zheng. Automated glaucoma diagnosis using deep the relative abundances and taxonomic distinctiveness of
+learning approach. In Systems, Signals & Devices species. Diversity and Distributions, 10:143 – 146,
+(SSD), 2017 14th International Multi-Conference on, 02 2004.
+pages 207–210. IEEE, 2017. [21] A. Setiawan, T. Mengko, O. Santoso, and
+[3] J. D. L. Arau´jo, J. C. Souza, O. P. S. Neto, J. A. A. Suksmono. Color retinal image enhancement using
+de Sousa, J. D. S. de Almeida, A. C. de Paiva, A. C. clahe. pages 1–3, 06 2013.
+Silva, G. B. Junior, and M. Gattass. Glaucoma [22] G. Silva, A. Filho, A. Silva, A. Paiva, and M. Gattass.
+diagnosis in fundus eye images using diversity indexes. Taxonomic indexes for differentiating malignancy of lung
+Multimedia Tools and Applications, pages 1–18, 2018. nodules on ct images. Research on Biomedical
+[4] S. Bose, A. Pal, R. SahaRay, and J. Nayak. Engineering, 32, 09 2016.
+Generalized quadratic discriminant analysis. Pattern [23] R. R. Silva, J. G. Lopes, and F. H. Arau´jo. Visa˜o
+Recogn., 48(8):2676–2684, Aug. 2015. computacional em python utilizando as bi-bliotecas scikit-
+[5] L. Breiman. Random forests. Mach. Learn., image e scikit-learn. pages 407–428, 2017.
+45(1):5–32, Oct. 2001. [24] J. A. d. Sousa. Diagno´stico de glaucoma em
+[6] B. Coll and J.-M. Morel. A non-local algorithm for retinografias utilizando func¸o˜es geoestat´ıstica, 2017.
+image denoising. volume 2, pages 60– 65 vol. 2, 07 Dissertac¸a˜o (Mestrado) - Universidade Federal do
+2005. Maranha˜o, Curso de Po´s Graduac¸a˜o em Ciˆencia da
+[7] J. A. de Sousa, A. C. de Paiva, J. D. S. de Almeida, Computac¸a˜o, Sa˜o Lu´ıs, MA.
+A. C. Silva, G. B. Junior, and M. Gattass. Texture [25] G. Spaeth. Appearances of the optic disc in glaucoma: a
+based on geostatistic for glaucoma diagnosis from pathogenetic classification. In Trans Acad
+fundus eye image. Multimedia Tools and Applications, Ophthalmol Symposium on Glaucoma. CV Mosby, St.
+pages 1–18, 2017. Louis, 1981.
+[8] T. Dorion. Manual de Exame Do Fundo de Olho. [26] A. Taleb, M. A. R. d. Faria, M. A´ vila, and P. Mello.
+Manolen, 2002.
+Revista de Sistemas e Computação, Salvador, v. 10, n. 1, p. 69-78, jan./abr. 2020
+http://www.revistas.unifacs.br/index.php/rsc
+
+<!-- pagina 10 -->
+78
+As condic¸o˜es de sau´de ocular no brasil–2012. Conselho
+Brasileiro de Oftalmologia. Sa˜o Paulo, 2012.
+[27] E. Trucco, A. Ruggeri, T. Karnowski, L. Giancardo,
+E. Chaum, J. P. Hubschman, B. Al-Diri, C. Y.
+Cheung, D. Wong, M. Abramoff, et al. Validating
+retinal fundus image analysis algorithms: Issues and a
+proposalvalidating retinal fundus image analysis
+algorithms. Investigative ophthalmology & visual
+science, 54(5):3546–3559, 2013.
+[28] M. Vellend, W. Cornwell, K. Magnuson-Ford, and
+A. Mooers. Measuring phylogenetic biodiversity.
+Magurran McGill, pages 194–207, 01 2011.
+[29] J. L. Vilac¸a. Manual processamento de imagem., Jan
+2014.
+[30] R. Wang. Adaboost for feature selection, classification
+and its relation with svm, a review. Physics Procedia,
+25:800–807, 12 2012.
+[31] Y. Xu, J. I. Orlando, H. Bogunovic, H. Fu, and
+X. a. F. Zhang. Refuge: Retinal fundus glaucoma
+challenge., 2018.
+[32] A. Youssif, A. Ghalwash, and A. Ghoneim. A
+comparative evaluation of preprocessing methods for
+automatic detection of retinal anatomy. 03 2007.
+Revista de Sistemas e Computação, Salvador, v. 10, n. 1, p. 69-78, jan./abr. 2020
+http://www.revistas.unifacs.br/index.php/rsc

@@ -1,0 +1,72 @@
+{
+  "registrado_em_utc": "2026-10-08T22:56:39.963949+00:00",
+  "consultas": [
+    {
+      "resposta": "01_resposta.json",
+      "modelos": [
+        "claude-opus-5-5"
+      ],
+      "session_id": "31ef75c0-837e-4885-9859-b7f226ac070a",
+      "is_error": false,
+      "duration_ms": 87232,
+      "num_turns": 1,
+      "custo_estimado_usd_cli": 0.3826388
+    },
+    {
+      "resposta": "03_resposta_conferencia.json",
+      "modelos": [
+        "claude-opus-5-5"
+      ],
+      "session_id": "085e9f26-3b64-4eaf-bbd6-9eebd612d451",
+      "is_error": false,
+      "duration_ms": 40558,
+      "num_turns": 1,
+      "custo_estimado_usd_cli": 0.33721080000000003
+    }
+  ],
+  "modelo_confirmado_em_ambas": true,
+  "sessoes_distintas": true,
+  "custo_estimado_total_usd_cli": 0.7198496000000001,
+  "dentro_limite_nominal_usd_3": true,
+  "fontes": [
+    {
+      "arquivo": "01_planejamento/artigo_seminarios_2026/PLANO_EXECUCAO.md",
+      "sha256": "5982b95c8e9f7154a1637a65574f62ac9bf9816fad3ea8bcc2856cc7a0a21bb8",
+      "sha256_depois": "5982b95c8e9f7154a1637a65574f62ac9bf9816fad3ea8bcc2856cc7a0a21bb8",
+      "inalterada": true
+    },
+    {
+      "arquivo": "01_planejamento/artigo_seminarios_2026/CRONOGRAMA_CHECKLIST.md",
+      "sha256": "aa7ebe4a0ae92b3e935cd6ba86df5a2b8e6addd40560d7f37fc1bc879df42679",
+      "sha256_depois": "aa7ebe4a0ae92b3e935cd6ba86df5a2b8e6addd40560d7f37fc1bc879df42679",
+      "inalterada": true
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/PLANO_ESCRITA.md",
+      "sha256": "ded6b9ae3b2bc1db7b55b4e62a088b5a2dd2e5202fda2ce0c3af721628bba5b4",
+      "sha256_depois": "ded6b9ae3b2bc1db7b55b4e62a088b5a2dd2e5202fda2ce0c3af721628bba5b4",
+      "inalterada": true
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/introducao_2026-10-07/FECHAMENTO.md",
+      "sha256": "07e6fc49cd22a4b945268426e003942a97a3ef0b1dd9199a452a4eecfa458c41",
+      "sha256_depois": "07e6fc49cd22a4b945268426e003942a97a3ef0b1dd9199a452a4eecfa458c41",
+      "inalterada": true
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/README.md",
+      "sha256": "0ed3e7f1be431d41fcf24a19409513e6849d6da1bfe3eb2c910e180342df6b2d",
+      "sha256_depois": "0ed3e7f1be431d41fcf24a19409513e6849d6da1bfe3eb2c910e180342df6b2d",
+      "inalterada": true
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/referencias/MATRIZ_INTRODUCAO.md",
+      "sha256": "9e1cf708ddf53927846216ae681d8a3d38021c948aca2a53f1b0dd3231237a41",
+      "sha256_depois": "9e1cf708ddf53927846216ae681d8a3d38021c948aca2a53f1b0dd3231237a41",
+      "inalterada": true
+    }
+  ],
+  "seis_fontes_inalteradas": true,
+  "limite": "Claude analisou textos anexados, sem verificar fontes primárias ou executar ferramentas. Custo CLI não comprova cobrança.",
+  "escopo": "Consulta de planejamento; sem execução de P0–P4, treinamento, inferência, RunPod ou edição de históricos."
+}

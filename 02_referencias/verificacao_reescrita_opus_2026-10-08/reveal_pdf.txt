@@ -1,0 +1,1259 @@
+=== PÁGINA FÍSICA 1 ===
+IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                                1
+     Deep Learning based Vulnerability Detection:
+                                                Are We There Yet?
+
+                             Saikat Chakraborty, Rahul Krishna, Yangruibo Ding, Baishakhi Ray
+
+
+      Abstract—Automated detection of software vulnerabilities is a fundamental problem in software security. Existing program analysis
+      techniques either suffer from high false positives or false negatives. Recent progress in DeepLearning (DL) has resulted in a surge of
+      interest in applying DL for automated vulnerability detection. Several recent studieshave demonstrated promising results achieving an
+      accuracy of up to 95% at detecting vulnerabilities. In this paper, we ask, “how well do the state-of-the-art DL-based techniques perform
+      in a real-world vulnerability prediction scenario?”. To our surprise, we ﬁnd that their performance drops by more than 50%. A
+      systematic investigation of what causes such precipitous performance drop reveals that existingDL-based vulnerability prediction
+      approaches suffer from challenges with the training data (e.g., data duplication, unrealistic distribution of vulnerable classes, etc.) and
+      with the model choices (e.g.,simple token-based models). As a result, these approaches often do not learn features relatedto the
+      actual cause of the vulnerabilities. Instead, they learn unrelated artifacts from the dataset (e.g.,speciﬁc variable/function names, etc.).
+      Leveraging these empirical ﬁndings, we demonstrate how a more principled approach to data collection and model design, based on
+      realistic settings of vulnerability prediction, can lead to better solutions. The resulting tools perform signiﬁcantly better than the studied
+      baseline—up to 33.57% boost in precision and 128.38% boost in recall compared tothe best performing model in the literature.
+      Overall, this paper elucidates existing DL-based vulnerability prediction systems’ potentialissues and draws a roadmap for future
+      DL-based vulnerability prediction research. In that spirit, we make available all the artifacts supporting our results: https://git.io/Jf6IA.
+
+      IndexTerms—Software Vulnerability, Deep Learning, Graph Neural Network.
+                                                                              !
+
+
+1   INTRODUCTION                                                                 of the DL models is pertinent as it may help solve similar
+Automated detection of security vulnerabilities is a funda-                      problems in other domains like computer vision [13], [14].
+mental problem in systems security. Traditional techniques                            For  instance,  the  generalizability  of  a  DL  model  is
+are known to suffer from high false-positive/false-negative                      limited by implicit biases in the dataset, which are often
+rates [1]–[5]. For example, static analysis-based tools typi-                    introducedduringthedatasetgeneration/curation/labeling
+callyresultinhighfalsepositives,i.e.,detectnon-vulnerable                        process and therefore affect both the testing and training
+cases as vulnerable, and dynamic analysis suffers from high                      data equally (assuming that they are drawn from the same
+false negatives, i.e., cannot detect many real vulnerabilities.                  dataset). These biases tend to allow DL models to achieve
+Afterprolongedeffort,thesetoolsremainunreliable,leaving                          high accuracy in the test data by learning highly idiosyn-
+signiﬁcant manual overhead for developers [2].                                   cratic features speciﬁc to that dataset instead of generaliz-
+    Recent  progress  in  Deep  Learning  (DL),  especially  in                  able features. For example, Yudkowsky et al. [15] described
+domains like computer vision and natural language pro-                           aninstancewhereUSArmyfoundoutthataneuralnetwork
+cessing, has sparked interest in using DL to detect security                     for  detecting  camouﬂaged  tanks  did  not  generalize  well
+vulnerabilities automatically with high accuracy. According                      due to dataset bias even though the model achieved very
+to Google scholar, 92 papers appeared in popular security                        high accuracy in the testing data. They found that all the
+and software engineering venues between 2019 and 2020                            photos with the camouﬂaged tanks in the dataset were shot
+that apply learning techniques to detect different types of                      in cloudy days, and the model simply learned to classify
+bugs1.Infact,severalrecentstudieshavedemonstratedvery                            lighter and darker images instead of detecting tanks.
+promising results achieving high accuracy (up to 95%) at                              In this paper, we systematically measure the generaliz-
+detecting vulnerabilities [6]–[12].                                              ability of four state-of-the-art Deep Learning-based Vulner-
+    Given such remarkable reported success of DL models                          ability Prediction (hereafter DLVP) techniques [6]–[8], [12]
+at detecting vulnerabilities, it is natural to ask why they are                  that have been reported to detect security vulnerabilities
+performing so well, what kind of features these models are                       with high accuracy (up to 95%) in the existing literature.
+learning, and most importantly, whether they can be used                         We primarily focus on the Deep Neural Network (DNN)
+effectively and reliably in detecting real-world vulnerabili-                    models that take source code as input [6]–[8], [12], [16] and
+ties. Understanding such explainability and generalizability                     detect vulnerabilities at function granularity. These models
+                                                                                 operateonawiderangeofdatasetsthatareeithergenerated
+•    Chakraborty, S., Krishna, R., Ding, Y., and Ray, B., are with Columbia      synthetically  or  adapted  from  real-world  code  to  ﬁt  in
+    University, New York, NY, USA.                                               simpliﬁed vulnerability prediction settings.
+    E-mail:        saikatc@cs.columbia.edu,        i.m.ralk@gmail.com,        yan-    First, we curate a new vulnerability dataset from two
+    gruibo.ding@columbia.edu, and rayb@cs.columbia.edu.                          large-scale popular real-world projects (Chromium and De-
+  1. published in TSE, ICSE, FSE, ASE, S&P Oakland, CCS, USENIX                  bian)  to  evaluate  the  performance  of  existing  techniques
+Security, etc.                                                                   in the real-world vulnerability prediction setting. The code
+
+=== PÁGINA FÍSICA 2 ===
+IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                                2
+samples are annotated as vulnerable/non-vulnerable, lever-                  and balancing training data to address the class imbalance
+aging their issue tracking systems. Since both the code and                 of vulnerable/non-vulnerable samples can signiﬁcantly im-
+annotations come from the real-world, detecting vulnerabil-                 prove vulnerability prediction. Following these steps, we
+ities using such a dataset reﬂects a realistic vulnerability                can boost precision and recall of the best performing model
+prediction  scenario.  We  also  use  FFMPeg+Qemu  dataset                  in the literature by up to 33.57% and 128.38% respectively
+proposed by Zhou et al. [12].                                               over current baselines.
+    To our surprise, we ﬁnd that none of the existing models                    In summary, our contributions in this paper are:
+perform well in real-world settings. If we directly use a                     1)We systematically study existing approaches in DLVP
+pre-trained model to detect the real-world vulnerabilities,                      task  and  identify  several  problems  with  the  current
+the performance drops by∼73%, on average. Even if we                             dataset and modeling practices.
+retrain  these  models  with  real-world  data,  their  perfor-               2)Leveraging the empirical results, we propose a sum-
+mance drops by∼54% from the reported results. For ex-                            mary of best practices that can help future DLVP re-
+ample, VulDeePecker [6] reported a precision of 86.9% in                         search and experimentally validate these suggestions.
+their paper. However, when we use VulDeePecker’s pre-                         3)We curated a real-world dataset from developer/user
+trainedmodelinrealworlddatasets,itsprecisionreducedto                            reported  vulnerabilities  of  Chromium  and  Debian
+11.12%, and after retraining, the precision becomes 17.68%.                      projects.  We  release  our  dataset  in  this  anonymous
+A thorough investigation of such poor performance reveals                        directory https://bit.ly/3bX30ai.
+several problems:                                                             4)We also open source all our code and data we used
+•  Inadequate  Model.  The  most  popular  models  are  token-                   in this study for broader dissemination. Our code and
+based, which treat code as a sequence of tokens and do                           replication data are available in https://git.io/Jf6IA.
+not take into account semantic dependencies that play a                     To this end, we argue that DL-based vulnerability detection
+vital role in vulnerability predictions. Even when a graph-                 is still very much an open problem and requires a well-
+based model is used, it does not focus on increasing the                    thought-out data collection and model design framework
+class-separation  between  vulnerable  and  non-vulnerable                  guided by real-word vulnerability detection settings.
+categories. Thus, in realistic scenarios, they suffer from low
+precision and recall.                                                       2   BACKGROUND AND CHALLENGES
+•  Learning Irrelevant Features. While looking at the features
+that the existing techniques are picking up (using state-of-                DLVP methods aim to detect unknown vulnerabilities in
+the-art explanation techniques [17], [18]), we ﬁnd that the                 target software by learning different vulnerability patterns
+state-of-the-art models are essentially picking up irrelevant               from  a training  dataset. Most  popular DLVP approaches
+features that are not related to vulnerabilities and are likely             consist of three steps: data collection, model building, and
+artifacts of the training datasets.                                         evaluation. First, data is collected for training, and an ap-
+•  Data Duplication. The training and testing data in most                  propriate model is chosen as per design goal and resource
+existing approaches contain duplicates (up to 68%); thus,                   constraints. The training data is preprocessed according to
+artiﬁcially inﬂating the reported results.                                  the format preferred by the chosen model. Then the model
+•  Data Imbalance. Existing approaches do not alleviate the                 is trained to minimize a loss function. The trained model
+class imbalance problem [19], [20] of real-world vulnera-                   is  intended  to  be  used  in  the  real  world.  To  assess  the
+bility  distribution  as  non-vulnerable  code  is  much  more              effectiveness  of  the  model  performance  of  the  model  is
+frequent than the vulnerable ones.                                          evaluated on unseen test examples.
+Havingestablishedtheseconcernsempirically,weproposea                            ThissectiondescribesthetheoryofDL-basedvulnerabil-
+road-mapthatwehopewillhelptheDL-basedvulnerability                          ity prediction approaches (§2.1), existing datasets (§2.2), ex-
+predictionresearcherstoavoidsuchpitfallsinthefuture.To                      isting modeling techniques (§2.3), and evaluation procedure
+this end, we demonstrate how a more principled approach                     (§2.4). Therein, we discuss the challenges that potentially
+to data collection and model design, based on our empirical                 limit the applicability of existing DLVP techniques.
+
+ﬁndings, can lead to better solutions. For data collection, we              2.1   DLVPTheory
+discuss how to curate real-world vulnerability prediction
+dataincorporatingbothstaticandevolutionary(i.e.,bug-ﬁx)                     DL-based vulnerability predictors learn the vulnerable code
+nature of the vulnerabilities. For model building, we show                  patterns from a training data (Dtrain) set where code ele-
+representationlearning[21]canbeusedontopoftraditional                       ments are labeled as vulnerable or non-vulnerable. Given
+DL methods to increase the class separation between vul-                    a  code  element (x)  and  corresponding  vulnerable/non-
+nerable and non-vulnerable samples. Representation learn-                   vulnerablelabel(y),thegoalofthemodelistolearnfeatures
+ing is a popular class of machine learning techniques that                  that maximize the probabilityp(y|x) with respect to the
+automatically discovers the input representations needed                    modelparameters(θ).Formally,trainingamodelislearning
+for improving classiﬁcation, and thus, replaces the need for                the optimal parameter settings (θ∗) such that,∏
+manual feature engineering. Our key insight is as follows:                                 θ∗ =argmaxθ                     p(y|x,θ)                 (1)
+distinguishing features of vulnerable and benign code is                                                     (x,y)∈Dtrain
+complex;  thus,  the  model  must  learn  to  represent  them               First, a code element (xi) is transformed to a real valued
+automatically in the feature space.                                         vector (hi∈ Rn), which is a compact representation ofxi.
+    We further empirically establish that using semantic in-                Howamodeltransformsxi tohi dependsonthespeciﬁcsof
+formation (with graph-based models), data de-duplication,                   themodel.Thishi istransformedtoascalar ˆy∈[0,1]which
+
+=== PÁGINA FÍSICA 3 ===
+IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                                3
+denotestheprobabilityofcodeelementxi beingvulnerable.
+                                                                                    1    void  action(           char  *data)         const  {
+Ingeneral,thistransformationandprobabilitycalculationis                             2    //FLAW:Incrementofpointerintheloopwillcause
+achieved through a feed forward layer and a softmax [22]                            3    //freeingofmemorynotatthestartofthebuffer.
+                                                                                    4          for  (;  *data!=’\0’;data++){
+layer in the model. Typically, for binary classiﬁcation task                        5                if  (*data==SEARCH_CHAR){
+like vulnerability prediction, optimal model parameters are                         6                      printLine("Wehaveamatch!");
+                                                                                    7                      break;
+learned by minimizing the cross-entropy loss [23]. Cross-                           8                }
+entropy loss penalizes the discrepancy in the model’s pre-                          9          }
+dicted probability and the actual probability (0. for non-                          10          free(data);
+                                                                                    11    }
+vulnerable 1. for vulnerable examples) [24].
+
+                                                                                             Figure 2: Example Vulnerability (CWE761) [28].
+
+
+
+
+
+
+                                                                                    1    staticvoid             eap_request(
+                                                                                    2                eap_state  *esp,u_char         *inp,        int  id,     int  len)  {
+                                                                                    3         ...
+                                                                                    4         if  (vallen<  8  ||vallen>len)  {
+                                                                                    5                  ...
+                                                                                    6                  break;
+                                                                                    7         }
+                                                                                    8    /*  FLAW:’rhostname’arrayisvulnerabletooverflow.                                                                                     */
+                                                                                    9    -  if  (vallen  >=  len  +  sizeof  (rhostname)){
+                                                                                    10    +  if  (len  -  vallen  >=  (int)sizeof  (rhostname)){
+                                                                                    11                ppp_dbglog(...);
+                                                                                    12                MEMCPY(rhostname,inp+vallen,
+Figure 1:  Different DLVP dataset and their synthetic/realistic                                        sizeof(rhostname)  -  1);
+                                                                                    13                rhostname[                 sizeof(rhostname)  -  1]  =’\0’;
+nature. From     redto   green, colors symbolize increasing realistic               14                ...
+nature of dataset.     Redis the most synthetic,         greenis the most           15          }
+                                                                                    16          ...
+realistic.                                                                          17    }
+
+
+2.2   ExistingDataset                                                              Figure 3: CVE-2020-8597 - A partial patch (original patch [29])
+                                                                                   foraninstanceofbufferoverﬂowvulnerabilityinlinuxpointto
+To train a vulnerability prediction model, we need a set                           point protocol daemon (pppd) due to a logic ﬂaw in the packet
+of annotated code with labels vulnerable or benign. The                            processor [30], [31].
+number of vulnerable code should be large enough to allow
+the model to learn from it. Researchers used a wide spec-
+trum of data sources to collect data for DLVP (see Figure 1).                      Limitations.  The  problems  with  the  dataset  lie  in  how
+Depending on how the code samples are collected and how                            realistic  the  data  source  is  and  how  they  are  annotated
+they are annotated, we classify them as:                                           (see  Figure  1).  A  model  trained  on  a  synthetic  dataset
+
+•  Synthetic data: The vulnerable code example and the an-                         comprising of simple patterns will be limited to detecting
+notations are artiﬁcially created. SATE IV Juliet [25] dataset                     only those simple pattern which seldom occur in real life.
+and  SARD  [26]  fall  in  this  category.  Here  the  examples                    For instance, consider an atypical buffer overﬂow example
+are  synthesized  using  known  vulnerable  patterns.  These                       in Figure 2 used by VulDeePecker and SySeVR. Albeit a
+datasets were originally designed for evaluating traditional                       good pedagogical example, real world vulnerabilities are
+static and dynamic analysis based vulnerability prediction                         not as simple or as isolated. Figure 3 shows another buffer
+tools.                                                                             overﬂow example from linux kernel. Though the ﬁx is very
+•  Semi-synthetic data: Here either the code or the annotation                     simple, ﬁnding the vulnerability itself requires an in-depth
+isderivedartiﬁcially.Forexample,Draperdataset,proposed                             reasoning about the semantics of different components (i.e.,
+by  Russell  et al.  [8],  contains  functions  that  are  collected               variables, functions etc.) of the code. A model is trained to
+from open source repositories but are annotated using static                       reason about simpler examples as in Figure 2 will fail to
+analyzers. Examples of SARD [26] and National Vulnera-                             reason about Figure 3 code. Further, any model annotated
+bility  Database  (NVD    [27])  dataset  are  also  taken  from                   by a static analyzer [8] inherits all the drawbacks, e.g.,, high
+production code; however, they are often modiﬁed in a way                          falsepositiverate[1],[2]. Inthemostrealisticdataset,FFM-
+to demonstrate the vulnerability isolating them from their                         Peg+Qemu [12], the ratio of vulnerable and non-vulnerable
+original context. Although these datasets are more complex                         examples is approximately 45%-55%, which does not reﬂect
+than synthetic ones, they do not fully capture the complex-                        the  real  world  distribution  of  vulnerable  code.  Further,
+ities of the real-world vulnerabilities due to simpliﬁcations                      the dataset only contains function that annotates functions
+and isolations.                                                                    that went through vulnerability-ﬁx commits as vulnerable.
+•  Real data: Here both the code and the corresponding vul-                        When a model is trained on such dataset, the model is not
+nerability annotations are derived from real-world sources.                        presented with other functions from a vulnerable functions’
+For instance, Zhou et al. [12] curated Devign dataset, which                       context, thus will not be as effective in differentiating vul-
+consists  of  past  vulnerabilities  and  their  ﬁxes  from  four                  nerable functions from other non-vulnerable functions from
+open-source projects, two of which are publicly available.                         the context.
+
+=== PÁGINA FÍSICA 4 ===
+IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                                4
+2.3   ExistingModelingApproaches                                            mized their model using cross-entropy loss, Zhou et al. [12]
+Model selection depends primarily on the information that                   used regularized cross entropy loss.
+one wants to incorporate. The popular choices for DLVP
+are token-based or graph-based models, and the input data
+(code) is preprocessed accordingly [6], [8], [12].
+
+•  Token-based  models:  In  the  token-based  models,  code  is
+considered as a sequence of tokens. Existing token-based
+models used different Neural Network architectures. For
+instance, Li et al. [6] proposed a Bidirectional Long Short
+Term Memory (BSLTM) based model, Russell et al. [8] pro-
+posed a Convolutional Neural Network (CNN) and Radom
+Forest-based model and compared against Recurrent Neu-                      Figure 4: Example of CWE-761 [34]. A buffer is freed not at the
+ral Network (RNN) and CNN based baseline models for                         start of the buffer but somewhere in the middle of the buffer.
+vulnerability prediction. For these relatively simple token-                Thiscancausetheapplicationtocrash,orinsomecases,modify
+based models, token sequence length is an important factor                  critical program variables or execute code. This vulnerability
+to  impact  performance  as  it  is  difﬁcult  for  the  models             can be detected with data dependency.
+to reason about long sequences. To address this problem,                    Limitations.   Token   based   models   assume   that   tokens
+VulDeePecker [6] and SySeVR [7] extract code slices. The                    are  linearly  dependent  on  each  other,  and  thus,  only
+motivation behind slicing is that not every line in the code                lexical dependencies between the tokens are present, while
+is equally important for vulnerability prediction. Therefore,               the  semantic  dependencies  are  lost,  which  often  play
+instead of considering the whole code, only slices extracted                important  roles  in  vulnerability  prediction  [35]–[37].  To
+from “interesting points” in code (e.g., API calls, array in-               incorporate some semantic information, VulDeePecker [6]
+dexing, pointer usage, etc.) are considered for vulnerability               and SySeVR [7] extracted program slices of a potentially
+prediction and rest are omitted.                                            interesting   point.   For   example,   consider   the   code   in
+•  Graph-based models: These models consider code as graphs                 Figure 4. A slice w.r.t.free function call at line 10 gives us
+and  incorporate  different  syntactic  and  semantic  depen-               all the lines except lines 6 and 7. The token sequence of
+dencies. Different type of syntactic graph (Abstract Syntax                 the  slice  are:  void  action  (  char *  data  )  const
+Tree) and semantic graph (Control Flow graph, Data Flow                     {  for  (  data  ;  *  data  !=  ‘\0’  ;  data  ++  ){
+graph, Program Dependency graph, Def-Use chain graph                        foo  (  data  )  ;  bar  (  data  )  ;  if  ( *  data  ==
+etc.) can be used for vulnerability prediction. For example,                SEARCH_CHAR  ){  free  (  data  )  ;. In this examples,
+Devign [12] leverage code property graph (CPG) proposed                     while  the  two  main  components  for  this  code  being
+by Yamaguchi et al. [16] to build their graph based vulnera-                vulnerable,  i.e. data  ++  (line  2)    and free  (  data  )
+bility prediction model. CPG is constructed by augmenting                   (line  10)  are  present  in  the  token  sequence,  they  are  far
+differentdependencyedges(i.e.,controlﬂow,dataﬂow,def-                       apart from each other without explicitly maintaining any
+use, etc.) to the code’s Abstract Syntax Tree (AST) (see§4 for              dependencies.
+details).                                                                       In contrast, as a graph based model can consider the
+Both  graph  and  token-based  models  have  to  deal  with                 data dependency edges (rededge), we see that there is a
+vocabulary explosion problem—the number of possible iden-                   direct edge between those lines making those lines closer to
+tiﬁers (variable, function name, constants) in code can be                  each other making it easier for the model to reason about
+virtually  inﬁnite,  and  the  models  have  to  reason  about              that connection. Note that this is a simple CWE example
+such identiﬁers. A common way to address this issue is to                   (CWE 761), which requires only the data dependency graph
+replace the tokens with abstract names [6], [7]. For instance,              to reason about. Real-world vulnerabilities are much more
+VulDeePecker [6] replaces most of the variable and func-                    complexandrequirereasoningaboutcontrolﬂow,dataﬂow,
+tion names with symbolic names (VAR1,  VAR2,  FUNC1,                        dominance relationship, and other kinds of dependencies
+FUNC2 etc.).                                                                between code elements [16]. However, graph-based models,
+    Expected input for all the models are real valued vec-                  in  general,  are  much  more  expensive  than  their  token-
+tors commonly known as embeddings. There are several                        based counterparts and do not perform well in a resource-
+ways to embed tokens to vectors. One such way is to use                     constrained environment.
+an  embedding  layer  [32]  that  is  jointly  trained  with  the               One problem with the existing approaches is that al-
+vulnerability prediction task [8]. Another option is to use                 though the trained models learn to discriminate vulnerable
+external word embedding tool(e.g., Word2Vec [33]) to create                 and non-vulnerable code samples, the training paradigm
+vector representation of every token. VulDeePecker [6] and                  does not explicitly focus on increasing the separation be-
+SySeVR [7] uses Word2Vec to transform their symbolic to-                    tween the vulnerable and non-vulnerable examples. Thus,
+kens into vectors. Devign [12], in contrast, uses Word2Vec to               with slight variations the classiﬁcations become brittle.
+transform the concrete code tokens to real vectors.                             Another  problem  pertains  to  data  imbalance  [38]  be-
+    Once a model is chosen and appropriate preprocessing                    tween  vulnerable  and  benign  code  as  the  proportion  of
+is done on the training dataset, the model is ready to be                   vulnerable examples in comparison to the non-vulnerable
+trained by minimizing a loss function. Most of the existing                 oneinrealworlddatasetisextremelylow[8].Whenamodel
+approaches optimize the model by minimizing some varia-                     is trained on such imbalanced dataset, models tend to be
+tionofcross-entropyloss.Forinstance,Russellet al.[8]opti-                   biased by the non-vulnerable examples.
+
+=== PÁGINA FÍSICA 5 ===
+IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                                5
+                                                                             mechanism is inspired by the security issue identiﬁcation
+                                                                             techniques proposed by Zhou et al. [42], where they ﬁlter
+                                                                             out commits that do not have security related keywords.
+                                                                                 For each patch, we extracted the corresponding vulnera-
+                                                                             ble and ﬁxed versions (i.e., old and new version) of C/C++
+                                                                             source and header ﬁles that are changed in the patch. We
+                                                                             annotate the previous versions of all changed functions (i.e.,
+                                                                             the versions prior to the patch) as vulnerable and the ﬁxed
+                                                                             version of all the changed functions (i.e., the version after
+                                                                             patch) as ‘clean’. Additionally, other functions that were not
+                                                                             involved in the patch (i.e., those that remained unchanged)
+Figure 5: Collecting real world data for REVEAL. Green sam-                  are all annotated as ‘clean’.
+ples are labeled as non-vulnerable, while red sample is marked                   A contrived example of our data collection strategy is
+as vulnerable.                                                               illustrated in Figure 5. Here, we have two versions of a ﬁle
+                                                                             file.c. The previous version of the ﬁle (versionk− 1)
+2.4   ExistingEvaluationApproaches                                           has a vulnerability which is ﬁxed in the subsequent version
+To  understand  the  applicability  of  a  trained  model  for               (versionk) by patching the functionham_0() toham_1().
+detecting vulnerability in the real-world, it must ﬁrst be                   In our dataset, ham_0() would be included and labeled
+evaluated. In most cases, a trained model is evaluated on                    ‘vulnerable’ and ham_1() would be included and labeled
+held out test set. Test examples go through the same pre-                    ‘clean’.  The  other  two  functions  (spam()  and egg)  re-
+processing technique as the training and then the model                      mained unchanged in the patch. Our dataset would include
+predicts the vulnerability of those pre-processed test exam-                 a copy of these two functions and label them as ‘clean’.
+ples. This evaluation approach gives an estimate of how the                      Annotating code in this way simulates real-world vul-
+model may perform when used to detect vulnerabilities in                     nerability prediction scenario, where a DL model would
+the real-world.                                                              learn to inspect the vulnerable function in the context of
+Limitations.  Although  all  the  existing  approaches  report               all the other functions in its scope. Further, by retaining
+their performances using their own evaluation dataset, it                    the ﬁxed variant of the vulnerable function, the DL model
+doesnotgiveacomprehensiveoverviewoftheapplicability                          may learn the nature of patch. We make available our data
+of  the  model  in  the  real-world.  All  we  can  learn  from              collection framework and the curated vulnerability data for
+such intra-dataset evaluation is how well their approach                     Chromium and Debian4 for broader dissemination.
+
+ﬁts  their  own  dataset.  Although  there  are  some  limited               4   REVEAL PIPELINE
+case studies on such models ﬁnding vulnerabilities in real-
+world  projects,  those  case  studies  do  not  shed  light  on             In this section, we present a brief overview of the REVEAL
+the false positives and false negatives [1]. The number of                   pipeline that aims to more accurately detect the presence of
+false positives and false negatives are directly correlated                  real-world vulnerabilities. Figure 6 illustrates the REVEAL
+to the developer effort in vulnerability prediction [39] and                 pipeline. It operates in two phases namely, feature extrac-
+too much of any would hold the developer from using the                      tion (Phase-I) and training (Phase-II). In the ﬁrst phase we
+model [40], [41].                                                            translate real-world code into a graph-embedding (§4.1). In
+                                                                             the second phase, we train a representation learner on the
+3   REVEAL DATA COLLECTION                                                   extracted features to learn a representation that most ideally
+To address the limitations with the existing data sets, we                   demarcates the vulnerable examples from non-vulnerable
+curate a more robust and comprehensive real world dataset,                   examples (§4.2). Algorithm 1 shows the full training proce-
+REVEAL,  by  tracking  the  past  vulnerabilities  from  two                 dure for REVEAL. This algorithm expects Training data –
+open-source projects: Linux Debian Kernel and Chromium                       a list of tuples, where each tuple contains a code (C) and
+(open source project of Chrome). We select these projects                    corresponding vulnerability annotation (l).
+
+because:  (i)  these  are  two  popular  and  well-maintained                4.1   FeatureExtraction(Phase-I)
+public projects with large evolutionary history, (ii) the two                The goal of this phase is to convert code into a compact
+projects represent two important program domains (OS and
+browsers) that exhibit diverse security issues, and (iii) both               and a uniform length feature vector while maintaining the
+the projects have plenty of publicly available vulnerability                 semantic and syntactic information. Note that, the feature
+reports.                                                                     extraction  scheme  presented  below  represents  the  most
+    To curate our data, we ﬁrst collect already ﬁxedissues                   commonly used series of steps for extracting features from
+with publicly available patches. For Chromium, we scraped                    a graph representation [12]. REVEAL uses Algorithm 2 to
+its bug repository Bugzilla2. For Linux Debian Kernel, we                    extract graph embedding (graph based feature vector that
+collected the issues from Debian security tracker3. We then                  represent the entirety of a function in a code).
+identify vulnerability related issues, i.e., we choose those                     To  extract  the  syntax  and  semantics  in  the  code,  we
+patches that are labeled with “security”. This identiﬁcation                 generate a code property graph (hereafter, CPG) [16]. The
+                                                                             CPG is a particularly useful representation of the original
+  2. https://bugs.chromium.org/p/chromium/issues/list
+  3. https://security-tracker.debian.org/tracker/                              4. Chromium and Debian dataset: https://bit.ly/3bX30ai
+
+=== PÁGINA FÍSICA 6 ===
+            IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                                6
+                                                          Table 1: Summary of DLVP datasets and approaches.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                               Figure 6: Overview of the REVEAL vulnerability prediction framework.
+
+
+            codesinceitoffersacombinedandasuccinctrepresentation
+            of the code consisting of elements from the control-ﬂow                                             x′v =GRU(xv, ∑               g(xu))
+            and data-ﬂow graph in addition to the AST and program                                                                   (u,v)∈E
+            dependency graph (or PDG). Each of the above elements                                Where,GRU(·) is a Gated Recurrent Function,xv is the
+            offer additional context about the overall semantic structure                   embedding of the current vertexv, andg(·) is a transfor-
+            of the code [16].                                                               mation function that assimilates the embeddings of all of
+
+                Formally,  a  CPG  is  denoted  as G  =  (V,E),  where                      vertexv’s neighbors [43]–[45].x′v is the GGNN-transformed
+            V  represent  the  vertices  (or  nodes)  in  the  graph  and E                 representation of the vertexv’s original embeddingxv.x′v
+            represents the edges. Each vertex V in the CPG is com-                          now incorporatesv’s original embeddingxv as well as the
+            prised of the vertex type (e.g., ArithmeticExpression,                          embedding of its neighbors.
+            CallStatement etc.) and a fragment of the original code.                             The ﬁnal step in preprocessing is to aggregate all the
+            To encode the type information, we use a one-hot encoding                       vertex embeddingx′v to create a single vector representing
+            vector denoted byTv. To encode the code fragment in the                         the whole CPG denoted byxg, i.e.:
+            vertex,weuseaword2vecembeddingdenotedbyCv.Next,
+            to create the vertex embedding, we concatenateTv andCv                                                         xg =∑       x′v
+            into a joint vector notation for each vertex.                                                                         v∈V
+                The current vertex embedding is not adequate since it                            Note  that  REVEAL  uses  a  simple  element-wise  sum-
+            considerseachvertexinisolation.Itthereforelacksinforma-                         mation  as  the  aggregation  function,  but  in  practice  it  is
+            tion about its adjacent vertices and, as a result, the overall                  a  conﬁgurable  parameter  in  the  pipeline.  The  result  of
+            graph structure. This may be addressed by ensuring that                         the pipeline presented so far is anm−dimensional feature
+            each  vertex  embedding  reﬂects  both  its  information  and                   vector representation of the original source code. To pre-
+            those of its neighbors. We use gated graph neural networks                      train the GGNN, we augment a classiﬁcation layer on top
+            (hereafter GGNN) [43] for this purpose.                                         of the GGNN feature extraction. This training mechanism
+                                                                                            is  similar  to  Devign  [12].  Such  pre-training  deconstructs
+                Feature vectors for all the nodes in the graph (X) along                    the task of “learning code representation”, and “learning
+            with the edges (E) are the input to the GGNN [42], [43]. For                    vulnerability”, and is also used by Russell et al. [8]. While,
+Dataset     every vertex in the CPG, GGNN assigns a gated recurringUsedBy#Programs%Vul*GranularityModelTypeModelwe pre-train GGNN in a supervised fashion, unsupervisedDescription
+SATEIVJuliet[25]unit (GRU) that updates the current vertex embedding byRusselletal.[8]11,89645.00FunctionTokenCNN+RFprogram representation learning [46] can also be done toSyntheticcodefortestingstaticanalyzers.
+SARD[26]    assimilating the embedding of all its neighbors. Formally,VulDeePecker[6]9,85131SliceTokenBLSTMlearn better program presentation. However, such learningSynthetic,academic,andproductionsecurity
+                     SySeVR[7]              14,000     13.41  Slice         Token          BGRU         ﬂawsorvulnerabilities.
+NVD[27]              VulDeePecker‡             840       31   Slice         Token          BLSTM        Collectionofknownvulnerabilities
+                     SySeVR‡                 1,592     13.41  Slice         Token          BGRU         fromrealworldprojects.
+Draper[8]            Russelletal.[8]      1,274,366     6.46  Function      Token          CNN+RF       Containscodefrompublicrepositories
+                                                                                                        inGithubandDebiansourcerepositories.
+FFMPeg+Qemu[12]      Devign[12]             22,361     45.02  Function      Graph          GGNN         FFMPegisamultimedialibrary;
+                                                                                                        Qemuishardwarevirtualizationemulator.
+                                                                                           GGNN+        ContainscodefromChromiumandDebian
+REVEAL dataset       Thispaper              18,169      9.16  Function      Graph          MLP+         sourcecoderepository
+                                                                                           TripletLoss
+*  Percentageofvulnerablesamplesinthedataset.
+‡  VulDeePeckerandSySeVRusescombinationofSARDandNVDdatasetstotrainandevaluatetheirmodel.
+
+=== PÁGINA FÍSICA 7 ===
+IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                                7
+
+  Algorithm 1: REVEAL.                                                           Algorithm 3: Pseudocode for SMOTE.
+    Input  : Train data –Dtrain,                                                   Input  : Training Dataset –Dtrain
+             Contribution of triplet loss –α,                                               Number of Nearest Neighbors –k,
+             Contribution of regularization loss –β,                                        Expected Number of samples per class –m
+             Separation boundary –γ,                                               Output: Sampled Dataset –Dsampled.
+             Learning rate –lr                                                   1  FunctionSMOTE(Dtrain,k,m):
+    Output: Trained model.                                                       2      Dsampled←Dtrain
+  1  FunctionREVEAL:                                                             3        while # of Majority examples>m do
+  2         features ←∅                                                          4      x← random majority class example fromDsampled
+  3         labels ←∅                                                            5                 Removex fromDsampled
+  4   ⊿Extract  features  from  every  code                                      6        end
+  5        for (C,l)∈Dtrain do                                                   7        while # of Minority examples<m do
+  6      f ← embed        features(C)                                            8      x← random minority class example fromDsampled
+  7                 features ← features∪f                                        9      neighbors←k nearest minority neighbors ofx
+  8                 labels ← labels∪l                                           10               forn∈neighbors do
+  9        end                                                                  11        xs←interpolate(x,n)
+ 10   ⊿Rebalance  with  SMOTE.                                                  12                        Addxs toDsampled
+ 11      Dbalanced←SMOTE(features, labels)                                      13               end
+ 12      M← RepresentationLearningModel()                                       14        end
+                                                                                15        returnDsampled
+ 13   ⊿Train  Model.
+ 14        for (xg,lxg)∈Dbalanced do
+
+ 15      ⊿Define  loss  function.
+ 16            Lall←loss  function(M, Dbalanced,xg,lxg,α,β,γ)                  4.2.1   Reducing Class Imbalance
+
+ 17      ⊿θ  represents  the  model  parameters  of M.                         In order to handle imbalance in the number of vulnerable
+ 18      θ←θ−∇θ(Lall)
+ 19        end                                                                 and non-vulnerable classes, we use the “synthetic minority
+ 20        returnMθ                                                            over-sampling technique” (for short, SMOTE) [47]. It op-
+                                                                               erates by changing the frequency of the different classes
+  Algorithm 2: Graph Embedding                                                 in the data. Speciﬁcally, SMOTE sub-samples the majority
+    Input  : Code –C.                                                          class (i.e., randomly deleting some examples) while super-
+    Output: Feature vectorxg representingC.                                    samplingtheminorityclass(bycreatingsyntheticexamples)
+  1  Functionembed_features(C):                                                until all classes have the same frequency. In the case of
+  2         (V,E)← extract code  property   graph (C)                          vulnerability prediction, the minority class is usually the
+  3      X←∅                                                                   vulnerable examples. SMOTE has shown to be effective in a
+  4        forv∈Vdo
+  5      Tv ←onehot(v.type())                                                  number of domains with imbalanced datasets [48]–[54].
+  6      Cv ←word2vec(v.code           fragment())                                 During super-sampling, SMOTE picks a vulnerable ex-
+  7      xv ←concat(Tv,Cv)                                                     ample  and  ﬁndsk  nearest  vulnerable  neighbors.  It  then
+  8            X←xv∪X
+  9        end                                                                 builds a synthetic member of the minority class by inter-
+
+ 10      X′←GGNN(X,E)                                                          polatingbetweenitselfandoneofitsrandomnearestneigh-
+ 11   xg ←Aggregate(X′)                                                        bors. During under-sampling, SMOTE randomly removes
+ 12        returnxg                                                            non-vulnerable examples from the training set. This process
+                                                                               isrepeateduntilabalanceisreachedbetweenthevulnerable
+                                                                               and non-vulnerable examples. We present the pseudo-code
+is beyond the scope of this research and we leave that for                     of SMOTE in Algorithm 3.
+future research.
+                                                                               4.2.2   Representation Learning Model
+4.2   Training(Phase-II)                                                       Thegraphembeddingofthevulnerableandnon-vulnerable
+In real-world data, the number of non-vulnerable samples                       code samples at the end of Phase-I tend to exhibit a high
+(i.e., negative examples) far outnumbers the vulnerable ex-                    degree of overlap in feature space. This effect is illustrated
+amples  (i.e.,  positive  examples)  as  shown  in  Table  1.  If              bythet-SNEplot[55]ofthefeaturespaceinFigure8(a)–(d).
+left  unaddressed,  this  introduces  an  undesirable  bias  in                In these examples, there are no clear distinctions between
+the model limiting its predictive performance. Further, ex-                    the  vulnerable  (denoted  by  +)  and  the  non-vulnerable
+tractedfeaturevectorsofthevulnerableandnon-vulnerable                          samples (denoted by◦). This lack of separation makes it
+examples exhibit a signiﬁcant overlap in the feature space.                    particularly  difﬁcult  to  train  an  ML  model  to  learn  the
+Thismakesitdifﬁculttodemarcatethevulnerableexamples                            distinction between the vulnerable and the non-vulnerable
+from the non-vulnerable ones. Training a DL model without                      samples.
+accounting  for  the  overlap  makes  it  susceptible  to  poor                    Toimprovethepredictiveperformance,weseekamodel
+predictive performance.                                                        that can project the features from the original non-separable
+    To mitigate the above problems, we propose a two step                      space into a latent space which offers a better separability
+approach.  First,  we  use  re-sampling  to  balance  the  ratio               between vulnerable and non-vulnerable samples. For this,
+of vulnerable and non-vulnerable examples in the training                      we use a multi-layer perceptron (MLP) [23], designed to
+data. Next, we train a representation learning model on the                    transforminputfeaturevector(xg)toalatentrepresentation
+re-balanceddatatolearnarepresentationthatcanmostopti-                          denoted  byh(xg).  The  MLP  consists  of  three  groups  of
+mally distinguish vulnerable and non-vulnerable examples.                      layers namely, the input layer (xg), a set of intermediate
+
+=== PÁGINA FÍSICA 8 ===
+IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                                8
+layers which are parameterized byθ (denoted byf(·,θ),                          Algorithm 4: Loss function.
+and a ﬁnal output layer denoted byˆy.                                            Input  : Model –M
+    The  proposed  representation  learner  works  by  taking                             Sampled dataset –Dbalanced
+as  input  the  original  graph  embeddingxg  and  passing                                Code feature and label of an example –xg,lxg
+it through the intermediate layersf(·,θ). The intermedi-                                  Training Hyperparameters –α,β,γ,lr
+ate  layer  project  the  original  graph  embeddingxg  onto                     Output: REVEAL loss.
+                                                                               1  FunctionLoss(M,Dbalanced,xg,lxg,α,β,γ,lr):
+a  latent  spaceh(xg).  Finally,  the  output  layer  uses  the                2   ⊿Sample  forxp  andxn  from Dbalanced.
+features  in  the  latent  space  to  predict  for  vulnerabilities            3   xp←x∈Dbalanced|(lx =lxg&xp̸=xg)
+as, ˆy =σ(W∗h(xg)+b). Whereσ represents the softmax                            4   xn←x∈Dbalanced|(lx̸=lxg&xn̸=xg)
+function,hg is the latent representation, W andb represent                     5   ⊿Transformxg,xp,xn  to  latent  space.
+the model weights and bias respectively.                                       6   hg,yg ←M.predict(xg)
+                                                                               7   hp←M.transform(xp)
+    To  maximize  the  separation  between  the  vulnerable                    8   hn←M.transform(xn)
+and the non-vulnerable examples in the latent space, we                        9      Lce← cross   entropy(yg,lxg)
+adopt the triplet loss [56] as our loss function. Triplet loss                10      Ldist←|D(hg,hp)−D(hg,hn)+γ|
+has  been  widely  used  in  machine  learning,  speciﬁcally                  11      Lre←||h(xg)||+||h(xp)||+||h(xn)||
+in representation learning, to create a maximal separation                    12   ⊿Final  loss.
+                                                                              13      Lall←Lce +α∗Ldist +β∗Lre
+between classes [57], [58]. The triplet loss is comprised of                  14        returnLall
+three individual loss functions: (a) cross entropy loss (LCE);
+(b) projection loss (Lp); and (c) regularization loss (Lreg). It
+is given by:                                                                 Such arbitrary increase inh(xg) prevents the model from
+                Ltrp =LCE +α∗Lp+β∗Lreg                    (2)                converging  [60],  [61].  Therefore,  we  use  a  regularization
+α andβ are two hyperparameters indicating the contribu-                      loss (Lreg) to penalize latent representations (h(xg)) that are
+tion of projection loss and regularization loss respectively.                larger in magnitude. The regularization loss is given by:
+The ﬁrst component of the triplet loss is to measure the
+cross-entropy  loss  to  penalize  miss-classiﬁcations.  Cross-                       Lreg =||h(xg)||+||h(xsame)||+||h(xdiﬀ)||         (6)
+entropy loss increases as the predicted probability diverges
+from the actual label. It is given by,                                           With the triplet loss function, REVEAL trains the model
+                                                                             to optimize for it parameters (i.e.,θ,W,b) by minimizing
+         LCE =−∑ˆy·log(y)+(1− ˆy)·log(1−y)        (3)                        equation 2. The effect of using representation learning can
+Here,y  is  the  true  label  and ˆy  represents  the  predicted             be observed by the better separability of the vulnerable and
+label.The second component of the triplet loss is used the                   non-vulnerable examples in Figure 8(b). Algorithm 4 shows
+quantify how well the latent representation can separate the                 the detailed algorithm for calculating the loss.
+vulnerableandnon-vulnerableexamples.Alatentrepresen-
+tation is considered useful if all the vulnerable examples in                5   EXPERIMENTAL SETUP
+the latent space are close to each other while simultaneous
+being farther away from all the non-vulnerable examples,                     5.1   ImplementationDetails
+i.e., examples from same class are very close (i.e., similar) to             We use Pytorch 1.4.0 with Cuda version 10.1 to implement
+each other and examples from different class are far away                    our method. For GGNN, we use tensorﬂow 1.15. We ran
+from each other. Accordingly, we deﬁne a loss functionLp                     our  experiments  on  single  Nvidia  Geforce  1080Ti  GPU,
+which is deﬁned by.                                                          Intel(R) Xeon(R) 2.60GHz 16 CPU with 252 GB ram. Neither
+   Lp =|D(h(xg),h(xsame))−D(h(xg),h(xdiﬀ))+γ|    (4)                         Devign’s  implementation,  nor  their  hyperparameters  ate
+    Here,h(xsame)isthelatentrepresentationofanexample                        not  publicly  availavle.  We  followed  their  paper  and  re-
+thatbelongstothesameclassasxg andh(xdiﬀ)isthelatent                          implemented to our best ability. For the GGNN, maximum
+representationofanexamplethatbelongstoadifferentclass                        iteration number is set to be 500. For the representation
+as that ofxg. Further,γ is a hyperparameter used to deﬁne                    learner  maximum  iteration  is  100.  We  stop  the  training
+a minimum separation boundary. Lastly,D(·) represents the                    procedure if F1-score on validation set does not increase
+cosine distance between two vectors and is given by,                         in for 50 consecutive training iteration for GGNN and 5
+                                      ⏐⏐⏐⏐  v1.v2     ⏐⏐⏐⏐                     (5)forRepresentationLearning.Hyper-parametersfordifferent
+                  D(v1,v2)=1−                                                components in REVEAL are shown in Table 2.
+                                       ||v1||∗||v2||
+    If the distance between two examples that belong to the                  5.2   StudySubject
+same class is large (i.e., D(h(xg),h(xsame)) is large) or if                 Table  1  summarizes  all  the  vulnerability  prediction  ap-
+the distance between two examples that belong to different                   proachesanddatasetsstudiedinthispaper.Weevaluatethe
+classes is small (i.e., D(h(xg),h(xdiﬀ)) is small),Lp would                  existing methods (i.e., VulDeePecker [6], SySeVR [7], Rus-
+be large to indicate a sub-optimal representation.                           sell et al. [8], and Devign [12]) and REVEAL’s performance
+    The ﬁnal component of the triplet loss is the regular-                   on two real world datasets (i.e., REVEAL dataset, and FFM-
+ization loss (Lreg) that is used to limit the magnitude of                   Peg+Qemu). FFMPeg+Qemu was shared by Zhou et al. [12]
+latent  representation  (h(xg)).  It  has  been  observed  that,             who also proposed the Devign model in the same work.
+overseveraliterations,thelatentrepresentationh(xg)ofthe                      Their implementation of Devign was not publicly available.
+inputxg tend to increase in magnitude arbitrarily [56], [59].                We re-implement their method to report our results. We
+
+=== PÁGINA FÍSICA 9 ===
+IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                                9
+         Table 2: Hyper-parameter settings of REVEAL.                        andtheinter-quartilerange(IQR)oftheperformance.When
+
+      Model          Parameter                               Value           comparing the results to baselines, we use statistical signiﬁ-
+                                                                             cancetest[51],[64], [65]andeffectsizetest[66].Signiﬁcance
+      Word2Vec       Window Size                                 10          test tells us whether two series of samples differ merely
+                     Vector Size                                100          by random noises. Effect sizes tells us whether two series
+                     Input Embedding Size                       169          of samples differ by more than just a trivial amount. To
+                     Hidden Size                                200          assert statistically sound comparisons, following previous
+      GGNN           Number of Graph layers                       8          approaches  [67]–[71], we  use a  non-parametric bootstrap
+                     Graph Activation Function                 tanh          hypothesis test [72] in conjunction with the A12 effect size
+                     Learning Rate                           0.0001          test [73]–[75]. We distinguish results from different experi-
+                     Number of hidden layers                      3          mentsifbothsigniﬁcancetestandeffectsizetestagreedthat
+                     Hidden layers sizes               256, 128, 256         the division was statistically signiﬁcant (99% conﬁdence)
+                     Hidden layer activation functions         relu          and is not result of a “small” effect (A12≥ 60%) (similar
+                     Dropout Probability                        0.2          to Agrawal et al. [51]).
+                     γ                                          0.5
+      Repr-model     α                                          0.5          6   EMPIRICAL RESULTS
+                     β                                        0.001
+                     Optimizer                               Adam            Wepresentourempiricalresultsasanswerstothefollowing
+                     lr                                       0.001          research questions:
+       Repr-model = Representation Learning Model used in REVEAL.            • RQ1:Howeffectiveareexistingapproachesforreal-world
+                                                                             vulnerability prediction? (§6.1)
+                                                                             • RQ2:  What  are  the  limitations  of  existing  approaches?
+ensure that our results closely match their reported results                 (§6.2)
+in identical settings.                                                       • RQ3: How to improve DLVP approaches? (§6.3)
+
+5.3   Evaluation                                                             6.1   Effectiveness  of  existing  vulnerability  prediction
+To  understand  a  model’s  performance,  researchers  and                   approaches(RQ1)
+model developers need to understand the performance of                       Motivation.   The goal of any DLVP approaches is to be
+a model against a known set of examples. There are two                       abletopredictvulnerabilitiesinthereal-world.Thedatasets
+important aspect to note here, (a) the evaluation metric, and                thattheexistingmodelsaretrainedoncontainsimplisticex-
+(b) the evaluation procedure.                                                amples that are representative of real-world vulnerabilities.
+Problem Formulation and Evaluation Metric:  Most of the ap-                  Therefore,weoughtto,intheory,beabletousethesemodels
+proaches formulate the problem as a classiﬁcation problem,                   to detect vulnerabilities in the real-world.
+where given a code example, the model will provide a bi-                     Approach.   There are two possible scenarios under which
+narypredictionindicatingwhetherthecodeisvulnerableor                         these models may be used:
+not. This prediction formulation relies on the fact that there               ◦  Scenario-A (pre-trained models):  We may reuse the existing
+aresufﬁcientnumberofexamples(bothvulnerableandnon-                           pre-trained models as it is to predict real-world vulnera-
+vulnerable) to train on. In this study, we are focusing on the               bilities. To determine how they perform in such a setting,
+similar formulation. While both VulDeePecker and SySeVR                      we  ﬁrst  train  the  baseline  models  with  their  respective
+formulate the problem as classiﬁcation of code slices, we                    datasets  as  per  Table  1.  Next,  we  use  those  pre-trained
+followed the problem formulation used by Russell et al. [8],                 models to detect vulnerabilities in the real-world (i.e., on
+and Devign [42], where we classify the function. This is the                 FFMPeg+Qemu, and REVEAL dataset).
+mostsuitablemodelworkingwiththegraph,sinceslicesare                          ◦  Scenario-B (re-trained models):  We may rebuild the existing
+paths in the graph.                                                          models ﬁrst by training them on the real-world datasets,
+    We study approaches based on four popular evaluation                     and  then  use  those  models  to  detect  the  vulnerabilities.
+metrics  for  classiﬁcation  task  [62]  –  Accuracy,  Precision,            To assess the performance of baseline approaches in this
+Recall, and F1-score. Precision, also known as Positive Pre-                 setting, we ﬁrst use one portion of the FFMPeg+Qemu and
+dictive rate, is calculated as true positive / (true positive +              REVEAL dataset to train each model. Then, we use those
+false positive), indicates correctness of predicted vulnerable               models to predict for vulnerabilities in the remainder of
+samples. Recall, on the other hand, indicates the effective-                 the FFMPeg+Qemu and REVEAL. We repeat the process 30
+ness of vulnerability prediction and is calculated as true                   times, each time training and testing on different portions
+positive / (true positive + false negative). F1-score is deﬁned              of the dataset.
+as the geometric mean of precision and recall and indicates                  Observations.  Table 3b tabulates the performance of exist-
+balance between those.                                                       ing pre-trained models on predicting vulnerabilities in real-
+Evaluation Procedure:   Since DL models highly depend on                     world data (i.e., Scenario-A). We observe a precipitous drop
+the randomness [63], to remove any bias created due to                       in performance when pre-trained models are used for real-
+the randomness, we run 30 trials of the same experiment.                     world vulnerability prediction.
+At every run, we randomly split the dataset into disjoint                        Forexample,In REVEAL dataset,VulDeePeckerachieves
+train, validation, and test sets with 80%, 10%, and 20% of                   an   F1-score   of   only   12.18%   and   in   FFMPeg+Qemu,
+the dataset respectively. We report the median performance                   VulDeePecker achieves an F1-score of 14.27%, while in the
+
+=== PÁGINA FÍSICA 10 ===
+               IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                              10
+               Table 3: Performance of existing approaches in predicting real                                    Table 4: Percentage of duplicate samples in datasets.
+               world vulnerability.   All the numbers are reported as Median
+               (IQR) format.
+
+               (a) Baseline scores reported by the respective papers. We report
+               single values since authors do not report Median (IQR).
+
+
+
+
+
+
+
+
+
+
+                        (b) Scenario-A: Using Existing Pre-trained Models
+
+
+
+                                                                                                              For scenario-B, Table 3c tabulates our ﬁndings for re-
+                                                                                                         trained models. Here, we also observe a signiﬁcant perfor-
+                                                                                                         mance drop from the baseline results. In REVEAL dataset,
+                                                                                                         both Russell et al. and VulDeePecker achieve an F1-score
+                                                                                                         of roughly 15% (in contrast to their baseline performances
+                                                                                                         of 85%). SySeVR achieved an F1-score of 30% on REVEAL
+                                                                                                         dataset. We observed similar trends in other settings, with
+                                                                                                         an average F1 score drop of 54%.
+
+
+
+
+
+
+
+
+               (c) Scenario-B: Using Retrained Models with Real-world Data.
+
+                                                                                                         6.2   KeylimitationsofexistingDLVPapproaches(RQ2)
+                                                                                                         Motivation.   In RQ1, we showed that existing approaches
+                                                                                                         are not effective in detecting real-world vulnerabilities. In
+                                                                                                         this  RQ,  we  investigate  the  reasons  behind  their  failure.
+                                                                                                         We ﬁnd that the baseline methods suffer from a number
+                                                                                                         of problems, as listed below:
+
+                                                                                                         6.2.1   Data Duplication
+                                                                                                         Preprocessing techniques such as slicing used by VulDeeP-
+                                                                                                         ecker and SySeVR and tokenization used by Russell et al.
+                                                                                                         introduce a large number of duplicates in both the training
+                                                                                                         and testing data. There are several ways duplication can be
+                                                                                                         introduced by these preprocessing techniques – e.g., same
+                                                                                                         slice can be extracted from different entry points, different
+                                                                                                         code can have same tokens due to the abstract tokenization,
+
+               † We made several unsuccessful attempts to contact the authors for                        etc.
+               Devign’s implementation. Despite our best effort, Devign’s reported                       Approach. Weapplyeachpreprocessingtechniquetoitsre-
+               result is not reproducible. We make our implementation of Devign                          spective dataset (see§2) and also to the real-world datasets.
+               public at https://github.com/saikat107/Devign for further use.                            Observations.    Table  4  tabulates  the  number  of  dupli-
+                                                                                                         cates  introduced  by  some  of  the  vulnerability  prediction
+                                                                                                         approaches. We observe that the preprocessing technique
+               baseline case (see Table 3a), the F1-score of VulDeePecker                                of SySeVR and VulDeePecker (i.e., slicing followed by tok-
+               was as high as 85.4%. Even the sophisticated graph-based                                  enization) introduces a signiﬁcant amount of (> 60%) du-
+               Devign model produced an F1-score of only∼ 17% and                                        plicate samples. Further, semi-synthetic datasets like NVD,
+Dataset    Technique         Training               Acc       Prec     Recall          F1
+Dataset      Inputprecision  as  low  as∼  10%  on  REVEAL  dataset.  SimilarApproachAcc      Prec     Recall      F1SARD, and Juliet (comprised of much simpler code snip-
+ Dataset   VulDeePeckerTokenperformance drops are observed for all the other baselines.Pre-processingTechniqueRussell et al.NVD/SARD90.98      24.63        10.91      15.2479.05       11.12        13.64       12.18%ofduplicatespets) result in a large number of duplicates. In contrast,
+Result:    Existing  approaches  fail  to  generalize  to  real-On average, we observe a 73% drop of F1-score across all(0.75)     (5.35)       (2.47)     (2.74)(0.25)      (0.48)        (0.50)      (0.47)real-world datasets are much more complex and therefore
+world vulnerability prediction. If we directly use a pre-JulietSySeVRRussell et al.NVD/SARD79.48        9.38        15.89       10.3768.63
+             Slice +the models in this setting.VulDeePeckerVulDeePecker89.05      17.68        13.87        15.7(0.24)      (0.30)        (0.63)      (0.36)67.33have far fewer duplicates. In our case, the two real-world
+trained model to detect the real-world vulnerabilities, theNVD + SARDJuliet(0.80)     (7.51)       (8.53)     (6.41)38.11       41.36          6.51       11.24
+Dataset    Russell et al.TechniqueTokenSySeVRSySeVRTraining84.22      24.46        40.11      30.25Acc      Prec     Recall          F161.99
+f1-score drops by∼73%, on average. Even if we retrainDraperVulDeePeckerRussell et al.NVD/SARD(2.48)     (4.85)       (4.71)     (2.35)(0.11)      (0.38)        (0.07)      (0.12)·      86.90   ·      85.406.07 / 2.99
+these  models  with  real-world  data,  their  performanceSySeVRNoneDraperNVD/SARD70.08       49.05        15.61       23.6695.90      82.50   ·      85.200.6
+drops by∼54% from the reported results.GraphDevign88.41      34.61        26.67      29.87(0.14)      (0.35)        (0.12)      (0.24)
+ REVEAL datasetDevignRussell et al.VulDeePeckerFFMPeg+QemuJuliet(0.66)     (3.24)       (6.01)     (4.34)66.24       10.74        37.04       16.68·   ·   ·      84.0025.85
+             Token      SySeVRRussell et al.Draper58.13      54.04        39.50      45.62(0.14)      (0.11)        (0.54)      (0.17)·   ·   ·        56.625.56
+           VulDeePeckerDevignRussell et al.NVD/SARDFFMPeg+Qemu(0.88)     (2.09)       (2.17)     (1.33)52.27        8.51        44.78       14.2772.26   ·   ·      73.268.93
+                        NoneVulDeePecker      53.58      47.36        28.70      35.20(0.23)      (0.22)        (0.66)      (0.33)0.2
+           SySeVRSlice +     NVD/SARD        (0.61)     (1.80)     (12.08)     (8.82)52.52       10.62        46.69       16.77· = Not Reported.
+ FFMPeg+QemuToken       VulDeePeckerSySeVR    52.52      48.34        65.96      56.03(0.18)      (0.22)        (0.20)      (0.31)19.58
+                        SySeVRJuliet         (0.81)     (1.51)       (7.12)     (3.20)49.84       33.17        45.53       37.6522.10
+           Russell et al.Russell et al.           (0.10)      (0.13)        (0.14)      (0.12)20.54
+             Graph       Devign†Draper        58.57      53.60        62.73      57.1853.96       44.00        49.53       46.60
+                                             (1.03)     (3.21)       (2.99)     (2.58)(0.14)      (0.17)        (0.20)      (0.15)
+
+=== PÁGINA FÍSICA 11 ===
+IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                              11
+data contain little to no duplicates prior to preprocessing                        1    link_layer_show(struct  ib_port  *p,
+(REVEAL dataset had only 0.6%, and FFMPeg+Qemu had                                 2            struct  port_attribute  *unused,  char  *  buf){
+                                                                                   3       switch   (rdma_port_get_link_layer(
+0.2%). After preprocessing, although some duplicates are                           4                      p->ibdev,  p->port_num))      {
+introduced  (e.g.,  SySeVR’s  preprocessing  technique  intro-                     5           case  IB_LINK_LAYER_INFINIBAND:
+                                                                                   6               returnsprintf(buf,  "%s   \n",  "InfiniBand");
+duces  25.56%  duplicates  in  REVEAL  dataset  and  22.10%                        7           case  IB_LINK_LAYER_ETHERNET:
+duplicates in FFMPeg+Qemu), they are much lesser than                              8               returnsprintf(buf,  "%s   \n",  "Ethernet");
+                                                                                   9           default:
+baseline datasets. While duplicates created by slicing and                        10               returnsprintf(buf,  "%s   \n",  "Unknown");
+pre-processing techniques do favor vulnerability prediction                       11       }
+                                                                                  12    }
+in general [7], [76], it seriously undermines the capability of
+a DL model to extract patterns. In fact, prevalence of such                     (a) Vulnerable code example in Draper [8] dataset correctly
+duplicates in training set might lead a DL model to learn                       predicted by Russel et al.’s token-based method.
+irrelevant features. Common examples between train and                              1     static  int  mov_read_dvc1(MOVContext  *c,
+test sets hampers fair comparison of different DL models                            2              AVIOContext  *pb,    MOVAtom  atom)  {
+for vulnerability prediction task.                                                  3         AVStream  *st;
+                                                                                    4         uint8_t  profile_level;
+    Ideally, a DL based model should be trained and tested                          5             if  (c->fc->nb_streams  <  1)
+on a dataset where 100% examples are unique. Duplication                            6              return  0;
+tends  to  artiﬁcially  inﬂate  the  overall  performance  of  a                    7         st  =  c->fc->streams[c->fc->nb_streams-1];
+                                                                                    8             if  (atom.size>=  (1<<28)  ||  atom.size<  7)
+method[77],asevidencedbythediscrepancyofthebaseline                                 9              return  AVERROR_INVALIDDATA;
+results and results of the pre-trained models in Scenario-A                        10         profile_level  =  avio_r8(pb);
+                                                                                   11             if  ((profile_level  &  0xf0) !=  0xc0)
+of RQ1 (see Table 3b).                                                             12              return  0;
+                                                                                  ...             ...
+6.2.2   Data Imbalance                                                             18         st->codec->extradata_size  =  atom.size  -  7;
+                                                                                   19         avio_seek(pb,  6,  SEEK_CUR);
+Real  world  data  often  contains  signiﬁcantly  more  non-                       20         avio_read(
+                                                                                   21              pb,  st->codec->extradata,
+vulnerable examples than vulnerable ones. A model trained                          22                   st->codec->extradata_size);
+on such skewed dataset is susceptible to being considerably                        23         return  0;
+biased toward the majority class.                                                  24 }
+Approach.  We compute percentage on vulnerable samples                          (b) Vulnerable example from FFMPeg+Qemu [12] dataset
+w.r.t. total number of samples from different datasets used                     correctly predicted by graph model. Other method could
+in this paper as shown in  Table 1.                                             not predict the vulnerability in this example.
+Observations.    We  notice  that  several  datasets  exhibit  a              Figure 7: Contribution of different code component in correct
+notable imbalance in the fraction of vulnerable and non-                      classiﬁcation of vulnerability by different model.          Red-shaded
+vulnerable examples; . the percentage vulnerability is some-                  code  elements  are  most  contributing,        Green-shadedare  the
+times  as  low  as 6%.  The  ratio  of  vulnerable  and  non-                 least.Red colored code are the source of vulnerabilities.
+vulnerable examples varies depending on the project and
+the data collection strategy employed. Existing methods fail
+to adequately address the data imbalance during training.                     prediction and vice versa. For graph-based models, such as
+This causes two problems: (1) When pre-trained models are                     Devign, Lemna is not applicable [18]. In this case, we use
+used (i.e., Scenario-A in RQ1) to predict vulnerabilities in                  the activation value of each vertex in the graph to obtain
+the real world, the ratios of vulnerable and non-vulnerable                   the feature importance. The larger the activation, the more
+examplesdiffersigniﬁcantlyintrainingandtestingdatasets.                       critical the vertex is.
+This explains why pretrained models perform poorly (as                        Observations.  To visualize the feature importances, we use
+seen in Table 3b). (2) When the models are re-trained, they                   aheatmaptohighlightthemosttoleastimportantsegments
+tend to be biased towards the class with the most examples                    of the code. Figure 7 shows two examples of correct pre-
+(i.e., the majority class). This results in poor recall values                dictions. Figure 7a shows an instance where Russell et al.’s
+(i.e., they miss a lot of true vulnerabilities) and hence, also               token-based  method  accurately  predicted  a  vulnerability.
+the F1-score (as seen in Table 3c).                                           But, the features that were considered most important for
+                                                                              the prediction (lines 2 and 3) are not related to the actual
+6.2.3   Learning Irrelevant Features                                          vulnerability that appears in buggy sprintf lines (lines 6,
+In  order  to  choose  a  good  DL  model  for  vulnerability                 8,and10).Weobservesimilarbehaviorinothertokenbased
+prediction, it is important to understand what features the                   methods.
+model uses to make its predictions. A good model should                           In contrast, Figure 7b shows an example that was mis-
+assign greater importance to the vulnerability related code                   classiﬁed as non-vulnerable by token-based methods, but
+features.                                                                     graph-based models accurately predict them as vulnerable.
+Approach. Tounderstandwhatfeaturesamodelusesforits                            Here we note that the vulnerability is on line 20, and graph-
+prediction, we ﬁnd the feature importance assigned to the                     based models use lines 3, 7, 19 to make the prediction, i.e.
+predicted code by the existing approaches. For token-based                    mark the corresponding function as vulnerable. We observe
+models such as VulDeePecker, SySeVR, and Russell et al.,                      that each of these lines shares a data dependency with line
+we use Lemna to identify feature importance [18]. Lemna                       20 (through pb and st). Since graph-based models learn
+assignseachtokenintheinputwithavalueωti,representing                          the semantic dependencies between each of the vertices in
+the contribution of that token for prediction. A higher value                 the graph through the code property graph, a series of con-
+ofωti  indicates a larger contribution of token towards the                   nected vertices, each with high feature importance, causes
+
+=== PÁGINA FÍSICA 12 ===
+            IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                              12
+
+
+
+
+
+
+
+
+
+
+                    (a) Russell et al.           (b) VulDeePecker                 (c) SySeVR                    (d) Devign                   (e) REVEAL
+
+            Figure 8: t-SNE plots illustrating the separation between vulnerable (denoted by+) and non-vulnerable (denoted by ◦) example.
+            Existing methods fail to optimally separate vulnerable and non-vulnerable classes.
+
+
+            the  graph-based  model  to  make  the  accurate  prediction.                 that current state-of-the-art vulnerability prediction meth-
+            Token-basedmodels lackthe requisitesemanticinformation                        ods face when exposed to real-world datasets.
+            and therefore fail to make accurate predictions.                              Approach.  A detailed description of REVEAL is presented
+            6.2.4   Model Selection: Lack of Class Separation                             in§4. Brieﬂy, it works as follows: (i) input code fragment is
+                                                                                          converted to a feature vector with the help of a code prop-
+            Existing approaches translate source code into a numeric                      erty graph and GGNN (§4.1); (ii) the feature vectors are re-
+            feature vector that can be used to train a vulnerability pre-                 sampledusingSMOTE(§4.2.1)thataddressespotentialdata
+            diction model. The efﬁcacy of the vulnerability prediction                    imbalance; and ﬁnally, (iii) a multi layer perceptron based
+            model depends on how separable the feature vectors of the                     representation learner is trained to learn a representation of
+            two classes (i.e., vulnerable examples and non-vulnerable                     thefeaturevectorsthatmaximallyseparatesthepositiveand
+            examples) are. The greater the separability of the classes,                   negative classes (§4.2.2). This pipeline offers the following
+            the easier it is for a model to distinguish between them.                     beneﬁts over the current state-of-the-art:
+            Approach.   We use t-SNE plots to inspect the separability                    1)  Addressing  duplication:  REVEAL  does  not  suffer  from
+            of the existing models. t-SNE is a popular dimensionality                     data duplication. During pre-processing, input samples are
+            reduction technique that is particularly well suited for vi-                  converted  to  their  corresponding  code  property  graphs
+            sualizing how high-dimensional datasets look in a feature                     whoseverticesareembeddedwithaGGNNandaggregated
+            space [55]. A clear separation in the t-SNE space indicates                   with an aggregation function. This pre-processing approach
+            that  the  classes  are  distinguishable  from  one  another.  In             tends to create a unique feature for every input samples.
+            order to numerically quantify the separability of the classes,                So long as the inputs are not exactly the same, the feature
+            we use the centroid distance proposed by Mao et al. [56].                     vector will also not be the same.
+            We  ﬁrst  ﬁnd  the  centroids  of  each  of  the  two  classes.               2)  Addressingdataimbalance: REVEAL makesuseofsynthetic
+            Next, we compute the euclidean distance between the the                       minority  oversampling  technique  (SMOTE)  to  re-balance
+            centroids. Models that have larger the euclidean distances                    the  distribution  of  vulnerable  and  non-vulnerable  exam-
+            are preferable since they exhibit greater class separation.                   ples  in  the  training  data.  This  ensures  that  the  trained
+            Observations.   Figure 8 illustrates the t-SNE plots of the                   model would be distribution agnostic and, therefore, better
+            existing approaches. All the existing approaches (Figure 8a–                  suited  for  real-world  vulnerability  prediction  where  the
+            8d) exhibit a signiﬁcant degree of overlap in the feature                     distribution of vulnerable and non-vulnerable examples is
+            space  between  the  two  classes.  This  is  also  reﬂected  by              unknown.
+            the relatively low distance between the centroids in each                     3)  Addressingmodelchoice: REVEAL extractssemanticaswell
+            of the existing methods. Among exiting methods, Devign                        as syntactic information from the source code using code
+            (Figure 8d) has the least centroid distance (around 0.0025);                  property graphs. Using GGNN, each vertex embedding is
+            this is much lower than any other existing approach. This                     updated with the embeddings of all its neighboring ver-
+            lack of separation explains why Devign, in spite of being                     tices.  This  further  increases  the  semantic  richness  of  the
+            a  graph-based  model,  has  poor  real-world  performance                    embeddings. This represents a considerable improvement
+            (see Table 3).                                                                to  the  current  token-based  and  slicing-based  models.  As
+
+                                                                                          shown  in  Figure  7b,  REVEAL  can  accurately  predict  the
+                                                                                          vulnerability here.
+                                                                                          4)  Addressing the lack of separability: As shown in Figure 8a–
+                                                                                          8d, the vulnerability class is almost inseparable from the
+                                                                                          non-vulnerability class in the feature space. To address this
+                                                                                          problem, REVEAL uses a representation learner that auto-
+            6.3   HowtoimproveDLVPapproaches?(RQ3)                                        matically learns how to re-balance the input feature vectors
+                                                                                          such  that  the  vulnerable  and  non-vulnerable  classes  are
+            Motivation. InRQ2,wehighlightedanumberofchallenges                            maximally separated [21]. This offers signiﬁcant improve-
+            that limit the performance of existing DLVP on real-world                     ments  over  the  current  state-of-the-art  as  shown  in  Fig-
+            datasets. To address these challenges, we offer REVEAL—                       ure 8e. Compared to the other approaches of Figure 8a–
+Result:    Existing  approaches  have  several  limitations:a roadmap to help avoid some of the common problems8d,  REVEAL  exhibits  the  highest  separation  between  the
+they (a) introduce data duplication, (b) don’t handle data
+imbalance, (c) don’t learn semantic information, (d) lack
+class separability. DLVP may be improved by addressing
+these limitations.
+
+=== PÁGINA FÍSICA 13 ===
+             IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                              13
+
+
+
+
+
+
+
+
+                   (a) Precision            (b) Recall            (c) F1-score                (a) Precision            (b) Recall            (c) F1-score
+
+                     Figure 9: Performance spectrum of REVEAL dataset.                          Figure 10: Performance spectrum of FFMPeg+Qemu.
+                                     Legends:    Vul=VulDeePecker [6],    Sys=SySeVR [7],    Rus=Russell et al. [8],    Dev=Devign [12],    Rev=REVEAL.
+
+                                                                                            Table 5: Impact of GGNN in REVEAL’s performance [Median
+                                                                                            (IQR)].
+
+
+
+
+
+
+
+                         (a) REVEAL dataset          (b) FFMPeg+Qemu
+
+             Figure 11: Effect of GGNN in REVEAL’s F1 score. The per-
+             formance  increase  in  both  datasets  when  node  information
+             is propagated to the neighboring node through GGNN. The
+             effect  size  is  0.81  (large)  for  REVEAL  dataset  and  0.73  for          score and recall. The median recall is 60.91% ( 20.8% more
+             FFMPeg+Qemu.                                                                   than that of SySeVR, the next best model) and median F1-
+                                                                                            scoreis41.25%(11.38%morethanSySeVR).Thisrepresents
+                                                                                            a 51.85% and 36.36% improvement in recall and F1 over
+                                                                                            SySeVR respectively. While Devign (another GGNN based
+                                                                                            vulnerability prediction) produces a better precision, De-
+                                                                                            vign’s median recall56.21% less than that of REVEAL. This
+                                                                                            indicates that, compared to Devign, REVEAL can ﬁnd larger
+                                                                                            number of true-positive vulnerabilities (resulting in a better
+                                                                                            recall) at the cost slightly more false-positives (resulting in
+                         (a) REVEAL dataset          (b) FFMPeg+Qemu                        a slightly lower precision). Overall, REVEAL’s median F1-
+                                                                                            score is 11.38% more than Devign, i.e., a 38.09% improve-
+             Figure 12:  Effect of training data re-balancing in  REVEAL’s                  ment.
+             performance(F1-score).Inbothdatasets,re-balancingimproves                      ◦   FFMPeg+Qemu: REVEAL outperforms other approaches
+             the performance of REVEAL.                                                     in  all  performance  metrics.  REVEAL’s  median  accuracy,
+                                                                                            precision,recall,andF1-scoresare5.01%,5.19%,13.11%,and
+                                                                                            12.64% higher respectively than the next best approach.
+                                                                                                In  the  rest  of  this  research  question,  we  investigate
+                                                                                            contribution  of  each  component  of  REVEAL.  Speciﬁcally,
+                                                                                            we study what improvements are offered by the use of (a)
+                                                                                            Graphneuralnetwork(§6.3.1);(b)re-balancingtrainingdata
+                                                                                            with  (§6.3.2); and ﬁnally (c) representation learning (§6.3.3).
+
+                         (a) REVEAL dataset          (b) FFMPeg+Qemu                        6.3.1   Contribution of Graph Neural Network
+             Figure 13: REVEAL’s performance (F1-score) in comparison to                    To  understand  the  contribution  of  GGNN,  we  create  a
+                                                                                            variantof REVEAL withoutGGNN.Inthissetup,webypass
+             other machine learning models.                                                 the use GGNN and aggregate the initial vertex features to
+                                                                                            create the graph features. Further, we create another variant
+             vulnerable and non-vulnerable classes (roughly85× higher                       of  REVEAL  that uses only GGNN  without re-sampling or
+             than other GGNN based vulnerability prediction).                               representation learning.
+                                                                                                Figure 11 shows the F1-scores for the above setup. We
+             We compare performance of REVEAL with existing vulnera-                        observe that, in both REVEAL dataset and FFMPeg+Qemu,
+             bility prediction approaches of two real-world datasets, i.e.,                 F1-score  increases  when  we  use  GGNN  in  REVEAL’s
+             FFMPeg+Qemu and REVEAL data.                                                   pipeline. We observe that the improvements offered by the
+             Observations.  Figures 9 and 10 compare the performance                        use of GGNN is statistically signiﬁcant (with a p-value of
+             of  REVEAL  tool with other approaches. We observe that                        0.0002 in REVEAL dataset, and 0.001 in FFMPeg+Qemu).
+             REVEAL offers noticeable improvements in all the metrics:                      Further, when we perform the A12 effect size [66] with 30
+             ◦   REVEAL dataset: REVEAL performs best in terms of F1-                       independent experiment runs in each case, we found that
+Dataset     Approach    Accuracy    Precision   Recall   F1-score
+             REVEAL       83.69       29.48     57.69     39.09
+          w/oGGNN         (1.60)      (2.69)    (7.85)    (2.30)
+             REVEAL       84.37       30.91     60.91     41.25
+          withGGNN        (1.73)      (2.76)    (7.89)    (2.28)
+             REVEAL       53.87       49.60     89.25     63.69
+          w/oGGNN         (2.69)      (1.68)    (3.78)    (0.85)
+             REVEAL       62.51       56.85     74.61     64.42
+          withGGNN        (0.90)      (1.54)    (4.31)    (1.33)
+
+=== PÁGINA FÍSICA 14 ===
+             IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                              14
+             Table 6: Impact of re-balancing training data in REVEAL’s per-                 Table7: REVEAL’sperformanceincomparisontootherbaseline
+             formance (Median/IQR). FFMPeg+Qemu is almost balanced,                         models  – i.e.  Random  Forest  (RF),  Support  Vector  Machine
+             thus  further  re-balancing  do  not  impact  performance  that                (SVM), MLP with NLL Loss (MLP†). REVEAL achieves better
+             much. However, in REVEAL dataset, training data re-balancing                   performance that other max margin model (SVM), and  RE-
+             improved the performance signiﬁcantly.                                         VEAL’s loss function improves the performance with respect
+                                                                                            to the MLP†.
+
+
+
+
+
+
+
+
+
+
+
+             the the effect size is 81% for REVEAL dataset and 73% for
+             FFMPeg+Qemu. This means that 81% of the times REVEAL
+             performs better with GGNN than it does without GGNN
+             in  REVEAL  dataset  and  73%  in  FFMPeg+Qemu.  Both  of
+             those effect sizes are considered large indicating REVEAL
+             with GGNN’s f1-score distribution is better than REVEAL
+             without GGNN.
+                 We contend that, since GGNN embeds the neighbors’                          An off-the-shelf Multi-Layer Perceptron which uses a log-
+             informationineveryvertex,verticeshavericherinformation                         Likelihood loss [79].
+             about the graph. Thus REVEAL’s classiﬁcation model have                            Figure 13 shows the REVEAL’s performance with dif-
+             more information at its disposal to reason about. The result                   ferent classiﬁcation models. In both REVEAL dataset and
+             indicates  that  when  vertices  assimilate  information  from                 FFMPeg+Qemu, our representation learner with triplet loss
+             neighboring vertices, vulnerability prediction performance                     achieves the best performance. REVEAL’s median F1-score
+             increases.                                                                     is  62.8%,  13.3%,  3.5%  higher  than  that  of  RF,  MLP,  and
+
+             6.3.2   Effect of Training Data Balancing                                      SVM baselines respectively in REVEAL dataset. For FFM-
+             To understand the contribution of SMOTE, we deploy two                         Peg+Qemu  improvement  in  median  F1-score  is  23.33%,
+             variantsofREVEALonewithSMOTEandonewithout.Note                                 7.5%, 6.5% over RF, MLP, and SVM respectively.
+             that, REVEAL usesSMOTEasanoff-theshelfdatabalancing                                Max-margin  models  results  in  better  performance  in
+             tool. Choice of which data-balancing tool should be used is                    classifying vulnerable code in general.  REVEAL  with the
+             a conﬁgurable parameter in REVEAL’s pipeline.                                  representation  learner  performs  statistically  and  signiﬁ-
+                 Figure 12 illustrates the effect of using data re-sampling                 cantly better than SVM in both REVEAL dataset and FFM-
+             in REVEAL’spipeline.Weobservethatre-balancingtraining                          Peg+Qemu (with p-values< 0.01 and A12> 0.6). This is
+             data improves REVEAL’s performance in general. The more                        likely because SVM is a shallower than a representation
+             skewed the dataset, the larger the improvement. In FFM-                        learning model that propagates losses across several per-
+             Peg+Qemu,  non-vulnerable  examples  populates  roughly                        ceptron layers.
+             55%  of  the  data.  There,  using  SMOTE  offers  only  a 3%
+             improvement  in  F1-score  (see  Figure  12b).  However,  in
+             REVEAL dataset, non-vulnerable examples populates 90%
+             of the data, there we obtain more than 22% improvement
+             in F1-score compared to not using SMOTE (see Figure 12a).
+             Without SMOTE, the precision of REVEAL tool improves
+             and reaches up to 46.23% (see Table 6 in Appendix), highest
+             achieved  precision  among  all  the  experimental  settings.
+             However, this setting suffers from low recall due to data                      7   DISCUSSION
+             imbalance. Thus, if an user cares more about precision over
+             recall, SMOTE can be turned off, and vice versa.                               7.1   VulnerabilityDetectioninRealWorld
+                                                                                            The usefulness of a source code vulnerability detection tool
+             6.3.3   Effect of Representation Learning                                      depends on its use case scenario. Ideally, in a real-world
+             In order to understand the contribution of representation                      scenario, developers would deploy a trained vulnerability
+             learning,  we  replace  representation  learning  with  three                  prediction model to identify vulnerable functions from a
+             other learners: (a) Random Forest (a popular decision tree                     codebase. In simple terms, given all the functions in the
+Dataset   Approachbased classiﬁer used by other vulnerability prediction ap-AccuracyPrecisionRecallF1-scorecode base, developers would want to locate the vulnera-
+Result:  The performance of DLVP approaches can be sig-proaches  like  Russell  et al.  [8]);  (b)  SVM  with  an  RBF85.4624.1526.5825.32ble function. As discussed in Section 2, evaluating such a
+niﬁcantly improved using the REVEAL pipeline. The usekernel  which  also  attempts  to  maximize  the  margin  be-RF(0.62)(3.03)(2.08)(2.39)scenario is paramount in understanding the usefulness of
+of GGNN based feature embedding along with SMOTEtween vulnerable and non-vulnerable instances [78]; and (c)MLP†84.8129.3547.5136.42an  approach.  Existing  approaches  show  very  little  to  no
+Datasetand  representation  learning  remedies  data-duplication,ApproachAccuracy(1.80)Precision(3.51)Recall(4.77)F1-score(3.40)
+data  imbalance,  and  lack  of  separability.  REVEAL  pro-SVMW/O82.6190.4829.4246.2361.2015.0939.8522.44
+duces  improvements  of  up  to  33.57%  in  precision  andRe-balance(0.43)(0.93)(11.30)(2.45)(1.86)(9.09)(2.54)(9.56)
+128.38% in recall over state-of-the-art methods.REVEALWith84.3784.3730.9130.9160.9160.9141.2541.25
+           Rebalance     (1.73)(1.73)(2.76)(2.76)(7.89)(7.89)(2.28)(2.28)
+               W/O       62.94       58.86      64.20     61.40
+                 RF      57.34       53.62      50.90     52.23
+          Re-balance     (0.84)(1.40)(1.50)(2.88)(1.23)(6.76)(1.09)(1.91)
+              MLP†With   61.4362.51  56.8556.87 74.6163.3664.4259.93
+          Re-balance     (1.38)(0.90)(2.04)(1.54)(4.81)(4.31)(2.46)(1.33)
+               SVM       61.84       57.66      63.26     60.47
+                         (0.55)      (1.18)     (1.55)    (0.92)
+           REVEAL        62.51       56.85      74.61     64.42
+                         (0.90)      (1.54)     (4.31)    (1.33)
+
+=== PÁGINA FÍSICA 15 ===
+IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                              15
+evaluation of how respective approaches perform in such                     anomaly  detection  techniques  on  embeddings  produced
+a real-world scenario. For instance, Devign [12] showed a                   from static tainting to discover missing conditions such as
+simulated real imbalanced evaluation (we refer to Table 3 in                inputvalidation.Perlet al.[93]usedcommitmessagestode-
+Devign’soriginalpaper).However,forthatsimulation,they                       tect the vulnerabilities of a program. These work leveraged
+randomly sampled their version of the test data to contain                  Support Vector Machine (SVM) for VP. Li et al. [94] used
+10% vulnerable example. Their reported results also show                    multi-class SVM to detect different class of vulnerabilities.
+the drop in performance in real world imbalanced settings.                  Recently, DLVP has been subject to much research in both
+Nevertheless, we hypothesize that their evaluation method                   static-  [8]  and  dynamic  [95]-analysis  scenario.  However,
+does not truly reﬂect how a method will perform in the real                 static settings are more popular [96] using code slices [6],
+worldsincetheimbalanceintheirdatasetisartiﬁcial.Inthis                      [7], trees [97], graphs [12] etc. Although most prominent
+study, we propose a method to simulate such an evaluation                   approaches [6]–[8], [76] use token based representation of
+scenario. Therefore, we hope such evaluation settings help                  code, recent graph based modeling showed success in vul-
+drive new research in vulnerability detection.                              nerability prediction [12].
+                                                                                Code   Property   Graph   (CPG),   introduced   by   Yam-
+7.2   VulnerabilityDataandTangledcommits                                    aguchi et al. [16], models the combined semantic and syn-
+                                                                            tactic information of a program. The CPG is a joint data
+                                                                            structurethatleveragestheinformationfromabstractsyntax
+                                                                            trees, control ﬂow graphs and program dependency graphs.
+                                                                            CPG has shown to be robust in reasoning about vulnera-
+                                                                            bilities [12], [16], [98]. Thus, REVEAL uses CPG to extract
+                                                                            graph  based features.  In  addition,  REVEAL  reduces  data
+                                                                            imbalance bias (through re-sampling in feature space) and
+                                                                            learns to maximize separation between vulnerable and non-
+                                                                            vulnerable examples.
+                                                                                Thereare severalchoicesof techniques forreducingdata
+                                                                            imbalance[47],[49],[99],allofwhichusedifferentstrategies
+                                                                            for balancing any imbalanced datasets. We choose SMOTE
+Figure 14: Histogram of number of changed function in Vul-                  in REVEAL’s pipeline as it has shown to be successful in
+nerability ﬁx patches.                                                      other software engineering related tasks [51], [100]–[103].
+
+    Tangled commits have long been studied in software
+engineering [80]–[83] and a major setback for software evo-                 9   CONCLUSION
+lution history driven research [84]–[86]. Developers often                  In this paper, we systematically study different aspects of
+combinemorethanoneunrelatedorweaklyrelatedchanges                           Deep Learning based Vulnerability Detection to effectively
+in code in one commit [84] causing such a commit to be                      ﬁnd real world vulnerabilities. We empirically show dif-
+entanglement of more than one changes. Our collected RE-                    ferent shortcomings of existing datasets and models that
+VEAL data is also subject to such a threat of containing tan-               potentially limits the usability of those techniques in prac-
+gled code changes. Thus, we investigate the characteristics                 tice. Our investigation found that existing datasets are too
+of number of function changes in vulnerability-ﬁx patches.                  simple to represent real world vulnerabilities and existing
+Figure14showsahistogramofnumberoffunctionsthatare                           modeling techniques do not completely address code se-
+changed per Vulnerability-ﬁx patches. Most of the patches                   mantics and data imbalance in vulnerability detection. Fol-
+change very small number of functions. 80% of the changes                   lowing these empirical ﬁndings, we propose a framework
+account for 12 or fewer number of function changes.                         for collecting real world vulnerability dataset. We propose
+    To validate that the empirical ﬁnding in the paper are                  REVEAL as a conﬁgurable vulnerability prediction tool that
+not biased by the tangled commits, we created an alternate                  addresses the concerns we discovered in existing systems
+version of REVEAL data, where we removed any patch that                     and demonstrate its potential towards a better vulnerability
+changes more than one function from consideration. In that                  prediction tool.
+version  of  REVEAL  data,  we  ﬁnd  that  REVEAL  achieves
+26.33% f1 score. In contrast, if we do not use representation
+learning, REVEAL’s f1 score drops to 22.95%. If we do not                   ACKNOWLEDGEMENTS
+use  the  data  balancing,  REVEAL’s  performance  drops  to
+13.13%. When we remove GGNN from REVEAL’s pipeline,                         WewouldliketothankYufanZhuangforinitialhelpindata
+f1  score  drops  to  22.82%.  These  results  corroborates  the            collection. We also thank Dr. Suman Jana for their extensive
+importance of GGNN, data balancing and representation                       feedback on this paper.
+learning in REVEAL’s pipeline irrespective of existence of
+tangled code changes.
+                                                                            REFERENCES
+8   RELATED WORK                                                            [1] B. Johnson, Y. Song, E. Murphy-Hill, and R. Bowdidge, “Why
+There have been a wide array of ML-based vulnerability                            don’t software developers use static analysis tools to ﬁnd bugs?”
+                                                                                  in  Proceedings  of  the  2013  International  Conference  on  Software
+prediction research [87]–[91]. Yamaguchi et al. [92] applied                      Engineering.    IEEE Press, 2013, pp. 672–681.
+
+=== PÁGINA FÍSICA 16 ===
+IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                              16
+
+[2] J. Smith, B. Johnson, E. Murphy-Hill, B. Chu, and H. R. Lipford,                        [23]B. W. SUTER, “The multilayer perceptron as an approximation
+       “Questions developers ask while diagnosing potential security                                to a bayes optimal discriminant function,” IEEE Transactions on
+       vulnerabilitieswithstaticanalysis,”inProceedingsofthe201510th                                Neural Networks, vol. 1, no. 4, p. 291, 1990.
+       Joint Meeting on Foundations of Software Engineering.   ACM, 2015,                   [24]K. Plunkett and J. L. Elman,        Exercises in rethinking innateness: A
+       pp. 248–259.                                                                                 handbook for connectionist simulations.    Mit Press, 1997.
+[3] N. Ayewah, W. Pugh, J. D. Morgenthaler, J. Penix, and Y. Zhou,                          [25]V.  Okun,  A.  Delaitre,  and  P.  E.  Black,  “Report  on  the  static
+       “Evaluating static analysis defect warnings on production soft-                              analysis tool exposition (sate) iv,” NIST Special Publication, vol.
+       ware,” 2007.                                                                                 500, p. 297, 2013.
+[4] J. Newsome and D. X. Song, “Dynamic taint analysis for auto-                            [26]N.   I.   of   Standards   and   Technology,   “Software   assurance
+       matic detection, analysis, and signaturegeneration of exploits on                            reference  dataset,”  October  2018.  [Online].  Available:  https:
+       commodity software.” in NDSS, vol. 5.    Citeseer, 2005, pp. 3–4.                            //samate.nist.gov/SRD/index.php
+[5] B.Liu,L.Shi,Z.Cai,andM.Li,“Softwarevulnerabilitydiscovery                               [27]H.  Booth,  D.  Rike,  and  G.  Witte,  “The  national  vulnerability
+       techniques: A survey,” in 2012 fourth international conference on                            database (nvd): Overview,” National Institute of Standards and
+       multimedia information networking and security.     IEEE, 2012, pp.                          Technology, Tech. Rep., 2013.
+       152–156.                                                                             [28]“Cwe-761     example,     vuldeepecker.”     [Online].     Available:
+[6] Z.  Li,  D.  Zou,  S.  Xu,  X.  Ou,  H.  Jin,  S.  Wang,  Z.  Deng,  and                        https://github.com/CGCL-codes/VulDeePecker/blob/master/
+       Y.  Zhong,  “Vuldeepecker:  A  deep  learning-based  system  for                             CWE-399/source        ﬁles/112611/CWE761           Free   Pointer   Not    at
+       vulnerability detection,” in Proceedings of the 25th Annual Network                          Start  of  Buffer    char   console   81   bad.cpp
+       and Distributed System Security Symposium (NDSS‘2018), 2018.                         [29]P.      Mackerras,      “Cve-2020-8597      patch      commit.”      [On-
+[7] Z.Li,D.Zou,S.Xu,H.Jin,Y.Zhu,Z.Chen,S.Wang,andJ.Wang,                                            line].        Available:        https://github.com/paulusmack/ppp/
+       “Sysevr: A framework for using deep learning to detect software                              commit/8d7970b8f3db727fe798b65f3377fe6787575426
+       vulnerabilities,” arXiv preprint arXiv:1807.06756, 2018.                             [30]“Bufferoverﬂowvulnerabilityinpoint-to-pointprotocoldaemon
+[8] R.Russell,L.Kim,L.Hamilton,T.Lazovich,J.Harer,O.Ozdemir,                                        (pppd).” [Online]. Available: https://bit.ly/2XrQWc1
+       P. Ellingwood, and M. McConley, “Automated vulnerability de-                         [31]“Cve-2020-8597.”  [Online].  Available:  https://security-tracker.
+       tection in source code using deep representation learning,” in                               debian.org/tracker/CVE-2020-8597
+       Proceedings of the 17th IEEE International Conference on Machine                     [32]J. Turian, L. Ratinov, and Y. Bengio, “Word representations: a
+       Learning and Applications (ICMLA 2018).     IEEE, 2018, pp. 757–                             simpleandgeneralmethodforsemi-supervisedlearning,”inPro-
+       762.                                                                                         ceedingsofthe48thannualmeetingoftheassociationforcomputational
+[9] B.  Li,  K.  Roundy,  C.  Gates,  and  Y.  Vorobeychik,  “Large-scale                           linguistics.   Association for Computational Linguistics, 2010, pp.
+       identiﬁcation of malicious singleton ﬁles,” inProceedings of the                             384–394.
+       Seventh ACM on Conference on Data and Application Security and                       [33]X.   Rong,   “word2vec   parameter   learning   explained,”          arXiv
+       Privacy.    ACM, 2017, pp. 227–238.                                                          preprint arXiv:1411.2738, 2014.
+[10]D.  Maiorca  and  B.  Biggio,  “Digital  investigation  of  pdf  ﬁles:                  [34]“Cwe-761.”   [Online].   Available:   https://cwe.mitre.org/data/
+       Unveilingtracesofembeddedmalware,”IEEESecurity&Privacy,                                      deﬁnitions/761.html
+       vol. 17, no. 1, pp. 63–71, 2019.                                                     [35]L.   Developers,   “Clang,”   October   2019.   [Online].   Available:
+[11]G. Suarez-Tangil, S. K. Dash, M. Ahmadi, J. Kinder, G. Giacinto,                                clang.llvm.org
+       and L. Cavallaro, “Droidsieve: Fast and accurate classiﬁcation of                    [36]C.Developers,“Cppcheck:Atoolforstaticc/c++codeanalysis,”
+       obfuscated android malware,” in Proceedings of the Seventh ACM                               October 2019. [Online]. Available: http://cppcheck.sourceforge.
+       on Conference on Data and Application Security and Privacy.   ACM,                           net
+       2017, pp. 309–320.                                                                   [37]“Flawﬁnder:.”
+[12]Y. Zhou, S. Liu, J. Siow, X. Du, and Y. Liu, “Devign: Effective                         [38]G. Wu and E. Y. Chang, “Class-boundary alignment for imbal-
+       vulnerability identiﬁcation by learning comprehensive program                                anced dataset learning,” in ICML 2003 workshop on learning from
+       semantics  via  graph  neural  networks,”  in  Advances  in  Neural                          imbalanced data sets II, Washington, DC, 2003, pp. 49–56.
+       Information Processing Systems, 2019, pp. 10197–10207.                               [39]A. Aggarwal and P. Jalote, “Integrating static and dynamic anal-
+[13]M. Barreno, B. Nelson, R. Sears, A. D. Joseph, and J. D. Tygar,                                 ysis for detecting vulnerabilities,” in 30th Annual International
+       “Canmachinelearningbesecure?”in Proceedingsofthe2006ACM                                      Computer  Software  and  Applications  Conference  (COMPSAC’06),
+       Symposium on Information, computer and communications security.                              vol. 1.    IEEE, 2006, pp. 343–350.
+       ACM, 2006, pp. 16–25.                                                                [40]S. Heckman and L. Williams, “A systematic literature review
+[14]A. Torralba and A. Efros, “Unbiased look at dataset bias,” in                                   of actionable alert identiﬁcation techniques for automated static
+       Proceedings of the 2011 IEEE Conference on Computer Vision and                               code analysis,” Information and Software Technology, vol. 53, no. 4,
+       PatternRecognition.  IEEEComputerSociety,2011,pp.1521–1528.                                  pp. 363–387, 2011.
+[15]E. Yudkowsky, “Artiﬁcial intelligence as a positive and negative                        [41]T. Muske and A. Serebrenik, “Survey of approaches for handling
+       factor in global risk,” Global catastrophic risks, vol. 1, no. 303, p.                       static analysis alarms,” in 2016 IEEE 16th International Working
+       184, 2008.                                                                                   Conference  on  Source  Code  Analysis  and  Manipulation  (SCAM).
+[16]F. Yamaguchi, N. Golde, D. Arp, and K. Rieck, “Modeling and                                     IEEE, 2016, pp. 157–166.
+       discovering vulnerabilities with code property graphs,” in 2014                      [42]Y. Zhou and A. Sharma, “Automated identiﬁcation of security
+       IEEESymposiumonSecurityandPrivacy.  IEEE,2014,pp.590–604.                                    issues from commit messages and bug reports,” in Proceedings of
+[17]J. T. Springenberg, A. Dosovitskiy, T. Brox, and M. Riedmiller,                                 the 2017 11th Joint Meeting on Foundations of Software Engineering,
+       “Striving for simplicity: The all convolutional net,” arXiv preprint                         2017, pp. 914–919.
+       arXiv:1412.6806, 2014.                                                               [43]Y. Li, D. Tarlow, M. Brockschmidt, and R. Zemel, “Gated graph
+[18]W. Guo, D. Mu, J. Xu, P. Su, G. Wang, and X. Xing, “Lemna:                                      sequenceneuralnetworks,”arXivpreprintarXiv:1511.05493,2015.
+       Explaining deep learning based security applications,” in Pro-                       [44]R.Zhao,D.Wang,R.Yan,K.Mao,F.Shen,andJ.Wang,“Machine
+       ceedings  of the  2018  ACM  SIGSAC Conference  on  Computer and                             health monitoring using local feature-based gated recurrent unit
+       Communications Security.    ACM, 2018, pp. 364–379.                                          networks,”  IEEE  Transactions  on  Industrial  Electronics,  vol.  65,
+[19]Y. Sun, A. K. Wong, and M. S. Kamel, “Classiﬁcation of imbal-                                   no. 2, pp. 1539–1548, 2017.
+       anced data: A review,” International journal of pattern recognition                  [45]M. Allamanis, M. Brockschmidt, and M. Khademi, “Learning to
+       and artiﬁcial intelligence, vol. 23, no. 04, pp. 687–719, 2009.                              representprogramswithgraphs,”arXivpreprintarXiv:1711.00740,
+[20]C. Seiffert, T. M. Khoshgoftaar, J. Van Hulse, and A. Napolitano,                               2017.
+       “Rusboost: A hybrid approach to alleviating class imbalance,”                        [46]M.-A. Lachaux, B. Roziere, L. Chanussot, and G. Lample, “Unsu-
+       IEEETransactionsonSystems,Man,andCybernetics-PartA:Systems                                   pervised translation of programming languages,” arXiv preprint
+       and Humans, vol. 40, no. 1, pp. 185–197, 2009.                                               arXiv:2006.03511, 2020.
+[21]Y. Bengio, A. Courville, and P. Vincent, “Representation learning:                      [47]N. V. Chawla, K. W. Bowyer, L. O. Hall, and W. P. Kegelmeyer,
+       A review and new perspectives,” IEEE Transactions on Pattern                                 “Smote: synthetic minority over-sampling technique,”  Journal of
+       Analysis and Machine Intelligence, vol. 35, no. 8, pp. 1798–1828,                            artiﬁcial intelligence research, vol. 16, pp. 321–357, 2002.
+       2013.                                                                                [48]M.Tan,L.Tan,S.Dara,andC.Mayeux,“Onlinedefectprediction
+[22]J. S. Bridle, “Probabilistic interpretation of feedforward classiﬁ-cation network outputs, with relationships to statistical patternfor imbalanced data,” in 2015 IEEE/ACM 37th IEEE International
+       recognition,” in Neurocomputing.    Springer, 1990, pp. 227–236.                             ConferenceonSoftwareEngineering,vol.2.   IEEE,2015,pp.99–108.
+
+=== PÁGINA FÍSICA 17 ===
+IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                              17
+
+[49]L.  Lusa        et  al.,  “Smote  for  high-dimensional  class-imbalanced                [73]A. Arcuri and L. Briand, “A practical guide for using statistical
+       data,” BMC bioinformatics, vol. 14, no. 1, p. 106, 2013.                                      tests to assess randomized algorithms in software engineering,”
+[50]B. Krawczyk, “Learning from imbalanced data: open challenges                                     in  Proceedings  of  the  33rd  International  Conference  on  Software
+       and future directions,” Progress in Artiﬁcial Intelligence, vol. 5,                           Engineering,  ser.  ICSE  ’11.    New  York,  NY,  USA:  Association
+       no. 4, pp. 221–232, 2016.                                                                     for  Computing  Machinery,  2011,  p.  1–10.  [Online].  Available:
+[51]A. Agrawal and T. Menzies, “Is “better data” better than “better                                 https://doi.org/10.1145/1985793.1985795
+       data miners”?” in 2018 IEEE/ACM 40th International Conference on                      [74]R. J. Grissom and J. J. Kim,       Effect sizes for research: A broad practical
+       Software Engineering (ICSE).    IEEE, 2018, pp. 1050–1061.                                    approach.    Lawrence Erlbaum Associates Publishers, 2005.
+[52]B. Kellenberger, D. Marcos, and D. Tuia, “Detecting mammals in                           [75]A.VarghaandH.D.Delaney,“Acritiqueandimprovementofthe
+       uav images: Best practices to address a substantially imbalanced                              cl common language effect size statistics of mcgraw and wong,”
+       dataset with deep learning,” Remote sensing of environment, vol.                              Journal of Educational and Behavioral Statistics, vol. 25, no. 2, pp.
+       216, pp. 139–153, 2018.                                                                       101–132, 2000.
+[53]S.Ding,B.Mirza,Z.Lin,J.Cao,X.Lai,T.V.Nguyen,andJ.Sepul-                                  [76]D.Zou,S.Wang,S.Xu,Z.Li,andH.Jin,“  µvuldeepecker:Adeep
+       veda,  “Kernel  based  online  learning  for  imbalance  multiclass                           learning-based  system  for  multiclass  vulnerability  detection,”
+       classiﬁcation,”Neurocomputing, vol. 277, pp. 139–148, 2018.                                   IEEE Transactions on Dependable and Secure Computing, 2019.
+[54]S. Tyagi and S. Mittal, “Sampling approaches for imbalanced                              [77]M. Allamanis, “The adverse effects of code duplication in ma-
+       data classiﬁcation problem in machine learning,” inProceedings                                chine learning models of code,” in Proceedings of the 2019 ACM
+       of ICRIC 2019.    Springer, 2020, pp. 209–221.                                                SIGPLAN International Symposium on New Ideas, New Paradigms,
+[55]L. v. d. Maaten and G. Hinton, “Visualizing data using t-sne,”                                   and Reﬂections on Programming and Software, 2019, pp. 143–153.
+       Journal of machine learning research, vol. 9, no. Nov, pp. 2579–2605,                 [78]B. Baesens, S. Viaene, T. Van Gestel, J. A. Suykens, G. Dedene,
+       2008.                                                                                         B.  De  Moor,  and  J.  Vanthienen,  “An  empirical  assessment  of
+[56]C.Mao,Z.Zhong,J.Yang,C.Vondrick,andB.Ray,“Metriclearn-                                           kernel type performance for least squares support vector ma-
+       ing for adversarial robustness,” in Advances in Neural Information                            chine classiﬁers,” inKES’2000. Fourth International Conference on
+       Processing Systems, 2019, pp. 478–489.                                                        Knowledge-BasedIntelligentEngineeringSystemsandAlliedTechnolo-
+[57]E.  Hoffer  and  N.  Ailon,  “Deep  metric  learning  using  triplet                             gies. Proceedings (Cat. No. 00TH8516), vol. 1.     IEEE, 2000, pp.
+       network,”  in  International  Workshop  on  Similarity-Based  Pattern                         313–316.
+       Recognition.    Springer, 2015, pp. 84–92.                                            [79]J. Platt        et al., “Probabilistic outputs for support vector machines
+[58]J.  Wang,  F.  Zhou,  S.  Wen,  X.  Liu,  and  Y.  Lin,  “Deep  metric                           andcomparisonstoregularizedlikelihoodmethods,”Advancesin
+       learningwithangularloss,”inProceedingsoftheIEEEInternational                                  large margin classiﬁers, vol. 10, no. 3, pp. 61–74, 1999.
+       Conference on Computer Vision, 2017, pp. 2593–2601.                                   [80]M. Dias, A. Bacchelli, G. Gousios, D. Cassou, and S. Ducasse,
+[59]F. Schroff, D. Kalenichenko, and J. Philbin, “Facenet: A uniﬁed                                  “Untangling ﬁne-grained code changes,” in 2015 IEEE 22nd In-
+       embedding for face recognition and clustering,” in Proceedings of                             ternational Conference on Software Analysis, Evolution, and Reengi-
+       the IEEE conference on computer vision and pattern recognition, 2015,                         neering (SANER).    IEEE, 2015, pp. 341–350.
+       pp. 815–823.                                                                          [81]S. Sothornprapakorn, S. Hayashi, and M. Saeki, “Visualizing a
+[60]F. Girosi, M. Jones, and T. Poggio, “Regularization theory and                                   tangled change for supporting its decomposition and commit
+       neural networks architectures,” Neural computation, vol. 7, no. 2,                            construction,” in 2018 IEEE 42nd Annual Computer Software and
+       pp. 219–269, 1995.                                                                            Applications Conference (COMPSAC), vol. 1.    IEEE, 2018, pp. 74–
+[61]G. Pereyra, G. Tucker, J. Chorowski, Ł. Kaiser, and G. Hinton,                                   79.
+       “Regularizing neural networks by penalizing conﬁdent output                           [82]M. Wang, Z. Lin, Y. Zou, and B. Xie, “Cora: decomposing and
+       distributions,” arXiv preprint arXiv:1701.06548, 2017.                                        describing  tangled  code  changes  for  reviewer,”  in  2019  34th
+[62]D. M. Powers, “Evaluation: from precision, recall and f-measure                                  IEEE/ACM International Conference on Automated Software Engi-
+       to roc, informedness, markedness and correlation,” 2011.                                      neering (ASE).    IEEE, 2019, pp. 1050–1061.
+[63]H. D. Beale, H. B. Demuth, and M. Hagan, “Neural network                                 [83]Y.  Tao  and  S.  Kim,  “Partitioning  composite  code  changes  to
+       design,” Pws, Boston, 1996.                                                                   facilitatecodereview,”in2015IEEE/ACM12thWorkingConference
+[64]P. Koehn, “Statistical signiﬁcance tests for machine translation                                 on Mining Software Repositories.    IEEE, 2015, pp. 180–190.
+       evaluation,”  in  Proceedings  of  the  2004  conference  on  empirical               [84]K. Herzig and A. Zeller, “The impact of tangled code changes,”
+       methods in natural language processing, 2004, pp. 388–395.                                    in 2013 10th Working Conference on Mining Software Repositories
+[65]M. D. Smucker, J. Allan, and B. Carterette, “A comparison of                                     (MSR).    IEEE, 2013, pp. 121–130.
+       statistical signiﬁcance tests for information retrieval evaluation,”                  [85]K. Herzig, S. Just, and A. Zeller, “The impact of tangled code
+       in Proceedings of the sixteenth ACM conference on Conference on                               changes on defect prediction models,” Empirical Software Engi-
+       information and knowledge management, 2007, pp. 623–632.                                      neering, vol. 21, no. 2, pp. 303–336, 2016.
+[66]M. R. Hess and J. D. Kromrey, “Robust conﬁdence intervals for                            [86]H.  Kirinuki,  Y.  Higo,  K.  Hotta,  and  S.  Kusumoto,  “Hey!  are
+       effect sizes: A comparative study of cohen’sd and cliff’s delta                               you  committing  tangled  changes?”  in  Proceedings  of  the  22nd
+       under non-normality and heterogeneous variances,” in annual                                   International Conference on Program Comprehension, 2014, pp. 262–
+       meeting of the American Educational Research Association, 2004, pp.                           265.
+       1–30.                                                                                 [87]G. Lin, J. Zhang, W. Luo, L. Pan, and Y. Xiang, “Poster: Vul-
+[67]D. F. Ferreira, “Sisvar: a guide for its bootstrap procedures in                                 nerability discovery with function representation learning from
+       multiple comparisons,” Ciˆencia e agrotecnologia, vol. 38, no. 2, pp.                         unlabeled  projects,”  in  Proceedings  of  the  2017  ACM  SIGSAC
+       109–112, 2014.                                                                                Conference on Computer and Communications Security, 2017, pp.
+[68]B. Ghotra, S. McIntosh, and A. E. Hassan, “Revisiting the im-                                    2539–2541.
+       pact of classiﬁcation techniques on the performance of defect                         [88]X. Ban, S. Liu, C. Chen, and C. Chua, “A performance evaluation
+       prediction models,” in 2015 IEEE/ACM 37th IEEE International                                  ofdeep-learntfeaturesforsoftwarevulnerabilitydetection,”Con-
+       Conference on Software Engineering, vol. 1.    IEEE, 2015, pp. 789–                           currency and Computation: Practice and Experience, vol. 31, no. 19,
+       800.                                                                                          p. e5103, 2019.
+[69]N. Mittas and L. Angelis, “Ranking and clustering software cost                          [89]Q. Meng, S. Wen, B. Zhang, and C. Tang, “Automatically dis-
+       estimation models through a multiple comparisons algorithm,”                                  cover vulnerability through similar functions,” in 2016 Progress
+       IEEE Transactions on software engineering, vol. 39, no. 4, pp. 537–                           in Electromagnetic Research Symposium (PIERS).    IEEE, 2016, pp.
+       551, 2012.                                                                                    3657–3661.
+[70]M. G. Canteri, R. A. Althaus, J. S. das Virgens Filho, E. Giglioti,                      [90]H.  Joh,  J.  Kim,  and  Y.  K.  Malaiya,  “Vulnerability  discovery
+       and C. V. Godoy, “Sasm-agri-sistema para an ´alise e separac¸˜ao                              modeling using weibull distribution,” in 2008 19th International
+       de m´edias em experimentos agr´ıcolas pelos m´etodos scott-knott,                             SymposiumonSoftwareReliabilityEngineering(ISSRE).  IEEE,2008,
+       tukey e duncan.” Embrapa Soja-Artigo em peri´odico indexado (AL-                              pp. 299–300.
+       ICE), 2001.                                                                           [91]G. Jie, K. Xiao-Hui, and L. Qiang, “Survey on software vulnera-
+[71]E. G. Jelihovschi, J. C. Faria, and I. B. Allaman, “Scottknott: a                                bility analysis method based on machine learning,” in 2016 IEEE
+       package for performing the scott-knott clustering algorithm in                                First International Conference on Data Science in Cyberspace (DSC).
+[72]R.  W.  Johnson,  “An  introduction  to  the  bootstrap,”         Teachingr,” TEMA (S˜ao Carlos), vol. 15, no. 1, pp. 3–17, 2014.IEEE, 2016, pp. 642–647.
+
+       Statistics, vol. 23, no. 2, pp. 49–54, 2001.
+
+=== PÁGINA FÍSICA 18 ===
+IEEE TRANSACTIONS ON SOFTWARE ENGINEERING, VOL. TBD, 2020                                                                                                                                              18
+
+[92]F.   Yamaguchi,   C.   Wressnegger,   H.   Gascon,   and   K.   Rieck,                  [98]F. Yamaguchi, A. Maier, H. Gascon, and K. Rieck, “Automatic
+       “Chucky: Exposing missing checks in source code for vulnerabil-                              inferenceofsearchpatternsfortaint-stylevulnerabilities,”in2015
+       ity discovery,” in Proceedings of the 2013 ACM SIGSAC conference                             IEEESymposiumonSecurityandPrivacy.  IEEE,2015,pp.797–812.
+       on Computer & communications security.   ACM, 2013, pp. 499–510.                     [99]S.Barua,M.M.Islam,X.Yao,andK.Murase,“Mwmote–majority
+[93]H. Perl, S. Dechand, M. Smith, D. Arp, F. Yamaguchi, K. Rieck,                                  weighted minority oversampling technique for imbalanced data
+       S. Fahl, and Y. Acar, “Vccﬁnder: Finding potential vulnerabilities                           set learning,” IEEE Transactions on knowledge and data engineering,
+       in open-source projects to assist code audits,” in Proceedings of the                        vol. 26, no. 2, pp. 405–425, 2012.
+       22nd ACM SIGSAC Conference on Computer and Communications                            [100]H.  Alsawalqah,  H.  Faris,  I.  Aljarah,  L.  Alnemer,  and  N.  Al-
+       Security.    ACM, 2015, pp. 426–437.                                                         hindawi, “Hybrid smote-ensemble approach for software defect
+[94]Z. Li, D. Zou, S. Xu, H. Jin, H. Qi, and J. Hu, “Vulpecker: an au-                              prediction,” in Computer Science On-line Conference.     Springer,
+       tomated vulnerability detection system based on code similarity                              2017, pp. 355–366.
+       analysis,”inProceedingsofthe32ndAnnualConferenceonComputer                           [101]S. Guo, R. Chen, H. Li, T. Zhang, and Y. Liu, “Identify severity
+       Security Applications.    ACM, 2016, pp. 201–213.                                            bug report with distribution imbalance by cr-smote and elm,”
+[95]D. She, K. Pei, D. Epstein, J. Yang, B. Ray, and S. Jana, “Neuzz:                               International Journal of Software Engineering and Knowledge Engi-
+       Efﬁcient fuzzing with neural program smoothing,” in2019 IEEE                                 neering, vol. 29, no. 02, pp. 139–175, 2019.
+       Symposium on Security and Privacy (SP).   IEEE, 2019, pp. 803–817.                   [102]C.Pak,T.T.Wang,andX.H.Su,“Anempiricalstudyonsoftware
+[96]D. Larochelle and D. Evans, “Statically detecting likely buffer                                 defect prediction using over-sampling by smote,” International
+       overﬂow vulnerabilities,” in  10th USENIX Security Symposium,                                Journal of Software Engineering and Knowledge Engineering, vol. 28,
+       2001.                                                                                        no. 06, pp. 811–830, 2018.
+[97]L. Mou, G. Li, L. Zhang, T. Wang, and Z. Jin, “Convolutional                            [103]R. Pears, J. Finlay, and A. M. Connor, “Synthetic minority over-
+       neural networks over tree structures for programming language                                sampling technique (smote) for predicting software build out-
+       processing,” in Proceedings of 30th AAAI Conference on Artiﬁcial                             comes,” arXiv preprint arXiv:1407.2330, 2014.
+       Intelligence, 2016.

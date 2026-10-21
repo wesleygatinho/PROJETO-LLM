@@ -1,0 +1,8 @@
+{
+  "estado": "exportação da versão integrada",
+  "fonte_md": "D:/UFMA UNIVERSIDADE/MESTRADO - ESTUDO LLM/04_escrita/artigo/seminarios_2026/texto/secoes/introducao_01.md",
+  "sha256_md": "bb424d8ba924f3f15fb9421f9dee0e850f3db61d7b6a953cb5f3c70b1e5b6edb",
+  "asset_sty_sha256": "dbe513d56dde32bedc53dcf7b9efba052ff1b3b747037ed2f284f7095a91e895",
+  "modo": "prévia de seção autocontida com definições SBC embutidas; bibliografia explícita autor–ano; fragmento e BibTeX para montagem via sbc.bst",
+  "alteracoes_textuais": "somente markup, citações parentéticas SBC e nocite para citações narrativas; sem mudança científica"
+}

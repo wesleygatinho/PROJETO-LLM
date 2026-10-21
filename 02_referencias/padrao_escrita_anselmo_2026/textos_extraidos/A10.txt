@@ -1,0 +1,415 @@
+<!-- pagina 1 -->
+´
+Identificando a Paralisia do Sexto Nervo Otico em V´ıdeos
+Atrave´s de Redes Neurais Convolucionais e Curvatura
+Isophotes
+PolyanaB.Costa1,Joa˜oDallysonS.Almeida1,JorgeAntoˆnioMeirelesTeixeira2,
+GeraldoBrazJu´nior1,AnselmoCardosodePaiva1
+1Nu´cleodeComputac¸a˜oAplicada–UniversidadeFederaldoMaranha˜o(UFMA)
+Sa˜oLu´ıs–MA–Brasil
+2DepartamentodeMedicinaI.–UniversidadeFederaldoMaranha˜o(UFMA)
+Sa˜oLu´ıs–MA–Brasil
+{polyanabcosta, jdallyson, jorgemeireles1,ge.braz, anselmo.c.paiva}@gmail.com
+Abstract. Thisarticledescribesamethodologytoaidintheidentificationofthe
+sixth nerve palsy using videos. Since the usual techniques for diagnosing this
+paralysisareinvasiveorexpensive,anon-invasiveandaffordablemethodcould
+be helpful, supporting the ophthalmologist diagnosis. The proposed method
+usestheconvolutionalneuralnetworkYOLOtodetecttheeyesinafaceandthe
+IsophotesCurvaturetofindthecenteroftheeye. Bothtechniquesareappliedin
+each frame of a video in which the patient moves its eyes, keeping track of the
+eye movement in order to calculate the average speed in which each eye moves.
+The obtained results showed that the eyes that have the paralysis move 42%
+slowerthanahealthyeye.
+Resumo. Este artigo descreve uma metodologia para auxiliar na identificac¸a˜o
+da paralisia do sexto nervo utilizando v´ıdeos. Uma vez que os me´todos usu-
+ais para diagno´stico dessa paralisia sa˜o invasivos ou caros, um me´todo na˜o
+invasivo e acess´ıvel pode ser u´til para apoiar ou guiar o diagno´stico do oftal-
+mologista. O me´todo proposto neste trabalho usa a rede neural convolucional
+YOLO para detectar a regia˜o dos olhos em faces e a curvatura de Isophotes
+para encontrar o centro dos olhos em cada quadro do v´ıdeo, mantendo assim
+um registro do movimento dos olhos durante um per´ıodo de tempo, a fim de
+calcularavelocidademe´diacomquecadaolhosemove. Osresultadosobtidos
+mostraramqueumolhoquetemparalisiasemoveemme´diadeforma42%mais
+lentaqueumolhosauda´vel.
+1. Introduc¸a˜o
+O sexto nervo craniano, tambe´m conhecido como nervo abducente, e´ um nervo muito
+importante que esta´ diretamente ligado a` contrac¸a˜o do mu´sculo reto lateral [Ehrenhau
+2018]. Este mu´sculo permite que o olho vire para o seu canto externo, possibilitando
+que a pessoa olhe para a esquerda ou direita. A paralisia deste nervo impede que alguns
+dos mu´sculos que controlam o movimento dos olhos funcionem adequadamente [GARD
+2015]. Ale´mdisso,omaufuncionamentodonervopodecausardordecabec¸a,enxaqueca,
+visa˜o turva, vertigem e visa˜o dupla (diplopia) quando a pessoa tenta movimentar o olho
+emdirec¸a˜oaocantoexterno[RubinandCornell2018][Curietal. 2013].
+
+<!-- pagina 2 -->
+A paralisia do sexto nervo e´ considerada uma disfunc¸a˜o rara; estudos feitos em
+crianc¸as norte-americanas mostraram que ocorrem 2.5 casos a cada 100 mil habitantes
+[Ehrenhau 2018]. O diagno´stico deve ser feito cedo, pois quando a causa e´ tratada, a
+paralisiageralmentedesaparece. Afigura1mostraosextonervoeomu´sculoretolateral.
+Figura1. Sextonervoeretolateral.
+Adaptadode[GrayandGoss1974].
+A avaliac¸a˜o cl´ınica e neurolo´gica e´ essencial no diagno´stico etiolo´gico e trata-
+mento adequado. A avaliac¸a˜o oftalmolo´gica visa observar alterac¸o˜es motoras, suas con-
+sequeˆnciasnosistemaoculomotor,suaevoluc¸a˜o,afimdeminimizarossintomasdurante
+a evoluc¸a˜o da doenc¸a e evitar sequelas [Curi et al. 2013]. Existem duas maneiras prin-
+cipais de detectar a paralisia do sexto nervo, que sa˜o o Teste de Gerac¸a˜o de Forc¸a e a
+Eletro-oculografia.
+De acordo com Curi et al. (2013) , o Teste de Gerac¸a˜o de Forc¸a (FGT) explora
+o potencial da forc¸a muscular e pode diferenciar entre paralisia parcial ou total. E´ um
+teste simples e confia´vel, mas o resultado depende da experieˆncia do examinador. Apo´s
+a anestesia to´pica, um fo´rceps e´ anexado ao membro temporal do olho lesionado, o olho
+e´ levado para a aduc¸a˜o e o paciente e´ solicitado a mover rapidamente o olho em direc¸a˜o
+ao mu´sculo reto lateral examinado, fazendo com que o examinador sinta a forc¸a desse
+mu´sculo no fo´rceps. A quantidade de forc¸a sentida e´ enta˜o analisada. Muitas vezes a
+forc¸ae´ ta˜ofortequecausaumarupturadaconjuntiva.
+A eletro-oculografia (EOG) e´ um exame que registra os movimentos oculares du-
+ranteostesteseletronistagmogra´ficos. E´ baseadonopotencialcorneorretiniano. Parame-
+
+<!-- pagina 3 -->
+dir e acompanhar os movimentos dos olhos, eletrodos sa˜o colocados ao redor dos olhos;
+quando os movimentos se aproximam dos eletrodos, uma diferenc¸a de potencial e´ regis-
+trada para ser usada como uma medida para a posic¸a˜o do olho [Martinsen and Grimnes
+2011].
+Ambasaste´cnicassa˜oeficazesnadetecc¸a˜odaparalisiadosextonervo,masoFGT
+e´ um procedimento invasivo e dependente da experieˆncia do oftalmologista, e o EOG e´
+um exame dispendioso. A fim de apoiar ou orientar o diagno´stico do me´dico com um
+me´todo na˜o invasivo e acess´ıvel, este trabalho visa propor um me´todo para a detecc¸a˜o
+automa´tica da paralisia do sexto nervo usando v´ıdeos, obtendo a velocidade com que
+cada olho se move durante um per´ıodo de tempo. Os passos iniciais da metodologia e os
+resultadospreliminaressera˜oapresentados,afimdedeterminarseametodologiaproposta
+e´ promissora. Aste´cnicasaplicadassera˜oexplicadasnassec¸o˜esseguintes.
+2. Fundamentac¸a˜o Teo´rica
+Nesta sec¸a˜o, sera˜o apresentadas todas as te´cnicas utilizadas na metodologia deste traba-
+lho.
+2.1. CurvaturadeIsophotes
+Tendo em vista que os olhos sa˜o caracterizados por padro˜es de brilho sime´tricos radi-
+almente, Valenti e Gevers (2008) propuseram uma nova abordagem para localizac¸a˜o do
+centro ocular baseada na observac¸a˜o desses padro˜es. O me´todo proposto pelos autores
+utiliza Isophotes para inferir o centro de padro˜es semi-circulares de imagens de baixa
+resoluc¸a˜o, atingindo uma acura´cia de aproximadamente 98% na localizac¸a˜o do centro do
+olho. Deformaresumida,acurvaturadeumIsophotespodesercalculadacomomostraa
+equac¸a˜o1.
+L
+vv
+k = − (1)
+L
+w
+Onde,L e´ descritanaequac¸a˜o2:
+vv
+L = L2L −2L L L +L2L (2)
+vv y xx x xy y x yy
+EL naequac¸a˜o3:
+w
+(L2 +L2) 2 3 (3)
+x y
+L(x,y) e´ a func¸a˜o de luminaˆncia; L e L sa˜o as derivadas de primeira ordem
+x y
+da imagem em x e em y e L ,L e L sa˜o as derivadas de segunda ordem da imagem
+xx xy yy
+[Gonzalez and Woods 2007], o k resultante e´ um mapa de curvatura. A fim de encontrar
+os centro do c´ırculos presentes no mapa de curvatura, e´ preciso calcular os vetores de
+deslocamento que representam a posic¸a˜o estimada dos centros, que podem ser mapeadas
+emumacumulador. Osvetoresdedeslocamentosa˜odefinidosnaequac¸a˜o4:
+{L ,L }(L2 +L2)
+D(x,y) = x y x y (4)
+L2L −2L L L +L2L
+y xx x xy y x yy
+Emseguida,e´ necessa´riocalcularacurvaturadaforma,quena˜odeveserconfundidacom
+k, que e´ o mapa de curvaturas Isophotes. A curvatura da forma e´ apresentada na equac¸a˜o
+5:
+(cid:113)
+Curvatura = L2 +2L2 +L2 (5)
+xx xy yy
+
+<!-- pagina 4 -->
+Apo´s obter os vetores de deslocamento e a curvatura, e´ preciso limitar as curvaturas que
+se deseja, definindo um raio m´ınimo e um raio ma´ximo, a fim de descartar pixels que
+possuem curvatura muito baixa (pixels pertencentes a linhas) ou curvatura muito alta (pi-
+xelspertencentesacirculosmuitopequenos). Apo´sisso,constroi-seummapadecentros,
+onde verifica-se se para cada pixel, o vetor de deslocamento correspondente possui valor
+entre os limites de raio m´ınimo e ma´ximo definido, caso possua, o pixel naquela posic¸a˜o
+recebera´ ovalordacurvaturanarespectivaposic¸a˜o,formandoumacumuladordevalores.
+Em seguida, a fim de saber o centro com o maior acumulador, procura-se a posic¸a˜o do
+mapadecentroscomomaiorvalor,essesera´ ocentrodoc´ırculo.
+2.2. YOLO
+YOLO,siglaparaYouOnlyLookOnce(Voceˆ so´ olhaumavez)e´ umaredeneuralconvo-
+lucionalparadetecc¸a˜odeobjetosemtemporeal,comumanovaabordagemparadetecc¸a˜o
+propostapor[Redmonetal. 2016]. Emvezdetrataradetecc¸a˜odeobjetoscomoumpro-
+blema de classificac¸a˜o, YOLO a veˆ como um problema de regressa˜o. YOLO consiste
+em um modelo unificado em que uma u´nica rede preveˆ a regia˜o em que um objeto esta´
+enquanto informa a qual classe o objeto detectado pertence. Isso faz com que YOLO
+sejaextremamentera´pida,sendoexecutadaemate´ 45quadrosporsegundo(FPS)emsua
+versa˜oconvencionaleate´ 155(FPS)emsuaversa˜oreduzida.
+A rede oferece 3 dados como sa´ıda: a primeira conte´m as coordenadas da boun-
+ding box encontrada, a sua confianc¸a e a classe do objeto encontrada dentro desta regia˜o.
+Aconfianc¸adaboundingboxencontradae´ calculadacombasenoIOUboundingboxcom
+aboundingbox correta(groundtruth)[Rosebrock2016].
+2.2.1. ArquiteturadaRede
+A arquitetura usada no desenvolvimento deste trabalho e´ a YOLOv3, a terceira versa˜o da
+YOLOpropostaem[RedmonandFarhadi2018]comimplementac¸a˜onoKeraspor[Trade
+2018]. Nessa versa˜o, tambe´m conhecido como DarkNet 53, a rede possui blocos de
+convoluc¸a˜o e blocos residuais semelhantes aos da [Szegedy et al. 2017]. O primeiro
+bloco de convoluc¸a˜o utilizado, aqui chamado de DarkConv, faz uma convoluc¸a˜o em 2D
+com nu´mero N de filtros e kernel de tamanho k, seguido por uma camada de Batch Nor-
+malization, seguida pela func¸a˜o de ativac¸a˜o LeakyReLu (Leaky Rectified Linear Activa-
+tion)[Redmonetal. 2016],calculadacomomostradonaequac¸a˜o6.
+(cid:40) (cid:41)
+x, sex>0
+φ =
+0.1x, casocontra´rio
+(6)
+O bloco residual utilizado nessa rede e´ similar ao proposto em [Szegedy et al.
+2017], aqui chamado de DarkBlock. O bloco recebe como entrada um bloco do tipo
+DarkConv de kernel 3x3, N filtros e stride 2, que e´ somado o seu resultado apo´s passar
+por dois outros blocos DarkConv, o primeiro com kernel 1x1, N filtros e o segundo com
+2
+kernel 3x3, e N filtros. O terceiro bloco, chamado aqui de LastLayers, consiste em 5
+
+<!-- pagina 5 -->
+blocos do tipo DarkConv, alternando em blocos de kernel 1x1 e N filtros, com blocos de
+kernel3x3eN x2filtros. Oblocofinaldarede,chamadodeYOLOOutpute´ responsa´vel
+pelasa´ıdadarede,econsisteemumblocodotipoDarkConvdekernel3x3eN x2filtros,
+seguidode umacamada deconvoluc¸a˜o2D semfunc¸a˜ode ativac¸a˜odefinida, funcionando
+como uma ativac¸a˜o linear. Esta u´ltima convoluc¸a˜o e´ responsa´vel pela parte de Regressa˜o
+darede,possuindokernel1x1,eumnu´meroS defiltros,quee´ amultiplicac¸a˜odonu´mero
+deaˆncoraspelasomadonu´merodeclassesmais5,ouseja,S = 9x(1+5).
+A Figura 2 mostra a arquitetura completa da rede. O corpo da rede possui 24
+blocos de convoluc¸a˜o, resultando em 47 camadas de convoluc¸a˜o, e com a primeira sa´ıda
+da rede teˆm-se 53 camadas; (por isso o nome DarkNet 53 [Redmon and Farhadi 2018].
+Sa˜ofornecidas3sa´ıdasporqueoresultadodaredee´ preditoem3escalasdiferentes.
+Figura2. Arquiteturadaredeutilizada.
+3. Metodologia
+A metodologia proposta neste trabalho utiliza a rede neural convolucional YOLO para
+identificararegia˜odosolhosemumafaceeemseguidafazoca´lculodacurvaturaIsopho-
+tes sob cada imagem de olho retornado pela YOLO, obtendo-se o centro do olho. Am-
+bas as te´cnicas sa˜o aplicadas em cada frame de um v´ıdeo, a fim de manter um registro
+da movimentac¸a˜o de cada olho em um intervalo de tempo, para posteriormente calcular
+a velocidade me´dia com que cada olho se moveu durante o v´ıdeo. A rede YOLO foi
+escolhida por sua rapidez em execuc¸a˜o, e a te´cnica de Isophotes foi escolhida por sua
+eficieˆncianadetecc¸a˜odecentrodec´ırculosemimagensdebaixaresoluc¸a˜o,eporna˜oser
+uma te´cnica densamente parametrizada. A Figura 3 ilustra cada etapa da metodologia,
+quesera˜oexplicadasnassubsec¸o˜esaseguir.
+3.1. Aquisic¸a˜odosV´ıdeosePre´-Processamento
+A metodologia desenvolvida neste trabalho foi aplicada em v´ıdeos de pacientes que pos-
+suem a paralisia do sexto nervo, bem como em alguns pacientes sauda´veis. Os v´ıdeos
+foram fornecidos por um oftalmologista que colaborou com este trabalho, que inclusive
+
+<!-- pagina 6 -->
+Figura3. Etapasdome´todoproposto.
+sugeriu o desenvolvimento do mesmo; o pro´prio especialista gravou seus pacientes mo-
+vimentando ambos os olhos para a esquerda, direita, para cima e para baixo. Ao todo,
+foram usados 8 v´ıdeos de 7 pacientes diferentes, sendo que deste nu´mero, 6 pacientes
+possuem a paralisia e 2 sa˜o sauda´veis. Para um dos pacientes gravou-se o v´ıdeo antes e
+depois da cirurgia para correc¸a˜o da paralisia do sexto nervo. Na˜o foi definido protocolo
+para aquisic¸a˜o dos v´ıdeos, visto que o oftalmologista os gravou sem maiores pretenso˜es,
+portanto em alguns deles foi necessa´rio fazer um pre´-processamento. Entretanto, em to-
+dos os v´ıdeos, os rostos dos pacientes esta˜o centralizados, mas como na˜o foi usado tripe´,
+emalgunsframesaimagemfoidesestabilizada.
+Ja´ que me´todo de Isophotes funciona melhor em imagens degradadas ou de baixa
+resoluc¸a˜o, alguns v´ıdeos foram redimensionados, e outros tiveram algumas partes corta-
+das, como partes em que o paciente na˜o aparecia. O baixo nu´mero de v´ıdeos e´ devido a
+raridade da patologia entre os pacientes atendidos pelo oftalmologista em questa˜o. Cada
+frameouquadrodecadaumdosv´ıdeosobtidosfoiutilizadonafaseseguintedametodo-
+logia,adetecc¸a˜odeolhos.
+3.2. Detecc¸a˜odeOlhos
+A detecc¸a˜o de olhos foi feita atrave´s da rede YOLO. Essa rede foi escolhida por sua
+rapidezeeficieˆncianadetecc¸a˜odeobjetos. Umabasededadosprivadacom243imagens
+de rosto inteiro, totalizando 486 olhos, foi utilizada para treinamento e validac¸a˜o da rede
+YOLO. A base foi fornecida pelo mesmo oftalmologista local que forneceu os v´ıdeos
+mencionados na sec¸a˜o anterior, contendo imagens de 45 pacientes diferentes, com 5 ou
+6 imagens de cada paciente olhando para diferentes direc¸o˜es, como para a frente, direita,
+esquerdaetc. Abasee´ compostaporimagensdealtaresoluc¸a˜o,com1572x2048pixels.
+ParatreinamentodaCNNutilizada,fez-seaumentodosdadosdabase. Cadaima-
+gemfoiespelhada,rotacionadaem90,180e270graus,gerando4novasimagens. Depois
+do aumento dos dados, a base passou a ter 1215 imagens. Dessas imagens, 1095 foram
+usadas para treino, e 120 para validac¸a˜o. As imagens da validac¸a˜o foram separadas por
+paciente, para que na˜o houvesse imagens do mesmo paciente durante treino e validac¸a˜o.
+As bounding boxes correspondentes a` posic¸a˜o de cada olho foram definidas com base na
+marcac¸a˜o(GroundTruth)da´ırisdecadaolho. Emseguida,umarquivodetextocontendo
+o caminho para cada imagem, as bounding boxes encontradas na referida imagem, bem
+comoaclassedecadaumadelasfoigeradoeusadonotreinamentodarede,eumarquivo
+similar foi usado na validac¸a˜o. Usou-se somente esta base porque as imagens apresen-
+tam o rosto inteiro do paciente e possui-se a marcac¸a˜o da posic¸a˜o dos olhos, futuramente
+
+<!-- pagina 7 -->
+usadaparaavaliac¸a˜odome´tododeIsophotes.
+Aredeutilizoupesospre´-treinadosdaImageNet[Dengetal. 2009],efoitreinada
+em 100 e´pocas de duas maneiras diferentes. Na primeira abordagem, todas as camadas
+entreoprimeiroblocoDarkBlockeoblocoYOLOOutputforamcongeladasnasprimeiras
+50 e´pocas, sendo descongeladas da e´poca 50 a 100. O que faz com que os pesos dessas
+camadasna˜osejamatualizados,oqueaceleraotreinamento. Nasegundaabordagemna˜o
+houve congelamento de nenhuma camada em nenhuma das e´pocas. A abordagem com
+congelamento obteve os melhores resultados, que sera˜o apresentados na sec¸a˜o 4. Apo´s o
+treinamento,omodeloobtidofoiusadoparaadetecc¸a˜odeolhosemcadaframedosv´ıdeos
+utilizados, identificando bounding boxes referentes a`s regio˜es que conte´m olhos. Cada
+regia˜oobtidafoianalisadaparadeterminarsepertenciaaoolhoesquerdoouolhodireito;
+os v´ıdeos possuem imagens centralizadas da face do paciente, portanto, considerou-se
+olho esquerdo aquele que estivesse ate´ a metade da imagem, e olho direito seria aquele
+que estivesse a partir da metade. Somente a regia˜o que conte´m cada olho foi passada
+individualmenteparaapro´ximafase.
+3.2.1. Detecc¸a˜odoCentrodaPupila
+Adetecc¸a˜odocentrodapupilafoifeitaatrave´sdoca´lculodacurvaturadeIsophotes. Esta
+te´cnicafoiescolhidaporna˜oserdensamenteparametrizada,eporapresentaraltaacura´cia
+dadetecc¸a˜odecentrodec´ırculos. Aimagemobtidanaetapaanteriorfoiusadaemn´ıveis
+de cinza, e como pre´-processamento, efetuou-se uma suavizac¸a˜o da imagem atrave´s da
+Gaussiana; verificou-se que ao utilizar um kernel 3x3, a estimac¸a˜o do centro na˜o retor-
+nou resultados satisfato´rios, ja´ que muitos pontos de brilho ainda permaneceram na ima-
+gem. Portanto, usou-se uma Gaussiana com kernel 9x9. Apo´s esse po´sprocessamento,
+calculou-se o mapa de de curvaturas k mostrado na Equac¸a˜o 1, os vetores de desloca-
+mentomostradona Equac¸a˜o4, eamagnitudedos vetoresdedeslocamento,a fimdeusar
+essestreˆscrite´riosparamontaramatrizdevotac¸a˜o,queutilizacomopesodovotoacurva-
+tura do pixel apresentada na Equac¸a˜o 5. Os vetores de deslocamento servem para indicar
+o centro da forma a que determinado pixel pertence. Portanto, o centro de um c´ırculo vai
+aparecercomocentrodetodosospixelsqueconstituemacircunfereˆnciadoc´ırculo,tendo
+uma grande quantidade de votos. Essa matriz de votos forma o mapa de centros, o pixel
+de maior valor nesse mapa devera´ ser o centro do c´ırculo. Os u´nicos paraˆmetros a se-
+rem definidos sa˜o os raios m´ınimo e ma´ximo, que sa˜o usados para rejeitar c´ırculos muito
+grande ou pequenos. Apo´s alguns testes, os valores utilizados foram para raio m´ınimo e
+ma´ximo ficaram entre 2 e 20, respectivamente. A figura 4 mostra cada etapa do me´todo
+deIsophotes.
+O centro do c´ırculo referente a` pupila e´ calculado em cada frame, a fim de se
+manter um registro da trajeto´ria da movimentac¸a˜o de cada olho durante o v´ıdeo. Esse
+registroe´ usadonaetapaaseguir.
+3.3. Ca´lculodaVelocidadeMe´dia
+De acordo com [Resnick et al. 2001], uma das formas mais comuns de descrever o mo-
+vimento de um objeto e´ atrave´s da sua posic¸a˜o em func¸a˜o do tempo, para isso, pode-se
+calcularavelocidadeescalarme´dia. Elae´ araza˜oentreodeslocamento(∆S)eotempode
+
+<!-- pagina 8 -->
+Figura 4. Etapas do Isophotes. (a) Mapa de Curvaturas Isophotes. (b) Vetores
+de deslocamento. (c) Mapa de centros. (d) Centro de maior valor (ponto
+vermelho).
+durac¸a˜o do deslocamento (∆T), e pode ser descrita atrave´s da Equac¸a˜o 7; para o ca´lculo
+de (∆S) deve-se considerar as posic¸o˜es inicial e final, e para o ca´lculo de (∆T) deve-se
+levar em conta o tempo inicial e final. No me´todo proposto, calculou-se a velocidade
+apenasemrelac¸a˜oaoeixoX.Nestecaso,aposic¸a˜oiniciale´ amenorposic¸a˜oemX(canto
+interno do olho) durante um intervalo de tempo δT, e a posic¸a˜o final e´ a maior posic¸a˜o
+em X (canto externo). Os conceitos de tempo inicial e final foram dados em func¸a˜o da
+quantidadedeframesdov´ıdeoutilizado.
+∆S Pos −Pos
+Final Inicial
+Velocidade = = (7)
+media
+∆T Tempo −Tempo
+Final Inicial
+4. Resultados
+Cada te´cnica aplicada neste trabalho foi avaliada de forma individual. Para analisar o
+desempenho geral da rede, usou-se a precisa˜o. De acordo com [Powers 2011], a precisa˜o
+apresentaumaraza˜oentreosobjetosqueforamdetectadoscorretamente(VP-Verdadei-
+ros Positivo), pela soma dos VP, com os objetos que foram detectados incorretamente,
+FP - Falsos Positivo. A rede foi testada numa base de 60 imagens que conte´m o rosto
+inteiro, obtidas durante o exame de ana´lise do reflexo vermelho, tambe´m fornecidas por
+umoftalmologistalocal. ATabela1mostraosresultadosdaprecisa˜o.
+Tabela1. ResultadodaPrecisa˜odadetecc¸a˜oemambasasabordagens.
+Abordagem OlhosExistentes VP FP Precisa˜o
+YOLOV3 120 120 5 96%
+Para avaliar o resultado do me´todo da curvatura de Isophotes, utilizou-se 20%
+das imagens da base mencionada em 3.2, totalizando 48 imagens e 96 olhos. A me´trica
+utilizada foi a porcentagem do erro, proposta em Ouabida et al. 2017. O autor divide o
+valor obtido pelo me´todo deles pelo valor correto da posic¸a˜o do centro dos olhos, a fim
+desaberaporcentagemdoerroentreessesdoisvalores. Amesmaoperac¸a˜ofoifeitapara
+cada imagem, em relac¸a˜o aos valores de centro em x e em y. No fim, foi obtida a me´dia
+das porcentagens para cada crite´rio a ser analisado; o resultado e´ apresentado na Tabela
+2.
+Para analisar o resultado do me´todo como um todo, calculou-se a velocidade
+me´dia do deslocamento de cada olho em cada v´ıdeo da base utilizada. A tabela 3 apre-
+
+<!-- pagina 9 -->
+Tabela2. Porcentagemdoerrodaposic¸a˜odocentrodoolho.
+ErroemX ErroemY
+Isophotes 0,084 0,052
+senta os resultados para cada olho. Os olhos marcados como doente sa˜o os que possuem
+aparalisia.
+Tabela 3. Velocidade me´dia com que cada olho se move. (A velocidade e´ dada
+pela raza˜o entre a distaˆncia percorrida em pixels pela quantidade de qua-
+dros)
+Video Velc. OlhoDireito Velc. OlhoEsquerdo
+1 0,103(doente) 0,342
+2 0,322 0,404
+3 0,301(doente) 0,573
+4 0,156 0,185
+5 0,617 0,364(doente)
+6 0,201 0,128(doente)
+7 0,277 0,189(doente)
+8 0,092 0,028(doente)
+Ao observar a velocidade me´dia entre cada olho, percebe-se que o olho doente se
+move de forma mais lenta que o olho sauda´vel, apresentando quase a metade da veloci-
+dade do olho que na˜o possui paralisia. Em me´dia, a velocidade me´dia do olho doente e´
+42%menorqueadoolhosauda´vel. Naslinhas2e4databela,referentesa` pacientesque
+possuem os dois olhos sauda´veis, verifica-se que a diferenc¸a entre a velocidade dos dois
+olhos e´ bem menor, o que corrobora a conclusa˜o de que o olho que possui paralisia se
+move mais devagar, ale´m de apresentar um deslocamento bem menor em relac¸a˜o ao eixo
+X, conforme ilustra a Figura 5. Percebe-se que o deslocamento em relac¸a˜o ao eixo X do
+olhoesquerdo(olhodoente)e´ umapoucomaiorque20pixels,enquantoqueoolhodireito
+(sauda´vel)chegaa80pixels. Aoanalisaravelocidadeepixelsporframedomesmov´ıdeo,
+comomostraaFigura6,percebe-sequeenquantooolhosauda´vel(direito)semovecerca
+de 3 pixels a cada frame, o olho doente se move menos que a metade disso, chegando a 2
+pixel porframenointervalomostradonafigura.
+5. Conclusa˜o
+Este trabalho apresentou uma metodologia para aux´ılio na identificac¸a˜o da paralisia do
+sexto nervo atrave´s de v´ıdeos. Para isso, utilizou-se a rede neural convolucional YOLO
+para detecc¸a˜o da regia˜o dos olhos, e a partir da regia˜o detectada, utilizou-se a te´cnica da
+curvatura de Isophotes para identificar o centro da pupila. Esse processo foi aplicado em
+todososquadrosdosv´ıdeosutilizados,afimdemanterumregistrodamovimentac¸a˜odos
+olhos em um intervalo de tempo. A partir desse registro, calculou-se a velocidade me´dia
+do deslocamento de cada olho. Ao analisar os valores da velocidade me´dia referentes a`
+olhos que possuem a paralisia, verificou-se que eles se movem de forma bem mais lenta
+que um olho sauda´vel, apresentando quase a metade da velocidade de um olho que na˜o
+possui a paralisia (em me´dia 42% mais lentos). Apesar dos resultados terem mostrado
+
+<!-- pagina 10 -->
+Figura5. Trajeto´riadodeslocamentonoeixoXdecadaolho. (Referenteaov´ıdeo
+8)
+Figura 6. Velocidade de cada olho dada em pixels por quadro. (Referente ao
+v´ıdeo8)
+que o me´todo e´ promissor, a pequena base de v´ıdeos dificulta a validac¸a˜o proposta. Por-
+tanto,comotrabalhofuturo,pretende-seaumentarabasedados,incluindomaisv´ıdeosde
+pacientessauda´veis,ale´mdedefinirumprotocolodeaquisic¸a˜odosv´ıdeos,afimdeevitar
+ru´ıdos na aquisic¸a˜o dos dados. Ale´m disso, apesar da rede YOLO funcionar em tempo
+
+<!-- pagina 11 -->
+real, a combinac¸a˜o com a te´cnica de Isophotes tornou o me´todo lento, portanto, visa-se
+incluir te´cnicas de rastreamento de objetos a fim de que o me´todo proposto funcione em
+temporeal.
+Por envolver o estudo com seres humanos, este trabalho foi submetido para
+avaliac¸a˜o por um Comiteˆ de E´tica em Pesquisa e aguarda aprovac¸a˜o, a fim de seguir
+asdiretrizesdoConselhoNacionaldeSau´dedispostasnaResoluc¸a˜ono 196/96.
+OpresentetrabalhofoirealizadocomapoiodaCoordenac¸a˜odeAperfeic¸oamento
+de Pessoal de N´ıvel Superior - Brasil (CAPES) - Co´digo de Financiamento 001 e do
+Conselho Nacional de Desenvolvimento Cient´ıfico e Tecnolo´gico (CNPQ) - Processo
+307210/2018-9.
+Refereˆncias
+Curi, R. L. N., de Oliveira Costa, I. C. B., and Barroso, T. G. M. (2013). Paralisia do vi
+nervo(abducente). RevBrasOftalmol,72(1):59–69.
+Deng, J., Dong, W., Socher, R., Li, L.-J., Li, K., and Fei-Fei, L. (2009). Imagenet: A
+large-scalehierarchicalimagedatabase.
+Ehrenhau,M.P.(2018). Abducensnervepalsy(sixthcranialnervepalsy).
+GARD(2015). Sixthnervepalsy.
+Gonzalez, R. C. and Woods, R. E. (2007). Image processing. Digital image processing,
+2.
+Gray, H. and Goss, C. M. (1974). Anatomy of the human body. American Journal of
+PhysicalMedicine&Rehabilitation,53(6):293.
+Martinsen, O. G. and Grimnes, S. (2011). Bioimpedance and bioelectricity basics. Aca-
+demicpress.
+Ouabida, E., Essadique, A., and Bouzid, A. (2017). Vander lugt correlator based active
+contoursforirissegmentationandtracking. ExpertSystemswithApplications,71:383–
+395.
+Powers,D.M.(2011). Evaluation: fromprecision,recallandf-measuretoroc,informed-
+ness,markednessandcorrelation.
+Redmon, J., Divvala, S., Girshick, R., and Farhadi, A. (2016). You only look once: Uni-
+fied, real-time object detection. In Proceedings of the IEEE conference on computer
+visionandpatternrecognition,pages779–788.
+Redmon,J.andFarhadi,A.(2018). Yolov3: Anincrementalimprovement. arXivpreprint
+arXiv:1804.02767.
+Resnick,R.,Halliday,D.,andWALKER,J.(2001). Fundamentosdef´ısica. GrupoPatria
+CulturalSADECV.
+Rosebrock,A.(2016). Intersectionoverunion(iou)forobjectdetection.
+Rubin,M.andCornell,W.(2018). Paralisiadosextonervocraniano(nervomotorocular
+externo).
+Szegedy, C., Ioffe, S., Vanhoucke, V., and Alemi, A. A. (2017). Inception-v4, inception-
+resnetandtheimpactofresidualconnectionsonlearning. InAAAI,volume4,page12.
+
+<!-- pagina 12 -->
+Trade,P.(2018). Akerasimplementationofyolov3.
+Valenti, R. and Gevers, T. (2008). Accurate eye center location and tracking using
+isophotecurvature.

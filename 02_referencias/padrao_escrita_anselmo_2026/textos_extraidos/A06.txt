@@ -1,0 +1,458 @@
+<!-- pagina 1 -->
+Detecção de Câncer Peniano em Imagens Histopatológicas
+usando Redes Neurais Convolucionais em Cascata
+FilipeCorreiaBelfort1,ItaloFrancylesSantosdaSilva1
+AristófanesCorrêaSilva1,AnselmoCardosodePaiva1
+1NúcleodeComputaçãoAplicada–UniversidadeFederaldoMarãnhao(UFMA)
+–SãoLuís-MA-Brazil
+{cpbelfort, francyles, ari, paiva}@nca.ufma.br
+Abstract. Penile cancer has a high incidence in developing countries, inclu-
+dingBrazil,wherethestateofMaranhãohasthehighestworldwideoccurrence
+rate. This pathology, when advanced, can lead to an invasive surgery with
+physical and psychological consequences, making early diagnosis important.
+Histopathological analysis is an exam indicated for diagnosis, but it is time-
+consumingandcomplex. Computationalmethods,suchasconvolutionalneural
+networks (CNNs), can help in obtaining a faster and more accurate diagnosis.
+Therefore, this work proposes a method for classifying penile cancer in histo-
+pathological images using cascaded CNNs and the Soft-Attention mechanism,
+which assigns more weight to relevant image features. Experiments were car-
+ried out on a dataset containing 194 samples at 40× and 100× magnification.
+As a final result, the method achieves 93% and 90% accuracy, respectively, for
+detectingcancerat40×and100×magnification.
+Resumo. Ocâncerpenianotemaltaincidênciaempaísesemdesenvolvimento,
+incluindooBrasil,ondeoestadodoMaranhãoapresentaamaiortaxamundial
+de ocorrência. Essa patologia, quando muito agravada, pode levar a uma ci-
+rurgia invasiva com consequências físicas e psicológicas, tornando importante
+diagnosticá-la precocemente. A análise histopatológica é um exame indicado
+para o diagnóstico, mas é demorado e complexo. Métodos computacionais,
+comoasredesneuraisconvolucionais(CNNs),podemajudarnaobtençãodeum
+diagnóstico mais rápido e preciso. Portanto, este trabalho propõe um método
+para a classificação do câncer peniano em imagens histopatológicas usando
+CNNs em cascata e o mecanismo Soft-Attention, que atribui mais peso às ca-
+racterísticas relevantes das imagens. Experimentos foram feitos com uma base
+contendo194exemplaresnasampliaçõesde40×e100×. Comoresultadofinal,
+o método obtém 93% e 90% de acurácia, respectivamente, para a detecção do
+câncernasampliaçõesde40×e100×.
+1. Introdução
+O câncer peniano possui uma alta incidência observada em países em desenvolvimento.
+O Brasil é um exemplo de país com apresenta elevado número de casos, sendo que o
+estado do Maranhão, localizado na região nordeste, possui a maior incidência de câncer
+de pênis do mundo, com cerca de 6,1 casos por 100.000 habitantes [Vieira et al. 2020].
+Essa patologia acomete principalmente homens na terceira idade, independentemente de
+
+<!-- pagina 2 -->
+sua origem étnica. No entanto, indivíduos jovens também podem ser afetados, uma vez
+que aproximadamente 22% dos casos são registrados em pacientes com idades inferiores
+aquarentaanos[Reisetal. 2010].
+Entreosprincipaisfatoresderiscosrelacionadosaosurgimentodadoença,inclui-
+se fimose, falta de higiene, infecções pelo papilomavírus humano (HPV), entre outros
+[Morrisetal. 2011,Olesenetal. 2019]. Casohajaumdiagnósticotardiodadoença,opa-
+cientepodeserlevadoàrealizaçãodeumprocedimentocirúrgico,oqualoferecechances
+decura[Hakenbergetal. 2018]. Porém,porserbastanteinvasivo,produzsequelasfísicas
+epsicológicas. Dessaforma,quantomaiscedoapatologiafordiagnósticada,maioressão
+aschancesdecuraedeseevitarcomplicações.
+Um dos exames indicados para o diagnóstico do câncer peniano é a análise histo-
+patológica do tecidos coletados por meio de biopsia [Thomas et al. 2021]. Contudo, essa
+análise é demorada e complexa, visto que seus resultados dependem da minuciosidade
+empregada, além de aspectos subjetivos [Melo et al. 2020]. Nesse contexto, métodos
+computacionais para a análise dessas imagens podem auxiliar os especialistas na obten-
+çãodeumdiagnósticomaisrápidoepreciso.
+Existem estudos promissores sobre Redes Neurais Convolucionais (CNN) para
+classificação de doenças. Embora haja poucos trabalhos relacionados a classificação de
+imagens histológicas de câncer peniano, um estudo pioneiro de Lauande et al. (2022)
+desenvolveu um método que utiliza a rede DenseNet-201 com pesos pré-treinados para
+classificarimagenscomosaudáveisounão,comumabasedeimagenscontendoduasam-
+pliações (40× e 100×). Os resultados mostraram um F1-Score de 97,39% para imagens
+comampliaçãode40×e97,31%paraaampliaçãode100×.
+Portanto, com base nas limitações e sugestões de melhorias apontadas pelo refe-
+ridoestudo,opresentetrabalhopropõeummétodoparaaclassificaçãodocâncerpeniano
+emimagenshistopatológicasusandoCNNsemcascata. Oestudosupracitadoutilizaduas
+redes, cada qual treinada para um tipo específico de ampliação. E, antes de submeter as
+imagens ao método, essas precisam ser separadas manualmente conforme a ampliação.
+Diferentemente, o método proposto por este trabalho é dividido em etapas: na primeira,
+ocorreopré-processamentodasimagens;asegundavisaaseparaçãoautomáticadasima-
+gens com a classificação do tipo de ampliação, as quais passam para a terceira etapa para
+serem classificadas como positivas ou negativas quanto à presença da patologia. Nesse
+estudo,tambéméexploradoousodomecanismodeSoft-AttentionincorporadoàsCNNs
+testadas,comoummodoparaatribuirmaispesoàscaracterísticasdasimagensmaisrele-
+vantesparaaidentificaçãodapatologia.
+Opresentetrabalhoestáorganizadodaseguinteforma: aSeção2apresentaabase
+de imagens; o método proposto é detalhado na Seção 3; a Seção 4 mostra os resultados
+obtidos;e,porfim,conlusãoetrabalhosfuturossãoapresentadosnaSeção5.
+2. Base de Imagens
+Abasedeimagensutilizadanestetrabalhoécompostapor194imagensnoformatoJPEG,
+espaço de cores RGB, todas com resolução de 2048×1536 pixels. Estes arquivos foram
+agrupadosporampliaçãoesituaçãopatológicaconformemostraaTabela1.
+A captura das imagens foi realizada em 2021 utilizando amostras de tecidos da
+
+<!-- pagina 3 -->
+Tabela1. Distribuiçãodabasedeimagensentretipodeampliaçãoepresençade
+patologia.
+Ampliação Saudável ComCâncer Total
+40× 57 40 97
+100× 57 40 97
+região peniana provenientes de biopsias. As amostras foram tingidas com Eosina e He-
+matoxilinaedepoisforamfotografadascomousodeumacâmeradealtadefinição(Leica
+ICC50 HD) acoplada a um microscópio de campo claro (Leica DM500), nas ampliações
+de 40× e 100×. Com auxílio de um software específico (Leica Aperio ImageScope),
+as imagens foram analisadas e classificadas por dois especialistas. Exemplos podem ser
+vistosnaFigura1.
+Figura1. Exemplossaudáveisecomcâncerpresentesnabasedeimagens.
+3. Método Proposto
+NestaSeção,éapresentadoométodoproposto,suasetapasetécnicasutilizadas. AFigura
+2 mostra uma visão geral deste método. A primeira etapa consiste no pré-processamento
+das imagens, que são enviadas para a segunda etapa, responsável pela classificação do
+tipo de ampliação. As saídas classificadas passam para a terceira etapa, na qual ocorre
+a detecção do câncer peniano. Nesse passo, é utilizada a rede DenseNet-121 especifica-
+menteparacadatipodeampliação. Ressalta-sequeemambasasetapas,aarquiteturadas
+redes foi modificada através da adição do mecanismo de Soft-Attention. As etapas são
+explicadascommaisdetalhesnasseçõesseguintes.
+3.1. Pré-Processamento
+As imagens de entrada passam por um pré-processamento, no qual se aplica primeira-
+menteumredimensionamentopara224×224,emvirtudedaslimitaçõescomputacionais,
+e, em seguida, usa-se a equalização de histograma. A aplicação dessa técnica tem como
+objetivorealçaredarmaiorcontrasteàsestruturasdaimagemcomcaracterísticasquepo-
+dem ser relevantes aos processos de classificação, como as bordas presentes nas imagens
+negativas para câncer, que possuem tamanho e forma mais padronizados e consistentes
+queasdasimagenscomcâncer.
+
+<!-- pagina 4 -->
+Figura2. Visãogeraldométodoproposto
+No processos de equalização de histograma usado no método proposto, as ima-
+gens são primeiramente tranformadas do espaço de cor RGB para o espaço cieLAB, o
+qual expressa a cor em três componentes: L para luminosidade perceptual, A e B para
+as quatro cores únicas da visão humana: vermelho, verde, azul e amarelo. A equalização
+de histograma, portanto, foi aplicada no componente B. Depois, as imagens são trans-
+formadas para RGB novamente para então serem submetidas à classificação pelo tipo de
+ampliação.
+Nos testes produzidos, essa foi a estratégia de equalização que melhor destacou
+determinadasáreasdaimagemque,visualmente,contribuemparaadecisãodiagnóstica
+3.2. ClassificaçãodoTipodeAmpliação
+Nesta etapa, é feita a classificação das imagens pelo tipo de ampliação (40× ou 100×),
+comoobjetivodeautomatizaraseleçãodeimagensparaserem,posteriormente,aplicada
+a etapa de detecção da presença da patologia que leva em consideração as características
+específicasquecadatipodeampliaçãofornece.
+As imagens são submetidas à rede DenseNet-121 modificada com a adição do
+mecanismo de Soft-Attention.. A DenseNet-121 é uma arquitetura de rede composta por
+blocosdensosecamadasdetransição,querecebeentradasdetodasascamadasanteriores
+e passa suas próprias informações para todas as camadas subsequentes. A adição do
+mecanismodeSoft-Attentionantesdasaídadaredefoirealizadaparamelhoraraprecisão
+daclassificaçãodeimagens. Afigura3ilustraamodificaçãodaarquiteturadarede.
+OmecanismodeSoft-Attention(SA)utilizadofoipropostoporDattaetal. (2021),
+com objetivo de destacar as regiões das imagens mais relevantes para o aprendizado da
+rede através da ponderação de áreas dos mapas de características. Isto é, as regiões mais
+
+<!-- pagina 5 -->
+Figura3. ArquiteturadaredeDenseNet-121comSoft-Attention
+relevantes recebem pesos maiores que aquelas de menor relevância. Esse mecanismo,
+portanto, tende a melhorar o desempenho da rede pois a ajuda a se concentrar nas áreas
+maisrelevantesdaentradarecebida.
+AsaídadacamadaSAépassadaparaoúltimoblococonvolucionaldaDenseNet-
+121, que aplica a função de ativação sigmoid na saída, resultando na classificação das
+imagens de entrada de acordo com o tipo de ampliação. Isso implica a separação auto-
+mática do conjunto de imagens em dois subconjuntos, que serão passados para a terceira
+etapadométodoproposto,responsávelpeladetecçãodocâncerpeniano.
+3.3. DetecçãodoCâncerPeniano
+Esta etapa tem como objetivo a classificação em positivo ou negativo para a presença
+do câncer peniano. Ela recebe como entrada as imagens que vêm da etapa anterior já
+pré-processadas e separadas pelo tipo de ampliação através do processo classificatório
+supracitado.
+AdetecçãodocâncerpenianoérealizadaporduasredesDenseNet-121comSoft-
+Attention, cada qual treinada para um tipo de ampliação. Dessa forma, o aprendizado
+considera os aspectos específicos que cada tipo de ampliação fornece às imagens. Assim
+sendo, as imagens de 40× e 100× serão submetidas à uma rede específica, responsável
+pelaclassificaçãoempositivoounegativoparaapresençadapatologia.
+4. Experimentos e Resultados
+NestaSeção,sãoapresentadososdetalhessobreosexperimentosrealizados,comoacon-
+figuraçãodoambientecomputacionalebibliotecasutilizadas,eosresultadosobtidospelo
+métodoproposto.
+As redes DenseNet-121 com Soft-Attention foram implementadas utilizando os
+frameworks Keras [Chollet et al. 2015] e Tensorflow [Abadi et al. 2015], que disponibi-
+lizam diversas arquiteturas e pesos pré-treinados. Ambas as redes utilizadas no método
+foram treinadas com o otimizador Adam [Kingma and Ba 2015], amplamente utilizado
+em problemas que demandam grandes quantidades de dados e parâmetros, como o caso
+dasredesusadasnestetrabalho,ambascom6.451.729parâmetrostreináveis.
+Usa-se também a função sigmoid, que é comumente utilizada em problemas de
+classificação binária [Gaio 2022]. Essa função de adequa ao problema apresentado neste
+trabalhovistoque,nasetapasdométodoproposto,ocorremclassificaçõesemdoisgrupos:
+naetapa2,háaseparaçãodasimagenspelotipodeampliação(40×e100×);enaetapa3,
+
+<!-- pagina 6 -->
+há a detecção do câncer peniano (positivo ou negativo). As métricas de avaliação usadas
+são Acurácia, Precisão, Sensibilidade e F1-Score. Mais detalhes e os resultados de cada
+etapapodemserconferidosnasequência.
+4.1. ClassificaçãopeloTipodeAmpliação
+As194imagensdabaseforamseparadasdaseguinteforma: 50%paratreinamento,12%
+paravalidação,e38%parateste. Dataaugmentationfoiusadoparaampliaroconjuntode
+treinamentoemambasasetapasdométodo. Asoperaçõesaplicadasforam: flipverticale
+horizontal, e rotação entre 0◦ e 160◦, com intervalos de 4 em 4 graus. Assim, o conjunto
+de treinamento foi ampliado para 4085 imagens, sendo 1978 com ampliação de 100×, e
+2107paraaampliaçãode40×.
+Para essa etapa, foram experimentadas duas redes: DenseNet-121 e VGG19, am-
+bas combinadas com Soft-Attention (SA). As redes foram treinadas por 100 épocas, com
+batch size de tamanho 32. A Tabela 2 mostra os resultados alcançados por essa etapa do
+método proposto. Observa-se que ambas as redes utilizadas obtiveram resultados expres-
+sivos em identificar as imagens pelo seu tipo de ampliação. Entre os modelos testados, a
+DenseNet-121+SAalcançouamelhoravaliação,com100%paratodasasmétricas.
+Tabela 2. Resultados obtidos pelo método proposto na etapa de classificação
+pelotipodeampliação.
+Redes Acurácia Precisão Sensibilidade F1-score
+DenseNet-121+SA 1,0 1,0 1,0 1,0
+VGG19+SA 0,98 1,0 0,96 0,98
+A Tabela 3 mostra a matriz de confusão do experimento realizado, contendo a
+quantidade de verdadeiros positivos e negativos (VP, VN) bem como falsos positivos e
+negativos (FP, FN). Nesse cenário, a ampliação de 40× é considerada como VP, e a de
+100× como VN. Nota-se que, apesar da VGG19 ter entregue um resultado próximo a
+100%, ela mostra um falso positivo, o que prejudica na precisão do modelo, pois classi-
+fica uma imagem de ampliação de 100× como sendo de 40×. Diferentemente desta, a
+DenseNet-121+SAofereceumresultadosemfalsospositivosenegativos.
+Tabela 3. Matriz de confusão dos resultados da etapa de classificação pelo tipo
+deampliação.
+Redes VP VN FP FN
+DenseNet-121+SA 31 28 0 0
+VGG19+SA 31 27 1 0
+Portanto, a partir dos resultado alcançados, a DenseNet-121 + SA foi a rede es-
+colhida para integrar essa etapa do método proposto. Esse desempenho também serviu
+de base para a decisão de testar essa rede na etapa 3 do referido método, dessa vez para
+classificarempositivoounegativoquantoàpresençadocâncerpeniano.
+4.2. Detecçãodocâncerpeniano
+Nestaetapa,cadaredefoitreinadapor100épocas,usandoosmesmoshiperparâmetrosdo
+experimento da etapa de classificação pelo tipo de ampliação. Para o tipo de ampliação
+
+<!-- pagina 7 -->
+de 40×, os conjuntos de treino, validação e teste possuem, respectivamente, 2107, 20
+e 28 imagens. Já para a ampliação de 100×, os conjuntos de treino, validação e teste
+contam, respectivamente, com 1978, 20 e 31 exemplos. Ressalta-se que a quantidade de
+imagensdetreinamento,emambososcasos,éresultadodoDataaugmentationusadono
+experimentodaetapaanterior.
+Tabela 4. Resultados obtidos pelo método proposto na etapa de detecção do
+câncerpeniano.
+Redes Ampliação Acurácia Precisão Sensibilidade F1-score
+DenseNet121+SA 40× 0,93 0,90 1,0 0,94
+DenseNet121 40× 0,89 0,89 0,94 0,91
+DenseNet121+SA 100× 0,90 0,92 0,90 0,94
+DenseNet121 100× 0,87 0,89 0,89 0,89
+ATabela4mostraosresultadosobtidoscomosexperimentosrealizadosparaesta
+etapa do método proposto. Observa-se que a rede DenseNet-121 + SA apresenta um
+desempenhogeralmelhorqueaversãodessaredesemomecanismodeSA.Porexemplo,
+nos testes com ampliação de 40×, acurácia e sensibilidade obtém ganhos expressivos,
+pois nos testes com a DenseNet-121, esses valores foram, respectivamente, de 0,89 e
+0,94, ao passo que, com a DenseNet-121 + SA, alcançaram 0,93 e 1,00. Além delas, o
+F1-score,queéamédiaharmônicaentreaprecisãoeasensiblidade,tambémmostrauma
+melhorade0,91para0,94.
+No caso da ampliação de 100×, o F1-Score aumenta de 0,89 no teste com a
+DenseNet-121 para 0,94 com a DenseNet-121 + SA. A matriz de confusão apresentada
+na Tabela 5 mostra que, no teste com as imagens na ampliação de 100×, a rede sem SA
+gerava dois falsos positivos e dois falsos negativos, enquanto que a versão com SA reduz
+a quantidade de falsos negativos de 2 para 1. Observa-se que o uso do SA eleva a sensi-
+bilidade de 0,89 para 0,90, sendo este, portanto, um resultado promissor, pois, com um
+valor mais alto para essa métrica, o modelo tende a gerar menos classificações negativas
+paracasosqueestãodoentesdefato.
+Tabela5. Matrizdeconfusãodosresultadosobtidos
+Redes Ampliação VP VN FP FN
+DenseNet-121+SA 40× 18 8 2 0
+DenseNet-121 40× 17 8 2 1
+DenseNet-121+SA 100× 18 10 2 1
+DenseNet-121 100× 17 10 2 2
+Nessa mesma matriz, nota-se que o teste com a DenseNet-121 + SA não gerou
+falsosnegativosnoexperimentocomimagensnaampliaçãode40×. Esseéumresultado
+também promissor, visto que indica uma maior chance de o método não permitir que
+um paciente doente seja classificado como saudável, evitando, assim, que a qualidade da
+assistênciamédicasejaprejudicada.
+Portanto, com base nos resultados relatados, as redes DenseNet-121 + SA foram
+selecionadas para integrar a terceira etapa do método proposto, realizando a detecção do
+câncerpenianodeformaespecíficaparacadatipodeampliação.
+
+<!-- pagina 8 -->
+Tabela6. Resultadoobtidosapartirdavalidaçãocruzadade5folds, ecompara-
+çãodemodelos
+Modelos Ampliação Acurácia Precisão Sensibilidade F1-Score
+ModeloA 40x 88.6±3.1 89.4±3.3 95.8±7.7 91.2±2.3
+ModeloA 100x 91.2±1.4 88.4±3.3 97.6±5.6 92.4±1.5
+ModeloB 40x 92.7±4.26 93.2±3.48 94.5±7.27 93.7±4,01
+ModeloB 100x 96.8±4.2 96.5±4.2 98.1±3.6 97.3±3.6
+ModeloC 40x 84.4±8.0 87.2±4.4 86.0±15.3 86.0±8.8
+ModeloC 100x 91.2±2.6 87.2±4.4 86.0±15.3 86.0±8.8
+Na Tabela 6, é mostrado o resultado do método extraído por meio de validação
+cruzada com 5 folds, bem como uma comparação com trabalhos relacionados. Nesta ta-
+bela, o método proposto é referido como Modelo A. A nomenclatura Modelo B se refere
+ao trabalho de Lauande et al. (2022), cuja proposta utiliza data augmentation e pré-
+processamento das imagens, e conta com a rede DenseNet-201. Além disso, os autores
+também usam a mesma base de dados e o mesmo redimensionamento aplicados no pre-
+sente trabalho. Por fim, o Modelo C se trata de um experimento realizado com o método
+proposto sem a divisão por ampliação, possuindo, assim, no treinamento, imagens de to-
+das as ampliações, assim como no teste e na validação, sendo que essas imagens passam
+pelomesmopré-processamentodoModeloA.
+Podemosobservar,portanto,que,apesardeoModeloBtersidotreinadocomuma
+rede com maior quantidade de camadas, a DenseNet-201, ambos os modelos apresentam
+valores relativamente próximos em muitas das métricas avaliadas, como a acurácia. No
+Modelo A, com ampliação de 40x, temos 88,3 ± 3,1, enquanto no Modelo B temos 92,7
+± 4,2. Já na ampliação de 100x, temos no modelo A 91,2 ± 2,4, e no Modelo B, 96,8
+± 4,2. O f1-score, média harmônica entre a precisão e a sensibilidade, apresenta valores
+semelhantes: na ampliação de 40x, o Modelo A possui 91,2 ± 2,3 e o Modelo B possui
+93,7±4,1,indicandoqueosresultadossãobemcorrespondentes.
+Na ampliação de 100x, temos 92,4 ± 1,5 no Modelo A e 97,3 ± 3,6 no Modelo B,
+e o Modelo B possui resultados um pouco mais expressivos, mas com o desvio padrão,
+podemosverqueosresultadossãoequivalentes.
+Dando um olhar especial para a sensibilidade, temos, para ampliação 40x, 95,6 ±
+7,7 para o Modelo A e 94,5 ± 7,2 para o Modelo B. Podemos observar que, em ambos os
+testes,asensibilidadepossuiumdesviopadrãoumpoucoelevadode7,7e7,2,respectiva-
+mente. OModeloApossuiumresultadolevementesuperiorde95,6,enquantooModelo
+B apresenta 94,5. Para a ampliação de 100x, temos 97,6 ± 5,6 para o Modelo A e 98,1 ±
+3,6 para o Modelo B, ambos apresentando ótimos resultados em relação à sensibilidade,
+sendo praticamente equivalentes e possuindo um desvio padrão menor que na ampliação
+de40xemambososcasos.
+Em suma, os resultados indicam que o modelo proposto neste estudo apresenta
+desempenho comparável ao Modelo B, treinado com a DenseNet-201, mesmo sendo uti-
+lizada a rede DenseNet-121 com o acrécimo do mecanismo do Soft-Attention, para o
+treinamento,quepossuimenoscamadoseumconsiderado,inferiorcomputacional.
+OModeloCapresentoudesempenhoinferioremrelaçãoaosmodelosAeB,com
+
+<!-- pagina 9 -->
+resultadosabaixodoesperado. Issopodeserobservadopelasensibilidadedomodelo,que
+apresentouumaaltavariaçãonodesviopadrãotantoparaaampliaçãode40xquantopara
+a de 100x. O F1-scoretambém apresentou uma alta variação de desviopadrão em ambas
+as ampliações. A implementação do Modelo C sem a divisão por ampliação se mostrou
+menos eficaz do que a apresentada nos modelos A e B, em que os conjuntos de treino,
+testeevalidaçãoforamdivididosemduasampliações(40x,100x).
+4.3. EstudosdeCaso
+Foram conduzidos estudos para avaliar qualitativamente os resultados obtidos pelo mé-
+todopropostoquandoaplicadosobreoconjuntodeteste. Essaanálisepodeserconferida
+nasequência.
+AFigura4apresentaimagenscomaampliaçãode100×classificadasdemaneira
+incorreta. Uma possível contribuição para isso é o redimensionamento aplicado nas ima-
+gens de entrada (de 2048 × 1536 para 224 × 224). Dessa forma, micro-detalhes sofrem
+alterações,nãotrazendoamesmainformaçãocomonaimagemoriginal. Entretanto,esse
+redimensionamento se fez necessário em virtude das limitações computacionais para se
+processar imagens de grandes dimensões. A despeito, como visto anteriormente, o mo-
+deloobteveresultadoscorretosdeclassificaçãoparaagrandemaioriadasimagens.
+(A) (B) (C)
+Figura 4. Imagens de ampiação 100× que o modelo errou a classificação: (A)
+Falsonegativo,(B)Falsopositivo,e(C)Falsopositivo.
+Uma das principais carcterísticas dos casos positivos para câncer é a presença de
+umagrandequantidadedecélulasemmitoseocorrendoemumavastapartedofragmento
+dotecido. Porém,nocasodaFigura4(A),grandepartedasmitosesestavamacontecendo
+na região da borda. Este é um exemplo de imagem positiva para câncer com as bordas
+muito parecidas com as da classe negativa, que são consistentes e bem demarcadas. As-
+sim,resultouemumfalsonegativo.
+As Figuras 4(B e C) mostram falsos positivos. Nessas imagens, observa-se que
+a transição da camada interna para a borda do tecido não está bem demarcada, e é mais
+suave. Esse comportamento está mais evidente em 4(C). Essa é uma característica dos
+exemplospositivos,implicando,assimnumaclassificaçãoerradadométodo.
+Nas Figuras 5(A e B) podemos ver algumas imagens de ampliação 100× que o
+modelo classificou corretamente. Em 5(A), com diagnóstico positivo para câncer, vê-se
+claramente algumas características encontradas em tecidos com tumores cancerigenos,
+como um lençól de células tumorais, varias figuras de mitoses ao longo da imagem e a
+formaçãodeilhasdecélulaspleomórficascontendopérolasdequeratina[Lourençoetal.
+
+<!-- pagina 10 -->
+2007,Bedoya et al. 2016]. Com o redimensionamento das imagens, micro detalhes das
+imagens são alterados, como o formato das células e seus núcleos. Porém, as pérolas de
+queratina ainda têm um formato característico e consistente, então o modelo consegue
+identificar bem esses pontos para realizar a classificação para imagens de pacientes com
+diagnóticopositivonagrandemaioriadoscasos.
+(A) (B)
+Figura 5. Exemplos de imagens de ampliação 100× classificadas corretamente:
+(A)Verdadeiropositivo,e(B)Verdadeironegativo.
+Já em 5(B), há uma imagem sem câncer corretamente identificada pelo modelo.
+A maior parte das imagens sem câncer tem por características as bordas do tecido bem
+demarcadasemcontrastecomocentrodotecido. Alémdisso,ascaracterísticascitadasno
+caso do diagnóstico positivo são todas ausentes, propiciando a generalização do modelo,
+implicandoemumbaixonúmerodefalsosnegativos.
+Exemplos de imagens na ampliação de 40× são vistos na Figura 6, a qual mostra
+falsos positivos gerados pelo método. Novamente, são casos que possuem bordas de-
+marcadas,oqueécaracterísticodaclassenegativa,porém,existemoutrasestruturascom
+textura similar aos exemplos da classe positiva, como elementos de coloração mais forte
+maisaocentrodotecido,quepodemlevarométodoaproduzirumresultadoerrôneo.
+(A) (B)
+Figura6. Exemplosdeimagensdeampliação40×queomodeloclassificoucomo
+falsospositivos.
+É sabido que a quantidade de imagens na base, de ambos os tipos de ampliação e
+classes, é considerada pequena. Ainda assim, com as estratégias adotadas neste trabalho,
+os modelos obtiveram resultados promissores, mostrando a aplicabilidade do método no
+apoioaodiagnósticodocâncerpeniano.
+
+<!-- pagina 11 -->
+5. Conclusão e Trabalhos Futuros
+Neste trabalho, foi apresentado um método em cascata para a classificação do câncer
+peniano em imagens histopatológicas. Esse método é dividido em etapas. Na primeira,
+é feito um redimensionamento da imagem e uma equalização de histograma como forma
+de melhoramento das imagens e adequação aos limites computacionais da solução. Na
+segunda, é feita a classificação pelo tipo de ampliação (40× e 100×), usando a rede
+DenseNet-121 + SA, que obteve o melhor desempenho nos experimentos dessa etapa.
+Por fim, o último passo é a detecção do câncer peniano usando duas redes DenseNet-121
++SAtreinadasespecificamenteparacadatipodeampliação.
+Os resultados obtidos são promissores e evidenciam que o uso do mecanismo de
+Soft-Attention integrado às redes DenseNet-121 foi importante para o melhoramento do
+desempenho, resultando, portanto, em valores elevados para as métricas de avaliação.
+Para as imagens de ampliação 40×, foi obtida acurácia de 93%, precisão de 90%, sen-
+sibilidade de 100% e F1-Score de 94%. Já para as imagens de ampliação 100×, foram
+obtidos os seguintes valores: 90% de acurácia, 92% de precisão, 90% de sensibilidade e
+94%deF1-Score.
+Esses resultados, no entanto, podem ser melhorados. Para isso, como trabalho
+futuro, pretende-se continuar estudando a incorporação do mecanismo de SA em ou-
+tras arquiteturas de CNNs, como as da família EfficientNet [Tan and Le 2019]. Além
+disso,experimentar outrosmecanismosde atenção,como amulti-escala[Sinha andDolz
+2020]."
+Agradecimentos
+EstetrabalhofoirealizadocomapoiodaCoordenaçãodeAperfeiçoamentodePessoalde
+NívelSuperior-Brasil(CAPES)-CódigodeFinanciamento001,FundaçãodeAmparoa
+Pesquisa do Maranhão (FAPEMA), Conselho Nacional de Desenvolvimento Científico e
+Tecnológico(CNPq)eEmpresaBrasileiradeServiçosHospitalares(Ebserh)Brazil(Proc.
+409593/2021-4).
+Referências
+Abadi, M., Agarwal, A., Barham, P., Brevdo, E., Chen, Z., Citro, C., Corrado, G. S., Da-
+vis,A.,Dean,J.,Devin,M.,Ghemawat,S.,Goodfellow,I.,Harp,A.,Irving,G.,Isard,
+M., Jia, Y., Jozefowicz, R., Kaiser, L., Kudlur, M., Levenberg, J., Mané, D., Monga,
+R., Moore,S., Murray,D., Olah, C.,Schuster, M.,Shlens, J., Steiner,B., Sutskever,I.,
+Talwar, K., Tucker, P., Vanhoucke, V., Vasudevan, V., Viégas, F., Vinyals, O., Warden,
+P.,Wattenberg,M.,Wicke,M.,Yu,Y.,andZheng,X.(2015). TensorFlow: Large-scale
+machinelearningonheterogeneoussystems. Softwareavailablefromtensorflow.org.
+Bedoya, S. A. O., Conceição, L., Viloria, M., Loures, F., Valente, F., Amorim, R., and
+Silva, F. (2016). Caracterização de colágenos tipos i e iii no estroma do carcinoma
+de células escamosas cutâneo em cães. Arquivo Brasileiro de Medicina Veterinária e
+Zootecnia,68:147–154.
+Chollet,F.etal.(2015). Keras. https://keras.io.
+Gaio, D. E. (2022). Análise comparativa das técnicas de implementação de arquiteturas
+dafunçãosigmoide.
+
+<!-- pagina 12 -->
+Hakenberg, O. W., Dräger, D. L., Erbersdobler, A., Naumann, C. M., Jünemann, K.-
+P., and Protzel, C. (2018). The diagnosis and treatment of penile cancer. Deutsches
+ÄrzteblattInternational,115(39):646.
+Kingma, D. P. and Ba, J. (2015). Adam: A method for stochastic optimization. In
+Proceedings of the 3rd International Conference for Learning Representations (ICLR
+2015),pages1–15.
+Lauande, M. G.M., Teles, A. M., daSilva, L. L., Matos, C.E. F., Junior, G.B., de Paiva,
+A. C., de Almeida, J. D. S., da Costa Oliveira, R. M. G., Brito, H. O., Nascimento,
+A. G., et al. (2022). Classification of histopathological images of penile cancer using
+densenetandtransferlearning. InVISIGRAPP(4: VISAPP),pages976–983.
+Lourenço, S. d. Q. C., Schueler, A. F., Camisasca, D. R., de Castro Lindenblatt, R., and
+Bernardo, V. G. (2007). Classificações histopatológicas para o carcinoma de células
+escamosas da cavidade oral: revisão de sistemas propostos. Revista Brasileira de
+Cancerologia,53(3):325–333.
+Melo,R.C.,Raas,M.W.,Palazzi,C.,Neves,V.H.,Malta,K.K.,andSilva,T.P.(2020).
+Wholeslideimaginganditsapplicationstohistopathologicalstudiesofliverdisorders.
+Frontiersinmedicine,6:310.
+Morris, B. J., Gray, R. H., Castellsague, X., Bosch, F. X., Halperin, D. T., Waskett, J. H.,
+andHankins,C.A.(2011). Thestrongprotectiveeffectofcircumcisionagainstcancer
+ofthepenis. Advancesinurology,2011.
+Olesen, T. B., Sand, F. L., Rasmussen, C. L., Albieri, V., Toft, B. G., Norrild, B., Munk,
+C., and Kjær, S. K. (2019). Prevalence of human papillomavirus dna and p16ink4a
+in penile cancer and penile intraepithelial neoplasia: a systematic review and meta-
+analysis. Thelancetoncology,20(1):145–158.
+Reis, A. A. d. S., Paula, L. B. d., Paula, A. A. P. d., Saddi, V. A., and Cruz, A. D. d.
+(2010). Aspectos clínico-epidemiológicos associados ao câncer de pênis. Ciência &
+SaúdeColetiva,15:1105–1111.
+Sinha, A. and Dolz, J. (2020). Multi-scale self-guided attention for medical image seg-
+mentation. IEEEjournalofbiomedicalandhealthinformatics.
+Tan, M. and Le, Q. (2019). EfficientNet: Rethinking model scaling for convolutional
+neural networks. In Chaudhuri, K. and Salakhutdinov, R., editors, Proceedings of the
+36th International Conference on Machine Learning, volume 97 of Proceedings of
+MachineLearningResearch,pages6105–6114.PMLR.
+Thomas, A., Necchi, A., Muneer, A., Tobias-Machado, M., Tran, A. T. H., Van Rompuy,
+A.-S., Spiess, P. E., and Albersen, M. (2021). Penile cancer. Nature Reviews Disease
+Primers,7(1):11.
+Vieira, C. B., Feitoza, L., Pinho, J., Teixeira-Júnior, A., Lages, J., Calixto, J., Coelho, R.,
+Nogueira, L., Cunha, I., Soares, F., et al. (2020). Profile of patients with penile cancer
+intheregionwiththehighestworldwideincidence. Scientificreports,10(1):2965.

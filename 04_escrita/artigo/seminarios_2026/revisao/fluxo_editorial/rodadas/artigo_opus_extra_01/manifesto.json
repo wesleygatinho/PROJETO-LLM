@@ -1,0 +1,703 @@
+{
+  "schema": 1,
+  "id": "artigo_opus_extra_01",
+  "finalidade": "artigo",
+  "criado_utc": "2026-10-09T00:27:10.202239+00:00",
+  "fontes": [
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/reescrita_opus_extra_2026-10-08/02_orientacao_reescrita.txt",
+      "sha256": "63548b109fe4315972b3553fd1327d297bc04c91f2f4ee8e0c97e41d1f6bfc18"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/PADRAO_ESCRITA.md",
+      "sha256": "fa3e79d07d726bb778d16efcbe50aec731288f02eed0152cbdbeaa9e98cf0841"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/MATRIZ_EVIDENCIAS.md",
+      "sha256": "3f373c0e20775ea951c85ed1f75394246dc397122b48316dce830be38f9f2132"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/PLANO_ESCRITA.md",
+      "sha256": "ded6b9ae3b2bc1db7b55b4e62a088b5a2dd2e5202fda2ce0c3af721628bba5b4"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/prompts/redigir.md",
+      "sha256": "201eefb01eb59b01d0d2fb94e0dc00c4002180db21140f316c5546b390f51fe9"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/prompts/revisar.md",
+      "sha256": "7398693cc2742c7e03649a3c5aa5291742adaebfed923f28e18b07bc0cfc3ebb"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/prompts/corrigir.md",
+      "sha256": "16d3326d6930050e56a57d0967b1e187ad8a7282598b4859b387e5920a971323"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/huang_pdf.txt",
+      "sha256": "9209bf7a95841e004d9b71f038b21990ad4678b93cf1897a72c30b0a1f48630d"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/lora_pdf.txt",
+      "sha256": "e6b9fe1d772ed8af6785a703d15e6138e81daa592ddd310cffa2af9d4977f45a"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/primevul_pdf.txt",
+      "sha256": "381094a9f4d78b6ae175ed76893c3f827db199bda7800b53a088e30fb6e1d2ef"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/qlora_pdf.txt",
+      "sha256": "3920c399de2f00bc0720ecfcefed5519d015fc86b2d83075ddd45d6899807542"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/qwen_pdf.txt",
+      "sha256": "9dac1a064dba2d4a018793aab41e29eab14ba681cce44e2568e4133dad833887"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_introducao_seminarios_2026/risse_pdf.txt",
+      "sha256": "ac8be5c42dd6d717201350d4273ac33df43a5ffbfbedd1d1791b34ef6d0b023a"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_reescrita_opus_2026-10-08/devign_pdf.txt",
+      "sha256": "3051bd221086f85c6d4da207d6aa9b8087a22a64cbd07b97f366a2c97f5b2961"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_reescrita_opus_2026-10-08/diversevul_pdf.txt",
+      "sha256": "172a553ec221504c66d23b72e32e4a209d75527241587065edede20d8d608dc1"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_reescrita_opus_2026-10-08/field_compacto.txt",
+      "sha256": "e19be3486e531454d679e758daf41f1b713da5202022ad5943d2e2059f7f6677"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_reescrita_opus_2026-10-08/field_pdf.txt",
+      "sha256": "26f83b623222768a5e76e6eb5c36145de8acb4463e04f0620266e8aca0faa06e"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_reescrita_opus_2026-10-08/linevul_pdf.txt",
+      "sha256": "cf584affac413c7fb52be7ddfe8dc8e699af7ab573381addcc4b28ae5f82f50d"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_reescrita_opus_2026-10-08/reveal_pdf.txt",
+      "sha256": "f870ff1d8de09d765c7d1ef4eb2714d78b391a64b90032af593a2ed7ec2ba852"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_reescrita_opus_2026-10-08/saito_compacto.txt",
+      "sha256": "929e30070f4d2f7efb821335235e995f0adcb9ce992da455ac402faea40e67ed"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_reescrita_opus_2026-10-08/saito_pdf.txt",
+      "sha256": "e190d22ffd4c00bfd4779cac540f71c7fa66f70dc3513e9ef5d15fd62eb3121b"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_reescrita_opus_2026-10-08/ullah_compacto.txt",
+      "sha256": "866b7ab16116a7512174e85999c3f5108b3201327841495fe7078d638e40195e"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_reescrita_opus_2026-10-08/ullah_pdf.txt",
+      "sha256": "a4342cba0f5815221f8a589d64d610b7d59d35513728e9ff744b72a3ae716c23"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_reescrita_opus_2026-10-08/inventario.json",
+      "sha256": "6775a00ee1990a2c07dead5d61483e3afa08eb5c03ad3fb70c4f5ceeb8f6559f"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_reescrita_opus_2026-10-08/inventario_complementar.json",
+      "sha256": "1cd414196848fea6926548a1dc5a97ecd54a18cc331d0fc4acea1fbce3314e55"
+    },
+    {
+      "arquivo": "02_referencias/verificacao_reescrita_opus_2026-10-08/LEITURA_ADICIONAIS.md",
+      "sha256": "047145dd6015cb0c47927e33bb47989a2c716a0e9c981af30758f699f8a6ec2c"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/auditoria_integridade.json",
+      "sha256": "f19417d848e540abdb5d46ee45c9460d59f41901c1e856cf5f4ab61fb6f70401"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/comparacoes.csv",
+      "sha256": "34c0bbfce40df12f0ef306ebb6b89dcc00c696ae0a7d060bc7235b2c2d3e4278"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/divergencias.json",
+      "sha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/estatistica.json",
+      "sha256": "5c69079f788d28f7798d58300a423de1ddbdf643cda75998ffc3a90f01be6202"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/inspecao_correspondencia_commits.json",
+      "sha256": "a6374634a8665c3e80d803c7c286f3ccce569ed5a648384fd231368b279b6c95"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/intervalos.csv",
+      "sha256": "7e9a9b7fe1d16b4d68c9a04fa8aba725d7401512af583086b0a4cd02ee44918d"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/inventario.csv",
+      "sha256": "8e5e51e48eea4916e0134b97f02e530f7ace16643dad134a317d24604fc9b3a3"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/manifesto.json",
+      "sha256": "64623cd4fa993af65b07f501167f850d58fca8227c6084bcfc1fb1901e499b13"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/metricas_pareadas.csv",
+      "sha256": "ccdca8b99d4bed244fb5adacbe9604388b73467014dfebf9d58fbd6b8ad93c8e"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/metricas_por_execucao.csv",
+      "sha256": "d3bac1e65333f99e764bc01d4495d340d00866b8ede3ad844fe2e97c6db255c6"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/pares_auditados.csv",
+      "sha256": "cf9983048b3ebee8748893d1672bc6e08b6af5fdb14ba0ea1f70a86969336302"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/pares_inspecao.json",
+      "sha256": "d223186c15e3af47e7607a48ef56faa93b50fddb9776c0e4008cedf511655998"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/proveniencia_exports.json",
+      "sha256": "d7621c0289abe0f6ba03337d7568b8d2ef133d0b4240034a171ed4c4eb2bacad"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/reutilizacoes_release_oficial.json",
+      "sha256": "2e2cbe1493051a134e943e01d061fdb759be241962b5f6c9cb8f5402c294abc3"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/selecao_epocas.json",
+      "sha256": "76cface8862b6f66f45eb9e2eb9597fd73f3a35dcc46b81a7fcc51c4018be967"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/sensibilidade_correspondencia.csv",
+      "sha256": "e2e5aadc620e54c48078522171fe19fc832b599a303f3ae2c5d111701b334f0b"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/sensibilidade_truncamento.csv",
+      "sha256": "ff79ea11172d72bbf129e10499b46cd06ec7c8f9960a8b062f325c4b651badd7"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/tabelas_artigo.md",
+      "sha256": "0e8eb1dc8e90af59e24b61201604ad53b8f46b78c6278e664cccef9de75cddf3"
+    },
+    {
+      "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/tokenizacao_proveniencia.json",
+      "sha256": "b4303e46fdbe9a27d675faf7bfe493f09e5a3b1fcdaff69c852bf2e3065eead1"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/01_inventariar.py",
+      "sha256": "1c93123dc23c5434f3e7348bcad1c42b50853fca506a96fd1b1f03c702c95548"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/02_consolidar_metricas.py",
+      "sha256": "887bb92cef4f8cc5bba024b7296800159b6aebafde3a7ce7887cc11e8a37bdd8"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/03_estatistica.py",
+      "sha256": "eec1be5d2e299f37003b257c59f738901bb8395ce10e19eba41695020028721f"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/04_exportar_artigo.py",
+      "sha256": "b83f80e7eff74f57ad0293ec9883efe4255d1bbfefeb95569e277d7d43673171"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/comum.py",
+      "sha256": "b67f64b4759f98ba593165046d748612d48cf817d1e6966c97f10607276f816d"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/conferir_funcoes_commits.py",
+      "sha256": "f177b2937d8c79b95aebd29c542e8bd9acc75bb9fdfe04607f8e85fb4acfa987"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/inspecionar_commits.py",
+      "sha256": "4dad257e1d1368cfab3d04c9aaf4ef1bc031191cffed3646ae97d35b1ec3af9d"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/recuperar_dados.py",
+      "sha256": "548be245a7c3367b85f90e7221ed713cee147ce175e52b036d0667a60d93e629"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/recuperar_fontes.py",
+      "sha256": "304bea76fb198b1d67e99796cecc7fb2200da44984a3920f194d78eed9bbc026"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/recuperar_tokenizer.py",
+      "sha256": "e7dee640d967205c5f7e8becd14d90df69f9424b1c119a5df97e561264cb0d9b"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/tests_cientificos.py",
+      "sha256": "42f4a402273e5b7abe8530649a43a4459e337d6b39d4d015eccb6d2c0568242f"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/03_inferencia_etapa1.py",
+      "sha256": "4012cf1b63188dc83d066951300a0cc743f0a5cacc21fb0fe0cb16ba0f66305f"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/06_treinar_qlora.py",
+      "sha256": "a720c4c6f04cc6ef09df341f09bf4c195866cceaaeabedb25501b1d88969427f"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/07_avaliar_classificador.py",
+      "sha256": "a1428cca9620866c439e6903ff2f4a2483ac16df32498227e526d508aa11620e"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/08_baseline_tamanho.py",
+      "sha256": "1ea6ed21f2a13dc55e344f3f7dd7d6f28546d986ade056678fd9bee56b5ecdf4"
+    },
+    {
+      "arquivo": "03_experimentos/codigo/classificador.py",
+      "sha256": "850ba2cb500d5e88dd461c2013faf15d68fa1d7e97b14178c3fd3680a0028470"
+    },
+    {
+      "arquivo": "02_referencias/padrao_escrita_anselmo_2026/textos_extraidos/A01.txt",
+      "sha256": "0463559f292bf70653822c77fb20c88825bb530e6f519b6d65373934d38c52af"
+    },
+    {
+      "arquivo": "02_referencias/padrao_escrita_anselmo_2026/textos_extraidos/A06.txt",
+      "sha256": "dd6ad45a8a52fd516de4b2fb7dc9c6f7bb0e90df791445ebdd1b399d5effcb62"
+    },
+    {
+      "arquivo": "02_referencias/padrao_escrita_anselmo_2026/textos_extraidos/A08.txt",
+      "sha256": "d7448ca164a4d1038baf7d403f96fdd7b37509ad20db972f07fefdbac4cf6e1e"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/reescrita_opus_extra_2026-10-08/01_analise/retorno.json",
+      "sha256": "74ba8d278ab1a93b65a7dfadfbd666ac67299f3d746b7484a5a04f2f71c8f517"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/reescrita_opus_extra_2026-10-08/catalogo_verificado.json",
+      "sha256": "5e8a1e6b9660ab9ca1cc1505aa2135b34d3df304655735c1a2e5835a91abf517"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/reescrita_opus_extra_2026-10-08/bibliografia_verificada.bib",
+      "sha256": "fa787b6523ada5e911a592516961e8b5a6f40fd0a377cce6eef072dd155dbb87"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/reescrita_opus_extra_2026-10-08/antes/artigo_completo.md",
+      "sha256": "8ee65a8fd09cb16c1e525863fcecf79136caa38940fba79e85e3693b7f6683b6"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/reescrita_opus_extra_2026-10-08/antes/documento_aberto.tex",
+      "sha256": "f8b79d0d67534de5b40d46cb195f944b4562d0c2258f693be8860e04582b119a"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/reescrita_opus_extra_2026-10-08/antes/artigo.bib",
+      "sha256": "b8824d5da4a7b9c7d575986a7b35a262acc49aee2d0da1e327331a542c0ba0c4"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/artigo_completo_2026-10-08/SUPLEMENTO.md",
+      "sha256": "c573c81670e92edcb4f816af822c9cbe95ab092dfd2f1c4e6e7ce0493c6d36e0"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/template_sbc/sbc.bst",
+      "sha256": "d884c6793e4ea54d13f5c751b3d6f4ea529a62d0906cd9774f2ec350b394691f"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/template_sbc/sbc-template.sty",
+      "sha256": "dbe513d56dde32bedc53dcf7b9efba052ff1b3b747037ed2f284f7095a91e895"
+    }
+  ],
+  "artefatos": [
+    {
+      "arquivo": "briefing.md",
+      "sha256": "63548b109fe4315972b3553fd1327d297bc04c91f2f4ee8e0c97e41d1f6bfc18"
+    },
+    {
+      "arquivo": "entradas/redacao.json",
+      "sha256": "b1f710797fe4326a903d6c4813e64a8ce43c5af6261e6b3591aa537be370d0d1"
+    },
+    {
+      "arquivo": "versoes/v001.md",
+      "sha256": "d39876cb28943a6eb96e87ac7443fa238b62b4c18eebcc1ca308ca0362b12aa6"
+    },
+    {
+      "arquivo": "pedidos/001_revisar.txt",
+      "sha256": "9762b037eaa9ca05ae7e9e2bfc11eed76df381de5721ddf2ebc0eb7be2f239f2"
+    },
+    {
+      "arquivo": "entradas/revisao_v001.json",
+      "sha256": "88ab3db1fc1873dbb79f4c0bd2efe9ae1ed3da63c9533086ba7645e82da116bf"
+    },
+    {
+      "arquivo": "pareceres/v001.json",
+      "sha256": "66a0a4537a9618be266343f6781cd994972f2ea371e48ddb97ba8c097d387249"
+    },
+    {
+      "arquivo": "pedidos/002_corrigir.txt",
+      "sha256": "3f7616a1cc3d5b5ff7df1d14763bd66d5b9cfd60271fd673406cc22d0c75f383"
+    },
+    {
+      "arquivo": "entradas/correcao_v002.json",
+      "sha256": "007efb1504a50bab740d7492a5e6edf81b3e4f2582a51382e7caa3f463da77f3"
+    },
+    {
+      "arquivo": "versoes/v002.md",
+      "sha256": "400165fae1ff01f8c580c60c65765fba68872c49db939be31ab11aa4e2ba8f2d"
+    },
+    {
+      "arquivo": "pedidos/003_revisar.txt",
+      "sha256": "2cb706ec93ee60e791b3b7ea74a459273260c5e6f1f96be7371ac399bb89c3fc"
+    },
+    {
+      "arquivo": "entradas/revisao_v002.json",
+      "sha256": "765f59aee8cbec80341a3d14124dcf6edcb677c267039fb9b50f1dfe964f1e5d"
+    },
+    {
+      "arquivo": "pareceres/v002.json",
+      "sha256": "9634a1faf80c2feb490529005eec6d8f0343920e1cb6c5ebff6147a58fcd67e4"
+    },
+    {
+      "arquivo": "pedidos/004_corrigir.txt",
+      "sha256": "bea065ba7fa9a99d9fd13b8b53b4da6684334bb72fc5981ac1e3674ee1ef570e"
+    },
+    {
+      "arquivo": "entradas/correcao_v003.json",
+      "sha256": "20f4bc63661fd445dfbb0d66adec5aa777a597fdb012151a9e89c45a29743d44"
+    },
+    {
+      "arquivo": "versoes/v003.md",
+      "sha256": "c6529a08b3d93a68103d8b2fa12790e8198d11f3374440b819307809ca6344af"
+    },
+    {
+      "arquivo": "pedidos/005_revisar.txt",
+      "sha256": "7917a6b1380edec9440000e935cfca1dce61d947499c56035da29bcfef6bb18a"
+    },
+    {
+      "arquivo": "entradas/revisao_v003.json",
+      "sha256": "06d0926a5dc2fe0e4ef583f3768bbdcfc627f2a2f28294293803fdf1ebf7506c"
+    },
+    {
+      "arquivo": "pareceres/v003.json",
+      "sha256": "210f93b5c12420f9551690d3f4d159cb7b14ebcc780fe6f11d2a2559144f32fc"
+    },
+    {
+      "arquivo": "entradas/verificacao_integracao.json",
+      "sha256": "91cdd8971d1a23745418e276a4d094fe80689c176ea6a0f11bffbc68e69d421b"
+    }
+  ],
+  "versoes": [
+    {
+      "numero": 1,
+      "texto": {
+        "arquivo": "versoes/v001.md",
+        "sha256": "d39876cb28943a6eb96e87ac7443fa238b62b4c18eebcc1ca308ca0362b12aa6"
+      },
+      "autor": "Claude Opus 5.5, xhigh",
+      "data_utc": "2026-10-09T00:35:46.495293+00:00",
+      "pareceres": [
+        {
+          "arquivo": "pareceres/v001.json",
+          "sha256": "66a0a4537a9618be266343f6781cd994972f2ea371e48ddb97ba8c097d387249"
+        }
+      ],
+      "entrada": {
+        "arquivo": "entradas/redacao.json",
+        "sha256": "b1f710797fe4326a903d6c4813e64a8ce43c5af6261e6b3591aa537be370d0d1",
+        "origem": "claude_cli",
+        "modelos": [
+          "claude-opus-5-5"
+        ],
+        "session_id": "402eb376-5fce-4a64-8b85-e32d788dc802",
+        "duration_ms": 518155,
+        "custo_estimado_cli": 2.1759936
+      },
+      "respostas": [],
+      "estado": "aguarda_correcao",
+      "pendencias_redator": []
+    },
+    {
+      "numero": 2,
+      "texto": {
+        "arquivo": "versoes/v002.md",
+        "sha256": "400165fae1ff01f8c580c60c65765fba68872c49db939be31ab11aa4e2ba8f2d"
+      },
+      "autor": "Claude — papel corretor",
+      "data_utc": "2026-10-09T00:53:54.027209+00:00",
+      "pareceres": [
+        {
+          "arquivo": "pareceres/v002.json",
+          "sha256": "9634a1faf80c2feb490529005eec6d8f0343920e1cb6c5ebff6147a58fcd67e4"
+        }
+      ],
+      "entrada": {
+        "arquivo": "entradas/correcao_v002.json",
+        "sha256": "007efb1504a50bab740d7492a5e6edf81b3e4f2582a51382e7caa3f463da77f3",
+        "origem": "claude_cli",
+        "modelos": [
+          "claude-opus-5-5"
+        ],
+        "session_id": "f7f3949e-e0e5-49f5-bd60-db80b6f289bd",
+        "duration_ms": 400515,
+        "custo_estimado_cli": 1.9876564
+      },
+      "respostas": [
+        {
+          "id": "V1-R1",
+          "situacao": "corrigido",
+          "justificativa": "Na Seção 3.5, a expressão 'maior limiar' virou: o menor limiar entre os escores das n funções não vulneráveis da validação que, pela regra s > t, admite no máximo o piso de 0,005·n falsos positivos. A S7 agora descreve o mesmo critério e diz que limiares mais altos também atenderiam à restrição.",
+          "evidencias": [
+            {
+              "fonte": "03_experimentos/codigo/consolidacao_artigo/comum.py",
+              "localizador": "linhas 44–46 (def fpr_threshold)",
+              "verificacao": "A função ordena de forma decrescente os escores das não vulneráveis e devolve o elemento de índice min(floor(0,005·n), n−1). Pela regra s > t, esse é o menor candidato que mantém no máximo floor(0,005·n) falsos positivos. A conferência vale para a validação e não garante FPR ≤ 0,5% no teste."
+            }
+          ]
+        },
+        {
+          "id": "V1-R2",
+          "situacao": "corrigido",
+          "justificativa": "As frases do Resumo, do Abstract, da Seção 4.2 e da Conclusão que diziam 'ordenou X% dos pares' agora falam de 'ordenação pareada de X%' e explicam que a métrica dá meio crédito aos empates. A Seção 3.5 ganhou uma frase dizendo que A_par não é a fração de pares favoráveis, e as Limitações também registram isso. Na Discussão, 'ordenou menos de 50%' virou 'teve ordenação pareada abaixo de 50%'. A afirmação de que a maioria dos pares não empatados ficou invertida decorre algebricamente de A_par < 50%. Não entrou nenhuma contagem nova, e os números congelados foram mantidos.",
+          "evidencias": [
+            {
+              "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/metricas_pareadas.csv",
+              "localizador": "linha 6 (3B real nf4 s1, dev_f1)",
+              "verificacao": "A linha registra P-C/P-V/P-B/P-R 6/200/344/14, 190 pares estritos, 43 empates e ordenação 0,375. Isso confirma que 37,50% inclui meio crédito para os empates. A contagem estrita não foi levada ao texto."
+            }
+          ]
+        },
+        {
+          "id": "V1-R3",
+          "situacao": "corrigido",
+          "justificativa": "As Limitações e a Seção 3.4 agora dizem que a época foi escolhida nas execuções originais pela ordenação estrita, com a AUC como desempate. Só a verificação com meio crédito foi retrospectiva: ela manteve a época nos quatro treinos com controle de tamanho e não pôde ser feita nas receitas 3B 1:1 e de proporção original, que não registraram empates por época. A receita de proporção original teve uma única época. A S6 foi alinhada a esse texto.",
+          "evidencias": [
+            {
+              "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/selecao_epocas.json",
+              "localizador": "linhas 5–6, 13–14, 20–21, 27–28, 36–37, 44–45 (historica_estrita, ajustada_reconstruida, empates)",
+              "verificacao": "Nos dois primeiros blocos do arquivo, historica_estrita = 1, ajustada_reconstruida = null e empates = null. Isso mostra que a escolha veio do critério estrito histórico e que a reconstrução não existe para essas receitas. Os blocos reconstruídos dos quatro treinos com controle de tamanho não foram relidos nesta sessão; a descrição deles segue o que Codex conferiu e o texto anterior da S6."
+            }
+          ]
+        },
+        {
+          "id": "V1-R4",
+          "situacao": "corrigido",
+          "justificativa": "Saiu a generalização com 'portanto'. Agora o contraste se restringe ao 3B: as configurações de proporção original (F1 0,262; AUC 0,851) e 1:1 (0,195; 0,795) tiveram ordenações de 37,50% e 42,38%, abaixo das configurações com controle de tamanho (44,68%–55,23%). Para o 7B, o texto diz que os seis casos não formam um padrão descritivo uniforme: a semente 2 tem o maior F1, a menor AUC e as menores ordenações; a semente 3 tem a maior AUC; a semente 1 tem as maiores ordenações. O texto também diz que isso não estima uma associação estatística. A Conclusão foi ajustada da mesma forma.",
+          "evidencias": [
+            {
+              "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/tabelas_artigo.md",
+              "localizador": "tabelas de desempenho global e pareado (linhas 3B e 7B, colunas F1, AUC, Ord. 564)",
+              "verificacao": "Os valores citados foram copiados sem alteração das Tabelas 4 e 5 do manuscrito, que o parecer V1 declarou idênticas a tabelas_artigo.md. Não reli tabelas_artigo.md nesta sessão. Não há cálculo novo, só a comparação de ordem entre células já publicadas."
+            }
+          ]
+        },
+        {
+          "id": "V1-R5",
+          "situacao": "corrigido",
+          "justificativa": "Na Seção 2.3, o contraste agora diz que o TrapEval ajusta LLMs generativos com e sem raciocínio explícito, enquanto aqui o ajuste usa uma cabeça de classificação e a geração aparece apenas na classificação por instrução YES/NO, sem exemplos e sem ajuste. Isso está de acordo com as Seções 3.3 e 4.1.",
+          "evidencias": [
+            {
+              "fonte": "02_referencias/verificacao_introducao_seminarios_2026/huang_pdf.txt",
+              "localizador": "linhas 36 e 107 (fine-tuning com e sem Chain-of-Thought)",
+              "verificacao": "O texto confirma que o TrapEval considera LLMs ajustados com e sem raciocínio Chain-of-Thought. Nenhum número dele foi levado ao estudo local."
+            }
+          ]
+        },
+        {
+          "id": "V1-R6",
+          "situacao": "corrigido",
+          "justificativa": "'Diferentemente de Risse e Böhme' virou 'Diferentemente de [!risse2024limits]'. Na Discussão, 'Risse e Böhme usaram' virou 'esses últimos autores usaram', com referente na frase anterior, que cita [!risse2024limits]. 'avaliado por Ullah et al.' virou 'avaliado por esses autores', com referente em [!ullah2024sec] no mesmo parágrafo. Não sobrou autoria digitada fora dos tokens.",
+          "evidencias": []
+        },
+        {
+          "id": "V1-R7",
+          "situacao": "corrigido",
+          "justificativa": "As duas leituras foram separadas. O intervalo da diferença NF4 − BF16 não distingue as implantações nem estabelece equivalência. Já os intervalos das médias (47,92–53,33 e 47,14–52,73) incluem 50%, o que não prova ordenação ao acaso. O 'portanto' sem premissa saiu: agora se diz que os desvios são da mesma ordem que a amplitude dos intervalos e que as sementes isoladas apontam em direções opostas.",
+          "evidencias": []
+        },
+        {
+          "id": "V1-R8",
+          "situacao": "corrigido",
+          "justificativa": "Os empates da heurística agora são definidos como pares em que as duas versões têm o mesmo número de tokens visíveis. O texto diz que entre eles estão necessariamente os pares com ambas as versões no teto de 2.048 tokens e os 32 pares com entradas idênticas, sem quantificar a distribuição dos 124 empates.",
+          "evidencias": [
+            {
+              "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/tokenizacao_proveniencia.json",
+              "localizador": "linha 5, chave pares_tokens_identicos_2048",
+              "verificacao": "O arquivo registra 32 pares com entradas idênticas após o corte. Ele não decompõe os 124 empates da heurística."
+            }
+          ]
+        },
+        {
+          "id": "V1-R9",
+          "situacao": "corrigido",
+          "justificativa": "A S7 agora diz: 'Nesse limiar, os 564 pares de teste da configuração 3B de proporção original caíram em P-B'. O escopo fica restrito ao teste pareado.",
+          "evidencias": [
+            {
+              "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/metricas_pareadas.csv",
+              "localizador": "linha 7 (3B real nf4 s1, historico, limiar 0: 0,0,564,0)",
+              "verificacao": "No limiar zero, os 564 pares do teste pareado estão em P-B. A linha não cobre a validação global."
+            }
+          ]
+        },
+        {
+          "id": "V1-R10",
+          "situacao": "corrigido",
+          "justificativa": "Na Seção 3.1, cada limiar agora tem seu uso: o de maior F1 vale para as métricas globais e as categorias pareadas; o de FPR de até 0,5% vale para FNR e FPR no teste global. A Seção 3.5 passou a dizer 'FNR no teste global'.",
+          "evidencias": []
+        },
+        {
+          "id": "V1-R11",
+          "situacao": "corrigido",
+          "justificativa": "A prescrição geral saiu. A Conclusão agora diz que, nessas configurações e nesse conjunto, as métricas globais não bastaram para descrever a discriminação entre versões e que a leitura conjunta alterou a interpretação. O grau de cautela é o mesmo do Resumo e do Abstract, que agora também dizem 'nessas condições'.",
+          "evidencias": [
+            {
+              "fonte": "04_escrita/artigo/seminarios_2026/PADRAO_ESCRITA.md",
+              "localizador": "Seção 6 (Resultados e discussão) e checklist da Seção 9",
+              "verificacao": "O guia pede que a interpretação não amplie o alcance medido nem transforme conectivos em conclusões além do desenho. A correção restringe a implicação ao recorte exploratório descrito nas Limitações."
+            }
+          ]
+        }
+      ],
+      "estado": "aguarda_correcao"
+    },
+    {
+      "numero": 3,
+      "texto": {
+        "arquivo": "versoes/v003.md",
+        "sha256": "c6529a08b3d93a68103d8b2fa12790e8198d11f3374440b819307809ca6344af"
+      },
+      "autor": "Claude — papel corretor",
+      "data_utc": "2026-10-09T01:04:00.021949+00:00",
+      "pareceres": [
+        {
+          "arquivo": "pareceres/v003.json",
+          "sha256": "210f93b5c12420f9551690d3f4d159cb7b14ebcc780fe6f11d2a2559144f32fc"
+        }
+      ],
+      "entrada": {
+        "arquivo": "entradas/correcao_v003.json",
+        "sha256": "20f4bc63661fd445dfbb0d66adec5aa777a597fdb012151a9e89c45a29743d44",
+        "origem": "claude_cli",
+        "modelos": [
+          "claude-opus-5-5"
+        ],
+        "session_id": "4717741e-5408-4e3b-8b06-dc74db1043ba",
+        "duration_ms": 226593,
+        "custo_estimado_cli": 1.2736725999999998
+      },
+      "respostas": [
+        {
+          "id": "V2-R1",
+          "situacao": "corrigido",
+          "justificativa": "Mudou apenas a primeira frase do segundo parágrafo da Seção 2.2. O texto anterior era: 'No PrimeVul, a rotulação mais rigorosa, a deduplicação e a divisão cronológica reduzem o risco de vazamento entre treino e teste [@ding2024primevul].' Agora é: 'No PrimeVul, a rotulação mais rigorosa busca maior exatidão dos rótulos, enquanto a deduplicação e a divisão cronológica reduzem o risco de vazamento entre treino e teste [@ding2024primevul].' A frase separa as duas finalidades: a rotulação serve à exatidão dos rótulos, e a deduplicação e a divisão cronológica servem à mitigação do vazamento. O token [@ding2024primevul] foi mantido. Não entrou nenhum número, fonte ou afirmação nova. As demais passagens que mencionam rotulação ou deduplicação do PrimeVul não foram alteradas: Seção 3.2 (descrição da distribuição), Discussão (problemas de rotulação e duplicação que motivaram o benchmark) e Limitações (ausência de prova de não contaminação no pré-treinamento). Elas não atribuem à rotulação a função de reduzir vazamento. Ficaram inalterados o restante do artigo e do suplemento, as tabelas, os números, os tokens de citação e as onze correções da versão anterior. Limites: a conferência se restringe às passagens do texto extraído listadas na evidência. Não validei o PDF, a compilação nem o layout. Autoria, afiliação e regras de páginas continuam pendentes, e esta correção não declara o documento pronto para submissão.",
+          "evidencias": [
+            {
+              "fonte": "02_referencias/verificacao_introducao_seminarios_2026/primevul_pdf.txt",
+              "localizador": "Abstract, linhas 28–32; Introdução, página física 2, linhas 66–67 e 107–112; Seção II-C, linhas 284–287; Seção IV-A (Temporal Splits), linhas 369–372",
+              "verificacao": "Nas linhas 28–30, as técnicas de rotulação são apresentadas como forma de alcançar exatidão de rótulos comparável à de conjuntos verificados por humanos. Nas linhas 107–110, as 'two rigorous labeling techniques' (PRIMEVUL-NVDCHECK e PRIMEVUL-ONEFUNC) aparecem como meio de assegurar 'high label accuracy'. Já a mitigação do vazamento é atribuída à deduplicação e à divisão cronológica: linhas 31–32 ('rigorous data de-duplication and chronological data splitting strategy to mitigate data leakage issues'), linhas 66–67 ('Chronological splitting also reduces the risks of data leakage') e linhas 370–372 (divisão por data do commit 'to minimize the data leakage issue'). Nas linhas 111–112, a fonte diz que o PrimeVul como um todo também reduz a possibilidade de duplicação. Isso não autoriza atribuir à rotulação a redução do vazamento, e a frase corrigida não faz essa atribuição. A fonte não garante a eliminação do vazamento nem a ausência de contaminação no pré-treinamento; o texto mantém esse limite na Seção 6."
+            }
+          ]
+        }
+      ],
+      "estado": "integrado"
+    }
+  ],
+  "pedidos": [
+    {
+      "arquivo": "pedidos/001_revisar.txt",
+      "sha256": "9762b037eaa9ca05ae7e9e2bfc11eed76df381de5721ddf2ebc0eb7be2f239f2",
+      "papel": "revisar",
+      "versao": 1
+    },
+    {
+      "arquivo": "pedidos/002_corrigir.txt",
+      "sha256": "3f7616a1cc3d5b5ff7df1d14763bd66d5b9cfd60271fd673406cc22d0c75f383",
+      "papel": "corrigir",
+      "versao": 1
+    },
+    {
+      "arquivo": "pedidos/003_revisar.txt",
+      "sha256": "2cb706ec93ee60e791b3b7ea74a459273260c5e6f1f96be7371ac399bb89c3fc",
+      "papel": "revisar",
+      "versao": 2
+    },
+    {
+      "arquivo": "pedidos/004_corrigir.txt",
+      "sha256": "bea065ba7fa9a99d9fd13b8b53b4da6684334bb72fc5981ac1e3674ee1ef570e",
+      "papel": "corrigir",
+      "versao": 2
+    },
+    {
+      "arquivo": "pedidos/005_revisar.txt",
+      "sha256": "7917a6b1380edec9440000e935cfca1dce61d947499c56035da29bcfef6bb18a",
+      "papel": "revisar",
+      "versao": 3
+    }
+  ],
+  "eventos": [
+    {
+      "data_utc": "2026-10-09T00:27:10.202239+00:00",
+      "acao": "iniciar",
+      "detalhe": "artigo"
+    },
+    {
+      "data_utc": "2026-10-09T00:35:46.495293+00:00",
+      "acao": "redacao",
+      "detalhe": "Claude Opus 5.5, xhigh"
+    },
+    {
+      "data_utc": "2026-10-09T00:35:46.726974+00:00",
+      "acao": "pedido",
+      "detalhe": "revisar"
+    },
+    {
+      "data_utc": "2026-10-09T00:46:23.254933+00:00",
+      "acao": "parecer",
+      "detalhe": "corrigir"
+    },
+    {
+      "data_utc": "2026-10-09T00:46:23.795895+00:00",
+      "acao": "pedido",
+      "detalhe": "corrigir"
+    },
+    {
+      "data_utc": "2026-10-09T00:53:54.027209+00:00",
+      "acao": "correcao",
+      "detalhe": "v1 -> v2; exige nova revisão"
+    },
+    {
+      "data_utc": "2026-10-09T00:54:04.506265+00:00",
+      "acao": "pedido",
+      "detalhe": "revisar"
+    },
+    {
+      "data_utc": "2026-10-09T00:59:27.434214+00:00",
+      "acao": "parecer",
+      "detalhe": "corrigir"
+    },
+    {
+      "data_utc": "2026-10-09T00:59:33.212894+00:00",
+      "acao": "pedido",
+      "detalhe": "corrigir"
+    },
+    {
+      "data_utc": "2026-10-09T01:04:00.021949+00:00",
+      "acao": "correcao",
+      "detalhe": "v2 -> v3; exige nova revisão"
+    },
+    {
+      "data_utc": "2026-10-09T01:04:01.805705+00:00",
+      "acao": "pedido",
+      "detalhe": "revisar"
+    },
+    {
+      "data_utc": "2026-10-09T01:08:17.404468+00:00",
+      "acao": "parecer",
+      "detalhe": "aprovar"
+    },
+    {
+      "data_utc": "2026-10-09T01:08:19.572001+00:00",
+      "acao": "integrar",
+      "detalhe": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\texto\\secoes\\artigo_opus_extra_01.md"
+    }
+  ],
+  "integracao": {
+    "arquivo": "04_escrita/artigo/seminarios_2026/texto/secoes/artigo_opus_extra_01.md",
+    "sha256": "c6529a08b3d93a68103d8b2fa12790e8198d11f3374440b819307809ca6344af",
+    "verificacao": {
+      "arquivo": "entradas/verificacao_integracao.json",
+      "sha256": "91cdd8971d1a23745418e276a4d094fe80689c176ea6a0f11bffbc68e69d421b",
+      "origem": "arquivo_json"
+    },
+    "data_utc": "2026-10-09T01:08:19.572001+00:00"
+  },
+  "pendencias_redator": []
+}

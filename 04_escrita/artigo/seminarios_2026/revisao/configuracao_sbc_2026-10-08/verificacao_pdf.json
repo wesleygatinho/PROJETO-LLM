@@ -1,0 +1,122 @@
+{
+  "arquivo_tex": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\revisao\\introducao_2026-10-07\\previa_rascunho_sbc.tex",
+  "sha256_tex": "7efa6ed51cb6fc6d8ecdb8529745987e30c9f69996e564c2244a93f670bf6680",
+  "arquivo_pdf": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\revisao\\introducao_2026-10-07\\previa_rascunho_sbc.pdf",
+  "sha256_pdf": "a3c39573e75ed5f87800dd6f2fd8551bef8f9320e4700dfef2c20a23daea9481",
+  "paginas": 15,
+  "dimensoes_pt": [
+    0.0,
+    0.0,
+    595.276,
+    841.89
+  ],
+  "avisos_relevantes": [
+    "Underfull \\vbox (badness 10000) has occurred while \\output is active []",
+    "Underfull \\hbox (badness 1082) in paragraph at lines 526--527"
+  ],
+  "referencias_sem_interrogacao": true,
+  "marcadores": [
+    {
+      "pagina": 1,
+      "tabelas": [],
+      "inicio": "Detecção de vulnerabilidades com Qwen2.5-Coder no\nPrimeVul: desempenho global, pares vulnerável/corrigida e\nimplantação\nAutoria a "
+    },
+    {
+      "pagina": 2,
+      "tabelas": [],
+      "inicio": "a Transformers pré-treinados em código [Fu e Tantithamthavorn 2022] e, mais recente-\nmente, a modelos de linguagem de grande porte"
+    },
+    {
+      "pagina": 3,
+      "tabelas": [],
+      "inicio": "tempo nas duas implantações. A análise é retrospectiva e exploratória, pois o conjunto de\nteste foi consultado durante o desenvolv"
+    },
+    {
+      "pagina": 4,
+      "tabelas": [],
+      "inicio": "rótulo associado a uma função derivada de um commit de correção nem sempre corres-\nponde à vulnerabilidade; as taxas medidas por e"
+    },
+    {
+      "pagina": 5,
+      "tabelas": [
+        "Tabela 1",
+        "Tabela 1"
+      ],
+      "inicio": "3. Materiais e métodos\n3.1. Visão geral\nO estudo trata a detecção como classificação binária de funções C/C++ e compara três gru-\n"
+    },
+    {
+      "pagina": 6,
+      "tabelas": [
+        "Tabela 2",
+        "Tabela 2"
+      ],
+      "inicio": "código. Um analisador aceitou a primeira palavra de decisão reconhecida; respostas inde-\nfinidas seriam contadas como não vulneráv"
+    },
+    {
+      "pagina": 7,
+      "tabelas": [],
+      "inicio": "3.4. Seleção de época, implantação e recursos\nNas execuções originais, a época de cada classificador foi escolhida pela ordenação "
+    },
+    {
+      "pagina": 8,
+      "tabelas": [
+        "Tabela 3",
+        "Tabela 3"
+      ],
+      "inicio": "ordenação pareada, ao contrário, independe de limiar e resume a frequência com que a\nversão vulnerável recebe escore maior que a c"
+    },
+    {
+      "pagina": 9,
+      "tabelas": [
+        "Tabela 4",
+        "Tabela 5",
+        "Tabela 4",
+        "Tabela 5"
+      ],
+      "inicio": "O F1 foi baixo nas duas escalas, e o 7B ficou abaixo do 3B. A revocação um pouco\nmaior do 7B, 0,160 contra 0,144, veio acompanhada"
+    },
+    {
+      "pagina": 10,
+      "tabelas": [
+        "Tabela 4",
+        "Tabela 4",
+        "Tabela 5",
+        "Tabela 6"
+      ],
+      "inicio": "tendem a ser mais longas que as não vulneráveis. Nos pares, porém, a ordenação pareada\nda mesma heurística foi de apenas 21,10%. C"
+    },
+    {
+      "pagina": 11,
+      "tabelas": [
+        "Tabela 6",
+        "Tabela 5",
+        "Tabela 7",
+        "Tabela 6"
+      ],
+      "inicio": "Tabela 6. Ordenação pareada do 7B: média das três sementes, desvio padrão\nentre sementes e intervalo percentil de 95% porbootstrap"
+    },
+    {
+      "pagina": 12,
+      "tabelas": [
+        "Tabela 7"
+      ],
+      "inicio": "Tabela 7. Recursos do 7B na NVIDIA A40, com Transformers, lotes de até 32.768\ntokens e contexto de 2.048 tokens. Memória CUDA aloc"
+    },
+    {
+      "pagina": 13,
+      "tabelas": [],
+      "inicio": "determinísticas, raciocínio infiel e baixa robustez em oito LLMs. Este estudo usou uma\núnica instrução sem exemplos, com decodific"
+    },
+    {
+      "pagina": 14,
+      "tabelas": [],
+      "inicio": "funções longas e torna idênticas as entradas de 32 pares. A ordenação pareada dá meio\ncrédito aos empates e, por isso, não equival"
+    },
+    {
+      "pagina": 15,
+      "tabelas": [],
+      "inicio": "Chen, Y .; Ding, Z.; Alowain, L.; Chen, X.; Wagner, D. (2023). DiverseVul: A New Vulne-\nrable Source Code Dataset for Deep Learnin"
+    }
+  ],
+  "limite": "Extração de texto e renderização não substituem inspeção visual; conferência das imagens realizada separadamente."
+}

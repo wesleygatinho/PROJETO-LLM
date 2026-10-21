@@ -1,0 +1,459 @@
+<!-- pagina 1 -->
+Segmentac¸a˜o de Ve´rtebras e Diagno´stico de Fraturas em
+Imagens de Ressonaˆncia Magne´tica Utilizando U-Net 3D e
+Deep Belief Network
+AndersonMatheusPassosPaiva1,Joa˜oOta´vioBandeiraDiniz1,
+Aristo´fanesCorreˆaSilva1,AnselmoCardosodePaiva1
+1Nu´cleodeComputac¸a˜oAplicada–UniversidadeFederaldoMaranha˜o(UFMA)
+CampusBacanga–Sa˜oLu´ıs–MA
+{andersonpaiva,joao.bandeira,ari,paiva}@nca.ufma.br
+Abstract. Lumbarpainisacommonreasonforclinicalvisitsandmagneticres-
+onance imaging is frequently used in systems to support the diagnosis of spinal
+pathologies. Aiming to improve and automate this process, this study propo-
+ses the use of computational techniques for the segmentation of vertebrae in
+magnetic resonance imaging, with the purpose of performing further analysis
+about pathologies in the spine. To achieve this goal, two Deep Learning archi-
+tectures are used: U-Net for 3D segmentation and Deep Belief Network for the
+classification of vertebrae with rupture or not. The results show that U-Net is
+promisingtolocalizethevertebraregion,obtaininganaverageDiceCoefficient
+valueof89,51%,thusovercomingseveralimportantstudiesfocusedonthepro-
+blem. Classification was also efficient, with values of 94.38% for accuracy and
+88.8%forsensitivity.
+Resumo. A dor lombar e´ uma raza˜o comum para visitas cl´ınicas e o exame de
+ressonaˆncia magne´tica e´ frequentemente utilizado em sistemas de apoio a di-
+agno´stico de patologias na coluna. Visando aprimorar e automatizar esse pro-
+cesso,esteestudopropo˜eousodete´cnicascomputacionaisparaasegmentac¸a˜o
+de ve´rtebras em imagens de ressonaˆncia magne´tica, com o objetivo de realizar
+posteriores ana´lises acerca de patologias na coluna. Para este fim, sa˜o utili-
+zadas duas arquiteturas de Deep Learning: a U-Net para a segmentac¸a˜o em
+3D e a Deep Belief Network para a classificac¸a˜o de ve´rtebras que apresen-
+tam ruptura ou na˜o. Os resultados obtidos mostram que a U-Net e´ promissora
+em localizar a regia˜o da ve´rtebra, obtendo um valor de Coeficiente de Dice
+me´dio de 89,51%, superando assim va´rios trabalhos importantes focados no
+problema. Aclassificac¸a˜otambe´msemostroueficiente,comvaloresde94,38%
+paraacura´ciae88,8%desensibilidade.
+1. Introduc¸a˜o
+Problemas na coluna, em geral dor lombar, veˆm se mostrando muito frequentes e sua
+ocorreˆncia apenas aumenta ao longo dos anos [Freburger et al. 2009]. Cerca de 80% da
+populac¸a˜osofrededornascostasemalgummomentodesuasvidase,emborafelizmente
+a grande maioria se recupere sem intervenc¸a˜o me´dica ou ciru´rgica, para outros esse tipo
+deproblemapersisteepodeinterferirnavidacotidiana[ANA2019].
+
+<!-- pagina 2 -->
+Em geral, para patologias envolvendo as ve´rtebras, sa˜o utilizados exames de raio
+X,contudoumdiagno´sticomaiseficientee´ realizadobaseadoemimagensdeTomografia
+Computadorizada(TC)eRessonaˆnciaMagne´tica(RMI).Oriscodecaˆncerdecorrenteda
+exposic¸a˜o a` radiac¸a˜o em TC torna a RMI prefer´ıvel em rotinas cl´ınicas [Richards et al.
+2010]. Ale´mdisso,imagensderaioX(quesa˜o2D)eTCna˜orevelamtodasaspatologias
+devido a` baixa sensibilidade dos tecidos moles. Nesse caso, o uso de RMI na˜o e´ apenas
+recomenda´vel,masnecessa´rio.
+Patologiascomoescoliose(curvaturanadirec¸a˜oanatoˆmicaesquerda-direita),fra-
+tura vertebral (ve´rtebra comprometida) e espondilolistese (ve´rtebra desalinhada) podem
+serdiagnosticadasapartirdasformas,posic¸o˜eseorientac¸o˜esdasve´rtebras;portanto,suas
+segmentac¸o˜es sa˜o um passo necessa´rio para o diagno´stico. Fraturas, em especial, geral-
+mente sa˜o causadas por estresse mecaˆnico aplicado a um osso enfraquecido, tipicamente
+resultadodeosteoporose. Napra´ticacl´ınica,odiagno´sticoe´ geralmenteestabelecidocom
+basenaimpressa˜oqualitativadoespecialista[Lenchiketal. 2004].
+Nesse contexto, ha´ uma abundaˆncia de me´todos de segmentac¸a˜o para ve´rtebras
+em imagens de TC, o que e´ mais fa´cil de ser feito devido a`s altas intensidades entre o
+osso cortical e o tecido mole adjacente [Zukic´ et al. 2014]. De fato, me´todos para a
+segmentac¸a˜o 3D de ve´rtebras em RMI sa˜o mais desafiadores. Por exemplo, em imagens
+de TC as bordas o´sseas sa˜o as u´nicas que apresentam alta intensidade. Isso na˜o acontece
+quando trabalha-se com RMI, onde bordas entre alguns tipos de tecidos e ate´ dentro do
+pro´prio corpo vertebral podem ser evidenciados. Ale´m disso, as intensidades na˜o sa˜o
+homogeˆneas em imagens de ressonaˆncia, mesmo dentro de uma regia˜o (o centro de uma
+ve´rtebra possui maiores intensidades e melhor contraste do que as regio˜es marginais).
+Imagens de TC possuem a escala de unidade Hounsfield (HU) [Brooks 1977], o que na˜o
+existeemRMI.
+Va´riasabordagensja´ foramutilizadasparaasegmentac¸a˜odeimagensme´dicasem
+RMI, e existem trabalhos com grande contribuic¸a˜o envolvendo ve´rtebras e coluna verte-
+bral, desde me´todos envolvendo te´cnicas mais ba´sicas como thresholding (limiarizac¸a˜o),
+como te´cnicas mais robustas que incluem: crescimento de regia˜o, modelos deforma´veis,
+Graph-Cut, modelos estat´ısticos baseados em forma e, mais recentemente, Deep Lear-
+ning ou aprendizagem profunda, que se refere a redes neurais com muitas camadas que
+extraemcaracter´ısticasdeimagens. Abordagensdesegmentac¸a˜obaseadasemaprendiza-
+gem profunda para RMI esta˜o despertando interesse devido a sua capacidade de autoa-
+prendizagemegeneralizac¸a˜osobregrandesquantidadesdedados[Akkusetal. 2017].
+Dito isso, o objetivo deste trabalho e´ segmentar, de forma automa´tica e utili-
+zandooespac¸otridimensional,ve´rtebrasemRMI,pararealizaremseguidadiagno´sticode
+ve´rtebras fraturadas. Decidiu-se optar por utilizar te´cnicas de Deep Learning, pois estas
+possuem alta capacidade em extrair caracter´ısticas e obter uma representac¸a˜o complexa
+e abstrata dos dados, ale´m de que ainda ha´ muito o que se explorar nessa a´rea acerca de
+aplicac¸o˜esemimagensdecoluna. Paraisso,utilizou-seaU-Net,umadasprincipaisredes
+neuraisnoqueserefereasegmentac¸a˜odeimagensme´dicas,paraadetecc¸a˜odeve´rtebras
+em treˆs dimenso˜es, e a Deep Belief Network para classificar ve´rtebras em duas classes:
+comesemapresenc¸adefratura.
+O me´todo proposto mostra-se bastante relevante para a comunidade cient´ıfica.
+
+<!-- pagina 3 -->
+E´ proposto um me´todo completamente automa´tico para auxiliar especialistas na˜o so´ na
+segmentac¸a˜odasve´rtebras,mastambe´mnaclassificac¸a˜odestasemve´rtebrascomousem
+fraturas. Ainda,pode-selistarumase´riedecontribuic¸o˜esqueotrabalhoenglobou: (a)um
+me´todo de segmentac¸a˜o/detecc¸a˜o de ve´rtebras automa´tica baseada em duas U-Net para
+segmentarcommaiseficieˆnciadoistiposdeve´rtebras;(b)inserc¸a˜odeinformac¸o˜es3Dna
+U-Net, gerando resultados mais promissores quando trata-se de RMI; e (c) utilizac¸a˜o de
+uma Deep Belief Network, classificando o resultado da segmentac¸a˜o das redes U-Net em
+ve´rtebrascomousemfraturas. Assim,afirma-sequeome´todopropostopodeserutilizado
+em grandes centros, com o intuito de na˜o so´ auxiliar o especialista na segmentac¸a˜o das
+ve´rtebras,mastambe´mclassifica´-lasemve´rtebrasfraturadas.
+Ale´m desta sec¸a˜o de introduc¸a˜o, o trabalho ainda apresenta mais 4 sec¸o˜es. Na
+Sec¸a˜o 2, sera˜o discutidos os trabalhos relacionados, os quais apresentam me´todos tanto
+para segmentac¸a˜o quando classificac¸a˜o de ve´rtebras. Os materiais e o me´todo proposto
+nestetrabalhosera˜odescritosnaSec¸a˜o3. ASec¸a˜o4apresentaosresultadosediscusso˜es
+da aplicac¸a˜o do me´todo. Por fim, na Sec¸a˜o 5, conclui-se este trabalho apresentando me-
+lhoriasfuturasparaome´todo.
+2. Trabalhos Relacionados
+NaSec¸a˜o1,discutiu-sealgumasclassesdeme´todosmaisutilizadasparaasegmentac¸a˜ode
+ve´rtebras em imagens de Ressonaˆncia Magne´tica. Agora, sera´ feita uma breve discussa˜o
+sobreosprincipaistrabalhosja´ desenvolvidosacercadesseassunto.
+Uma abordagem que obteve resultados promissores utilizou Active Shape Models
+(ASM) e foi proposta por Neubert et al. (2011). Nesse trabalho, ale´m das ve´rtebras,
+foram segmentados os discos intervertebrais. O me´todo automa´tico foi testado em uma
+base de 14 pacientes, com um total de 132 ve´rtebras, e obteve um valor de Coeficiente
+de Dice (DSC) [Dice 1945] de 91%. Aqui, a segmentac¸a˜o das ve´rtebras de cada paciente
+levavaemtornode5h,ale´mdabasededadosapresentarapenaspacientessauda´veis.
+Zukic´ et al. (2014) apresentou um me´todo que detecta e segmenta ve´rtebras com
+m´ınima intervenc¸a˜o do usua´rio, ale´m de realizar diagno´stico automa´tico para detectar
+escoliose, espondilolistese e ve´rtebras fraturadas. Para isso, foi utilizado o me´todo de
+Viola-Jonesparadetecc¸a˜odoscentrosdasve´rtebraseumacombinac¸a˜odemapadeproba-
+bilidades contendo caracter´ısticas de intensidades e bordas com Balloon Inflation Forces
+para a segmentac¸a˜o 3D das ve´rtebras a partir de modelos deforma´veis. Com o resul-
+tado da segmentac¸a˜o, foram deduzidas me´tricas para obter os diagno´sticos. Apesar da
+segmentac¸a˜o na˜o ter ultrapassado o valor de 80% de Coeficiente de Dice, o resultado ob-
+tido foi suficiente para realizar os diagno´sticos de forma satisfato´ria, uma vez que foram
+encontradosapenas5,5%defalso-positivos.
+Schwarzenberg et al. (2014) optou por um me´todo baseado em grafos, pelo qual
+deuonomedeCube-Cut. Oalgoritmogeraumgrafodirecionadocomdoisno´sterminais,
+onde os no´s do grafo correspondem a um subconjunto dos voxels da imagem em forma
+de cubo. Os pesos das arestas, que conectam cada no´ a uma fonte s ou um sorvedouro
+t, representam a afinidade do voxel com a ve´rtebra (fonte) e com o fundo (sorvedouro).
+Apo´s a construc¸a˜o do gra´fico, um corte m´ınimo e´ realizado para separar as duas regio˜es.
+O valor me´dio de DSC obtido foi de 81,33%. O trabalho foca bastante na velocidade de
+execuc¸a˜odome´todo,quefoiexecutadoemmenosdeumminuto.
+
+<!-- pagina 4 -->
+A ideia de utilizar um limiar para realizar a segmentac¸a˜o ja´ foi explorada em al-
+guns trabalhos, pore´m em combinac¸a˜o com outras te´cnicas. Em seu me´todo, Chu et al.
+(2015) localizou automaticamente os corpos vertebrais para definir regio˜es de interesse
+(ROIs) para uma etapa de segmentac¸a˜o subsequente, onde uma Random Forest foi utili-
+zadaparaestimaraprobabilidadedecadapixeldentrodasROIspertenceraoobjetoouao
+fundo. Osresultadosforamcombinadoscomummapadeprobabilidadesparasegmentar
+ocorpovertebralviathresholding,conseguindoassimumDSCde88,7%.
+Obtendo grande destaque na a´rea, Korez et al. (2016) introduziu uma abordagem
+baseadaemredesneuraisconvolucionais(CNNs)nasegmentac¸a˜odacolunaemRMI.Seu
+me´todoaliouASMcommapasdelikelihood dasve´rtebrasealcanc¸ouumDSCme´diode
+93,4%. Korez treinou e testou seu me´todo em 23 pacientes, os mesmos utilizados no
+trabalhodeChuetal. (2015).
+Levando em considerac¸a˜o trabalhos utilizando crescimento de regia˜o, destaca-se
+o de Egger et al. (2017), que utilizou um me´todo baseado em autoˆmato celular chamado
+GrowCut. Foi utilizada a implementac¸a˜o contida na ferramenta Slicer. O valor me´dio de
+DSCencontradofoide82,99%.
+Por fim, destaca-se o trabalho de Hille et al. (2018) que, assim como alguns tra-
+balhos anteriores, tambe´m utilizou mapa de probabilidades em seu me´todo. Foi utilizada
+uma abordagem baseada em level-sets, onde buscou-se estimar a curva que melhor re-
+presentasse a ve´rtebra. Contudo, ale´m da inicializac¸a˜o do me´todo ser manual, o DSC
+encontradocomessaabordagemfoide86%,inferioraoutrosresultadosencontradospre-
+viamente.
+E´ importantenotarqueomelhorresultadoobtidodentreostrabalhosdoestadoda
+artefoiencontradoutilizandoDeepLearning,oqueapontaparaaefica´ciademe´todosda
+a´rea no problema em questa˜o. Apesar disso, muitos me´todos de aprendizagem profunda
+aindana˜oforamutilizadose,considerandoquemodelosdeDeepLearningsa˜opoderosas
+ferramentas de aprendizado e extrac¸a˜o de caracter´ısticas, torna-se interessante investigar
+essaa´rea.
+Ale´m disso, a maior parte dos trabalhos apresentam alguma limitac¸a˜o em relac¸a˜o
+a base utilizada ou ao me´todo, seja utilizando uma base apenas com pacientes sauda´veis,
+ou desconsiderando ve´rtebras de determinada regia˜o, ou utilizando me´todos semi-
+automa´ticos(me´todosdecrescimentoderegia˜o,porexemplo,necessitamdeinicializac¸a˜o
+manual). Nesse ponto, o trabalho de Zukic´ et al. (2014) leva vantagem, apesar de apre-
+sentaromenorvalordeDSC.
+Assim,ome´todoaquipropostobuscasuperaressaslimitac¸o˜esdiantedostrabalhos
+expostos, ale´m de realizar uma etapa adicional de classificac¸a˜o, o que na˜o e´ feito pela
+maior parte dos trabalhos da a´rea (novamente, dentre os trabalhos citados, apenas o de
+Zukic´ etal. (2014)realizaumaetapadeclassificac¸a˜o).
+3. Materiais e Me´todo
+O me´todo proposto esta´, basicamente, dividida em quatro etapas. Os materiais utilizados
+no trabalho sa˜o apresentados na etapa de aquisic¸a˜o de imagens. A segunda etapa e´ a de
+pre´-processamento,eneladescreve-seome´tododecorrec¸a˜odebiasfield. Asegmentac¸a˜o
+dasve´rtebrase´ aterceiraetapa,ondeutiliza-seduasredesU-Netparaaregia˜odave´rtebra
+
+<!-- pagina 5 -->
+serobtida. Porfim,e´ apresentadaaetapadeclassificac¸a˜o. Nela,utiliza-seasa´ıdadaetapa
+anteriorcomoentradaemumaDeepBeliefNetwork,comoobjetivodedetectarve´rtebras
+comfratura.
+Umaetapaadicionale´ adevalidac¸a˜o,quee´ discutidacommaisdetalhesnasec¸a˜o
+seguinte. AFigura1ilustraospassosdome´todo.
+3.1. Aquisic¸a˜odeImagens
+O foco desse trabalho esta´ na segmentac¸a˜o de ve´rtebras lombares e sacro, apesar de
+tambe´m ser aplicado em ve´rtebras tora´cicas. A coluna vertebral humana e´ dividida em
+cinco regio˜es: coluna cervical (sete ve´rtebras), coluna tora´cica (doze ve´rtebras), coluna
+lombar(cincove´rtebras)easregio˜essacralecocc´ıgea. Acolunalombarouparteinferior
+das costas e´ a terceira maior parte da coluna vertebral e esta´ localizada abaixo da regia˜o
+tora´cica, consistindo de cinco ve´rtebras separadas, denominadas sequencialmente de L1
+a L5. A coluna lombar e´ projetada para ser forte e para proteger a medula espinhal al-
+tamente sens´ıvel e as ra´ızes nervosas espinhais, mas, ao mesmo tempo, e´ flex´ıvel para
+proporcionarmobilidade[Mendieta2016].
+Figura1. Etapasdome´todo
+Uma ve´rtebra lombar t´ıpica pode ser descrita como uma estrutura o´ssea irregular
+com nomes espec´ıficos para essas irregularidades. Cada ve´rtebra lombar pode ser sub-
+dividida em treˆs regio˜es principais: corpo vertebral, ped´ıculos e elementos posteriores.
+Os corpos vertebrais sa˜o conectados entre si pelos discos intervertebrais, e de L1 a L5 o
+tamanhodoscorposvertebraisaumenta,oquee´ umindicativodoaumentodacargaparaa
+ve´rtebralombarinferior. Ocorpovertebrale´ perfeitamentemoldadoparalidarcomessas
+cargas, pois e´ semelhante a uma caixa, com as superf´ıcies superior e inferior substanci-
+almente planas, e as superf´ıcies anterior e lateral ligeiramente coˆncavas. Esse design de
+suporte de carga tambe´m e´ refletido na estrutura interna. A casca externa e´ feita de osso
+corticalaoredordeumnu´cleoo´sseoesponjoso.
+A base de imagens utilizada foi obtida de exames de 17 pacientes que foram dis-
+ponibilizados pelo trabalho de Zukic´ et al. (2014) em formato DICOM, em um total
+de 160 ve´rtebras com patologias ou na˜o. Todos os exames possuem marcac¸o˜es de re-
+fereˆncia,eapresentamdiversidadeemtiposdeve´rtebras,contrasteseve´rtebrassauda´veis
+epatolo´gicas.
+O nu´mero de ve´rtebras para cada paciente varia, e ao todo trabalhou-se com 13
+tipos diferentes, sendo 7 da regia˜o tora´cica (de T6 a T12), 5 da regia˜o lombar (de L1 a
+L5)eumadaregia˜osacral(S1). AFigura2ilustraumafatiadeumpacientedoconjunto,
+
+<!-- pagina 6 -->
+exibindoaoladoamarcac¸a˜odoespecialistaem9ve´rtebras: 3tora´cicas(T10,T11eT12),
+as5lombareseave´rtebrasacral.
+3.2. Pre´-Processamento
+Antesderealizaraetapadesegmentac¸a˜o,foirealizadoacorrec¸a˜odebiasfield[Juntuetal.
+2005] da base de imagens. Esse pre´-processamento e´ necessa´rio porque a intensidade
+do campo magne´tico na˜o e´ perfeitamente homogeˆnea em todo o volume de aquisic¸a˜o, e
+assim o mesmo tecido pode ter diferentes intensidades em diferentes partes da imagem.
+Dessaforma,encontra-seessecampoaditivocomoobjetivodetornarasintensidadeseo
+contrastedasimagensmaishomogeˆneos.
+Acorrec¸a˜odebiasfield e´ ilustradanaFigura3.
+Figura2. Exemplodeimagemdabase. (a)FatiadopacienteF02(b)Marcac¸a˜odo
+especialistaparaafatia.
+Figura3. Correc¸a˜odebiasfield. (a)Figuraoriginal(b)Comcorrec¸a˜o
+3.3. Segmentac¸a˜odasVe´rtebrascomU-Net3D
+Aredeneuralescolhidaparaasegmentac¸a˜onessetrabalhofoibaseadanotrabalhodeLu
+et al. (2018) e e´ a U-Net [Ronneberger et al. 2015], que provou ser eficaz em tarefas de
+segmentac¸a˜omesmocomdadoslimitadosetemsidousadaparasegmentac¸a˜odeimagens
+me´dicas. Contudo,notrabalhoderefereˆncia,elafoiutilizadaem2Decomumamarcac¸a˜o
+manual simplificada, na˜o correspondendo fielmente a uma ma´scara obtida por marcac¸a˜o
+deespecialistas.
+
+<!-- pagina 7 -->
+Um problema apresentado e discutido no trabalho de Lu et al. (2018) se refere a
+ve´rtebra sacral, uma vez que, ao utilizar apenas uma rede para a segmentac¸a˜o, os resul-
+tados ficavamabaixo do esperado devidoa essa ve´rtebra apresentarformato diferenciado
+das demais (trapezoidal em vez de retangular). Assim, a soluc¸a˜o encontrada foi treinar
+uma U-Net para as ve´rtebras tora´cicas e lombares e treinar outra U-Net apenas com as
+ve´rtebras do sacro. Decidiu-se enta˜o adotar essa abordagem, pore´m a segunda rede foi
+treinada com a u´ltima ve´rtebra lombar (L5) em conjunto com a sacral, visto que resul-
+tados preliminares apontaram que a U-Net tambe´m apresentou problemas em segmentar
+essave´rtebra.
+3.4. Classificac¸a˜odasVe´rtebrascomDeepBeliefNetwork
+Paraaetapadeclassificac¸a˜o,utilizou-seaDeepBeliefNetwork(DBN),baseadanotraba-
+lho de Liu et al. (2017), que utiliza essa rede neural para classificac¸a˜o de d´ıgitos da base
+MNIST [LeCun and Cortes 2010] e cita que, recentemente, DBNs teˆm sido aplicadas a`
+classificac¸a˜odeimagens,obtendobonsresultados. Essasredessa˜outilizadasparaextrair
+caracter´ısticas de imagens que, por fim, sa˜o classificadas utilizando algum classificador
+simples(porexemplo,umafunc¸a˜odeativac¸a˜osoftmax).
+UmaDBNpodeserdefinidacomova´riasma´quinasrestritasdeBoltzmann(RBM,
+do ingleˆs Restricted Boltzmann Machine) empilhadas, na qual cada camada da RBM se
+comunicacomascamadasanterioreposterior. UmaRBM,porsuavez,e´ umaredeneural
+estoca´sticabaseadaemenergia. Aarquiteturaba´sicadessaredeconsisteemumacamada
+vis´ıvel e uma camada escondida. A camada vis´ıvel representa os dados observados e a
+camadaocultatentaaprenderaextraircaracter´ısticassobreessesdados.
+Assim, sa˜o utilizadas as imagens resultantes do processo de segmentac¸a˜o como
+entradaparaaDBN.Ale´mdisso,comoodiagno´sticodefraturae´ feitoparacadave´rtebra
+separadamente, considerou-se para a entrada da rede cada ve´rtebra individualmente em
+vezdeumaimagemcompletadeumpaciente.
+Por fim, obteve-se um modelo capaz de segmentar e classificar ve´rtebras. A
+validac¸a˜odome´todoe´ discutidanapro´ximasec¸a˜o,ondeutilizou-seoCoeficientedeDice
+para avaliar a segmentac¸a˜o e as me´tricas de acura´cia, sensibilidade e especificidade para
+avaliaraclassificac¸a˜o.
+4. Resultados e Discussa˜o
+Nesta sec¸a˜o sera˜o apresentados e avaliados os resultados obtidos nas etapas de
+segmentac¸a˜o e classificac¸a˜o, em conjunto com discusso˜es de resultados de outros tra-
+balhosrelevantes.
+4.1. Segmentac¸a˜o3D
+Aqui, a arquitetura utilizada para as redes U-Net foi similar a` do trabalho de Lu et al.
+(2018). As dimenso˜es de entrada/sa´ıda da rede foram de 512x512x15, o que difere do
+trabalho de refereˆncia por trabalhar com o volume, e na˜o uma fatia como entrada. Fo-
+ramutilizados5mo´dulosdemax-pooling/up-pooling,ale´mde2camadasconvolucionais
+por mo´dulo. A func¸a˜o de ativac¸a˜o final da rede foi a sigmo´ide e houve o uso de batch
+normalization. Ataxadeaprendizadoutilizadafoide0,01.
+
+<!-- pagina 8 -->
+Apo´s o me´todo proposto ter sido executado, foram obtidas as segmentac¸o˜es 3D
+para cada ve´rtebra. A Figura 4 ilustra uma imagem de uma fatia (4a) ao lado do ground
+truth(4b)eoresultadodasegmentac¸a˜ocomaU-Net(4c).
+Figura 4. Resultado da segmentac¸a˜o 3D com a U-Net para uma fatia. (a) Fatia
+original(b)Marcac¸a˜odoespecialista(c)Segmentac¸a˜odome´todoproposto
+Os resultados obtidos foram validados com o Coeficiente de Dice (DSC), que e´
+um ´ındice utilizado para comparar a similaridade de duas amostras [Zou et al. 2004].
+Ele se baseia na sobreposic¸a˜o de dois conjuntos, podendo assumir valores de 0 a 1 (valor
+ideal),easuafo´rmulae´ dadapor:
+2|A∩B|
+DSC(A,B) = (1)
+|A+B|
+Vale ressaltar que, dentre os trabalhos do estado da arte que foram analisados e
+possuem o mesmo objetivo, o DSC e´ a principal me´trica para avaliar os resultados, por
+isso decidiu-se focar nesta me´trica. Dito isso, o valor me´dio de DSC encontrado para a
+etapa de segmentac¸a˜o do me´todo proposto foi de 0,8951. Para a U-Net responsa´vel por
+segmentar as u´ltimas duas ve´rtebras (L5 e S1), o DSC encontrado foi de 0,8587, e para a
+outra rede o valor foi de 0,9035. Uma ana´lise objetiva e subjetiva dos resultados nos leva
+aentenderqueaU-Netaindaapresentaproblemasemcaracterizarasregio˜esdebordadas
+ve´rtebras.
+Uma comparac¸a˜o com os trabalhos mais relevantes e´ feita na Tabela 1. Os
+me´todosdeSchwarzenbergetal. (2014)eEggeretal. (2017)tambe´mutilizaramimagens
+dabasedeZukic´ etal. (2014),pore´mtrabalharamcomumnu´meroreduzidodeve´rtebras
+(10e13,respectivamente). Ome´tododeKorezetal. (2016)trabalhoucomabasedispo-
+nibilizadaporChuetal. (2015)de23examesdepacientessauda´veis. Ome´tododeHille
+et al. (2018) foi o que trabalhou com mais exames, utilizando as bases de Zukic´ et al.
+(2014), Chu et al. (2015) e mais duas bases privadas. Finalmente, o trabalho de Neubert
+et al. (2011) utilizou uma base pro´pria de 28 exames de pacientes sauda´veis que na˜o se
+encontramaisdispon´ıvelate´ enta˜o.
+Comessesresultados,pode-senotarqueome´todopropostosuperouboapartedos
+trabalhosanterioreslevandoemconsiderac¸a˜ooCoeficientedeDice. Emcomparac¸a˜ocom
+os trabalhos de Neubert et al. (2011) e Korez et al. (2016), que apresentaram melhores
+resultados, percebe-se que aqui o me´todo foi aplicado em uma base de imagens mais
+diversa,levandoemconsiderac¸a˜oostiposdeve´rtebras(aquiforamutilizados13tiposem
+
+<!-- pagina 9 -->
+contrapartidaaosoutrosme´todosqueforamaplicadosemmenosve´rtebras)eoscontrastes
+utilizados (dois tipos em vez de um). Mesmo assim, o valor de DSC obtido e´ satisfato´rio
+e se equipara aos valores obtidos ao comparar segmentac¸o˜es manuais entre diferentes
+especialistas, que costumam variar entre 86% e 96%, como comentado no trabalho de
+Zukic´ etal. (2014).
+Outro fator que impacta diretamente nos resultados obtidos e que tambe´m e´ men-
+cionado por Zukic´ et al. (2014) e´ o fato de que os trabalhos de Neubert et al. (2011) e
+Korez et al. (2016) foram aplicados em uma base de pacientes sauda´veis. Pacientes com
+patologias mais graves, como ve´rtebra fraturada, apresentam DSC mais baixos do que
+pacientes com ve´rtebras sauda´veis. Portanto, patologias naturalmente reduzem a taxa de
+detecc¸a˜o.
+Tabela 1. Comparac¸a˜o de resultados de segmentac¸a˜o do me´todo proposto com
+oestadodaarte. *indicacampona˜oespecificado.
+Me´todo Ve´rtebras Contraste DSC(%)
+[Zukic´ etal. 2014] T6–S1 T1-,T2-w 79,3
+[Schwarzenbergetal. 2014] L1–L5 T2-w 81,33
+[Eggeretal. 2017] * T2-w 82,99
+[Hilleetal. 2018] T1–L5 T2-w 86,0
+[Chuetal. 2015] T11–L5 T2-w 88,7
+[Neubertetal. 2011] T8–L5 T2-w 91,0
+[Korezetal. 2016] T11–L5 T2-w 93,4
+Proposto T6–S1 T1-,T2-w 89,51
+4.2. Classificac¸a˜o
+Na arquitetura da DBN, trabalhou-se com os resultados da segmentac¸a˜o da U-Net consi-
+derando as fatias de cada paciente, e na˜o o volume. A dimensa˜o de entrada da rede foi
+de 40x40, onde foi considerado cada pixel da imagem correspondendo a um neuroˆnio da
+camadadeentrada. Foiutilizadaaproporc¸a˜o80/20paratreinoeteste.
+Para a RBM, foram utilizadas duas camadas escondidas com 256 neuroˆnios. A
+taxa de aprendizado foi definida como 0,05 e utilizou-se 10 e´pocas para treino das cama-
+dasdeRBMe100e´pocasnaetapadebackpropagation. Aqui,afunc¸a˜odeativac¸a˜oesco-
+lhida foi a ReLU. Novamente fez-se uso de batch normalization, pore´m com acre´scimo
+deDropout paracadacamadade0,2.
+Apo´sotreinodarede,das160imagensdeteste,151foramclassificadasdeforma
+correta, obtendo-se assim uma acura´cia de 94,38%. A Tabela 2 ilustra melhor os resul-
+tados da classificac¸a˜o para as classes e as principais me´tricas sa˜o mostradas na Tabela
+3. Com isso, podemos notar que a rede conseguiu identificar quase todas as ve´rtebras
+danificadas.
+Nota-sepelosresultadosqueabaseseapresentabemdesbalanceada,compoucos
+exemplos de ve´rtebras com fratura. Logo, a rede aprendeu melhor as caracter´ısticas de
+ve´rtebras sem fratura. Mas, se tratando de diagno´stico cl´ınico, o mais importante e´ na˜o
+deixar uma ve´rtebra com fratura ser diagnosticada de forma erroˆnea. Por esse lado, a
+DBNso´ errounaclassificac¸a˜odeumave´rtebrafraturada.
+
+<!-- pagina 10 -->
+Em comparac¸a˜o ao trabalho de Zukic´ et al. (2014), que tambe´m realizou di-
+agno´sticodefraturas,aDBNobteveresultadosinferiores,umavezqueome´tododeZukic´
+etal. (2014)conseguiuidentificartodososcasosemqueave´rtebrarealmenteapresentava
+fratura e apresentou uma taxa menor de falso-positivos. Isso mostra que os resultados de
+diagno´sticoestabelecidosusandonossome´todoaindaprecisamserotimizados.
+Tabela2. Matrizdeconfusa˜oparaaclassificac¸a˜odasve´rtebrascomDBN
+Real\Predic¸a˜o Comfratura Semfratura
+Comfratura 8 1
+Semfratura 8 143
+Tabela3. Me´tricasparaaclassificac¸a˜odasve´rtebrascomDBN
+Me´tricas Acura´cia Sensibilidade Especificidade
+Valores 94,38% 88,89% 94,7%
+5. Conclusa˜o
+Neste trabalho foi apresentada um me´todo automa´tico para a segmentac¸a˜o de ve´rtebras
+em RMI com o uso da U-Net 3D e classificac¸a˜o de ve´rtebras quanto a` presenc¸a ou na˜o
+de fratura utilizando a Deep Belief Network. Os resultados obtidos nos mostram que a
+U-Net foi eficiente na etapa de segmentac¸a˜o em 3D, obtendo um Coeficiente de Dice
+de 89,51%, o que e´ um valor satisfato´rio comparado ao estado da arte e a`s diferentes
+segmentac¸o˜es de especialistas. Outro fator que valida positivamente o resultado obtido
+e´ que a segmentac¸a˜o na˜o e´ feita apenas em ve´rtebras sauda´veis, o que na˜o acontece na
+maiorpartedosoutrostrabalhos. Ale´mdisso,naetapadeclassificac¸a˜o,aDBNconseguiu
+88,89% de sensibilidade e, em diagno´stico cl´ınico de fraturas, a sensibilidade e´ a me´trica
+maisimportanteaserconsiderada.
+Para trabalhos futuros a respeito da segmentac¸a˜o com a U-Net, preveˆ-se ajustes
+deparaˆmetrose possivelmenteousode outrasarquiteturasde redesneuraisete´cnicasde
+Deep Learning. Na etapa de classificac¸a˜o, pretende-se investigar outros tipos de anoma-
+lias presentes na coluna, ale´m da aplicac¸a˜o de te´cnicas de balanceamento ou pesos para
+asclassesdabase.
+OpresentetrabalhofoirealizadocomapoiodaCoordenac¸a˜odeAperfeic¸oamento
+dePessoaldeN´ıvelSuperior–Brasil(CAPES)–Co´digodeFinanciamento001.
+Refereˆncias
+Akkus, Z., Galimzianova, A., Hoogi, A., Rubin, D. L., and Erickson, B. J. (2017). Deep
+learning for brain mri segmentation: state of the art and future directions. Journal of
+digitalimaging,30(4):449–459.
+ANA (2019). Spine disorders, deformities and diseases. https:
+//ana-neurosurgery.com/areas-of-expertise/
+spine-disorders-deformities-diseases/. Acesso em: 15 de fe-
+vereirode2019.
+
+<!-- pagina 11 -->
+Brooks, R. A. (1977). A quantitative theory of the hounsfield unit and its application to
+dualenergyscanning. Journalofcomputerassistedtomography,1(4):487–493.
+Chu, C., Belavy`, D. L., Armbrecht, G., Bansmann, M., Felsenberg, D., and Zheng, G.
+(2015). Fully automatic localization and segmentation of 3d vertebral bodies from
+ct/mrimagesviaalearning-basedmethod. PloSone,10(11):e0143327.
+Dice, L. R. (1945). Measures of the amount of ecologic association between species.
+Ecology,26(3):297–302.
+Egger, J., Nimsky, C., and Chen, X. (2017). Vertebral body segmentation with grow-
+cut: Initial experience, workflow and practical application. SAGE open medicine,
+5:2050312117740984.
+Freburger, J. K., Holmes, G. M., Agans, R. P., Jackman, A. M., Darter, J. D., Wallace,
+A. S., Castel, L. D., Kalsbeek, W. D., and Carey, T. S. (2009). The rising prevalence
+ofchroniclowbackpain. Archivesofinternalmedicine,169(3):251–258.
+Hille, G., Saalfeld, S., Serowy, S., and To¨nnies, K. (2018). Vertebral body segmentation
+in wide range clinical routine spine mri data. Computer methods and programs in
+biomedicine,155:93–99.
+Juntu, J., Sijbers, J., Van Dyck, D., and Gielen, J. (2005). Bias field correction for mri
+images. InComputerRecognitionSystems,pages543–551.Springer.
+Korez, R., Likar, B., Pernusˇ, F., and Vrtovec, T. (2016). Model-based segmentation of
+vertebralbodiesfrommrimageswith3dcnns. InOurselin,S.,Joskowicz,L.,Sabuncu,
+M. R., Unal, G., and Wells, W., editors, Medical Image Computing and Computer-
+Assisted Intervention – MICCAI 2016, pages 433–441, Cham. Springer International
+Publishing.
+LeCun,Y.andCortes,C.(2010). MNISThandwrittendigitdatabase.
+Lenchik, L., Rogers, L. F., Delmas, P. D., and Genant, H. K. (2004). Diagnosis of osteo-
+porotic vertebral fractures: importance of recognition and description by radiologists.
+AmericanJournalofRoentgenology,183(4):949–958.
+Liu, G., Xiao, L., and Xiong, C. (2017). Image classification with deep belief networks
+andimprovedgradientdescent. In2017IEEEInternationalConferenceonComputati-
+onalScienceandEngineering(CSE)andIEEEInternationalConferenceonEmbedded
+andUbiquitousComputing(EUC),volume1,pages375–380.
+Lu, J.-T., Pedemonte, S., Bizzo, B., Doyle, S., Andriole, K. P., Michalski, M. H., Gon-
+zalez, R. G., and Pomerantz, S. R. (2018). Deepspine: Automated lumbar vertebral
+segmentation, disc-level designation, and spinal stenosis grading using deep learning.
+arXivpreprintarXiv:1807.10215.
+Mendieta, J. B. (2016). An efficient and semiautomatic segmentation method for 3d
+surface reconstruction of the lumbar spine from magnetic resonance imaging (mri).
+Master’sthesis,QueenslandUniversityofTechnology.
+Neubert, A., Fripp, J., Shen, K., Salvado, O., Schwarz, R., Lauer, L., Engstrom, C., and
+Crozier, S. (2011). Automated 3d segmentation of vertebral bodies and interverte-
+bral discs from mri. In 2011 International Conference on Digital Image Computing:
+TechniquesandApplications,pages19–24.
+
+<!-- pagina 12 -->
+Richards, P. J., George, J., Metelko, M., and Brown, M. (2010). Spine computed tomo-
+graphydosesandcancerinduction. Spine,35(4):430–433.
+Ronneberger, O., Fischer, P., and Brox, T. (2015). U-net: Convolutional networks for
+biomedical image segmentation. In International Conference on Medical image com-
+putingandcomputer-assistedintervention,pages234–241.Springer.
+Schwarzenberg, R., Freisleben, B., Nimsky, C., and Egger, J. (2014). Cube-cut: ver-
+tebral body segmentation in mri-data through cubic-shaped divergences. PloS one,
+9(4):e93389.
+Zou, K. H., Warfield, S. K., Bharatha, A., Tempany, C. M., Kaus, M. R., Haker, S. J.,
+Wells III, W. M., Jolesz, F. A., and Kikinis, R. (2004). Statistical validation of image
+segmentation quality based on a spatial overlap index1: scientific reports. Academic
+radiology,11(2):178–189.
+Zukic´, D., Vlasa´k, A., Egger, J., Hoˇr´ınek, D., Nimsky, C., and Kolb, A. (2014). Robust
+detectionandsegmentationfordiagnosisofvertebraldiseasesusingroutinemrimages.
+InComputerGraphicsForum,volume33,pages190–204.WileyOnlineLibrary.

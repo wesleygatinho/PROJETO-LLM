@@ -1,0 +1,127 @@
+[
+  {
+    "par_id": "primevul_original_test_197511_259619",
+    "pos_vulneravel": 348,
+    "pos_corrigida": 349,
+    "project": "libjpeg",
+    "commit_id": "187035b9726710b4fe11d565c7808975c930895d",
+    "arquivo_original": "control/hierarchicalbitmaprequester.cpp",
+    "vulneravel_encontrada_pai": true,
+    "corrigida_encontrada_pai": true,
+    "corrigida_encontrada_commit": true,
+    "funcao_corrigida_diferente_da_funcao_alterada": true,
+    "fontes": {
+      "pai": {
+        "url": "https://raw.githubusercontent.com/thorfdbg/libjpeg/ef4a29a62ab48b8dc235f4af52cfd6319eda9a6a/control/hierarchicalbitmaprequester.cpp",
+        "sha256": "489335790863e7bd399527a49e7fd5a75742c01a3181cc2668840470d60e5faf",
+        "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/libjpeg_pai.cpp"
+      },
+      "commit": {
+        "url": "https://raw.githubusercontent.com/thorfdbg/libjpeg/187035b9726710b4fe11d565c7808975c930895d/control/hierarchicalbitmaprequester.cpp",
+        "sha256": "955623e3a611b2081a7a1f608a7aa30c4f04fed29d24546f081ce2d333a94b6d",
+        "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/libjpeg_commit.cpp"
+      }
+    },
+    "decisao": "Manter referência oficial; remover somente estes pares em sensibilidade documentada. Não substituir membros sem previsões."
+  },
+  {
+    "par_id": "primevul_original_test_207755_400779",
+    "pos_vulneravel": 750,
+    "pos_corrigida": 751,
+    "project": "php-src",
+    "commit_id": "095cbc48a8f0090f3b0abc6155f2b61943c9eafb",
+    "arquivo_original": "ext/openssl/openssl.c",
+    "vulneravel_encontrada_pai": true,
+    "corrigida_encontrada_pai": true,
+    "corrigida_encontrada_commit": true,
+    "funcao_corrigida_diferente_da_funcao_alterada": true,
+    "fontes": {
+      "pai": {
+        "url": "https://raw.githubusercontent.com/php/php-src/b8a08bf263d03c26da5f475f96a1d66eb566d874/ext/openssl/openssl.c",
+        "sha256": "c5aeec3b05716207b78db3150be9aa34d3e5468b7e85a4fc84cff67f93f6549d",
+        "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/php-src_pai.c"
+      },
+      "commit": {
+        "url": "https://raw.githubusercontent.com/php/php-src/095cbc48a8f0090f3b0abc6155f2b61943c9eafb/ext/openssl/openssl.c",
+        "sha256": "cf7a857ad3ac7bb259bb77dcae8ba2b85457ea01b6e675bf4bb8286649fd97f4",
+        "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/php-src_commit.c"
+      }
+    },
+    "decisao": "Manter referência oficial; remover somente estes pares em sensibilidade documentada. Não substituir membros sem previsões."
+  },
+  {
+    "par_id": "primevul_original_test_208535_412332",
+    "pos_vulneravel": 784,
+    "pos_corrigida": 785,
+    "project": "rizin",
+    "commit_id": "58926dffbe819fe9ebf5062f7130e026351cae01",
+    "arquivo_original": "librz/bin/p/bin_qnx.c",
+    "vulneravel_encontrada_pai": true,
+    "corrigida_encontrada_pai": true,
+    "corrigida_encontrada_commit": true,
+    "funcao_corrigida_diferente_da_funcao_alterada": true,
+    "fontes": {
+      "pai": {
+        "url": "https://raw.githubusercontent.com/rizinorg/rizin/38d8006cd609ac75de82b705891d3508d2c218d5/librz/bin/p/bin_qnx.c",
+        "sha256": "9351b775881664541bacd524dab9fe4c5467fcb56762715c0d4f98f9420f46d6",
+        "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/rizin_pai.c"
+      },
+      "commit": {
+        "url": "https://raw.githubusercontent.com/rizinorg/rizin/58926dffbe819fe9ebf5062f7130e026351cae01/librz/bin/p/bin_qnx.c",
+        "sha256": "e962fbad270c29b6ff08b7b88cc422a0aa55fcb33eea783afc20749148c690d7",
+        "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/rizin_commit.c"
+      }
+    },
+    "decisao": "Manter referência oficial; remover somente estes pares em sensibilidade documentada. Não substituir membros sem previsões."
+  },
+  {
+    "par_id": "primevul_original_test_215391_489124",
+    "pos_vulneravel": 1056,
+    "pos_corrigida": 1057,
+    "project": "linux-2.6",
+    "commit_id": "ba0166708ef4da7eeb61dd92bbba4d5a749d6561",
+    "arquivo_original": "net/sctp/sm_statefuns.c",
+    "vulneravel_encontrada_pai": true,
+    "corrigida_encontrada_pai": true,
+    "corrigida_encontrada_commit": true,
+    "funcao_corrigida_diferente_da_funcao_alterada": true,
+    "fontes": {
+      "pai": {
+        "url": "https://raw.githubusercontent.com/torvalds/linux/8b122efd13a227d35d5ca242561770db1b5e3658/net/sctp/sm_statefuns.c",
+        "sha256": "d4777c1829dcfc3ab9839fa77784cde1605804c00b43d0dd29635b42cc92eb48",
+        "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/linux-2.6_pai.c"
+      },
+      "commit": {
+        "url": "https://raw.githubusercontent.com/torvalds/linux/ba0166708ef4da7eeb61dd92bbba4d5a749d6561/net/sctp/sm_statefuns.c",
+        "sha256": "0067072baaff8ee252a8c26b0eb875a203d865a8ea321e941ffe059354884301",
+        "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/linux-2.6_commit.c"
+      }
+    },
+    "decisao": "Manter referência oficial; remover somente estes pares em sensibilidade documentada. Não substituir membros sem previsões."
+  },
+  {
+    "par_id": "primevul_original_test_197057_250692",
+    "pos_vulneravel": 280,
+    "pos_corrigida": 281,
+    "project": "drogon",
+    "commit_id": "3c785326c63a34aa1799a639ae185bc9453cb447",
+    "arquivo_original": "lib/src/HttpFileImpl.cc",
+    "vulneravel_encontrada_pai": true,
+    "corrigida_encontrada_pai": true,
+    "corrigida_encontrada_commit": true,
+    "funcao_corrigida_diferente_da_funcao_alterada": true,
+    "fontes": {
+      "pai": {
+        "url": "https://raw.githubusercontent.com/drogonframework/drogon/8ed0434ad8aa2167aed6afe627fed755e428e0bf/lib/src/HttpFileImpl.cc",
+        "sha256": "8c0863ecfc67ec00e7be841b414a3835a9db46c3830f87df9c525f5946e7bdd0",
+        "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/drogon_pai.cc"
+      },
+      "commit": {
+        "url": "https://raw.githubusercontent.com/drogonframework/drogon/3c785326c63a34aa1799a639ae185bc9453cb447/lib/src/HttpFileImpl.cc",
+        "sha256": "02bbe5f53dad4270bc4bb393a51b207569a98de935d035295af81c2c79225766",
+        "arquivo": "03_experimentos/dados/artigo_seminarios_2026/commits_inspecao/drogon_commit.cc"
+      }
+    },
+    "decisao": "Manter referência oficial; remover somente estes pares em sensibilidade documentada. Não substituir membros sem previsões."
+  }
+]

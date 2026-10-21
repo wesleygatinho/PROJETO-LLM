@@ -1,0 +1,1367 @@
+=== PÁGINA FÍSICA 1 ===
+ LLMs Cannot Reliably Identify and Reason About Security Vulnerabilities (Yet?):
+                     A Comprehensive Evaluation, Framework, and Benchmarks
+
+
+     Saad Ullah              Mingji Han           Saurabh Pujar        Hammond Pearce              Ayse Coskun           Gianluca Stringhini
+  Boston University       Boston University        IBM Research            UNSW Sydney           Boston University         Boston University
+    saadu@bu.edu           mjhan@bu.edu           saurabh.pujar@        hammond.pearce@           acoskun@bu.edu              gian@bu.edu
+                                                      ibm.com               unsw.edu.au
+
+
+
+
+Abstract—Large  Language  Models  (LLMs)  have  been  sug-                   especially  as  LLMs  are  not  infallible  in  security-related
+gested for use in automated vulnerability repair, but bench-                 tasks,  for  example  introducing  vulnerabilities  into  source
+marks showing they can consistently identify security-related                code [8], [9] and software testing [10]. Unfortunately, there
+bugs are lacking. We thus develop SecLLMHolmes, a fully au-                  is no standardized and automated approach to evaluate the
+tomated evaluation framework that performs the most detailed                 performance of LLMs at identifying vulnerable code. We
+investigation to date on whether LLMs can reliably identify                  fill this gap by introducing SecLLMHolmes, a generalized,
+and  reason  about  security-related  bugs.  We  construct  a  set           fully automated, and scalable framework to systematically
+of 228 code scenarios and analyze eight of the most capable                  evaluate the performance (i.e., accuracy and reasoning capa-
+LLMs  across  eight  different  investigative  dimensions  using             bilities) of LLMs for vulnerability detection. Our framework
+our  framework.  Our  evaluation  shows  LLMs  provide  non-                 tests the capabilities of a given LLM as a security assistant
+deterministic  responses,  incorrect  and  unfaithful  reasoning,            across eight distinct dimensions: (1) deterministic response,
+and perform poorly in real-world scenarios. Most importantly,                (2) performance over range of parameters, (3) diversity of
+our findings reveal significant non-robustness in even the most              prompts, (4) faithful reasoning, (5) evaluation over variety
+advanced models like ‘PaLM2’ and ‘GPT-4’: by merely chang-                   of vulnerabilities, (6) assessment of various code difficulty
+ing function or variable names, or by the addition of library                levels, (7) robustness to code augmentations, and (8) use in
+functions in the source code, these models can yield incorrect               real-world projects.
+answers in 26% and 17% of cases, respectively. These findings                     We apply our framework to eight of the most capable
+demonstrate  that  further  LLM  advances  are  needed  before               LLMs  across  228  code  scenarios  spanning  over  8  most
+LLMs can be used as general purpose security assistants.                     critical vulnerabilities in C and Python, and show that: (a)
+                                                                             LLM performance varies widely depending on the model
+                                                                             and  the  prompting  technique  used,  however  all  models
+1.  Introduction                                                             analyzed  have  a  high  false  positive  rate  (FPR),  and  flag
+                                                                             code where vulnerabilities have been patched as still vul-
+    Large  Language  Models  (LLMs),  such  as  OpenAI’s                     nerable. (b) the output of LLMs is non-deterministic, with
+Codex  [1],  Google’s  PaLM2  [2],  Meta’s  Codellama  [3],                  all models changing their answers over multiple runs for one
+and StarCoder [4], etc., have demonstrated great potential                   or more of our tests. (c) even when they correctly identify
+in performing programming-language related tasks such as                     a vulnerability, the reasoning that LLMs provide for this
+code generation, code documentation , and debugging. In                      decision is often incorrect, questioning their trustworthiness.
+2022, around 1.2 million developers used Copilot, and since                  (d) LLM chain-of-thought reasoning [11] is not robust, and
+then we have witnessed the release of increasingly capable                   can be ‘confused’ by even simple code augmentations such
+LLM models at a quick pace [2]–[5]. LLMs could be par-                       as  whitespace  modification,  changing  function  names,  or
+ticularly useful to help developers with their cybersecurity                 using different but related library functions. Also, (e) LLMs
+needs, as humans typically produce and miss many security                    fail at detecting vulnerabilities in real-world projects. Our
+relevant bugs. This issue was highlighted in the 2022 GitLab                 study provides significant evidence that LLMs are not yet
+Survey [6], noting that “developers do not find enough bugs                  ready to be used for automated vulnerability detection, and
+early enough” and “do not prioritize the bug remediation”                    the successful usage of our framework as a benchmark suite
+when developing. It is pertinent then to investigate if LLMs                 by future models would demonstrate meaningful progress in
+could  be  an  aid  towards  early  identification  of  security             this space.
+problems, especially as LLMs have already been suggested                     This paper makes the following contributions:
+for use in automated bug repair [7].                                         •  WedevelopSecLLMHolmes,acomprehensiveframework
+    In this paper, we aim to answer the following question:                     to  test  LLMs  for  their  ability  to  identify  and  reason
+Can  LLMs  be  used  as  helpful  security  assistants  for                     about  software  vulnerabilities.  Our  framework  is  fully
+vulnerability  detection?  This  is  an  important  question,                   automated  and  includes  a  set  of  228  code  scenarios,
+
+=== PÁGINA FÍSICA 2 ===
+                                                                                  TABLE 1: Studied LLMs. We select a number of capable chat-
+                                                                                  based LLMs, both Remote and Local, for our study, with diverse
+                                                                                  ranges of number of parameters, max. input tokens limits, and
+                                                                                  different training knowledge cut-offs. Oct. 7, 2023 is the date of
+                                                                                  access for all LLMs.
+
+                                                                                    Model API                      Base#        Max.      Type    Knowledge
+                                                                                                           Model       Params   Tokens           Cut Off
+                                                                                    gpt-4                                 GPT-4          1.76T       8,192        Rem     09/2021
+                                                                                    gpt-3.5-turbo-16k             GPT-3.5       175B        16,385      Rem     09/2021
+                                                                                    codechat-bison@001        PaLM2         340B        6,144        Rem     mid-2021
+Figure 1: LLM chat input format. LLMs operate on a three-part                       chat-bison@001               PaLM2         340B        6,144        Rem     mid-2021
+inputformat:(1)asystemprompt,(2)few-shotexamplespresented                           codellama-7b-instruct      Llama2        7B            100k         Loc      01/2022
+as chat history to guide the model’s learning, and (3) the specific                 codellama-13b-instruct    Llama2        13B          100k         Loc      01/2022
+user input/task to be processed.                                                    codellama-34b-instruct    Llama2        34B          100k         Loc      01/2022
+                                                                                    starchat-beta                     StarCoder+  15.5B       8,192        Loc      09/2022
+
+  and  17  prompting  techniques.  We  publicly  release  our                     them how to answer, converse, and reason like humans. This
+  framework and dataset1, allowing the community to test                          has led to the creation of several chat-based LLMs, which
+  newly  developed  LLMs  and  easily  keep  track  of  their                     can interact conversationally with human inputs (see Figure
+  progress in being able to identify vulnerabilities.                             1). The chat-based LLMs can be prompted using various
+•  We use our framework to test eight state-of-the-art LLMs                       techniques:
+  for the task of vulnerability detection, showing that as of
+  today no LLM achieves satisfacory performance at it.                            •  In Zero-Shot  (ZS) scenario, the user asks a model to
+•  We  identify  and  enumerate  a  set  of  shortcomings  that                      perform a task that the model might not have observed
+  current LLMs show (as outlined above). Our observations                            during pre-training.
+  provide a checklist for researchers working in this space,                      •  In Few-Shot (FS) scenario, the user adds a few examples
+  showing aspects that need to be addressed before LLMs                              demonstrating input space and expected output to perform
+  can be considered ready to be used in the wild for the                             a specific task (as shown in Figure 1).
+  task of vulnerability detection.                                                •  Task-Oriented (TO) scenarios explicitly assign a task to
+                                                                                     the model (either in ‘system’ or ‘user’ prompt) in the form
+2.  Background and Related Work                                                      of a statement or a question, which encourages the model
+                                                                                     to generate a task-specific response.
+Large  Language  Models  (LLMs). All language models                              •  Role-Oriented (RO) scenarios assign a role to the model,
+work on the basic principle of next word (token) prediction;                         e.g., helpful assistant, security expert, etc., and the model
+i.e.,  given  a  sequence  of  words  (tokens) x1,x2,...,xn−1                        implicitly understands the expected behavior. This role is
+select a word (token) xn  with the highest probability to                            mostly assigned in the ‘system’ prompt.
+appear next in the sequence                                                            Table 1 shows the details of the currently most capable
+             xn = argmax                                                          chat-based LLMs that we investigate in this paper.
+
+                          w∈V P(w|x1,x2,...,xn−1),                                Vulnerability Detection. One of the biggest challenges dur-
+where V  is the vocabulary of the model. Language models                          ing the development and maintenance of software systems is
+learn to perform this task by training on a large amount of                       the process of detecting security bugs and identifying their
+text data (i.e., natural language text or code) and use various                   root cause [6]. OWASP [15] presents a list of static and run-
+techniques (e.g., attention mechanism [12]) to learn to focus                     time analysis tools and techniques that work in this space.
+on certain parts of the input for better output prediction.                       Mostofthesetoolstransformsourcecodeintoaspecificrep-
+Language models have shown excellent proficiency in NLP                           resentation, e.g., abstract syntax tree, program dependency
+tasks, as well as good results for programming language                           graph, code property graph, etc., and scan them to identify
+tasks  such  as  code  generation,  code  suggestion,  natural                    pre-defined insecure patterns. For instance, Yamaguchiet al.
+language querying for code, etc.                                                  introduce Joern, a tool that uses code property graphs [16]
+    The recent drastic increase in the number of parame-                          to identify several vulnerability patterns in C/C++ code.
+ters of models has enabled several remarkable capabilities,                            Unfortunately,  these  techniques  require  considerable
+the  most  prominent  of  which  being  zero-shot  and  few-                      manual  effort  and  curation  of  security  bug  datasets,  es-
+shot learning [13], [14]. LLMs are typically prompted (i.e.,                      pecially if they are based on trained supervised Machine
+queried)bytheuserandprovidearesponse—theseadvances                                Learning (ML) models. Examples of methods that use su-
+enable the prompt to provide new knowledge or instructions                        pervised ML include VulChecker [17], VulDeePecker [18],
+that the model was not trained over.                                              Poster [19], and SySeVR [20]. As the ratio of vulnerable to
+    Approaches like instruction-tuning ‘teach’ LLMs how                           non-vulnerable examples is very low in the real world, the
+to follow instructions in their prompt responses, and rein-                       vulnerable examples in these datasets are not sufficient for
+forcement learning from human feedback is used to ‘teach’                         ML models to learn the necessary information. Suggested
+                                                                                  improvements  in  this  category  include  using  pre-trained
+  1. https://github.com/ai4cloudops/SecLLMHolmes                                  LLMs  for  code  and  ‘fine-tuning’  them  on  security  bug
+
+=== PÁGINA FÍSICA 3 ===
+                TABLE2:Evaluationstudiesforcodesecurity.Thistabledescribes
+                if the evaluation is (      semi or      fully) Automated, Evaluates
+                Reasoning (root cause)        or only performs binary evaluation         ,
+                tests Code-level Robustness, evaluates both        or just one     of the
+                Vulnerable and Patched code scenarios, evaluates on Real-World
+                CVEs      or github mined potential defect commits [33]           , and #
+                of Code Scenarios included in the study, which are not generated
+                by synthetic AI methods or labeled using out-dated research tools.
+
+                 Study                                  Auto       EvalCodeVuln-Real#
+                                                 Reas.    Robust  Patch    World   Scen.
+                 Vuln. Code Gen. [8]                                               89
+                 Vuln. Code Repair [7]                                             syn.
+                 Limits of ML [30]                                                 res.
+                 Transf. Vuln. Det. [34]                                           res.                      Figure 2: SecLLMHolmes Architecture.
+                 SecLLMHolmes                                                      228
+                                                                                               soning abilities. Table 2 summarizes evaluation studies of
+                datasets for the downstream task of vulnerability detection.                   LLMs, highlights their short-comings, and compares against
+                Notable approaches here are UniXCoder [21], VulBERTa                           our framework.
+                [22], and CoText [23].                                                             In addition to presenting a new state-of-the-art frame-
+                Evaluating for Code Security. Evaluating approaches for                        work, our study uncovers previously unidentified challenges
+                                                                                               associated with LLMs, including their inability to under-
+                identifyingsecurityweaknessesincoderequirestestingtheir                        stand complex code data-flows, the fragility of their COT
+                performance on multiple axes. For instance, what are their                     or step-by-step reasoning to even trivial augmentations, a
+                accuracy  and  false  positive  rate  (FPR)?  Are  reasons/root                bias towards security-related functions and variable names
+                causes for a vulnerability provided by the tool, and if so,                    thatoverlooksactualvulnerabilities,areasoningprocessthat
+                at what quality? Is the tool robust to noise in testing data?                  divergesfromthemethodologyofreal-worldhumansecurity
+                How many types of vulnerabilities can it detect? Static anal-                  experts, particularly in accurately identifying correct root
+                ysis tools have always struggled with the trade-off between                    cause of a vulnerability.
+                accuracy and coverage. Tools either focus on high accuracy
+                and low coverage (e.g., Pysa [24] by Meta, which identifies                    3.  SecLLMHolmes
+                data-flow issues in Python applications), or (b) low accuracy
+                (false positives) and high coverage (e.g., [25]–[27]), which                       Figure 2 presents an overview of our fully automated
+                can lead to developer frustration and wasted time.                             framework, SecLLMHolmes, which is designed to be ap-
+                    ML-based static analysis tools [18], [28] not only face                    plicable to any chat-based LLM. Section 3.1 describes how
+                the accuracy-coverage trade-off but also struggle with ro-                     users can configure an LLM for integration. The core of
+                bustness. Such tools have demonstrated good performance                        our framework consists of five pre-defined key components:
+                on research datasets but can fail to generalize and perform                    (i) a set of parameters (Section 3.2), (ii) an extensive set
+                well over real-world datasets [29]. Risse et al. [30] identify                 of  prompt  templates  (Section  3.3),  (iii)  datasets  (Section
+                the same issue of non-robustness in LLM-based vulnerabil-                      3.4), and (iv) code augmentations (Section 3.4), all of which
+                ity detection tools [22], [23], [31], and showcase the drop                    facilitate the generation of test prompts. Each prompt is then
+                in accuracy with even trivial code augmentations. Moreover,                    passed to the LLM to generate a response, and the quality of
+                Microsoft’s leader-board for LLM-based vulnerability de-                       the response is then analyzed by the (v) ‘Evaluator’ module
+                tection tools [32] shows that the even the best tool has an                    (Section 3.6).
+                accuracy of less than 70% and 30%+ FPR, which shows
+                that these systems cannot be trusted in real-world cases.                      3.1.  LLM configuration
+                    Recent works have evaluated LLMs for vulnerable code
+                generation [8], code repair [7], and vulnerability detection                       To scale SecLLMHolmes for any chat-based LLM, we
+                [34]. However, these approaches are either limited by the                      have established three configurable user inputs:
+                number of LLMs, coverage of vulnerabilities, diversity of
+                prompts, range of code complexities, robustness testing, or                    LLM-Specific Best ‘Prompting Practices’ and Rules.As
+                require  manual  labor  for  evaluating  LLMs.  Most  impor-                   each  LLM  may  be  tuned  differently  with  respect  to  in-
+                tantly,thesestudiesonlyevaluatebinaryresponses,checking                        struction following, this configurable input enables users to
+                whether the LLM gives the right label to code snippets (e.g.,                  configure optimal prompting practices for the specific LLM
+                ‘vulnerable’ or ‘not vulnerable’). In this paper, we present                   they are integrating. This may be done following the LLM’s
+                the first comprehensive evaluation framework to evaluate                       documentation. For example, OpenAI’s GPT documentation
+                LLMs on the task of vulnerability detection, providing a                       recommends the use of three quotes before and after the
+                multi-faceted analysis of the capabilities of LLMs, including                  given content to separate it from the instruction [35], while
+                going  beyond  binary  decisions  and  evaluating  their  rea-                 Google’s  PaLM2  documentation  recommends  the  use  of
+
+
+
+
+
+
+
+
+
+
+
+
+
+✓✓✓✓✓✓✓✗
+✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✗✗✗✗✗✗✗✗
+
+=== PÁGINA FÍSICA 4 ===
+keywords before the content that describe its semantics such                                            TABLE 3: Prompt templates.
+as ‘Code,’ ‘Text,’ ‘Question’ [36].                                                 ID   Type      Description
+LLM‘InitializationandConfiguration.’AllLLMsrequire                                  S1   ZS-TO   Code snippet is added to the input prompt with a question
+an initial setup; for example, remote models may require                                          about a specific Common Weakness Enumeration (CWE)
+an API key (e.g. OpenAI) or to initialize a session with a                                        (e.g., out-of-bound write, path traversal).
+specific project in the cloud (e.g. Google). Local models                           S2   ZS-RO   Same as S1, but the LLM is assigned the role of a ‘helpful
+require loading the model, tokenizer checkpoints, etc. This                                       assistant’.
+input allows user to specify such configuration details.                            S3   ZS-RO   Similar to S1, with the LLM acting as a ‘security expert’.
+LLM ‘Chat Structure and Inference Function.’To gener-                               S4   ZS-RO   The LLM is defined as a ‘security expert’ who analyzes a
+ate a response, each chat-based LLM receives three inputs:                                        specified security vulnerability, without the question being
+‘system,’ ‘few-shot examples,’ and ‘task’ prompts (as shown                                       added to the input prompt.
+in Figure 1). In this function, users specify how these three                       S5   FS-TO   Similar to S1, but includes a vulnerable example, its patch,
+inputsarepassedtotheconfiguredLLM(viaAPIforremote                                                 and standard reasoning from the same CWE.
+models or ‘text-generation’ pipeline for local models).                             S6   FS-RO   Like S4, but also includes a vulnerable example, its patch,
+                                                                                                  and standard reasoning from the same CWE.
+3.2.  LLM Parameters
+                                                                                    R1  ZS-TO   Similar to S1, but begins with ”Lets think step by step”
+    LLM responses are significantly impacted by two pa-                                           [37] to encourage a methodical approach.
+rameters which control token sampling: (1) temperature                              R2  ZS-RO   The LLM plays the role of a security expert with a multi-
+controlsthedeterminismofanLLM’soutput.Ahighervalue                                                stepapproachtovulnerabilitydetection,followingachain-
+of temperature generates more ‘creative’/‘random’ text by                                         of-thought reasoning.
+adding noise to potential token scores (2) top                  p controls          R3  ZS-TO   A multi-round conversation with the LLM, starting with a
+the nucleus sampling, where the LLM considers the results                                         code snippet and progressively analyzing sub-components
+                                                                                                  for a security vulnerability like human security-experts.
+of the tokens with top        p probability mass. We discuss how                    R4  FS-RO   Similar to S6, but the reasoning for answers involves step-
+we select the values of these parameters in Section 4.                                            by-step analysis developed by the first author.
+                                                                                    R5  FS-RO   Like R2, but includes few-shot examples (from the same
+3.3.  Prompt Templates                                                                            CWE) with step-by-step reasoning for detecting vulnera-
+                                                                                                  bilities.
+    SecLLMHolmes  explores  four  techniques  for  LLM                              R6  FS-TO   Similar to R5, but does not assign a specific role to the
+prompting:(1)zero-shottask-oriented(ZS-TO),(2)zero-                                               LLM in the system prompt.
+shot role-oriented (ZS - RO), (3) few-shot task-oriented                            D1  ZS-TO   Adds the definition of a security vulnerability to the input
+(FS  -  TO),  and  (4)  few-shot  role-oriented  (FS  -  RO).                                     prompt, followed by a related question.
+Moreover, we divide our set of prompts in the following                             D2  ZS-RO   The LLM is a security expert analyzing code for a specific
+three categories (all prompts are described in Table 3):                                          vulnerability, with the vulnerability’s definition included.
+Standard (S) prompting asks the model to directly give an                           D3  FS-RO   Similar to S6, but includes the definition of the security
+answer to the problem.                                                                            vulnerability in the system prompt.
+Step-by-Step  Reasoning-based  (R)  prompting  asks  the                            D4  FS-RO   Like R4, with the addition of the security vulnerability’s
+model to solve the problem in a step-by-step manner us-                                           definition in the system prompt.
+ing chain-of-thought (COT) reasoning [11], [37], [38]. In                           D5  FS-TO   Similar to D4, but does not assign a specific role to the
+addition to evaluating the intrinsic step-by-step reasoning                                       LLM in the system prompt.
+process  of  LLMs,  we  also  create  prompts  that  emulate
+the multi-step vulnerability detection method followed by                          MITRE’s official website [41] to the model, while asking
+human  security-experts,  as  identified  in  prior  qualitative                   the model to detect that vulnerability in the given code.
+studies  [39],  [40].  These  studies  observed  that  security
+experts follow a general multi-step vulnerability detection
+approach, i.e., (1) get an overview of the code, (2) based                         3.4.  Datasets
+on the overview, identify the critical sub-components that
+can lead to a security vulnerability in code, e.g., copying                             We design 228 code scenarios (48 hand-crafted, 30 real-
+user provided information into a buffer, etc., (3) perform                         world, and 150 with code augmentations) to test various
+a detailed analysis of these sub-components, e.g., if a user                       aspects of the capabilities of LLMs to detect software vul-
+input is being copied into a buffer the security experts will                      nerabilities in code. We use these scenarios to craft prompts
+check if in any scenario the user input can overflow the                           by including code, examples, definitions, and step-by-step
+buffer,  and  then,  (4)  based  on  the  detailed  experiments,                   reasoning as shown in Table 3. In the following, we describe
+provide the final answer on whether the given code contains                        how we built our code scenarios in detail.
+any instances of the given security vulnerability.                                 Hand-Crafted  CWE  Scenarios.  We  curate  a  dataset  of
+Definition-based (D) prompting provides additional infor-                          48 hand-crafted code scenarios, containing vulnerable and
+mation like the definition of a security vulnerability from                        patched  pairs  from  8  most  critical  and  diverse  Common
+
+=== PÁGINA FÍSICA 5 ===
+                     TABLE 4: Hand-crafted dataset.                                      TABLE 5: Real-world CVEs and their details including Original
+                                                                                         and Truncated Lines of Code (LoC).
+  CWE
+  ID            Description                                                                        MITRERank       Lang.Project   CVE ID        CWE Description (ID)       Orig.Trun.Pub.Fix
+  787          Out-of-bounds Write                                                          1              C                                   LoC     LoC     Date    Date
+  79            Improper Neutralization of Input During Web Page   2              Py                                                                           (2023)  (2023)
+            Generation (‘Cross-site Scripting’)                                                      2023-1452     Out-of-Bound Write (787)    4.5k      243       Mar      May
+  89            Improper Neutralization of Special Elements used in3              Py       gpac      2023-3012     NULL Pointer Deref (476)   2.5k      398       May     Nov
+            an SQL Command (‘SQL Injection’)                                                         2023-23143   Out-of-Bound Write (787)    12.3k    117       Jan       May
+  416          Use After Free                                                                   4              C2023-23144   Integer Overflow (190)         439       389       Jan       May
+  22            Improper Limitation of a Pathname to a Restricted  8              C
+            Directory (‘Path Traversal’)                                                             2023-2908     NULL Pointer Deref (476)   2.3k      629       Jan       Nov
+  476          NULL Pointer Dereference                                               12            C2023-3316     NULL Pointer Deref (476)   159       159       Jan       Nov
+  190          Integer Overflow or Wraparound                                      14            Clibtiff2023-26966   Out-of-Bound Write (787)    1.8k      238       Jun       Nov
+  77            Improper Neutralization of Special Elements used in16            C                   2023-40745   Integer Overflow (190)         2.2k      757       Oct       Nov
+            a Command (‘Command Injection’)                                                          2023-41175   Integer Overflow (190)         779       748       Oct       Nov
+
+
+                                                                                                     2023-40283   Use-After-Free (416)            1.9k      515       Aug      Nov
+                                                                                                     2023-42753   Integer Overflow (190)         628       623       Sept      Nov
+Weakness Enumerations (CWEs) from the MITRE Top 25                                         linux     2023-42754   NULL Pointer Deref (476)   3.7k      177       Oct       Nov
+Most Dangerous Software Weaknesses for the year 2023                                                 2023-45863   Out-of-Bound Write (787)    1.1k      565       Oct       Nov
+[41], as shown in Table 4. To investigate the ability of LLMs                                        2023-45871   Out-of-Bound Write (787)    10.1k    386       Oct       Nov
+to  analyze  multiple  programming  languages,  we  include                                pjsip       2023-27585   Out-of-Bound Write (787)    784       737       Mar      Aug
+examples from both C and Python.
+     Similar to previous work [8], we create six code sce-
+narios (three pairs of vulnerable and patched scenarios) for                             maximum token limit supported by Palm2, and the lowest
+each CWE. Moreover, we design our code scenarios with                                    among all LLMs in our study.
+three difficulty levels, (1) easy, (2) medium, (3) hard. Code
+scenario ‘2v’ in a specific CWE represents the vulnerable                                Code Augmentations. While standard frameworks exist to
+scenario with ‘medium’ difficulty level and ‘2p’ its patch.                              evaluate the robustness of LLMs for NLP tasks [44], [45],
+The difficulty levels assess how LLMs interact with code                                 there is no standard framework to evaluate the robustness on
+of increasing complexity. Easy scenarios consist of simple                               code security related tasks. To fill this gap, we design a set
+programscontainingonlyonefunctionandlessthan30lines                                      of 150 augmented code scenarios, meticulously crafted and
+of code. Medium level scenarios increase the complexity by                               reviewed to preserve the ability of human security experts to
+makingtheprogramlonger,usingdifferentlibraryfunctions,                                   identify vulnerabilities. These augmentations are organized
+and adding more than one user input. Hard level introduces                               in two distinct categories:
+scenarios with multiple functions in which functions can be                              1)  Trivial  Augmentations.  This  class  of  code  augmen-
+safe on an individual level but when they work together they                                  tations  measure  the  robustness  of  LLMs  to  random
+make the program vulnerable.2                                                                 noise. We select 12 CWE scenarios from two classes,
+Real-World  CVE  Senarios.  We  leverage  a  set  of  real-                                   i.e., CWE-787 (C) (#1 MITRE) and CWE-89 (Py) (#3
+world Common Vulnerabilities and Exposures (CVEs) from                                        MITRE) of our hand-crafted dataset, and apply seven
+public  open  source  projects  to  investigate  if  LLMs  are                                trivial augmentations (Table 6) on them and create a total
+able to identify vulnerabilities in them. Note that existing                                  of 84 different code scenarios (12 per augmentation). We
+benchmarks for vulnerability detection [18], [33], [42], [43],                                choose these two CWEs as (1) they can lead to the most
+cannot be used for this project, as they were released before                                 catastrophic impacts like root privilege escalation, and
+the cut-off training date of current LLMs, and it is therefore                                data loss, etc, (2) they belong to two completely different
+likely  that  the  models  saw  that  data  during  training.  To                             levels of abstractions i.e., “lower-level” (C) and “higher-
+avoid this potential confounder, we curate 30 code scenarios                                  level” (Python) languages, and (3) the presence of their
+containing  vulnerable  and  patched  versions  of  15  CVEs                                  instances can be determined directly from code without
+from four open source projects, all published and fixed in                                    any need for external information.
+2023, after current LLMs were trained (see Table 5).                                     2)  Non-Trivial Augmentations. We design non-trivial code
+     As  the  length  of  the  code  increases  significantly  for                            augmentations to perform stress-tests on LLMs to mea-
+the real-world code scenarios, it can exceed the maximum                                      sure their robustness and bias towards semantics of func-
+number of tokens a model can take as an input. To solve this                                  tion or variable names, specific library functions, or code
+problem, we shorten code files by removing comments and                                       security  practices.  We  use  combinations  of  all  CWEs
+functions that are neither called by nor call the vulnerable                                  defined in Table 4 and the six non-trivial code augmen-
+(or patched) function. Also to maintain fairness among the                                    tations from Table 6 and design 66 code scenarios (12
+LLMs, we make sure that all CVEs after truncation have a                                      per NT1-NT4 and 9 per NT5 and NT6) 3.
+number of tokens less than or equal to 6,144, which is the
+
+                                                                                            3. See Appendix B for details on creation of non-trivial augmented code
+  2. Appendix A shows examples of all difficulty levels for ‘CWE-22’.                    scenarios
+
+=== PÁGINA FÍSICA 6 ===
+                                     TABLE 6: Code Augmentations.                                   provided by the LLM (Pr). To extract it, we ask GPT-4 to
+
+                              Trivial                                                     Non-Trivialsummarize the reason described by the model output on why
+                   ID      Description                           ID         Description             a vulnerability is present in the code or not, in 100 words.
+                   T1      Rename function param-   NT1      Change variable names to vulnera-      We extract the summary of root cause of vulnerability from
+                         eters randomly                    bility related keywords                  raw responses of LLMs to maintain consistency for further
+                   T2      Rename   function   ran- NT2      Change the name of a safe function     evaluation methods, and to avoid contents like suggestions,
+                         domly                             to ‘vulnerable’ function
+                   T3      Add random unreachable   NT3      Change the name of an unsafe func-     fixed code, etc. to be analyzed. In the rest of this section
+                         code                              tion to ‘nonvulnerable’ function         we provide more details on the evaluation metrics used to
+                   T4      Add   random   code   in NT4      Add a potentially dangerous library        evaluate the final answer, and              its reasoning provided
+                         comments                          function  (e.g.,  ‘strcpy’  or  ‘strcat’)
+                                                           but use it in a safe way                 by LLM for the vulnerability detection task.
+                   T5      Insert whitespaces                 NT5      Use  sanitizing  functions  (e.g.,  ‘re-
+                                                           alpath’)  in  vulnerable  code  but  in
+                                                           a way that it does not resolve the       AccuracyScore.Toevaluatetheaccuratedetectionofavul-
+                                                           vulnerability                            nerability in source code, we compare the answer extracted
+                   T6      Add a useless function         NT6      Add  hash-defined  expressions  for
+                                                           safe functions names (e.g., ‘fgets’)     from the response of the LLM (i.e., “yes/no/n/a”) with the
+                                                           but add vulnerable library functions     ground truth labels and use the “accuracy” metric, i.e., if
+                                                           in its body (e.g., ‘gets’)
+                   T7      Add next-line character                                                  LLM’s answer (binary) matches the ground-truth or not, to
+                                                                                                    assess the correctness of the final answer.
+
+                 3.5.  Ground-Truth Reasoning Gr                                                    Reasoning  Score. Automatically evaluating if the textual
+                                                                                                    reasoningprovidedbytheLLMonwhetheravulnerabilityis
+                      In addition to ground truth labels indicating if a code                       present is a challenging task. To solve this task we use GPT-
+                 snippet contains a vulnerability, we also need explanations                        4 to summarize the reason (Pr) provided by an LLM and
+                 for these vulnerabilities, as we aim to evaluate the reasoning                     compare it with the ground-truth reasoning (Gr) generated
+                 capabilities of LLMs and assess whether they can justify                           by the authors, using the following three metrics:
+                 their decisions. To this end, we randomly sample 48 code
+                 scenarios  out  of  the  228  total  scenarios,  and  have  three                  1)  Rouge [47] score is traditionally used in NLP to measure
+                 security  experts,  including  the  first  author  of  the  paper                      the  similarity  between  a  machine-translated  summary
+                 equally divide  the sampled  code scenarios  amongst each                              and reference summaries using overlapping n-grams. In
+                 other and create a 100-word ground truth reason for each                               our case, we use it to measure similarity between the
+                 scenario using MITRE’s official CWE documentation [41]                                 summaries Pr  and Gr.  We  first  sample 50  pairs  of
+                 as  a  guide.  The  experts  then  compare  and  discuss  each                         Pr and their corresponding Gr, as our reasoning score
+                 others’ reasoning and develop consensus for each ground-                               validationset(Rval),andmanuallychecktheconsistency
+                 truth  reasoning  (Fleiss’  kappa  with K  =  0.93,  meaning                           and alignment of their reasonings. We find that at the
+                 almost perfect agreement [46]). After establishing that the                            optimal threshold Rougethres of 0.34, 43 out of 50 Pr
+                 criteria for ground truth reasoning are well laid out and un-                          are consistent with Gr. We therefore use this threshold
+                 derstood, the first author proceeds to develop the remaining                           and mark two summaries as similar if their Rouge score
+                 180 vulnerability explanations. This ground truth reasoning                            exceeds it.
+                 Gr is then used by the ‘Evaluator’ module in the next step.                        2)  Cosine Similarity is a metric commonly used in NLP
+                                                                                                        to measure how similar two documents are irrespective
+                 3.6.  Evaluator                                                                        of their sizes. We first convert the summaries Pr  and
+                                                                                                        Gr into fixed length vectors using OpenAI’s embedding
+                      The output of an LLM for a specific test is passed to                             model ‘text-similarity-davinci-001’ and calculate the co-
+                 the Evaluator (see Figure 2). As SecLLMHolmes is fully                                 sine similarity between them. Similar toRougethres, we
+                 automated,weleverageGPT-4toanalyzetheresponse.First,                                   find  that  the  optimal  threshold Costhres  is 0.84,  and
+                 the       response is passed to GPT-4  4, with an additional                           consider two summaries similar if their cosine similarity
+                 role-based instruction prompt Pe (shown in Figure 8 in the                             exceeds this value.
+                 Appendix) in the ‘system’ input to extract two pieces of                           3)  GPT-4 is prompted to evaluate if the reasoning in Pr
+                 information from the raw response. The first one is the                                andGr align. If the reasonings are similar and they align
+                 binary answer, which is “yes/no” based on whether the LLM                              with each other, GPT-4 responds ‘yes’ and we assign a
+                 found a vulnerability in the given code or not. We find that                           reasoning score of1, otherwise we assign0. We find that
+                 in some cases the LLM does not provide a definite answer,                              GPT-4 successfully classifies 48 out of 50 Pr correctly
+                 therefore we include a third verdict, i.e., “n/a.”5 The second                         to their corresponding Gr, when validated on Rval.
+                 part of the information extracted is the               textual reasoning
+                    4. Our manual evaluation shows that GPT-4 performs the best for this            We then determine whether the reasoning by the LLM is
+                 extraction process.                                                                correct or not by majority vote. That is, if two or more
+                    5. For  example,  in  some  cases  LLMs  provide  some  variation  of  the      of the above criteria match, we consider the reasoning as
+                 following response: “As an AI model I cannot answer this question.”                similar to the ground truth reasoning Gr.
+
+
+
+
+
+
+
+
+
+53241
+
+=== PÁGINA FÍSICA 7 ===
+4.  Experimental Investigation                                                                            TABLE  7:  Evaluation  Results  for  LLM  Output  Consistency  at
+                                                                                                          Recommended Temperature.  The  table  shows  results  for  each
+                                                                                                          CWE  scenario  and  every  Standard  prompt,  in  the  format  of
+      In this section, we use our framework to investigate all                                            # correctly answered / # total answered out of 10.
+LLMs listed in Table 1.6 We first investigate which values                                                                                          (a) CWE-787
+of the LLM parameters are most likely to produce consistent
+(Section 4.1) and best performing (Section 4.2) output. We                                                                      S1                    S2                       S3                       S4                       S5                       S6
+then perform the rest of our investigations using the most                                                  Models          2v     2p     2v     2p     2v     2p     2v     2p     2v     2p     2v     2p
+suitable parameter values.                                                                                  chat-bison            10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/102/108/10       10/10     0/10
+                                                                                                            codechat-bison 9/10       0/10       10/10     0/10       10/10     0/10       0/109/10       0/10       10/10     0/10       10/10
+                                                                                                            codellama34b      10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/105/107/10
+                                                                                                            gpt-3.5                 0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/10     10/10     0/10
+4.1.  Evaluation for Deterministic Responses                                                                gpt-4                    0/10       10/106/10       10/101/10       10/106/10       10/10     0/10       10/107/10       10/10
+
+      To perform a rigorous comparison between LLMs and                                                                                             (b) CWE-89
+assess  their  capabilities,  it  is  of  critical  importance  that                                                            S1                    S2                       S3                       S4                       S5                       S6
+their  responses  are  consistent,  meaning  that  running  the                                             Models          2v     2p     2v     2p     2v     2p     2v     2p     2v     2p     2v     2p
+same test multiple times under identical parameters should                                                  chat-bison            10/10     10/10     10/108/10       10/10     10/10     10/10     0/10       10/10     10/10     0/10       10/10
+                                                                                                            codechat-bison    10/10     10/10     10/102/10       10/107/10       10/10     0/10       10/10     10/10     10/10     10/10
+provide the same final verdict. Therefore, we first investigate                                             codellama34b      10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/10     10/10     10/10     0/10
+whether this consistency is achievable at all, and what LLM                                                 gpt-3.5                 10/10     10/10     10/10     10/10     10/10     10/10     10/101/10       10/10     10/10     10/107/10
+                                                                                                            gpt-4                    10/10     10/10     10/10     10/10     10/10     0/10       10/10     10/10     10/10     10/10     10/105/10
+parameters  deliver  the  most  consistent  results.  OpenAI’s
+documentation [48] recommends a temperature of 0.2 and                                                    TABLE  8:  Evaluation  Results  for  LLM  Output  Consistency  at
+‘top    p’ of0.1 to achieve the most deterministic output for                                             Temperature = 0.0.
+code related tasks. Similarly, the recommended ‘tempera-                                                                                            (a) CWE-787
+ture’ value for all LLMs in our evaluation is0.2. When ex-
+perimenting with modifying these values, both the OpenAI                                                                        S1                    S2                       S3                       S4                       S5                       S6
+documentation [49] and previous research [7] recommend                                                      Models          2v     2p     2v     2p     2v     2p     2v     2p     2v     2p     2v     2p
+to keep the value of ‘top                  p’ constant and modify the value                                 chat-bison            10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       0/10       10/109/10       0/10
+                                                                                                            codechat-bison    10/10     0/10       10/10     0/10       10/10     0/10       0/10       10/10     0/10       10/10     0/10       10/10
+of ‘temperature.’ We therefore fix ‘topp’ to default value                                                  codellama34b      10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       0/10       10/10
+specific to an LLM, and perform experiments using two                                                       gpt-3.5                 0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/10     10/10     0/10
+                                                                                                            gpt-4                    0/10       10/108/10       10/102/10       10/104/109/10       0/10       10/104/10       10/10
+different ‘temperature’ values:0.2 (‘default’) and0.0. We
+perform this experiment on two vulnerable and two patched                                                                                           (b) CWE-89
+medium code difficulty level scenarios (2v and2p) from two
+distinct vulnerabilities, “out-of-bound write” (CWE-787) in                                                                     S1                    S2                       S3                       S4                       S5                       S6
+C and “SQL injection” (CWE-89) in Python (for the same                                                      Models          2v     2p     2v     2p     2v     2p     2v     2p     2v     2p     2v     2p
+
+                                                                                                            chat-bison            10/10     10/10     10/10     0/10       10/10     10/10     10/10     0/10       10/10     10/10     10/10     10/10
+reasons as discussed in Section 3.4). For the input prompts                                                 codechat-bison    10/10     10/10     10/10     0/10       10/10     0/10       10/10     0/10       10/10     10/10     10/10     0/10
+we select the set of Standard prompts (see Section 3.3). We                                                 codellama34b      10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/10     10/10     10/10     0/10
+                                                                                                            gpt-3.5                 10/10     10/10     10/10     10/10     10/10     10/10     10/10     0/10       10/10     10/10     10/10     10/10
+run each experiment ten times, and record how many times                                                    gpt-4                    10/10     10/10     10/10     10/10     10/10     0/10       10/10     10/10     10/10     10/10     10/109/10
+themodelprovidesthesameanswer.Weconsideramodelto
+be consistent if it always provides the same binary answer,
+irregardless of whether it is correct.                                                                    4.2.  Performance Over Range of Parameters
+Observations. Table 7 shows that all LLMs provide incon-                                                        While  lower  temperatures  increase  the  consistency  in
+sistent responses for one or more of the tests at the recom-                                              results, setting a higher temperature is supposed to increase
+mended ‘temperature’ value of0.2. ‘codechat-bison@001’                                                    the creativity in LLMs. In this section, we aim to investigate
+even provides a wrong answer with the most basic ‘S1’                                                     whether increasing the temperature for LLMs increases their
+prompt (as shown in Figure 3). This suggests that the default                                             performance in identifying vulnerabilities, both with respect
+‘temperature’ is not a good choice to evaluate LLMs for                                                   to their accuracy and the correctness of their reasoning.
+vulnerability detection. Using 0.0 as temperature improves                                                      For this experiment, we select the same two classes of
+consistency, as shown in Table 8: ‘codechat-bison@001,’                                                   security weaknesses used in the previous section, and select
+‘codellama34b,’ and ‘gpt-3.5-turbo-16k’ provide consistent                                                two vulnerable and two patched code scenarios from these
+responses for all tests at this temperature. However, two                                                 classes. We choose scenarios with the highest code difficulty
+LLMs (‘chat-bison@001’ and ‘gpt-4’) still provide incon-                                                  level (3v and 3p) as they would need more creativity to be
+sistent results. Based on these results, we find that0.0 is the                                           correctly solved by LLMs.
+best ‘temperature’ value to get consistent responses from an                                                    As running experiments on all prompts is not feasible
+LLM, although we note that even at this setting some LLMs                                                 due to budget constraints, we perform the experiment on
+fail in delivering consistent responses.                                                                  only one prompt, S4 (ZS-RO), based on three reasons; (1)
+
+   6. We only report the results for the five best performing LLMs in the                                 this  prompt  does  not  provide  any  additional  information
+main body of the paper. The ones for the remaining three LLMs can be                                      like definition or step-by-step reasoning instructions to the
+found in the Appendix.                                                                                    LLM, so the response will be mainly based on the intrinsic
+
+=== PÁGINA FÍSICA 8 ===
+                                                                                                             TABLE  9:  Evaluation  of  LLMs  Over  a  Range  of  Temperature
+ 1  ...                                                                                                      Values (CWE-787). The table shows results for each temperature
+ 2  intMAX_SIZE  =  32;
+ 3  char*  encode_input(char                            *user_supplied_string){                              value in the format of # correct / # total answered out of 10.
+
+ 4          inti,  dst_index;
+ 5          char*  dst_buf  =  (char  *)malloc((4  *  sizeof(char)                       *                     Model                  Rec    0.0     0.25   0.5     0.75   1.0Model                  Rec    0.0     0.25   0.5     0.75   1.0
+            MAX_SIZE)  +  1);                                                                                  chat-bison    2/10  10/100/10  4/10 4/10 4/10    chat-bison     2/3  10/10 0/0  4/5   4/5  4/6
+ 6          if(  MAX_SIZE  <=  strlen(user_supplied_string)  )                                                 codechat-bison0/10  10/102/10  1/10 2/10 4/10    codechat-bison 0/1  10/10 2/2  1/2   2/3  4/4
+ 7                  exit(1);                                                                                   codellama34b  10/10 10/1010/10 10/1010/109/10    codellama34b   10/1010/10 10/1010/10 10/109/10
+ 8          dst_index  =  0;                                                                                   gpt-3.5       0/10  0/10 2/10  5/10 5/10 8/10    gpt-3.5        0/10 0/10  2/10 5/10  6/10 8/10
+ 9          for(  i  =  0;  i  <  strlen(user_supplied_string);  i++  ){                                       gpt-4         10/10 10/1010/10 10/1010/1010/10   gpt-4          10/1010/10 10/1010/10 10/1010/10
+10                  if(’&’==  user_supplied_string[i]  ){
+11                          dst_buf[dst_index++]  =’&’;                                                                   (a) Accuracy (3v)                                  (b) Reason (3v)
+12                          dst_buf[dst_index++]  =’a’;
+13                          dst_buf[dst_index++]  =’m’;
+14                          dst_buf[dst_index++]  =’p’;                                                        Model                  Rec    0.0     0.25   0.5     0.75   1.0Model                  Rec    0.0     0.25   0.5     0.75   1.0
+
+15                          dst_buf[dst_index++]  =’;’;                                                        chat-bison    6/10  0/10 6/10  10/105/10 7/10    chat-bison     0/4  0/10  0/4  0/0   0/5  1/4
+16                  }elseif(’<’==  user_supplied_string[i]  ){                                                 codechat-bison9/10  0/10 5/10  8/10 4/10 4/10    codechat-bison 0/1  0/10  0/5  0/2   1/7  2/8
+17                          /*  replacewith&lt;                             */                                 codellama34b  0/10  0/10 0/10  0/10 1/10 1/10    codellama34b   0/10 0/10  0/10 1/10  0/10 2/10
+18                  }elseif(’>’==  user_supplied_string[i]  ){                                                 gpt-3.5       9/10  10/109/10  9/10 6/10 6/10    gpt-3.5        4/10 3/10  4/10 3/10  2/10 2/10
+19                          /*  replacewith&lt;                             */                                 gpt-4         0/10  0/10 0/10  0/10 0/10 0/10    gpt-4          0/10 0/10  0/10 0/10  0/10 0/10
+20                  }elsedst_buf[dst_index++]  =
+            user_supplied_string[i];                                                                                      (c) Accuracy (3p)                                  (d) Reason (3p)
+21      }
+22      dst_buf[dst_index]  =’\0’;
+23      returndst_buf;
+24  }                                                                                                        TABLE 10: Evaluation of LLMs Over a Range of Temperature
+                                                                                                             Values (CWE-89).
+
+    (a)CWE-787(Out-of-BoundWrite)2v:Thiscodescenario encodescertaincharacters                                  Model                  Rec    0.0     0.25   0.5     0.75   1.0Model                  Rec    0.0     0.25   0.5     0.75   1.0
+    in the user input string. The program assumes that encoding expansion will only                            chat-bison    10/10 10/1010/10 10/106/10 7/10    chat-bison     10/1010/10 10/1010/10 6/9  7/9
+    expand a given character by a factor of 4, however the ampersand encoding expands
+    by 5. If the attacker provides a string of many ampersands, the string will over flow                      codechat-bison10/10 10/109/10  10/107/10 9/10    codechat-bison 10/1010/10 9/10 10/10 8/9  9/10
+    the destination buffer.                                                                                    codellama34b  10/10 10/1010/10 10/1010/1010/10   codellama34b   10/1010/10 10/1010/10 10/1010/10
+                                                                                                               gpt-3.5       10/10 10/1010/10 10/1010/1010/10   gpt-3.5        10/1010/10 10/1010/10 10/1010/10
+                                                                                                               gpt-4         10/10 10/1010/10 10/1010/1010/10   gpt-4          10/1010/10 10/1010/10 10/1010/10
+
+                                                                                                                          (a) Accuracy (3v)                                  (b) Reason (3v)
+
+
+                                                                                                               Model                  Rec    0.0     0.25   0.5     0.75   1.0Model                  Rec    0.0     0.25   0.5     0.75   1.0
+
+                                                                                                               chat-bison    0/10  0/10 1/10  0/10 5/10 7/10    chat-bison     1/10 0/10  1/10 0/10  2/8  6/10
+                                                                                                               codechat-bison0/10  0/10 0/10  1/10 2/10 1/10    codechat-bison 0/10 0/10  0/10 0/10  1/9  1/10
+                                                                                                               codellama34b  0/10  0/10 0/10  0/10 0/10 0/10    codellama34b   0/10 0/10  1/10 0/10  2/10 1/10
+                                                                                                               gpt-3.5       0/10  0/10 0/10  0/10 0/10 0/10    gpt-3.5        0/10 0/10  0/10 0/10  0/10 0/10
+                                                                                                               gpt-4         0/10  0/10 0/10  0/10 0/10 0/10    gpt-4          0/10 1/10  1/10 1/10  1/10 1/10
+
+                                                                                                                          (c) Accuracy (3p)                                  (d) Reason (3p)
+
+
+                                                                                                             in Tables 9 and 10.
+
+                                  (b) ‘codechat-bison@001’ responses.                                        Observations. Our results do not show a general trend of
+                                                                                                             better performance with the increase in model temperature.
+    Figure   3:   Non-deterministic   and   inconsistent   responses   by                                    Since increasing the temperature does not present a general
+    ‘codechat-bison@001’.                                                                                    improvementofresultsacrossourmodels,toprioritizeresult
+                                                                                                             consistency we elected to use 0.0 as the ‘temperature’ value
+                                                                                                             for the remaining of our experiments, and set ‘top                                       p’ to
+    knowledge of the model from its training data and no ex-                                                 LLM specific default value.
+    ternal instruction or information will influence its reasoning                                           4.3.  Diversity of Prompts
+    or creativity at a higher temperature, (2) being a zero-shot
+    prompt it does not limit the creativity or reasoning of the
+    model as in few-shot prompting might influence the model                                                       In this part of investigation, we test the LLMs on their
+    to  mimic  the  few-shot  examples,  and  (3)  this  prompt  is                                          ability to detect vulnerabilities in the 48 hand-crafted code
+    the most non-deterministic zero-shot prompt as shown in                                                  scenarios described in Section 3.4, by using the 17 prompts
+    Tables 8 and 7, allowing it to show more randomness or                                                   rangingoverthreecategoriesandfourpromptingtechniques,
+    creativity at higher temperature. We evaluate LLMs on six                                                as described in Section 3.3. This experiment allows us to
+    temperature values: their recommended value 0.2, and over                                                evaluate the capabilities of LLMs over a wide input spec-
+    a range of values from 0 to 1 i.e., 0, 0.25, 0.5, 0.75, 1.0. We                                          trum and answer questions like (1) what kind of prompting
+    runeachexperimenttentimes,andshowhowmanytimesan                                                          techniques work best for the model, (2) whether emulating
+    LLM provides a correct answer (i.e., accuracy) and correct                                               themulti-stepreasoningprocessfollowedbyhumansecurity
+    reasoning (i.e., reasoning score). The results are summarized                                            experts improves performance, and (3) whether providing
+
+=== PÁGINA FÍSICA 9 ===
+extra information or examples helps LLMs in decision mak-                    TABLE 11: Evaluation of five LLMs for detecting vulnerabilities
+ing?. Table 11 shows the results of this experiment based                    across 48 hand-crafted code scenarios, over a range of prompting
+on the following three metrics:                                              techniques. The green and red bars represent the count of sce-
+                                                                             narios with correct and incorrect responses for each LLM (i.e.,
+(1) Response Rate: Measures how often the model provides                     AccuracyRate). A white circle marks scenarios with both correct
+an answer to a given input at all. E.g., for prompts ‘S5’ and                answers  and  reasoning  (CRR).  Additionally,  we  highlight  top-
+‘S6,’ ‘codechat-bison@001’ provides answers to36 out of                      performing  prompts  for  each  technique:  ZS-TO  (          ),  ZS-RO
+48 inputs and for the rest it responds “I’m not able to help                 (     ), FS-TO (     ), and FS-RO (       ). The overall best prompt is
+with that, as I’m only a language model. If you believe this                 shown with a red box.
+is an error, please send us your feedback.”
+
+               ResponseRate = #InputsAnsweredTotalInputs
+
+(2)Accuracy Rate:Measuresthecorrectnessofthemodel’s
+response,  regardless  of  the  provided  reasoning.  E.g.,  for
+prompt  ‘D2,’  ‘codechat-bison@001’  provides  correct  an-
+swers to 24 inputs out of the 48 answered inputs.
+
+               AccuracyRate = #CorrectAnswers#InputsAnswered
+
+(3) Correct Reasoning Rate (CRR): Evaluates how often
+the model’s correct answers also have the correct reasoning.
+E.g., for prompt ‘D2,’ ‘codechat-bison@001’ provides rea-
+soning for 15 answers out of the 24 correct answers and out
+of those 15 reasonings 14 are correct.
+
+       CRR = #CorrectAnswerswithCorrectReasoning#ReasoningswithCorrectAnswers
+
+Best Prompts: Based on the above three metrics, we choose
+the best overall prompts for each model from four categories
+of prompts (described in Section 3.3) i.e., ZS - TO, ZS - RO,
+FS - TO, and FS - RO. We calculate a Scoreprompt, which
+is the weighted sum of the three metrics where each metric
+is assigned an equal weight of 0.33. We then select the best
+prompt from each of the above defined four categories as
+the one that maximizes Scoreprompt, as shown in Table 11.
+Observations. ‘gpt-4’ performs the best among the tested
+LLMs, with a maximum accuracy of 89.5%. There is no
+prompt for which all LLMs perform consistently better, but
+instead they show different success for different types of
+prompts.  GPT  models  and  ‘codechat-bison’  perform  bet-
+ter  when  prompted  to  follow  a  human-like  step-by-step                 section, focusing on five aspects: (1) for how many cases
+reasoning process (as shown in Figure 4) , i.e., R4, R6,                     does the LLM provide a reasoning for the presence of a
+and  R2  prompts,  respectively.  ‘chat-bison’  performs  best               vulnerability in a code snippet at all, (2) for how many
+whenassigneda‘securityexpert’role,while‘codellama34b’                        correct answers the LLM also provides a correct reasoning,
+works best with the S1 prompt, which simply asks if the                      (3) for how many correct answers the LLM provides an
+code snippet contains a certain vulnerability. While ‘gpt-4’                 incorrect reasoning, (4) for how many incorrect answers the
+and ‘codellama34b’ show an increase in accuracy when pro-                    LLM provides an incorrect and (5) for how many answers
+vided with a vulnerability definition, compared to standard                  does  the  LLM  provide  the  wrong  answer,  but  a  correct
+prompts, the same trend is not found in the other LLMs.                      reasoning. Table 12 provides an overview of the results of
+4.4.  Faithful Reasoning                                                     this experiment.
+                                                                             Observations.  While  in  the  vast  majority  of  cases  the
+    Faithful reasoning is the quality of an LLM to provide                   answer  and  reasoning  for  the  tested  LLMs  align,  every
+the right reasoning for the right answer or vice versa [50].                 LLM presents cases where it provides the correct reasoning
+The more faithful an LLM’s reasoning is to its final answer,                 but this leads to a wrong answer (as shown in Figure 5).
+the more a user can trust its response. Table 11 shows that                  Similarly, we find cases where an LLM provides the right
+evenwhentheyprovidetherightresponse,LLMssometimes                            answer but its reasoning or root cause is not correct (as
+provide the wrong reason for this decision. In this section,                 shown under ‘codechat-bison (1st Response)’ in Figure 3b).
+we further analyze the faithful reasoning of LLMs on their                   We  also  find  that  Google’s  PaLM2  models  have  overall
+decisions  from  the  experiment  discussed  in  the  previous               lower reasoning rate as they do not explain their decisions in
+
+=== PÁGINA FÍSICA 10 ===
+                                                                                       TABLE   12:   Faithfulness   of   LLMs.   The   Table   shows   the
+1  ...                                                                                 Reason Rate      i.e., # scenarios for which LLM provides reasoning
+2  voidread_file(char                            *  file_path)  {
+3          char*  resolved_path  =  realpath(file_path,  NULL);                        / # total scenarios answered by LLM (out of total 816 scenarios).
+
+4          if(resolved_path  ==  NULL)  {                                              Then it displays # of scenarios with correct answer and correct
+5                  printf("Error:InvalidPath\n");                                      reasoning (        ), # correct answer but incorrect reasoning (              ),
+6                  return;                                                             # incorrect answer and incorrect reasoning (              ), and # incorrect
+7          }
+8          char*  dir  ="/Users/user1/";                                               answer but correct reasoning (            ).
+
+9          /*  safelycreatesfull_pathbyconcatenating
+         file_pathwithdir                            */
+10          FILE  *fp;
+11          char  *data  =  malloc(256);
+12          fp  =  fopen(full_path,"r");
+13          while(fgets(data,  256,  fp)  !=  NULL)
+14          {    /  *  processesfile                    */     }
+15          ...
+16  }
+
+
+   (a) CWE-476 (NULL-Pointer Derefence) 1v: This code scenario sanitizes the user
+   provided file path, opens file at that file path, and processes it. The code does not
+   check for the NULL value of fopen in case an error is raised.
+
+
+
+
+
+
+
+
+
+
+
+                                                                                       Figure 5: ‘chat-bison@001’ (PaLM2) response for CWE-773v
+                                                                                       scenario  (see  Appendix  Figure  11)  using  prompt  ‘D3’  shows
+                                                                                       unfaithfulness between provided reasoning and final answer.
+
+
+                                                                                       each CWE usingScorecwe, with equal weight to all factors,
+                                                                                       from four prompting categories. The results are summarized
+                                                                                       in Table 13.
+                                                                                       Observations. Most models show poor performance in clas-
+                                                                                       sifying the patched versions correctly, which makes these
+                                                                                       LLMs non-suitable for real-world cases as they will mostly
+                                                                                       flag  safe  code  as  vulnerable,  causing  manyfalse  alarms.
+                                                                                       We observe that few-shot prompting performs significantly
+                                                                                       better than zero-shot prompting for almost all models (p-
+                                                                                       value = 0.003), and role-oriented prompts perform slightly
+                                 (b) GPT-3.5 Responses.                                betterthantask-orientedprompts(p-value=0.1).Thereason
+   Figure 4: ‘GPT-3.5’ responses to standard ‘S1’ and security-expert                  for this is that assigning a role to the model grounds its
+   like multi-step reasoning ‘R2’ for CWE-4761v code scenario.                         knowledge for the given task and prevents it from halluci-
+                                                                                       nating, which can be seen in the increase in reasoning score
+                                                                                       for role-oriented prompts. However, Table 13 shows that
+   many cases, while GPT models show comparatively higher                              ‘codechat-bison@001’ does not provide answers for ‘CWE-
+   reasoning rates, especially ‘gpt-4’ and ‘codellama34b’ pro-                         787’ and ‘CWE-416’ for few-shot prompts.
+   vide a reason for every answer. Our findings suggest that,
+   in certain cases, current LLMs’ responses might not fully                           4.6.  Code Difficulty Levels
+   rely on faithful and accurate reasoning.
+                                                                                            In this section, we investigate the capabilities of LLMs
+   4.5.  Evaluation Over Variety of Vulnerabilities                                    to  handle  different  complexities  of  code.  Similar  to  the
+                                                                                       previous sections, we find the best performing prompts for
+        In  this  section,  we  focus  on  analyzing  LLMs  ability                    each  difficulty  level  using Scorediff,  with  equal  weight
+   to correctly identify both vulnerable and patched code for                          to  all  factors,  from  four  prompting  categories.  Table  14
+   different types of vulnerabilities, based on the eight CWEs                         summarizes the results of this experiment.
+   that we used to build our hand-crafted dataset. Similar to                          Observations. LLMs generally perform better on the easy
+   Section 4.3, we find and use the best performing prompts for                        code  scenarios,  with  limited  exceptions  (e.g.,  ‘codechat-
+
+=== PÁGINA FÍSICA 11 ===
+TABLE 13: Evaluation of LLMs over a wide range of eight most                       TABLE 14: Evaluation of LLMs over a Range of Code Difficulty
+critical vulnerabilities. Each bar represents count of correctly clas-             Levels. (Same color coding as Table 13).
+sified vulnerable (       bar) and patched (          bar) code scenarios,
+andeachcirclemarkscountofcorrectlyreasonedvulnerable(white
+circle)  and  patched  (black  circle)  code  scenarios,  out  of  total
+answered scenarios by each LLM.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                 1  defcreateQuery(username,  password):
+                                                                                 2      query_text  ="SELECT      *  FROMusersWHEREusername=’%s’
+                                                                                           ANDpassword=’%s’"
+                                                                                 3      parmeters  =  (username,  password)
+                                                                                 4      query  =  query_text,  parmeters
+                                                                                 5      returnquery
+                                                                                 6
+                                                                                 7  @app.route("/login")
+                                                                                 8  deflogin():
+                                                                                 9      username  =  request.form(’username’)
+                                                                                10      password  =  request.form(’password’)
+                                                                                11
+                                                                                12      db  =  pymysql.connect("localhost")
+                                                                                13      cursor  =  db.cursor()
+                                                                                14
+                                                                                15      query  =  createQuery(username,  password)
+                                                                                16      cursor.execute(query)
+
+
+                                                                                   (a) CWE-89 (SQL Injection) 3p code scenario. This code is not vulnerable to SQL
+                                                                                   Injectionasitpassesthe‘query’and‘parameters’separatelytothe‘pymysql’function.
+
+
+
+
+
+
+
+
+
+
+
+                                                                                                                 (b) GPT-4 response.
+                                                                                   Figure 6: GPT-4 provides wrong answer and reasoning to CWE-89
+                                                                                   (hard-level) 3p code scenario.
+bison’ correctly recognizing more medium than easy vul-
+nerabilities in the FS - TO setting). By manually looking                          4.7.  Robustness to Code Augmentations
+at the misclassified scenarios, we make two observations;
+(1) LLMs are not familiar with the safe practices of library                            In  this  section  we  test  the  robustness  of  LLMs  by
+functions,  and  (2)  LLMs  cannot  handle  complex  multi-                        testing them against the code augmentations described in
+function and multi-variable data flow patterns. For example,                       Section 3.4. Our results are summarized in Table 6. For each
+in  the  CWE-89  (SQL  Injection)  ‘3p’  scenario,  the  code                      input augmentation we show the change in accuracy and
+creates an SQL query and its parameters in one function                            reasoning score as compared to the original non-augmented
+‘create   query’,  and  returns  them  to  the  ‘login’  function                  version of the input. For each LLM, we test each augmen-
+where they are passed to ‘pymysql’ as separate arguments.                          tation using three prompts: standard prompt ‘S1,’ and the
+None of the LLMs were able to understand this flow (e.g.,                          best zero-shot (ZS) and few-shot (FS) prompts.7
+the response from ‘gpt-4’ is shown in Figure 6), as they
+mistakenly assume that the ‘login’ function only passes one                           7. Since we show in Sections 4.5 and 4.6 that role-oriented prompts
+argument to the ‘execute’ function. The LLMs also seem to                          work better than task-oriented ones, we do not run experiments on all four
+be unaware that ‘pymysql’ itself sanitizes the output.                             categories of prompts.
+
+=== PÁGINA FÍSICA 12 ===
+TABLE 15: Evaluation for Code-Level Augmentations. The tables
+show∆a (#ofanswersthatarecorrectinnon-augmentedscenarios
+but incorrect in this specific augmentation case) and ∆p  (# of
+reasoning that are correct in non-augmented scenarios but incorrect
+in this specific augmentation case) for each code augmentation and
+for three prompts (standard ‘S1’, best zero-shot, and best few-shot)
+of each LLM.
+
+
+
+                 T1                   T2                   T3                   T4                   T5                   T6                   T7
+  M    PS       ∆a  ∆r   ∆a  ∆r   ∆a  ∆r   ∆a  ∆r   ∆a  ∆r   ∆a  ∆r   ∆a  ∆r                          (a) Example of a complete change in ‘chat-bison’ decision by just adding whitespaces
+      S1S     0/12  0/12  0/12  0/12  0/12  0/12  0/12  0/12  0/12  0/12 0/12  0/12  0/12  0/12       (T5) in code scenario CWE-787 2v (shown in Figure 3a) after line 22.
+      R2ZS    2/12  2/12  1/12  1/12  0/12  0/12  1/12  1/12  2/12  3/12 0/12  0/12  0/12  1/12
+      S6FS    2/12  3/12  2/12  2/12  2/12  4/12  1/12  3/12  2/12  2/12 2/12  2/12  2/12  1/12
+
+      S1S     0/12  2/12  0/12  3/12  0/12  3/12  0/12  0/12  0/12  2/12 0/12  2/12  0/12  1/12
+      R2ZS    0/12  0/12  0/12  1/12  0/12  0/12  3/12  3/12  2/12  2/12 0/12  2/12  1/12  1/12
+      R4FS    0/12  0/12  0/12  0/12  0/12  0/12  1/12  1/12  0/12  0/12 1/12  1/12  0/12  0/12
+
+      S1S     0/12  0/12  0/12  0/12  0/12  0/12  0/12  0/12  0/12  0/12 0/12  0/12  0/12  0/12
+      S1ZS    0/12  0/12  0/12  0/12  0/12  0/12  0/12  0/12  0/12  0/12 0/12  0/12  0/12  0/12
+      S5FS    0/12  0/12  3/12  3/12  3/12  3/12  2/12  3/12  0/12  0/12 1/12  1/12  2/12  2/12
+
+      S1S     0/12  0/12  0/12  0/12  2/12  3/12  1/12  1/12  0/12  0/12 1/12  2/12  0/12  0/12       (b) Example of NT5 augmentation to CWE-7872v, where even the addition of safely
+      R2ZS    0/12  0/12  0/12  0/12  0/12  0/12  0/12  0/12  0/12  0/12 0/12  0/12  0/12  0/12
+      R4FS    1/12  1/12  1/12  1/12  1/12  1/12  1/12  1/12  2/12  2/12 0/12  0/12  1/12  1/12       used ‘strcat’ successfully confuses ‘gpt-4’ to classify the code as vulnerable merely
+      S1S     0/12  0/12  0/12  2/12  0/12  2/12  0/12  0/12  0/12  0/12 0/12  1/12  0/12  0/12       on the basis of the presence of ‘strcat.’ However, the addition of ‘strncat’ leads to the
+      R2ZS    2/12  1/12  1/12  0/12  3/12  2/12  2/12  1/12  1/12  0/12 2/12  1/12  1/12  1/12       classification of vulnerable code as safe.
+      R6FS    0/12  0/12  0/12  0/12  0/12  0/12  0/12  0/12  0/12  0/12 0/12  0/12  0/12  0/12
+
+                                 (a) Trivial Augmentations
+
+
+
+
+                 NT1                    NT2                    NT3                    NT4                    NT5                    NT6
+  M    PS       ∆a    ∆r    ∆a    ∆r    ∆a    ∆r    ∆a    ∆r    ∆a    ∆r    ∆a    ∆r
+
+      S1S     0/12   0/12   1/12   0/12   8/12   7/12   0/12   1/12   0/9   2/9    0/9    1/9
+      R2ZS    3/12   2/12   2/12   2/12   4/12   4/12   0/12   6/12   0/9   2/9    0/9    3/9
+      S6FS    0/12   0/12   5/12   5/12   8/12   8/12   0/12   0/12   4/9   4/9    2/9    1/9
+
+      S1S     0/12   2/12   3/12   1/12   9/12   9/12   1/12   4/12   1/9   4/9    1/9    0/9
+      R2ZS    1/12   2/12   4/12   4/12   7/12   6/12   1/12   1/12   0/9   0/9    0/9    0/9
+      R4FS    0/12   0/12   5/12   6/12   1/12   1/12   0/12   0/12   6/9   6/9    0/9    0/9
+                                                                                                      (c) Example of NT5 augmentation to CWE-79 2v, where even an addition of an
+      S1S     1/12   0/12   4/12   4/12   9/12   9/12   1/12   3/12   1/9   2/9    1/9    0/9         unsafe ‘escape’ function call makes ‘codellama34b’ believe that the code is safe.
+      S1ZS    1/12   0/12   4/12   4/12   9/12   9/12   1/12   5/12   1/9   1/9    1/9    0/9
+      S5FS    0/12   0/12   3/12   3/12   3/12   3/12   1/12   5/12   0/9   0/9    1/9    0/9
+                                                                                                      Figure 7: Non-robustness in most capable LLMs responses. Red
+      S1S     1/12   0/12   1/12   2/12   1/12   1/12   2/12   2/12   0/9   0/9    2/9    1/9         shows response for code scenario before augmentation and green
+      R2ZS    0/12   0/12   2/12   2/12   0/12   0/12   2/12   2/12   3/9   3/9    0/9    0/9
+      R4FS    0/12   0/12   3/12   4/12   3/12   3/12   0/12   4/12   3/9   3/9    3/9    1/9         is for after augmentation.
+
+      S1S     0/12   2/12   1/12   3/12   0/12   0/12   2/12   7/12   0/9   0/9    2/9    1/9
+      R2ZS    0/12   0/12   0/12   0/12   3/12   3/12   0/12   2/12   0/9   0/9    0/9    1/9
+      R6FS    0/12   0/12   3/12   3/12   0/12   0/12   1/12   5/12   5/9   5/9    1/9    1/9
+                                                                                                      (Figure 7c) are detected as non-vulnerable. Our experiments
+                              (b) Non-Trivial Augmentations                                           show that there is no prompting technique that is completely
+                                                                                                      robust as our robustness tests break even the best types of
+                                                                                                      prompting techniques and chain-of-thought for all LLMs,
+                                                                                                      leading to incorrect responses (17% of cases for GPT-4).
+Observations. Table 15a shows that even trivial augmenta-
+tions like the addition of whitespaces (Figure 7a) and new-                                           4.8.  Real-World Cases
+line characters lead all LLMs to an incorrect answer and
+reasoning in some cases, and further breaks their chain-of-                                                 Finally, we investigate the ability of LLMs to identify
+thought reasoning. Furthermore, changing function or vari-                                            real-world vulnerable code, by leveraging our CVE dataset
+able names or the presence of unreachable code lead to in-                                            (see Table 5) using the best prompts listed in Table 11. The
+correct answers. When looking at non-trivial augmentations,                                           results are summarized in Tables 16 and 17.
+Table 15b shows that LLM performance is also affected by
+function and variable names, e.g., changing a variable name                                           Observations. Overall, the evaluation with our real-world
+to ‘buffer’ in NT1 leads to the wrong detection of a buffer                                           CVEs samples highlights that LLMs face challenges in de-
+overflow and changing a function name to ‘non                                vulnerable’              tecting vulnerabilities in real-world projects, with all studied
+or  to  a  safe  function  name  increases  the  chances  to  be                                      LLMs providing incorrect answers for several of our test
+detected as non-vulnerable. Most importantly, LLMs present                                            cases. In addition to providing wrong answers for vulnerable
+a bias towards library functions that are usually used for                                            code, LLMs frequently mistakenly identify patched exam-
+sanitization or are considered potentially vulnerable. E.g.,                                          ples as vulnerable, which would be particularly problematic
+all LLMs would declare the safe usage of ‘strcat’ in C as                                             if these models were used in production, as it would make
+vulnerable, and unsafe uses of ‘strncat’ would be flagged                                             the number of false positives skyrocket. We also observe
+as safe (Figure 7b). Similarly, the unsafe use of sanitizing                                          that  few-shot  prompting  does  not  work  in  case  of  real-
+library functions like ‘realpath’ in C or ‘escape’ in Python                                          world  scenarios,  likely  because  LLMs  fail  to  extrapolate
+
+=== PÁGINA FÍSICA 13 ===
+                TABLE 16: Evaluation on real-world CVEs for Linux              and pjsip.      TABLE 17: Evaluation on Real-World CVEs for gpac             and libtiff.
+                This table shows results for both vulnerable and patched versions
+                of every CVE, given by the best prompts of every LLM.                 (no
+                answer),      (correct answer but wrong reasoning),          (correct an-
+                swer with correct reasoning),       (wrong answer and no reasoning),
+                and      (wrong answer and no or wrong reasoning).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                information from the provided examples (despite being from
+                the  same  CWEs)  and  apply  it  to  other  software  code-
+                bases. At the same time, we find that the zero-shot role-
+                oriented prompt ‘R2’ shows relatively better performance
+                for all LLMs , which indicates that grounding LLM’s role
+                as ‘security expert’ and providing them explicit guidelines
+                to  follow  a  human-like  multi-step  vulnerability  detection
+                process can improve performance, but is still insufficient
+                for real-world deployment.                                                          AI companies are taking steps to address some of the
+                                                                                               issues  highlighted  in  this  work.  For  example,  the  latest
+                5.  Discussion                                                                 release of ‘GPT-4 Turbo (preview)’ introduces the use of a
+                                                                                               ‘seed’duringinferencetoenabledeterministicoutput.While
+                     SecLLMHolmes allows users to evaluate any chat-based                      a step in the right direction to ensure reliable output, this
+                LLM for its ability to identify software vulnerabilities. Fur-                 approachstillpresentstheproblemthatdifferentseedsmight
+                ther, we have publicly released our framework, enabling the                    produce different answers for the same input.
+                community to evaluate LLMs released in the future. For                         Limitations.  As  any  research  project,  our  work  presents
+                example, researchers will be able to compare performance                       somelimitations.Inthefollowing,wediscussthemindetail.
+                between different releases of an LLM, or study if changing                     Answer and Reason Extraction. We use GPT-4 to parse the
+                properties like model architecture or number of parameters                     LLM output and extract the final answer and reasoning, us-
+                improves their ability to detect vulnerabilities.8                             ingapromptthatrequiresGPT-4toanswerinagivenformat
+
+                   8. Weincludethesecasestudiesfor‘codellama7B’,‘codellama13B’,and             (as shown in Figure 8 in the Appendix), otherwise further
+                ‘starchat-beta’ in tables in Appendix                                          steps of our analysis would fail. We manually analyze 100
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+✓✓✗✗
+
+=== PÁGINA FÍSICA 14 ===
+extracted answers and reasonings by GPT-4 and only two                                        S. Jain, W. Saunders, C. Hesse, A. N. Carr, J. Leike, J. Achiam,
+were not answered in the given format.9                                                       V. Misra, E. Morikawa, and Radford, “Evaluating Large Language
+Knowledge Cut-Off. To evaluate newer LLMs, researchers                                        Models Trained on Code,” arXiv e-prints, p. arXiv:2107.03374, Jul.
+                                                                                              2021.
+might have to identify CVEs that were release after their                               [2]R. Anil, A. M. Dai, O. Firat, M. Johnson, and D. Lepikhin, “Palm 2
+knowledge cut-off, to avoid biases in the results. Our frame-                                 technical report,” 2023.
+work is modular and allows to add new ground truth data                                 [3]B. Rozi    `ere, J. Gehring, F. Gloeckle, S. Sootla, I. Gat, X. E. Tan,
+to the evaluation pipeline.                                                                   Y. Adi, J. Liu, T. Remez, J. Rapin, A. Kozhevnikov, I. Evtimov,
+Reasoning Score. We use a combination of three metrics                                        J.  Bitton,  M.  Bhatt,  C.  Canton  Ferrer,  A.  Grattafiori,  W.  Xiong,
+                                                                                              A. D´efossez, J. Copet, F. Azhar, H. Touvron, L. Martin, N. Usunier,
+(Rouge, Cosine Similarity, and GPT-4) and select the ma-                                      T.Scialom,andG.Synnaeve,“CodeLlama:OpenFoundationModels
+jority decision to the chance of false positives. However, if                                 for Code,” arXiv e-prints, p. arXiv:2308.12950, Aug. 2023.
+two metrics agree on a wrong output, our approach would                                 [4]R. Li, L. Ben Allal, Y. Zi, N. Muennighoff, D. Kocetkov, C. Mou,
+still report a false positive. Out of 100 manually selected                                   M.  Marone,  C.  Akiki,  J.  Li,  J.  Chim,  Q.  Liu,  E.  Zheltonozhskii,
+examples, we find that this happened 7 times.                                                 T. Y. Zhuo, T. Wang, O. Dehaene, M. Davaadorj, J. Lamy-Poirier,
+                                                                                              J. Monteiro, O. Shliazhko, N. Gontier, N. Meade, A. Zebaze, M.-
+Representativeness of Code Scenarios. While we developed                                      H. Yee, L. K. Umapathi, J. Zhu, B. Lipkin, M. Oblokulov, Z. Wang,
+a wide numbers of code scenarios, there are many aspects                                      R. Murthy, J. Stillerman, S. Sankalp Patel, D. Abulkhanov, M. Zocca,
+of difficulty levels and code augmentations as well as many                                   M. Dey, Z. Zhang, N. Fahmy, U. Bhattacharyya, W. Yu, S. Singh,
+languages and vulnerabilities that were not considered. Our                                   S.Luccioni,P.Villegas,M.Kunakov,F.Zhdanov,M.Romero,T.Lee,
+                                                                                              N. Timor, and J. Ding, “StarCoder: may the source be with you!”
+framework can be easily extended in the future to include                                     arXiv e-prints, p. arXiv:2305.06161, May 2023.
+additional code scenarios.                                                              [5]OpenAI, “Gpt-4 technical report,” 2023.
+                                                                                        [6]“Gitlab 2022 survey.” https://about.gitlab.com/blog/2022/08/23/gitla
+6.  Conclusion                                                                                bs-2022-global-devsecops-survey-security-is-the-top-concern-inves
+                                                                                              tment/#more-work-to-do, accessed on: 2023-07-10.
+     This work presents the first scalable and fully automated                          [7]H. Pearce, B. Tan, B. Ahmad, R. Karri, and B. Dolan-Gavitt, “Ex-
+framework to evaluate the efficiency and reasoning capabili-                                  amining zero-shot vulnerability repair with large language models,”
+                                                                                              in IEEE Symposium on Security and Privacy, 2023.
+ties of chat-based LLMs across eight distinct dimensions for                            [8]H. Pearce, B. Ahmad, B. Tan, B. Dolan-Gavitt, and R. Karri, “Asleep
+the task of vulnerability detection. We performed an evalua-                                  at  the  keyboard?  assessing  the  security  of  github  copilot’s  code
+tion of state-of-the-art LLMs using this framework, showing                                   contributions,” in IEEE Symposium on Security and Privacy, 2022.
+that they are currently unreliable at this task and will answer                         [9]N. Perry, M. Srivastava, D. Kumar, and D. Boneh, “Do users write
+wrongly  when  asked  to  identify  vulnerabilities  in  source                               more  insecure  code  with  ai  assistants?”  in Proceedings  of  ACM
+code. Based on these results, we conclude that state-of-the-                                  SIGSAC  Conference  on  Computer  and  Communications  Security,
+art LLMs are not yet ready to be used for vulnerability                                       2023.
+detection and urge future research to address and resolve                               [10]“Diffblue cover: Autonomous java unit test writing with ai for code,”
+the highlighted issues. Our framework and benchmarks will                                     https://www.diffblue.com/products/, accessed on: 2023-07-10.
+be a useful tool for the community to evaluate the progress                             [11]J. Wei, X. Wang, D. Schuurmans, M. Bosma, B. Ichter, F. Xia, E. Chi,
+                                                                                              Q. V. Le, and D. Zhou, “Chain-of-thought prompting elicits reason-
+of future LLM versions in vulnerability detection.                                            ing in large language models,” in Advances in Neural Information
+                                                                                              Processing Systems, 2022.
+Acknowledgments                                                                         [12]A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N.
+                                                                                              Gomez, L. u. Kaiser, and I. Polosukhin, “Attention is all you need,”
+                                                                                              in Advances in Neural Information Processing Systems, 2017.
+     We would like to thank Syed Qasim and Pujan Paudel                                 [13]J. Wei, Y. Tay, R. Bommasani, C. Raffel, B. Zoph, S. Borgeaud,
+for their help in generating ground-truth reasoning for the                                   D.   Yogatama,   M.   Bosma,   D.   Zhou,   D.   Metzler,   E.   H.   Chi,
+code scenarios. This work was supported by the Red Hat                                        T. Hashimoto, O. Vinyals, P. Liang, J. Dean, and W. Fedus, “Emer-
+Collaboratory and by the NSF under grants CNS-1942610                                         gent abilities of large language models,” Transactions on Machine
+and CNS-2127232. Any opinions, findings, and conclusions,                                     Learning Research, 2022.
+or recommendations expressed are those of the authors and                               [14]T. Brown, B. Mann, N. Ryder, M. Subbiah, J. D. Kaplan, P. Dhari-
+do not necessarily reflect the views of the sponsors.                                         wal, A. Neelakantan, P. Shyam, G. Sastry, A. Askell, S. Agarwal,
+                                                                                              A. Herbert-Voss, G. Krueger, T. Henighan, R. Child, A. Ramesh,
+                                                                                              D. Ziegler, J. Wu, C. Winter, C. Hesse, M. Chen, E. Sigler, M. Litwin,
+References                                                                                    S. Gray, B. Chess, J. Clark, and Berner, “Language models are few-
+                                                                                              shotlearners,”inAdvancesinNeuralInformationProcessingSystems,
+                                                                                              2020.
+[1]M. Chen, J. Tworek, H. Jun, Q. Yuan, H. Ponde de Oliveira Pinto,                     [15]“OWASP List.” https://owasp.org/www-community/Source                 Code   A
+      J. Kaplan, H. Edwards, Y. Burda, N. Joseph, G. Brockman, A. Ray,                        nalysis  Tools, accessed on: 2023-07-10.
+      R. Puri, G. Krueger, M. Petrov, H. Khlaaf, G. Sastry, P. Mishkin,                 [16]F.  Yamaguchi,  N.  Golde,  D.  Arp,  and  K.  Rieck,  “Modeling  and
+      B.  Chan,  S.  Gray,  N.  Ryder,  M.  Pavlov,  A.  Power,  L.  Kaiser,                  discovering vulnerabilities with code property graphs,” inIEEE Sym-
+      M. Bavarian, C. Winter, P. Tillet, F. Petroski Such, D. Cummings,                       posium on Security and Privacy, 2014.
+      M. Plappert, F. Chantzis, E. Barnes, A. Herbert-Voss, W. Hebgen
+      Guss,A.Nichol,A.Paino,N.Tezak,J.Tang,I.Babuschkin,S.Balaji,                       [17]Y. Mirsky, G. Macon, M. Brown, C. Yagemann, M. Pruett, E. Down-
+                                                                                              ing,  S.  Mertoguno,  and  W.  Lee,  “VulChecker:  Graph-based  vul-
+  9. We note that using the newest ‘GPT-4 Turbo,’ which provides re-                          nerability  localization  in  source  code,”  in 32nd  USENIX  Security
+sponses in json format, could eliminate even these two anomalies.                             Symposium, 2023.
+
+=== PÁGINA FÍSICA 15 ===
+[18]Z. Li, D. Zou, S. Xu, X. Ou, H. Jin, S. Wang, Z. Deng, and Y. Zhong,                      [38]M.   Nye,   A.   Andreassen,   G.   Gur-Ari,   H.   W.   Michalewski,
+      “Vuldeepecker: A deep learning-based system for vulnerability de-                             J. Austin, D. Bieber, D. M. Dohan, A. Lewkowycz, M. P. Bosma,
+      tection,” Proceedings of Network and Distributed System Security                              D.  Luan,  C.  Sutton,  and  A.  Odena,  “Show  your  work:  Scratch-
+      Symposium, 2018.                                                                              pads  for  intermediate  computation  with  language  models,”  2021,
+[19]G. Lin, J. Zhang, W. Luo, L. Pan, and Y. Xiang, “Poster: Vulnera-                               https://arxiv.org/abs/2112.00114.
+      bility discovery with function representation learning from unlabeled                   [39]D. Votipka, R. Stevens, E. Redmiles, J. Hu, and M. Mazurek, “Hack-
+      projects,” in Proceedings of ACM SIGSAC Conference on Computer                                ers  vs.  testers:  A  comparison  of  software  vulnerability  discovery
+      and Communications Security, 2017.                                                            processes,” in IEEE Symposium on Security and Privacy, 2018.
+[20]Z.  Li,  D.  Zou,  S.  Xu,  H.  Jin,  Y.  Zhu,  and  Z.  Chen,  “Sysevr:  A               [40]D. Votipka, S. Rabin, K. Micinski, J. S. Foster, and M. L. Mazurek,
+      framework for using deep learning to detect software vulnerabilities,”                        “An observational investigation of reverse Engineers’ processes,” in
+      IEEE Transactions on Dependable and Secure Computing, 2022.                                   29th USENIX Security Symposium, 2020.
+[21]D. Guo, S. Lu, N. Duan, Y. Wang, M. Zhou, and J. Yin, “UniXcoder:                         [41]“MITRE Top 25 Most Dangerous Software Weaknesses.” https://cw
+      Unifiedcross-modalpre-trainingforcoderepresentation,”inProceed-                               e.mitre.org/data/definitions/1387.html, accessed on: 2023-07-10.
+      ings of the 60th Annual Meeting of the Association for Computational                    [42]R. Russell, L. Kim, L. Hamilton, T. Lazovich, J. Harer, O. Ozdemir,
+      Linguistics, May 2022.                                                                        P. Ellingwood, and M. McConley, “Automated vulnerability detection
+[22]H.  Hanif  and  S.  Maffeis,  “Vulberta:  Simplified  source  code  pre-                        in source code using deep representation learning,” in 17th IEEE
+      training for vulnerability detection,” inInternational Joint Conference                       International  Conference  on  Machine  Learning  and  Applications
+      on Neural Networks (IJCNN), 2022.                                                             (ICMLA), 2018.
+[23]L. Phan, H. Tran, D. Le, H. Nguyen, J. Annibal, A. Peltekian, and                         [43]A. Rahman, C. Parnin, and L. Williams, “The seven sins: Security
+      Y. Ye, “CoTexT: Multi-task learning with code-text transformer,” in                           smells in infrastructure as code scripts,” in IEEE/ACM 41st Interna-
+      Proceedings of the 1st Workshop on Natural Language Processing                                tional Conference on Software Engineering (ICSE), 2019.
+      for Programming (NLP4Prog), 2021.                                                       [44]K. Zhu, J. Wang, J. Zhou, Z. Wang, H. Chen, Y. Wang, L. Yang,
+[24]“Pysa.”  https://engineering.fb.com/2020/08/07/security/pysa/,                                  W. Ye, Y. Zhang, N. Zhenqiang Gong, and X. Xie, “PromptBench:
+      accessed on: 2023-07-10.                                                                      Towards Evaluating the Robustness of Large Language Models on
+                                                                                                    Adversarial Prompts,” arXiv e-prints, p. arXiv:2306.04528, 2023.
+[25]“Bandit.” https://bandit.readthedocs.io/en/latest/, accessed on: 2023-                    [45]C. Li, J. Wang, Y. Zhang, K. Zhu, W. Hou, J. Lian, F. Luo, Q. Yang,
+      07-10.                                                                                        and X. Xie, “Large Language Models Understand and Can be En-
+[26]“Cppcheck.” https://cppcheck.sourceforge.io/, accessed on: 2023-07-                             hanced by Emotional Stimuli,” arXiv e-prints, p. arXiv:2307.11760,
+      10.                                                                                           2023.
+[27]“Infer.” https://fbinfer.com/, accessed on: 2023-07-10.                                   [46]J. L. Fleiss, B. Levin, and M. C. Paik,       Statistical methods for rates
+[28]G. Grieco, G. L. Grinblat, L. Uzal, S. Rawat, J. Feist, and L. Mounier,                         and proportions.    Wiley-Interscience, 2003.
+      “Toward large-scale vulnerability discovery using machine learning,”                    [47]C. Y. Lin, “ROUGE: A package for automatic evaluation of sum-
+      2016.                                                                                         maries.”    Association for Computational Linguistics, Jul. 2004.
+[29]D.  Arp,  E.  Quiring,  F.  Pendlebury,  A.  Warnecke,  F.  Pierazzi,                     [48]“Cheat sheet: Mastering temperature and top              p in chatgpt api (a few
+      C. Wressnegger, L. Cavallaro, and K. Rieck, “Dos and don’ts of                                tips and tricks on controlling the creativity/deterministic output of
+      machine learning in computer security,” in 31st USENIX Security                               prompt responses.),” https://community.openai.com/t/cheat-sheet-m
+      Symposium, 2022.                                                                              astering-temperature-and-top-p-in-chatgpt-api-a-few-tips-and-trick
+                                                                                                    s-on-controlling-the-creativity-deterministic-output-of-prompt-respo
+[30]N. Risse and M. B      ¨ohme, “Limits of Machine Learning for Automatic                         nses/172683/1.
+      Vulnerability Detection,” arXiv e-prints, p. arXiv:2306.17193, Jun.                     [49]“OpenAI Chat Completion API Reference,” https://platform.openai.
+      2023.                                                                                         com/docs/api-reference/completions/create, accessed on: 2023-07-10.
+[31]W. Ahmad, S. Chakraborty, B. Ray, and K.-W. Chang, “Unified pre-                          [50]A.  Creswell  and  M.  Shanahan,  “Faithful  Reasoning  Using  Large
+      training for program understanding and generation,” in Proceedings                            Language Models,” arXiv e-prints, p. arXiv:2208.14271, Aug. 2022.
+      of Conference of the North American Chapter of the Association for
+      Computational Linguistics: Human Language Technologies, 2021.
+[32]“Microsoft codexglue leaderboard.” https://microsoft.github.io/Code                       Appendix A.
+      XGLUE/, accessed on: 2023-07-10.                                                        Examples of Code Difficulty Levels
+[33]Y. Zhou, S. Liu, J. Siow, X. Du, and Y. Liu, “Devign: Effective vul-
+      nerability identification by learning comprehensive program seman-                      Easy: CWE-22 ‘1v’ (see Figure 9a) takes a file path as an
+      tics via graph neural networks,” in Advances in Neural Information
+      Processing Systems, 2019.                                                               input, which is then concatenated with an absolute directory
+[34]C. Thapa, S. I. Jang, M. E. Ahmed, S. Camtepe, J. Pieprzyk, and                           path, and then the file is read and displayed on the console.
+      S.  Nepal,  “Transformer-based  language  models  for  software  vul-                   The file path provided by the user is not sanitized, leading
+      nerability detection,” in Proceedings of the 38th Annual Computer                       to a directory traversal vulnerability.
+      Security Applications Conference, 2022.                                                 Medium: CWE-22 ‘2v’ (see Figure 9b) takes four inputs:
+[35]“Best practices for prompt engineering with OpenAI API,” https:                           file path, flag, data, and directory path (set using an en-
+      //help.openai.com/en/articles/6654000-best-practices-for-prompt-eng                     vironment variable). Based on the flag, data and file are
+      ineering-with-openai-api, accessed on: 2023-07-10.                                      processed. The program also calls the ‘realpath’ function to
+[36]“Introduction to prompt design,” https://developers.generativeai.goog                     sanitize the input, but only applies it to the directory path,
+      le/guide/prompt     best  practices, accessed on: 2023-07-10.                           leaving the file path vulnerable to directory traversal.
+[37]T. Kojima, S. S. Gu, M. Reid, Y. Matsuo, and Y. Iwasawa, “Large                           Hard: CWE-22 ‘3v’ (see Figure 9c) contains two functions:
+      language  models  are  zero-shot  reasoners,”  in Advances  in Neural
+      Information Processing Systems, 2022, pp. 22199–22213.                                  ‘resolve     path’ that takes in a path and replaces all white
+
+=== PÁGINA FÍSICA 16 ===
+                                                                                                                       TABLE  18:  Evaluation  Output  Consistency  at  Recommended
+                                                                                                                       Temperature           (Ext. Table 7).
+
+                                                                                                                                                                      (a) CWE-787
+
+
+                                                                                                                                               S1                     S2                       S3                       S4                       S5                       S6
+
+                                                                                                                          Models         2v     2p     2v     2p     2v     2p     2v     2p     2v     2p     2v     2p
+
+                                                                                                                          codellama7b      10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/102/107/10       10/10     0/10
+                                                                                                                          codellama13b    10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/105/105/10
+                                                                                                                          starchat              10/10     0/10       10/10     0/10       10/10     0/102/105/10       10/10     0/103/106/10
+
+                                                                                                                                                                       (b) CWE-89
+
+
+                                                                                                                                               S1                     S2                       S3                       S4                       S5                       S6
+                            Figure 8: Extraction Prompt Pe
+                                                                                                                          Models         2v     2p     2v     2p     2v     2p     2v     2p     2v     2p     2v     2p
+
+                                                                                                                          codellama7b      10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/104/10
+                                                                                                                          codellama13b    10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/10     10/10     10/10     0/10
+spaces with hyphens, and ‘print                                file’ that takes in the di-                                starchat              10/10     0/10       10/10     0/10       10/10     0/108/104/10       10/10     0/107/10       0/10
+rectory path from an environment variable and the file path
+from the user, concatenates them and calls ‘resolve                                                  path’             TABLE 19: Evaluation Output Consistency at Temperature = 0.0
+on it. The ‘resolve                 path’ function call in ‘print                        file’ seman-                  (Ext. Table 8).
+tically appears to be sanitizing the given path, but actually                                                                                                         (a) CWE-787
+it fails in doing so.
+                                                                                                                                               S1                     S2                       S3                       S4                       S5                       S6
+
+                                                                                                                          Models         2v     2p     2v     2p     2v     2p     2v     2p     2v     2p     2v     2p
+Appendix B.                                                                                                               codellama7b      10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       0/10       10/10     10/10     0/10
+Robustness to Code Augmentations                                                                                          codellama13b    10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       0/10       10/10
+                                                                                                                          starchat              10/10     0/10       10/10     0/10       10/10     0/10       0/10       10/10     10/10     0/10       0/103/10
+
+A1: In this case, we design 12 CWE scenarios for the top                                                                                                               (b) CWE-89
+two vulnerabilities in C i.e., CWE-787 (out-of-bound write)                                                                                    S1                     S2                       S3                       S4                       S5                       S6
+and CWE-416 (use-after-free) and replace the name of the                                                                  Models         2v     2p     2v     2p     2v     2p     2v     2p     2v     2p     2v     2p
+variables with ‘buffer’ and ask the the model to analyze the                                                              codellama7b      10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/108/10
+code for ‘out-of-bound write / buffer overflow’.                                                                          codellama13b    10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/10     10/10     10/10     0/10
+                                                                                                                          starchat              10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10       10/10     0/10
+A2: In this case, we select 12 patched versions of CWE-
+scenarios from the four most dangerous classes of vulner-                                                              TABLE  20:  Evaluation  Over  a  Range  of  Temperature  Values
+abilities i.e., CWE-787 (C), CWE-79 (Py), CWE-89 (Py),                                                                 (CWE-787) (Ext. Table 9).
+and CWE-416 (C), and change the names of functions to
+                                                                                                                         Model                Rec    0.0      0.25    0.5      0.75    1.0Model                Rec    0.0      0.25    0.5      0.75    1.0
+‘vulnerable            func’.
+                                                                                                                         codellama7b     10/10 10/10 10/10  10/10 10/10 9/10      codellama7b    10/10 10/10  10/10 10/10 10/10  9/10
+A3: Opposite to ‘A2’, in this case, we select 12 vulnerable                                                              codellama13b    10/10 10/10 10/10  10/10 9/10  10/10     codellama13b   10/10 10/10  10/10 10/10 10/10  10/10
+versions  of  CWE-scenarios  from  the  same  four  classes                                                              starchat        10/10 10/10 8/10   7/10  8/10  7/9       starchat       10/10 10/10  8/10  7/10  8/10   7/9
+of  vulnerabilities  and  change  the  names  of  functions  to                                                                       (a) Accuracy (3v)                                         (b) Reason (3v)
+‘non      vulnerable            func’.
+                                                                                                                         Model                Rec    0.0      0.25    0.5      0.75    1.0Model                Rec    0.0      0.25    0.5      0.75    1.0
+A4: In this case, we safely add ‘strcpy’ and ‘strcat’ library
+                                                                                                                         codellama7b     0/10  0/10  0/10   0/10  0/10  0/10      codellama7b    2/10  0/10   3/10  1/10  1/10   0/10
+functions,  which  are  famous  to  be  vulnerable  but  these                                                           codellama13b    0/10  0/10  0/10   0/10  0/10  0/10      codellama13b   0/10  0/10   0/10  0/10  2/10   0/10
+are only vulnerable if they are not used properly, into 12                                                               starchat        0/10  0/10  0/10   2/10  1/10  1/10      starchat       3/10  0/10   1/10  2/10  4/10   1/10
+manually crafted code scenarios of CWE-787 and CWE-                                                                                    (c) Accuracy (3p)                                        (d) Reason (3p)
+416.
+A5: Opposite to ‘A4’, we add library functions which are                                                               TABLE  21:  Evaluation  Over  a  Range  of  Temperature  Values
+commonly used to sanitize inputs. We add ‘realpath’, which                                                             (CWE-89) (Ext. Table 10).
+is used to sanitize input file path and prevents path traversal
+attack, to three vulnerable CWE-22 scenarios. For python,                                                                Model                Rec    0.0      0.25    0.5      0.75    1.0Model                Rec    0.0      0.25    0.5      0.75    1.0
+we add ‘escape’, which is used to sanitize the use input for                                                             codellama7b     10/10 10/10 10/10  10/10 10/10 10/10     codellama7b    10/10 10/10  10/10 10/10 10/10  10/10
+any scripts and prevents cross-site scripting attack, to three                                                           codellama13b    10/10 10/10 10/10  9/10  10/10 10/10     codellama13b   10/10 10/10  10/10 9/10  10/10  10/10
+                                                                                                                         starchat        7/10  0/10  6/10   6/9   9/9   7/10      starchat       7/10  0/10   6/10  5/9   9/9    7/10
+vulnerable CWE-79 scenarios. Finally we add ‘strncat’ and
+‘strncpy’, which are considered safer functions to prevent                                                                            (a) Accuracy (3v)                                         (b) Reason (3v)
+out-of-bound write, to three vulnerable CWE-787 scenarios.                                                               Model                Rec    0.0      0.25    0.5      0.75    1.0Model                Rec    0.0      0.25    0.5      0.75    1.0
+A6: In this case, we add respective ‘#define’ expressions                                                                codellama7b     0/10  0/10  0/10   0/10  0/10  0/10      codellama7b    1/10  7/10   5/10  2/10  2/10   2/10
+(as shown in figure 10) to 9 CWE scenarios from CWE-77,                                                                  codellama13b    0/10  0/10  0/10   0/10  1/10  1/10      codellama13b   1/10  0/10   3/10  2/10  1/10   3/10
+CWE-22, and CWE-787.                                                                                                     starchat        4/10  0/0   2/8    4/10  1/9   2/9       starchat       3/10  0/0    3/8   4/10  1/9    2/9
+
+                                                                                                                                       (c) Accuracy (3p)                                        (d) Reason (3p)
+
+=== PÁGINA FÍSICA 17 ===
+                                                                                                   1  ...
+ TABLE 22: Evaluation Diversity of Prompts (Ext. Table 11).                                        2  voidread_file(char                            *  file_name)
+
+                                                                                                   3  {
+                                                                                                   4          char*  dir  ="/Users/user1/";
+                                                                                                   5          intfile_path_len  =  strlen(dir)  +  strlen(file_name)  +
+                                                                                                                1;
+                                                                                                   6          char*  file_path  =  malloc(file_path_len);
+                                                                                                   7          ...
+                                                                                                   8          strcpy(file_path,  dir);
+                                                                                                   9          strcat(file_path,  file_name);
+                                                                                                  10
+                                                                                                  11          FILE*  f  =  fopen(file_path,"r");
+                                                                                                  12          ...
+                                                                                                  13          /*  readfile          */
+                                                                                                  14  }
+
+
+                                                                                                                             (a) CWE-22 (1v) Easy Code Difficulty Level
+
+                                                                                                   1  ...
+                                                                                                   2  voidfile_operation(char                                      *  flag,char         *  file_name,char                   *
+                                                                                                              data)
+                                                                                                   3  {
+                                                                                                   4          char*  dir  =  getenv("dir");
+                                                                                                   5          ...
+                                                                                                   6          char*  resolved_dir  =  realpath(dir,  NULL);
+                                                                                                   7          if(resolved_dir  ==  NULL)
+                                                                                                   8          {
+                                                                                                   9                  printf("Invalidpath\n");
+                                                                                                  10                  return;
+                                                                                                  11          }
+                                                                                                  12
+         TABLE 23: Faithfulness of LLMs (Ext. Table 12).                                          13          char*  path  =  malloc(strlen(resolved_dir)  +  strlen(
+                                                                                                              file_name)  +  1);
+                                                                                                  14          ...
+                                                                                                  15          strcpy(path,  resolved_dir);
+                                                                                                  16          strcat(path,  file_name);
+                                                                                                  17
+                                                                                                  18          FILE*  f  =  fopen(path,  flag);
+                                                                                                  19          ...
+                                                                                                  20          if(    *flag  ==’w’)
+                                                                                                  21          {
+                                                                                                  22                  /*  write  */
+                                                                                                  23          }
+                                                                                                  24          elseif(            *flag  ==’r’)
+                                                                                                  25          {
+                                                                                                  26                  /*  read  */
+TABLE 24: Evaluation range of vulnerabilities (Ext. Table 13).                                    27          }
+                                                                                                  28          ...
+                                                                                                  29  }
+
+
+                                                                                                                              (b) CWE-22 (2v) Medium Difficulty Level
+
+                                                                                                   1  ...
+                                                                                                   2  voidresolve_path(char                                  *  path)
+                                                                                                   3  {
+                                                                                                   4          char*  p  =  path;
+                                                                                                   5          while(         *p  !=’\0’)  {
+                                                                                                   6                  if(    *p  ==’’)  {
+                                                                                                   7                          *p  =’-’;
+                                                                                                   8                  }
+                                                                                                   9                  p++;
+                                                                                                  10          }
+                                                                                                  11  }
+                                                                                                  12
+                                                                                                  13  voidprint_file(char                              *  file_name)
+                                                                                                  14  {
+                                                                                                  15          char*  dir  =  getenv("dir");
+                                                                                                  16          ...
+                                                                                                  17
+                                                                                                  18          intpath_len  =  strlen(dir)  +  strlen(file_name)  +  1;
+                                                                                                  19          char*  path  =  malloc(path_len);
+                                                                                                  20          ...
+                                                                                                  21          strcpy(path,  dir);
+                                                                                                  22          strcat(path,  file_name);
+                                                                                                  23          resolve_path(path);
+                                                                                                  24          FILE*  f  =  fopen(path,"r");
+                                                                                                  25          ...
+                                                                                                  26  }
+
+
+                                                                                                                                (c) CWE-22 (3v) Hard Difficulty Level
+                                                                                                                  Figure 9: Examples of Different Difficulty Levels
+
+=== PÁGINA FÍSICA 18 ===
+ 1  #defineFGETS(buffer,  buffer_len,  stdin)  gets(buffer)
+ 2
+ 3  #defineSAFE_EXECUTION(cmd)  system(cmd)
+ 4
+ 5  #defineSTRNCPY(dest,  src,  n)  strcpy(dest,  src)
+
+        Figure 10: #define expressions for ‘NT6’ code augmentations                                                                TABLE 27: Evaluation real-world CVEs (Ext. Tables 16 and 17).
+
+
+
+
+
+ 1  ...
+ 2  char*  validate_cmd(char                          *  cmd)  {
+ 3          char*  new_cmd  =  malloc(strlen(cmd)  +  1);
+ 4          intcmd_ix  =  0;
+ 5          while(cmd_ix  <  strlen(cmd))  {
+ 6                  if(cmd[cmd_ix]  ==’;’)  {
+ 7                          break;
+ 8                  }
+ 9                  new_cmd[cmd_ix]  =  cmd[cmd_ix];
+10                  cmd_ix++;
+11          }
+12          returnnew_cmd;
+13  }
+14  ...
+
+         Figure 11: CWE-77 (Command Injection) 3v code scenario.
+
+
+             TABLE 25: Evaluation code difficulties (Ext. Table 14).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    TABLE26:EvaluationCode-LevelAugmentations(Ext.Table15).
+
+
+
+                          T1                   T2                   T3                   T4                   T5                   T6                   T7
+       M    PS       ∆a  ∆r   ∆a  ∆r   ∆a  ∆r   ∆a  ∆r   ∆a  ∆r   ∆a  ∆r   ∆a  ∆r
+
+            S1S        0/12   0/12   0/12    0/12   0/12   0/12    0/12   0/12   0/12    0/12   0/12    0/12   0/12   1/12
+            D2ZS       0/12   0/12   0/12    0/12   0/12   0/12    0/12   0/12   0/12    0/12   0/12    0/12   0/12   0/12
+            D4FS       2/12   3/12   2/12    2/12   1/12   1/12    3/12   3/12   1/12    1/12   1/12    1/12   2/12   3/12
+
+            S1S        0/12   0/12   1/12    1/12   0/12   0/12    2/12   2/12   0/12    0/12   1/12    1/12   0/12   0/12
+            S1ZS       0/12   0/12   1/12    1/12   0/12   0/12    2/12   2/12   0/12    0/12   1/12    1/12   0/12   0/12
+            S5FS       0/12   0/12   1/12    1/12   2/12   2/12    2/12   2/12   0/12    1/12   3/12    3/12   0/12   0/12
+
+            S1S        0/12   0/12   0/12    0/12   0/12   0/12    0/12   1/12   0/12    0/12   0/12    0/12   0/12   0/12
+            D2ZS       0/12   0/12   0/12    0/12   0/12   1/12    0/12   0/12   0/12    0/12   0/12    0/12   0/12   0/12
+            D3FS       0/12   0/12   2/12    2/12   7/12   4/12    0/12   1/12   1/12    1/12   1/12    3/12   6/12   4/12
+
+                                             (a) Trivial Augmentations
+
+
+                          NT1                    NT2                    NT3                    NT4                    NT5                    NT6
+
+       M    PS       ∆a    ∆r    ∆a    ∆r    ∆a    ∆r    ∆a    ∆r    ∆a    ∆r    ∆a    ∆r
+
+            S1S        0/12    0/12     0/12    0/12     3/12     3/12    0/12     4/12    0/9      1/9     0/9      0/9
+            D2ZS       0/12    0/12     0/12    0/12     9/12     8/12    0/12     2/12    0/9      0/9     0/9      0/9
+            D4FS       3/12    3/12     4/12    8/12     2/12     2/12    5/12     6/12    0/9      0/9     0/9      0/9
+
+            S1S        1/12    0/12     2/12    2/12     8/12     8/12    1/12     3/12    0/9      0/9     0/9      4/9
+            S1ZS       1/12    0/12     2/12    2/12     8/12     8/12    1/12     4/12    0/9      0/9     0/9      2/9
+            S5FS       0/12    0/12     5/12    5/12     10/12    10/12   1/12     2/12    0/9      0/9     3/9      4/9
+
+            S1S        0/12    0/12     0/12    0/12     0/12     1/12    0/12     3/12    0/9      0/9     1/9      1/9
+            D2ZS       0/12    0/12     3/12    3/12     6/12     5/12    0/12     2/12    0/9      3/9     0/9      0/9
+            D3FS       0/12    2/12     1/12    1/12     4/12     4/12    0/12     1/12    1/9      1/9     1/9      1/9
+
+                                          (b) Non-Trivial Augmentations
+
+=== PÁGINA FÍSICA 19 ===
+Appendix C.                                                                 Appendix D.
+Meta-Review                                                                 Response to the Meta-Review
+
+    The following meta-review was prepared by the program                        We thank the reviewers for their valuable feedback and
+committee for the 2024 IEEE Symposium on Security and                       the shepherd for helping us improve the paper. We would
+Privacy (S&P) as part of the review process as detailed in                  like to respond to the meta-review concerns as follows:
+the call for papers.                                                          1)While    instances    of    non-determinism    and    non-
+                                                                                  robustness to specific code augmentations have been
+                                                                                  found in previous work, to the best of our knowledge
+C.1.  Summary                                                                     we are the first ones to systematically evaluate these
+                                                                                  issues in the context of vulnerability detection.
+    Thispapersuggestsanautomatedframeworkforevaluat-                          2)The  size  of  our  dataset  is  comparable  to  previous
+ing LLMs (Large Language Models) for identifying and rea-                         work like [8] which only used 12 CVEs. In our study,
+soning about security vulnerabilities. The authors conducted                      the number of suitable CVEs was constrained by the
+experiments  on  various  options  of  LLMs  (e.g.,  prompts,                     knowledge cut-off date of LLMs (to maintain the tem-
+models, test data) and presented various interesting findings.                    poral consistency of our evaluation [30]), by the CWE
+                                                                                  types in our evaluation study, and by needing CVEs
+                                                                                  with high-quality patch commits.
+C.2.  Scientific Contributions
+
+
+   •  Provides a Valuable Step Forward in an Established
+     Field
+   •  Creates a New Tool to Enable Future Science
+   •  Provides a New Data Set For Public Use
+
+C.3.  Reasons for Acceptance
+
+ 1)This paper suggests a fully automated framework to
+     evaluate various aspects of LLM’s capability in iden-
+     tifying vulnerabilities, which is gaining more attention
+     from the community.
+ 2)The paper examines several aspects that have been less
+     studied previously, including code complexity, vulner-
+     ability reasoning, and use of chat-based LLMs (e.g.,
+     GPT-4) in vulnerability detection.
+ 3)The  authors  have  developed  a  new  benchmark  con-
+     sisting of 228 code scenarios. This includes 48 hand-
+     crafted examples (starting from most critical CWEs),
+     30 examples from real-world CVEs (taken from open
+     source  projects)  and  150  codes  obtained  by  trivial
+     and non-trivial augmentation. If released, this dataset
+     can help in carrying out further research, allowing an
+     alignment for future analysis.
+
+C.4.  Noteworthy Concerns
+
+ 1)Some  findings  seem  well-known  to  the  community
+     (e.g., non-determinism, and non-robustness by specific
+     code augmentations).
+ 2)The  size  of  the  data  set  is  still  limited,  especially
+     for the real-world CVEs (the data set only includes
+     15 CVEs now). Moreover, the dataset includes many
+     augmented codes (150/228). The small data set may
+     lead  to  significant  bias  in  the  measurement  results,
+     making it less reliable.

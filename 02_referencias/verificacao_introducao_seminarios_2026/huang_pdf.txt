@@ -1,0 +1,1115 @@
+=== PÁGINA FÍSICA 1 ===
+                                                                                                                                                            1
+   Do Fine-Tuned LLMs Understand Vulnerabilities?
+                  An Investigation into the Semantic Trap
+
+                         Feiyang Huang, Yuqiang Sun, Fan Zhang, Ziqi Yang, Han Liu, and Yang Liu
+
+
+
+
+
+   Abstract—Large   Language   Models   (LLMs)   have   shown                   localization, and automated repair [1, 2, 3]. To fully harness
+promising performance in software vulnerability detection, par-                 the  potential  of  these  models,  researchers  have  extensively
+ticularly  after  domain-specific  Supervised  Fine-Tuning  (SFT).              explored various LLM-based techniques specifically tailored
+However,  it  remains  unclear  whether  these  models  genuinely               for  vulnerability  analysis.  Efforts  [4,  5,  6,  7,  8,  9]  have
+internalize vulnerability root causes or merely exploit surface-                yielded impressive performance, often surpassing static and
+level functional patterns shared across similar code. While prior
+work  has  documented  related  failures  on  pre-trained  encoder              dynamic analysis tools. Beyond utilizing off-the-shelf founda-
+models or zero-shot prompting of decoder-only models, the SFT                   tionLLMs,asignificantlineofrecentwork[10,11,12,13,14]
+process itself, and how explicit reasoning supervision modulates                has shifted towards developing domain-specific vulnerability
+it, has not been systematically dissected. In this paper, we focus              detection  models.  By  employing  Parameter-Efficient  Fine-
+on  this  gap:  we  study  fine-tuned  decoder-only  LLMs  under                Tuning techniques [15, 16, 17, 18, 19], most notably Low-
+both vanilla SFT and SFT with distilled reasoning supervision,
+and  we  identify  a  failure  mode  that  we  term  theSemantic                Rank  Adaption  [20],  researchers  have  successfully  adapted
+Trap,  characterized  by  three  observable  symptoms:  pairing-                general-purpose LLMs to specialized security datasets, further
+sensitive  performance,  gap-dictated  decisions,  and  fragility  to           pushing the performance boundaries of automated vulnerabil-
+semantic-preserving change. To probe these symptoms, we pro-                    ity management.
+pose TrapEval, an evaluation framework comprising two datasets                     As the research community increasingly adopts LLMs for
+derived from real-world projects, V2P (pairing vulnerable code
+with  its  patched  version)  and  V2N  (pairing  vulnerable  code              vulnerability-related tasks, significant concerns regarding their
+with unrelated normal code), together with cross-dataset testing,               reliability and robustness have surfaced [21, 22, 23, 24, 25].
+semantic-preserving perturbations, CodeBLEU-based semantic-                     Early  extensive  evaluations  of  ”out-of-the-box”  pre-trained
+gap analysis, and an LLM-assisted taxonomy of reasoning fail-                   models revealed that while they show promise, they exhibit
+ures. Using TrapEval, we fine-tune five representative state-of-                high sensitivity to minor semantic variations and a lack of
+the-art LLMs under two paradigms: with and without explicit
+reasoning (i.e., Chain-of-Thought). Our empirical results show                  determinism [21]. More critically, a recent line of research has
+that fine-tuning without explicit reasoning produces deceptively                begun to investigate what these models actually learn, uncov-
+high scores on unpaired data (V2N) while failing under all three                ering a pervasive lack of logical robustness [26, 22, 27, 28].
+symptoms:  models  suffer  large  false-positive  rates  on  patched            For instance, recent benchmarks [26] utilizing vulnerability-
+code  (V2P),  degrade  under  semantic-preserving  perturbations,               patch pairs demonstrate that LLMs consistently fail to dis-
+and exhibit a weak but statistically systematic dependency on
+the textual gap between vulnerable and patched code (Spearman                   tinguish  a  vulnerable  code  snippet  from  its  corresponding
+|ρ|<0.1,p <0.05across  all  five  models).  Fine-tuning  with                   patched version. Further probing studies indicate that models
+explicit  reasoning  reduces  these  symptoms  but  at  the  cost  of           often  suffer  from  severe  overfitting  to  label-unrelated  fea-
+recall, and its absence of measurable gap-dependency is partly                  tures (e.g., variable names, unexecuted statements) and rely
+compatible  with  a  floor  effect  rather  than  direct  evidence  of          heavily on surface-level statistical characteristics rather than
+escaping the trap. Furthermore, our reasoning-failure taxonomy
+revealsthatexplicit-reasoningmodelsstillfrequentlymisinterpret                  inherently mining deep semantic logic [27, 28]. Collectively,
+control flow and hallucinate API behavior, indicating that current              these findings suggest that off-the-shelf models largely rely
+fine-tuning practices mitigate but do not eliminate reliance on                 on functional pattern matching rather than rigorous security
+surface-level features.                                                         reasoning.
+   Index Terms—Large Language model, Fine-Tuning, Robust-                          However,alloftheseprobingeffortstargeteitherpre-trained
+ness, Vulnerability Detection.                                                  encoder models [27] or zero-shot prompting of decoder-only
+                                                                                LLMs  [26,  22,  28];  none  of  them  dissects  the  supervised
+                          I.  INTRODUCTION                                      fine-tuning process itself, which is the very mechanism most
+   The rapid evolution of Large Language Models (LLMs) has                      modern  security  pipelines  rely  on  to  specialize  LLMs  for
+fundamentally  reshaped  the  landscape  of  software  security,                vulnerability detection. Whether SFT and in particular SFT
+particularly in critical tasks such as vulnerability detection,                 with explicit reasoning supervision repairs, leaves intact, or
+                                                                                even amplifies this reliance on surface patterns is therefore
+  F.  Huang,  F.  Zhang,  and  Z.  Yang  are  with  the  College  of  Computer  an open question. Our work is the first targeted study of this
+Science  and  Technology,  Zhejiang  University,  Hangzhou,  China  (e-mail:    question, and it provides the empirical anchor for the failure
+feiyanghuang@zju.edu.cn; fanzhang@zju.edu.cn; yangziqi@zju.edu.cn).
+  Y. Sun and Y. Liu are with Nanyang Technological University, Singapore        mode we name theSemantic Trapbelow.
+(e-mail: yuqiang.sun@ntu.edu.sg; yangliu@ntu.edu.sg).                              To  compensate  for  these  out-of-the-box  limitations,  the
+  H.  Liu  is  with  the  College  of  Cryptology  and  Cyber  Science,  Nankai community  has  widely  turned  to  Supervised  Fine-Tuning
+University, Tianjin, China (e-mail: hanliu@nankai.edu.cn).
+  Corresponding author: Fan Zhang.                                              (SFT) to adapt general-purpose LLMs into domain-specific se-
+
+=== PÁGINA FÍSICA 2 ===
+                                                                                                                                                           2
+
+
+curity experts [12, 10, 11]. While fine-tuning is widely treated                      Normal), derived from real-world open-source projects.
+as a “black-box” performance booster, the current literature                          These datasets are specifically designed to decouple secu-
+fails  to  scrutinize  whether  this  process  helps  models  truly                   ritylogicfromthefunctionalpattern,providingarigorous
+internalize thevulnerability root cause(the intrinsic security                        benchmark to quantify whether LLMs are learning the
+flaw) or merely encourages them to exploitfunctional patterns                         intrinsic  logics  of  a  vulnerability  or  are  merely  being
+(surface-level features shared across functionally similar code)                      misled by the functional patterns of the code.
+as a shortcut. We refer to this failure mode as theSemantic                       •We developed TrapEval, an evaluation framework that
+Trap, and we characterize it operationally rather than as a                           includes  dataset  construction,  parallel  fine-tuning  pro-
+vague  preference  for  particular  code  domains.  Concretely,                       cesses (with and without explicit reasoning), and multi-
+we say a fine-tuned LLM is trapped when its vulnerability                             dimensional evaluation to systematically probe whether a
+detection  behavior  exhibits  the  following  three  observable                      fine-tuned LLM for vulnerability detection only focuses
+symptoms:  (i)Pairing-sensitive  performance.The  model                               on functional patterns.
+attains high F1 when a vulnerable function is contrasted with                     •We  conducted  an  extensive  evaluation  of  five  LLMs.
+a semantically unrelated benign function, yet its performance                         Our  findings  provide  empirical  evidence  that  current
+collapses  when  the  negative  sample  is  the  corresponding                        standard fine-tuning practices often fail to impart vulner-
+patched version that differs only in security-critical logic. (ii)                    ability reasoning, instead encouraging models to rely on
+Gap-dictated decisions.On (vulnerable, patched) pairs, the                            functional patterns, a distinction that future LLM-based
+model’s  detection  performance  is  statistically  explained  by                     security research must address. Furthermore, our in-depth
+the textual–syntactic distance between the two snippets (e.g.,                        analysis  reveals  that  even  when  models  are  forced  to
+as measured by CodeBLEU) rather than by the underlying                                produce explicit reasoning, they still frequently fail in
+security semantics, so a shrinking gap predictably degrades                           ways  consistent  with  shallow  semantic  understanding,
+accuracy.  (iii)Fragility  to  logic-preserving  change.The                           such as misinterpreting control flow or hallucinating API
+model’s predictions degrade under semantic-preserving per-                            behavior.
+turbations that leave the security logic untouched, indicating
+reliance on lexical or structural cues co-occurring with, rather                            II.  BACKGROUND& RELATEDWORKS
+than constituting, the vulnerability. A model exhibiting these                 A. Related Works
+symptoms  behaves  as  a  sophisticated  pattern  discriminator:
+it  can  flag  code  that  “looks  like”  vulnerable  code,  but  it              LLM  for  Vulnerability  Task.The  rapid  evolution  of
+cannot reliably reason about whether a specific vulnerability                  decoder-only LLMs has reshaped vulnerability detection re-
+is  actually  present.  Given  the  risk  of  deploying  detectors             search,  with  many  recent  studies  adopting  LLMs  as  core
+whose high benchmark scores may not reflect genuine security                   analysis engines [1, 2]. To compensate for the limited ability
+understanding, our work aims to open this fine-tuning black                    of general-purpose LLMs to reason about program semantics,
+box. We investigate whether contemporary SFT practices, both                   prior work has explored various augmentation strategies. A
+vanilla SFT and SFT enhanced with explicit reasoning (i.e.,                    prominent line of research integrates LLMs with Retrieval-
+Chain-of-Thought,  CoT),  actually  help  models  comprehend                   Augmented  Generation  (RAG)  to  supply  external  security
+vulnerabilities, or whether they primarily train models to act                 knowledge or historical vulnerability context [6, 33, 34, 35].
+as efficient pattern discriminators.                                           Other  approaches  combine  LLMs  with  structural  program
+   To  investigate  this  phenomenon  and  assess  the  depth  of              representations, such as Abstract Syntax Trees [36, 37, 7, 9],
+LLM  understanding,  we  propose  TrapEval,  an  evaluation                    and data-flow and control-flow analyses to expose execution-
+framework  designed  to  disentangle  vulnerability  root  cause               level vulnerability cues [38, 39, 40, 41, 8].
+from functional pattern. Our framework begins with the con-                       Beyond external augmentation, Supervised Fine-Tuning has
+struction of two datasets derived from real-world open-source                  emerged as a key technique for embedding domain-specific
+projects: the V2P dataset (Vulnerable-to-Patch pairs), which                   security knowledge directly into LLMs. Prior work shows that
+forces models to distinguish near-identical code that differs                  fine-tuning can improve detection performance in specialized
+only in subtle security logic, and the V2N dataset (Vulnerable-                settings. For example, Boi et al. [12] fine-tune LLMs for smart
+to-Normal pairs), representing traditional unpaired detection                  contract  security  using  structured  vulnerability  taxonomies,
+benchmarks. Using TrapEval, we fine-tune five representative                   while iAudit [10] adopts a two-stage fine-tuning framework
+state-of-the-art LLMs (including the Qwen [29], Llama [30],                    combined with multi-agent reasoning to enhance audit accu-
+and DeepSeek [31] families) under the two paradigms defined                    racy and interpretability. VulLLM [11] further explores multi-
+above (with or without explicit reasoning). We then conduct                    task  instruction  fine-tuning  to  jointly  support  vulnerability
+a  multi-dimensional  evaluation  encompassing  cross-dataset                  localization and explanation, improving generalization across
+testing, semantic-preserving data augmentations, CodeBLEU-                     datasets.
+based [32] semantic gap analysis, and an LLM-assisted tax-                        Evaluation of LLMs in Vulnerability Detection.With the
+onomy of explicit-reasoning failures.                                          rapid advancement of LLMs, evaluating their effectiveness in
+   To summarize, the primary contributions of this paper are                   code vulnerability detection has attracted significant attention.
+summarized as follows:                                                         Early studies primarily examined the out-of-the-box capabil-
+   •We  constructed  two  specialized  datasets,  V2P  dataset                 ities of pre-trained LLMs. Large-scale benchmarks by Khare
+      (Vulnerable-to-Patch)  and  V2N  dataset  (Vulnerable-to-                et al. [42] and Steenhoek et al. [43] show that although LLMs
+
+=== PÁGINA FÍSICA 3 ===
+                                                                                                                                                               3
+
+
+
+                                  TABLE I                                        decoder-only LLMs under both vanilla and explicit-reasoning
+POSITIONING OF OUR STUDY RELATIVE TO REPRESENTATIVE PRIOR WORK                   paradigms, (ii) statistically quantifies how the semantic gap
+   ON THE RELIABILITY OFLLM-BASED VULNERABILITY DETECTION.                       between vulnerable code and its patch dictates detection per-
+   “•” =FULLY ADDRESSED; “◦” =PARTIALLY ADDRESSED; “–” =NOT
+                                ADDRESSED.                                       formance, and (iii) systematically dissects explicit-reasoning
+      Study                     D-LLM   SFT   V2P   Gap   Tax.                   failures into a structured taxonomy. Our work fills this gap.
+
+      PrimeVul [26]                 •         –    •      –        –             B. Motivation
+      SV-TrustEval-C [22]           •         –    •      –        –
+      Risse et al. [27]             –      ◦     •      –        –                   While recent probing studies and benchmarks have collec-
+      Weissberg et al. [28]         •         –        –    ◦      –             tively highlighted a pervasive lack of logical robustness in
+      Ours (TrapEval)               •       •     •     •     •                  LLMs, a critical blind spot remains in the current literature
+D-LLM: coverage of contemporary decoder-only LLMs (as opposed to                 regarding the supervised fine-tuning (SFT) process and LLM
+encoder-based models such as CodeBERT/UniXcoder).SFT: systematic                 reasoning mechanisms. As the software security community
+analysis of the supervised fine-tuning process (with/without explicit            increasinglyreliesonSFTtoadaptgeneral-purposeLLMsinto
+reasoning), rather than treating fine-tuning as a black-box performance
+booster. V2P: paired vulnerable–patch evaluation that forces models to           domain-specific security experts, fine-tuning is widely treated
+discriminate near-identical code differing only in security-critical logic.      as a reliable, “black-box” performance booster. However, it is
+Gap: statistical quantification of the semantic gap between paired samples       fundamentally unclear what these models are actually internal-
+(e.g., CodeBLEU stratification with significance testing).Tax.:
+LLM-assisted taxonomy that demystifies the root causes of reasoning              izing during this process. Existing studies diagnosing model
+failures.                                                                        failures have primarily evaluated out-of-the-box capabilities,
+                                                                                 zero-shot prompting strategies, or outdated encoder-based ar-
+demonstrate promising detection performance, they are highly                     chitectures.  None  have  systematically  investigated  whether
+sensitive to minor semantic variations. Ullah et al. [21] further                the  contemporary  practice  of  fine-tuning  modern  decoder-
+report non-determinism and limited reliability in model pre-                     only LLMs, even when augmented with explicit step-by-step
+dictions. To improve performance, subsequent work explored                       reasoning, genuinely helps models internalize the root causes
+enhanced prompting and contextual information [23], while                        of vulnerabilities.
+others shifted toward understanding the internal mechanisms                          This unresolved ambiguity urgently motivates our research.
+of LLMs from a modular perspective [44, 24, 25].                                 If fine-tuning merely encourages a model to exploit statistical
+   Recently, a critical line of research has begun to investigate                shortcuts, such as the surface-level features shared between a
+what these models actually learn, revealing a pervasive lack                     vulnerable function and the surrounding functionally similar
+of logical robustness. For instance, recent benchmarks such                      code, or the magnitude of textual difference between candi-
+as PrimeVul [26] and SV-TrustEval-C [22] demonstrate that                        date samples, then the resulting high benchmark scores are
+LLMs consistently fail to distinguish vulnerable code from                       dangerously illusory. We refer to this risk as theSemantic
+its corresponding patched version, suggesting a reliance on                      Trap, operationally characterized in §I along three observable
+functional  patterns  rather  than  security-critical  logic.  Delv-             symptoms: pairing-sensitive performance on V2P versus V2N,
+ing into the root causes of such failures, Risse et al. [27]                     gap-dictated  decisions  on  (vulnerable,  patched)  pairs,  and
+demonstrated that machine learning models for vulnerability                      fragility to semantic-preserving perturbations. Each symptom
+detection suffer from severe overfitting to label-unrelated fea-                 is directly testable, and our study is designed to probe all three
+tures (e.g., variable names, unexecuted statements) and lack                     rather than to argue from a single qualitative observation. By
+out-of-distribution  (OOD)  generalization  when  subjected  to                  investigating how models behave under paired versus unpaired
+semantic-preserving transformations. Similarly, Weissberg et                     training  data,  how  their  accuracy  depends  on  the  semantic
+al. [28] evaluated LLMs through the lens of traditional code                     gap, and how their reasoning fails when explicitly elicited, this
+metrics, concluding that LLMs do not inherently mine deep                        work seeks to answer a pivotal question: do fine-tuned LLMs
+semanticlogic;rather,theirpredictionsheavilyrelyonsurface-                       actually  learn  the  causal  logic  of  software  vulnerabilities,
+level statistical features that are equivalent to simple syntactic               or  are  they  merely  being  trapped  as  sophisticated  pattern
+code metrics.                                                                    matchers?
+   Tomakeourpositioningexplicit,TableIcomparesourstudy                                                     III.  STUDYDESIGN
+with representative prior work along six axes that we consider                   A. Research Questions
+essential  for  diagnosing  the  reliability  of  LLM-based  vul-
+nerability detectors. PrimeVul [26] and SV-TrustEval-C [22]                          The  objective  of  this  empirical  study  is  to  evaluate  the
+pioneered paired vulnerable–patch evaluation but focused on                      effectiveness, robustness, and underlying reasoning behavior
+out-of-the-box  prompting  rather  than  fine-tuning.  Risse  et                 of LLMs fine-tuned for software vulnerability detection. We
+al. [27] extensively analyzed shortcut learning under semantic-                  organize the study around three research questions (RQs) that
+preserving perturbations but restricted their study to encoder-                  form a deliberate causal chain: RQ1 first asks whether the
+based architectures, leaving contemporary decoder-only LLMs                      Semantic  Trap  can  beobservedby  contrasting  paired  and
+uncovered. Weissberg et al. [28] linked LLM predictions to                       unpaired training/evaluation data and by stressing models with
+surface-level syntactic metrics but neither performed paired                     semantic-preserving  perturbations;  RQ2  then  asks  how  the
+evaluation nor probed the fine-tuning process. To the best of                    trap can bequantifiedby relating detection performance to
+our knowledge, no prior study jointly (i) targets fine-tuned                     the textual–syntactic distance between vulnerable and patched
+
+=== PÁGINA FÍSICA 4 ===
+                                                                                                                                                           4
+
+
+code; RQ3 finally asks how the trap can beanatomizedby                          of  vulnerable  code  paired  with  functionally  unrelated  non-
+inspecting the explicit-reasoning traces that fail-mode predic-                 vulnerable code. We then perform Ground Truth Reasoning
+tions produce. Together, the three RQs move from existence                      Distillation, leveraging an advanced LLM enriched with com-
+to magnitude to mechanism.                                                      prehensive meta-information to generate high-quality, step-by-
+   RQ1  –  Observing  the  trap.If  a  fine-tuned  model  truly                 step reasoning paths for all samples.
+internalizes vulnerability root causes, its performance should                     In  Stage  2:  Model  Fine-tuning  (detailed  in  §  III-D),  we
+be stable across (i) different training-data compositions (paired               select  representative  base  LLMs  from  three  distinct  model
+V2P versus unpaired V2N), (ii) cross-dataset evaluation, and                    families to ensure diverse capability baselines. Utilizing the
+(iii) semantic-preserving code perturbations. RQ1 establishes                   ms-swift  [45]  framework  and  the  Low-Rank  Adaptation
+a controlled environment for testing these stability properties                 (LoRA)  [20]  technique  for  parameter-efficient  training,  we
+and corresponds directly to symptoms (i) and (iii) of the Se-                   adapt these base models under two distinct training paradigms:
+mantic Trap defined in §I.RQ1:“How do training paradigms                        with or without explicit reasoning. Applied to both the V2P
+(with  or  without  explicit  reasoning)  and  data  composition                dataset and V2N dataset training sets, this yields a compre-
+affect the detection effectiveness and robustness of fine-tuned                 hensive suite of fine-tuned models systematically varying by
+LLMs?”                                                                          both training data composition and learning paradigm.
+   RQ2 – Quantifying the trap.The (vulnerable, patched) pairs                      Finally, Stage 3: Evaluation leverages the fine-tuned models
+constructed  in  RQ1  differ  in  how  much  code  is  changed                  and  the  held-out  test  sets  to  systematically  investigate  our
+between  the  two  versions,  ranging  from  one-line  condition                research questions. To address RQ1, we assess both effective-
+tweaks to substantial logic rewrites. If a model relies on the                  ness and robustness by conducting a cross-dataset evaluation
+magnitude of textual modification as a discriminative short-                    alongside semantic-preserving data augmentations (§ III-E),
+cut, its accuracy should depend systematically on this gap.                     comparing performance under standard and perturbed condi-
+RQ2  measures  this  dependency  using  CodeBLEU-stratified                     tions. For RQ2, we conduct a semantic gap analysis (§ III-F)
+evaluation  and  Spearman  correlation,  and  corresponds  to                   by  grouping  V2P  dataset  test  cases  based  on  CodeBLEU
+symptom  (ii)  of  the  Semantic  Trap.RQ2:“How  does  the                      similarity  intervals,  performing  statistical  correlation  analy-
+semantic gap between vulnerable code and its corresponding                      ses to evaluate how varying degrees of semantic divergence
+patch statistically influence the detection performance across                  influence model predictions under two different paradigms.
+different fine-tuning paradigms?”                                               Lastly,  to  answer  RQ3,  we  perform  an  in-depth  reasoning
+   RQ3 – Anatomizing the trap.Even when models are forced                       failure  analysis  (§  III-G).  By  aggregating  a  pool  of  failed
+to produce explicit step-by-step reasoning, they still misclas-                 predictions (False Positives and False Negatives), we utilize
+sify a non-trivial fraction of inputs. RQ3 reads these failed                   an LLM-assisted approach to extract root causes, establish a
+reasoning  traces  with  an  LLM-assisted  pipeline  to  build  a               taxonomy  of  reasoning  errors,  and  analyze  the  categorized
+taxonomy of error types and to expose what specifically goes                    failure  distributions,  thereby  demystifying  the  fundamental
+wrong when the trap is triggered, distinguishing the failure                    limitations of current LLMs in vulnerability detection.
+modes underlying false positives from those underlying false
+negatives.RQ3:“What are the primary causes of reasoning                         C. Dataset Construction
+failures in fine-tuned LLMs, and how do these failure patterns
+differ between false positives and false negatives?”                               To evaluate the robustness of the fine-tuned large model in
+                                                                                vulnerability detection, we propose the V2P dataset and V2N
+B. Overview of TrapEval                                                         dataset, described in this section.
+                                                                                   Unified  Dataset  Merge.To  construct  a  comprehensive
+   To systematically evaluate the performance, robustness, and                  and representative benchmark for vulnerability detection, we
+reasoning  capabilities  of  LLMs  in  the  domain  of  software                integrated  three  prominent  open-source  datasets:  Diverse-
+vulnerability  detection,  we  design  a  comprehensive,  three-                Vul [46], PrimeVul [26], and CVEFixes [47]. These datasets
+stage evaluation framework, TrapEval. As illustrated in Fig-                    were  selected  based  on  two  primary  considerations.  First,
+ure1,theframeworkisstructuredsequentiallyinto:(1)Dataset                        they are all derived from real-world open-source repositories
+Construction, (2) Model Fine-tuning, and (3) Evaluation. This                   by  crawling  vulnerability-fix  commits.  Consequently,  they
+structured approach enables us to address our distinct research                 provide  a  realistic  distribution  of  code  samples,  including
+questions  (RQ1,  RQ2,  and  RQ3)  regarding  model  general-                   vulnerable functions, their corresponding fixed versions, and
+ization, sensitivity to semantic nuances, and the fundamental                   irrelevant non-vulnerable samples. Second, while label noise
+causes of reasoning failures.                                                   is a common challenge in commit-based vulnerability datasets,
+   The  process  begins  with  Stage  1:  Dataset  Construction                 empirical evidence from the PrimeVul study [26] suggests that
+(detailed in § III-C). We consolidate three widely-used open-                   all three datasets maintain a label accuracy exceeding 50%.
+source vulnerability datasets (namely DiverseVul, PrimeVul,                     This ensures a reliable foundation for training and evaluation.
+and CVEFixes) into a single unified dataset. To investigate                        To maintain consistency in programming languages across
+the impact of data composition on model learning, this unified                  the unified corpus, we extracted C and C++ samples from
+corpus  is  further  structured  into  two  distinct  datasets:  the            CVEFixes, aligning it with the language distribution of the
+V2P  dataset,  containing  pairs  of  vulnerable  code  and  their              other two sources. During the merging process, we performed
+corresponding patch code; and the V2N dataset, composed                         hash-based deduplication at the function level. Specifically,
+
+=== PÁGINA FÍSICA 5 ===
+                                                                                                                                                          5
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Fig. 1.  Overview of TrapEval
+
+
+for all function samples associated with a given commit, we                    functions.Thisshared-vulnerabilityconstructionisintentional:
+computed  their  hash  values  and  retained  unique  instances.               it lets cross-dataset comparisons (e.g., V2N→V2P in RQ1)
+In cases where the same code samples were associated with                      attribute  any  performance  change  to  thenegativeside,  the
+conflicting  labels  across  different  sources,  we  implemented              choice between a patched counterpart and an unrelated benign
+a priority-based resolution strategy. Specifically, labels from                sample, rather than to a shift in the vulnerable population.
+PrimeVul were prioritized, followed by DiverseVul, and finally                 3)  Data  Partitioning:Both  V2P  dataset  and  V2N  dataset
+CVEFixes. This hierarchy is grounded in the reported label                     were partitioned into training and test sets using a 9:1 ratio
+accuracy rankings [26] (PrimeVul>DiverseVul>CVEFixes).                         at  the  commit  level,  so  that  a  vulnerable  function  and  its
+The final unified dataset comprises a total of 436,489 sam-                    patched/normal counterpart are always assigned to the same
+ples, consisting of 24,758 vulnerable functions, 19,418 fixed                  split (no cross-split leakage of a (vuln, fix) pair).
+versions, and 392,313 irrelevant normal samples.                                  Ground    Truth    Reasoning    Distillation.To   support
+   V2P  dataset  and  V2N  dataset  construction.Based on                      model fine-tuning and evaluation under the explicit-reasoning
+the Unified Dataset, we constructed two specialized datasets,                  paradigm, we performed a reasoning distillation process for
+namely V2P dataset (Vulnerability-to-Patch) and V2N dataset                    every sample in both the V2P and V2N using an advanced
+(Vulnerability-to-Normal), to support model training and eval-                 LLM (e.g., GPT-5.4). Rather than relying solely on the code
+uation. The construction process was executed at the granular-                 snippet, we enriched the distillation process by providing the
+ity of individual commit-IDs using the following three steps:                  LLM  with  comprehensive  oracle-level  context.  Specifically,
+1) Sample Pairing and Filtering:Within each commit-ID, we                      the input to the LLM included the source code, its definitive
+used  the  function  name  as  a  unique  fingerprint  to  identify            true label, and extensive meta-information: the corresponding
+corresponding code versions. Samples sharing the same fin-                     CWE ID, the official description of that CWE, the originat-
+gerprint but possessing opposite labels (vulnerable vs. fixed)                 ing project repository, and the developer’s commit message.
+were identified as a vulnerability-fix pair. Conversely, samples               Through a carefully designed prompt, we instructed the LLM
+labeled  as  “normal”  whose  fingerprints  did  not  match  any               to  synthesize  all  these  known  facts  to  generate  a  logical,
+vulnerable counterparts within the same commit were catego-                    step-by-step reasoning path that explains exactly whether and
+rized as irrelevant normal samples.2) Dataset Composition:                     why the code constitutes a vulnerability. The resulting high-
+The V2P dataset was formed by directly pairing vulnerable                      quality analytical explanations were systematically collected
+samples with their corresponding fixed versions. To construct                  and treated as the “ground truth reasoning” to supervise the
+the V2N dataset, we reused thesameset of vulnerable samples                    fine-tuning process.
+and paired them with an equal number of irrelevant normal
+samples randomly selected from the previously filtered “nor-                   D. LLM Finetuning
+mal” pool. By design, the vulnerable side of V2P and V2N
+is  fully  overlapping  (24,747  vulnerable  functions  in  both),                Motivation  and  Model  Selection.To  adapt  LLMs  to
+while the non-vulnerable side is disjoint: V2P uses 19,418                     the  specialized  domain  of  software  vulnerability  detection,
+patched versions, whereas V2N uses 19,418 unrelated normal                     prior research has extensively leveraged vulnerability-related
+
+=== PÁGINA FÍSICA 6 ===
+                                                                                                                                                          6
+
+
+datasets for supervised fine-tuning. In this study, we incorpo-                   •Comment-based Perturbation: Adding random snippets
+rate the fine-tuning process into TrapEval to assess the robust-                     of code or text within comment delimiters (/* ... */ or
+ness and adaptability of state-of-the-art LLMs in identifying                        //), which should be ignored by the model’s semantic
+code vulnerabilities. Specifically, we select three of the most                      analysis.
+prominent  open-source  model  families:  Qwen,  Llama,  and                      •WhitespaceInsertion:Injectingredundantspacesortabs
+DeepSeek. These models are fine-tuned on the training sets                           between tokens to alter the physical layout of the code.
+of our constructed V2P dataset and V2N dataset to establish                       •Redundant Function Addition: Appending an auxiliary,
+a baseline for subsequent evaluation and analysis.                                   unused function to the code sample, increasing the input
+   Fine-tuning Framework: ms-swift.The fine-tuning pro-                              complexity without affecting the target function.
+cess  is  implemented  using  ms-swift  [45],  a  comprehensive                   •Line-Break Insertion: Adding multiple next-line char-
+framework  for  large-scale  and  multimodal  model  lifecycle                       acters (\n) between statements to perturb the sequence
+management  provided  by  the  ModelScope  community.  By                            of code tokens.
+leveraging ms-swift, we ensure a high-performance and scal-                       By  applying  these  transformations,  we  generate  an  aug-
+able pipeline from model training to quantization and deploy-                  mented version of the test suite. Specifically, for each original
+ment.                                                                          test  case,  we  generated  seven  distinct  variants,  with  each
+   Parameter-Efficient Fine-Tuning with LoRA.To achieve                        variant  corresponding  to  one  of  the  seven  transformation
+lightweight adaptation while mitigating the risk of catastrophic               strategies.  This  resulted  in  a  7x  expansion  of  the  test  set,
+forgetting, a common issue where full-parameter fine-tuning                    ensuring  a  comprehensive  evaluation  across  different  types
+leads to the loss of pre-trained general knowledge, we employ                  of  semantic-preserving  perturbations.  The  fine-tuned  LLMs
+Low-Rank  Adaptation  (LoRA)  [20],  the  same  fine-tuning                    (Qwen, Llama, and DeepSeek) are subsequently evaluated on
+method  as  previous  works  [12,  10,  11].  The  core  philoso-              this augmented set to measure the degradation or stability of
+phy of LoRA is to freeze the original weights of the Pre-                      their detection capabilities.
+trained Language Model (PLM) and introduce trainable low-
+rank decomposition matrices as a bypass. Given a pre-trained
+weight matrixW             0 ∈R   d×k    , its update during fine-tuning is    F. Semantic Gap Analysis
+represented as:
+                      W0+∆W=W            0+BA                                     To address RQ2, it is essential to quantify the semantic
+                                                                               distance between vulnerable functions and their correspond-
+whereB∈R                   d×r      andA∈R              r×k     are the low-rank matrices,ing  patches.  While  vulnerability  detection  often  hinges  on
+with  the  rankr≪min(d,k).  This  approach  significantly                      subtle  code  modifications,  the  magnitude  of  these  changes
+reducesthenumberoftrainableparameters,therebydecreasing                        varies significantly across different samples. To provide an
+the computational overhead and memory footprint.                               objective  measurement  of  this  ”semantic  gap,”  we  adopt
+                                                                               CodeBLEU [32] as our primary evaluation metric for each
+E. Data Augmentation                                                           (vulnerability, patch) pair.
+                                                                                  Originally proposed for evaluating code generation quality,
+   As part of our investigation in RQ1 to assess the robustness                CodeBLEU extends the traditional BLEU score by incorpo-
+of  fine-tuned  LLMs  in  vulnerability  detection,  we  perform               rating  syntactic  and  semantic  structures  inherent  to  source
+data augmentation on the test partitions of the V2P and V2N                    code.  Specifically,  it  augments  n-gram  matching  with  (1)
+datasets.  The  primary  objective  is  to  evaluate  whether  the             abstract syntax tree (AST) similarity, which captures structural
+models can maintain consistent performance when confronted                     alignment, and (2) data-flow alignment, which reflects seman-
+with functional pattern variations that preserve the underlying                tic equivalence in variable usage and program behavior. By
+program logic.                                                                 integratingtheseprogram-awarefeatures,CodeBLEUprovides
+   We employSemantic-Preserving Data Augmentation, a                           a more faithful and objective assessment of code similarity
+technique that introduces perturbations into the source code                   from a programming semantics perspective, rather than relying
+while  strictly  adhering  to  the  original  program’s  execution             solely on lexical overlap, making it particularly suitable for
+logic  and  semantics  [21].  This  ensures  that  any  identified             measuring the semantic distance between a vulnerability and
+vulnerability or ”fixed” state remains unchanged despite the                   its corresponding fix.
+structural or lexical modifications. Specifically, we implement                   In our implementation, we calculate a CodeBLEU score for
+the same seven distinct transformation methods:                                every (vulnerability, patch) pair within the V2P test set. A
+
+   •Random Parameter Renaming: Replacing function pa-                          higher score indicates a smaller semantic gap (i.e., the patch is
+      rameter identifiers with randomly generated strings.                     more similar to the original vulnerable code), whereas a lower
+   •Random Function Renaming: Assigning a new, random                          scoresuggestsmoreextensivemodifications.Tosystematically
+      name to the function while updating its internal refer-                  investigate how the degree of code modification affects model
+      ences.                                                                   performance, we categorized the test samples into different
+   •Unreachable Code Injection: Inserting code blocks that                     groups  by  a  fixed  internal  of  0.05.  The  fine-tuned  LLMs
+      are logically impossible to execute (e.g., within an if (0)              (Qwen, Llama, and DeepSeek) were evaluated across these
+      block), thereby testing the model’s ability to ignore dead               intervals to observe performance fluctuations relative to the
+      code.                                                                    semantic gap.
+
+=== PÁGINA FÍSICA 7 ===
+                                                                                                                                                                      7
+
+
+          G. LLM-Assisted Wrong Reasoning Analysis
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                          Fig. 3.  Prompt Template during fine-tuning and evaluation.
+
+
+                                                                                          the detailed quantitative distribution analysis presented in our
+                                                                                          findings.
+
+                                                                                                                     IV.  EXPERIMENTS
+                                                                                              In this section, we will first introduce the setup about the
+                                                                                          expriments, and then analyze the experiment results to answer
+          Fig. 2.  The Pipeline of LLM-Assisted Wrong Reasoning Analysis                  the following three research question.
+             To  address  RQ3,  it  is  essential  to  conduct  an  in-depth                  •RQ1:How do training paradigms (with or without ex-
+          investigation  into  the  incorrect  reasoning  generated  by  the                     plicitreasoning)anddatacompositionaffectthedetection
+          fine-tuned models. Relying solely on quantitative metrics is                           effectiveness and robustness of fine-tuned LLMs?
+          insufficient to reveal the fundamental logical flaws or semantic                    •RQ2:How does the semantic gap between vulnerable
+          blind  spots  of  LLMs.  Therefore,  we  designed  a  four-step                        code and its corresponding patch statistically influence
+          LLM-assisted error analysis pipeline to systematically extract,                        the  detection  performance  across  different  fine-tuning
+          categorize, and analyze the underlying reasons for reasoning                           paradigms?
+          errors.                                                                             •RQ3:What are the primary causes of reasoning failures
+             As shown in Figure 2, We begin the pipeline by system-                              in fine-tuned LLMs, and how do these failure patterns
+          atically  aggregating  all  failure  cases,  specifically,  the  False                 differ between false positives and false negatives?
+          Positives (FPs) and False Negatives (FNs) generated by the                      A. Experimental Setup
+          fine-tuned  models  across  all  experimental  configurations  to
+          form a comprehensive wrong reasoning pool. For each sample                          This section details the experimental design used to evaluate
+          within this pool, we construct a carefully designed prompt                      fine-tuned  LLMs  for  vulnerability  detection,  including  the
+          that juxtaposes the original source code snippet, the model’s                   selection of datasets, model configurations, training protocols,
+          wrong  reasoning,  and  the  ground-truth  reasoning  (distilled                and the hardware environment utilized for the study.
+          in §III-C). We then employ an advanced evaluator LLM to                             Todoacomprehensiveanalysis,wechoose5differentstate-
+          comparatively  analyze  these  inputs  and  briefly  summarize                  of-the-art open-source large languages models for evaluation:
+          the essential root cause of the reasoning derailment, thereby                   Qwen3-8B [29], Qwen2.5-Coder-7B-Instruct [48], Llama3.1-
+Prompt Templatepopulating a reasoning error cause pool. To derive a structured            8B [30], DeepSeek-LLM-7B-Chat [31], and DeepSeek-Coder-
+          understanding of these diverse failures, we randomly sample                     6.7B-Instruct [49]. Notably, Qwen2.5-Coder-7B-Instruct and
+User:     a  substantial  subset  (e.g.,  3,000  instances)  from  this  error            DeepSeek-Coder-6.7B-Instruct  are  instruction-tuned  models
+Below is an instruction that describes a classification task.cause pool. This subset is fed back into the evaluator LLMexplicitly optimized for code generation, enabling us to in-
+Devise a label name suitable for categorizing items as eitherwith  the  instruction  to  synthesize,  cluster,  and  abstract  thevestigate the effect of domain-specific fine-tuning. All models
+vulnerable or safe.specific error descriptions into a standardized taxonomy of            fall within the 7B–8B parameter range, offering a favorable
+### Instruction: Please review the code. Please find out if itreasoning error categories. Finally, to quantify the prevalencetrade-off between capability and computational efficiency for
+is vulnerable.Please think step by step (Chain of Thought).of these specific blind spots, we map all individual failures tofine-tuning.
+### Input:
+```C++    the established taxonomy. By prompting the evaluator LLM                            Each  model  was  fine-tuned  under  two  distinct  training
+{code}    with each sample’s specific error cause summary alongside                       paradigms. For both paradigms, the models were trained on
+```       the formalized taxonomy, every failure is classified into its                   V2P  dataset  (paired  vulnerable  code  with  patched  version)
+### Output Format: Please output the result in the followingsingle  most  appropriate  error  category,  ultimately  enablingand  V2N  dataset  (non-paired  cases)  (§III-C)  respectively,
+JSON format:
+{{”reason”: ”CoT reason”, ”result”: ”The code is safe/vul-
+nerable”}}
+### Response:
+
+=== PÁGINA FÍSICA 8 ===
+                                                                                                                                                             8
+
+
+
+                                 TABLE II
+  PRE-VS.POST-SFTPERFORMANCE OFQWEN3-8BON THEV2PAND
+  V2NTEST SETS. QWEN3-8BIS SELECTED HERE BECAUSE ITS NATIVE
+ “THINK”MODE LETS THE BASE MODEL PRODUCE EXPLICIT REASONING
+   withoutFINE-TUNING,PROVIDING THE STRONGEST CONTROL:ANY
+    IMPROVEMENT AFTERSFTCANNOT BE ATTRIBUTED MERELY TO
+ ENABLING REASONING. THE REMAINING FOUR EVALUATED MODELS DO
+  NOT PROVIDE A COMPARABLE NATIVE REASONING MODE,AND THEIR
+PRE-SFTZERO-SHOT BEHAVIOR ON SIMILAR BENCHMARKS IS ALREADY
+WELL DOCUMENTED IN PRIOR WORK(E.G., [26, 22]);WE THEREFORE DO
+NOT REPEAT THOSE MEASUREMENTS AND FOCUS OUR PRE-VS-POSTSFT
+                        CONTRAST ONQWEN3-8B.
+
+       Eval.    Setting      acc      pre       rec        f1        fpr
+        V2P        SFT      52.62   60.49   49.30   54.33   42.95
+                non-SFT     48.25   60.39   28.18   38.43   24.81                Fig.  4.    F1-score  decrease  after  applying  data  augmentation  to  the  test
+                            66.43   75.04   61.22   67.43   26.73                sets.  The  bar  charts  compare  the  performance  degradation  (in  percentage
+        V2N       SFTnon-SFT50.77   62.71   27.18   37.92   20.01                points)  of  five  LLMs  fine-tuned  with  and  without  explicit  reasoning.  (a)
+                                                                                 Evaluation results on the augmented V2P test set. (b) Evaluation results on the
+                                                                                 augmented V2N test set. M1 to M5 represent Qwen3-8B, Qwen2.5-Coder-7B-
+                                                                                 Instruct,  Llama-3.1-8B-Instruct,  deepseek-llm-7b-chat,  and  deepseek-coder-
+utilizing the ms-swift [45] framework with LoRA (Low-Rank                        6.7b-instruct, respectively.
+Adaptation) [20]. The LoRA is trained with arankof 8 and an
+alpha valueof 32, with all other parameters remaining default,                   and V2P F1 from 38.43% to 54.33% (+15.9 pp), confirming
+trainingfor3epochs.Aconsistentprompttemplatedepictedin                           that the improvement after SFT cannot be attributed merely to
+Figure 3 was applied in all training and models to standardize                   enabling reasoning, the base model is already reasoning, yet
+the input-output structure, where the text highlighted in red                    it is materially worse. The remaining four evaluated models
+indicates  the  specific  differences  between  two  fine-tuning                 do not provide a comparable native reasoning mode, and their
+paradigms.                                                                       pre-SFT zero-shot behavior is already well documented by
+   Furthermore, to conduct an in-depth investigation into the                    prior  benchmarks  [26,  22];  we  therefore  do  not  duplicate
+causes of reasoning failures (addressed in RQ3), we incor-                       those measurements here. With this premise established for
+porated an LLM-assisted analysis pipeline. Specifically, we                      Qwen3-8B, the remainder of RQ1 focuses onhowSFT shifts
+utilized the Qwen3.5-plus model as the backbone engine to                        the  model:  whether  it  teaches  genuine  security  logic,  or
+systematically extract, categorize, and analyze the underlying                   whether the improvement is concentrated on the unpaired V2N
+reasonsforreasoningerrorsacrossbothfalsepositiveandfalse                         setting while collapsing under V2P, perturbations, and cross-
+negative samples.                                                                dataset transfer. The comprehensive results for the standard
+   All experiments, including both fine-tuning and inference,                    cross-dataset evaluation and the data augmentation tests are
+were conducted on 8 NVIDIA A100 GPUs. For inference, we                          presented in Table III and Figure 4, respectively.
+used the vLLM [50] inference engine with the temperature set                        As  shown  in  Table  III,  regardless  of  the  fine-tuning
+to 0, while other parameters set to default, to ensure determin-                 paradigm  (with  or  without  explicit  reasoning),  models  ex-
+istic generation and reproducible results. To comprehensively                    hibit  significantly  different  performance  depending  on  the
+assess  model  performance  across  all  experimental  settings,                 composition  of  the  training  data.  Specifically,  the  experi-
+we  treat  the  detection  task  as  a  binary  classification  task,            mental  results  of  the  V2N-to-V2N  configuration  are  sub-
+employing  five  standard  metrics:  accuracy  (Acc),  precision                 stantially  better  than  those  of  the  V2P-to-V2P  configu-
+(Pre),recall(Rec),F1-score(F1),andfalsepositiverate(FPR).                        ration.  For  instance,  fine-tuning  without  explicit  reason-
+B. Effectiveness  and  Robustness  Analysis:  The  Impact  of                    ing  (wo.),Qwen3-8Bachieves  an  F1-score  of  83.65%
+Training Paradigms and Data Composition (RQ1)                                    on  V2N-to-V2N,  but  only  66.06%  on  V2P-to-V2P.  Simi-
+                                                                                 larly,Qwen2.5-Coder-7B-Instructdropsfrom83.88%
+   In this RQ, we evaluate the vulnerability detection capa-                     (V2N-to-V2N) to 66.39% (V2P-to-V2P). For finetuning with
+bilities of LLMs under different training paradigms (with and                    explicit reasoning (w.),Llama-3.1-8B-Instructdrops
+without explicit reasoning) and investigate how the compo-                       from 70.66% (V2N-to-V2N) to 59.75% (V2P-to-V2P). Fur-
+sition of training data influences their performance. To this                    thermore, this performance gap persists in cross-dataset eval-
+end, we fine-tuned five representative LLMs under the two                        uations,  where  models  trained  on  V2N  dataset  exhibit  no-
+paradigms  on  two  distinct  datasets:  V2P  dataset  and  V2N                  ticeably better results than those trained on V2P dataset. For
+dataset  (§  III-C).  Before  interpreting  any  cross-dataset  or               example, the F1-score of (wo.) is 72.39% in the V2N-to-V2P
+robustness results, we verify the basic premise that SFT does                    setting, noticeably higher than its 65.92% in the V2P-to-V2N
+change  model  behavior  in  a  non-trivial  way,  focusing  on                  setting. A similar trend is observed under another paradigm,
+the most conservative control: Qwen3-8B, the only evaluated                      wheredeepseek-coder-6.7b-instruct(w.)  scores
+model with a native “think” mode that lets the base model al-                    58.78% on V2N-to-V2P compared to just 55.57% on V2P-
+ready produce explicit reasoning without fine-tuning. Table II                   to-V2N.
+reports its pre- vs. post-SFT performance on both V2P and                           This stark contrast highlights the profound impact of dataset
+V2N. SFT lifts V2N F1 from 37.92% to 67.43% (+29.5 pp)                           construction. In V2P dataset, the positive and negative sam-
+
+=== PÁGINA FÍSICA 9 ===
+                                                                                                                                                                                         9
+
+
+
+                                                                                             TABLE III
+                PERFORMANCE COMPARISON OFLLMS FINE-TUNED ON VULNERABILITY DETECTION UNDER CROSS-DATASET EVALUATION SETTINGS. THE ROW
+                  LABELS”W.”AND”WO.”DENOTE MODELS FINE-TUNED WITH AND WITHOUT EXPLICIT REASONING,RESPECTIVELY. THE COLUMNS LABELED
+                     V2P->V2PANDV2N->V2NDENOTE MODELS FINE-TUNED AND EVALUATED ON THE SAME DATASET(V2PDATASET ORV2NDATASET,
+              RESPECTIVELY),WHILEV2P->V2NANDV2N->V2PREPRESENT CROSS-DATASET EVALUATIONS. METRICS INCLUDE ACCURACY(ACC),PRECISION
+                                                          (PRE),RECALL(REC), F1-SCORE(F1),AND FALSE POSITIVE RATE(FPR).
+
+                                            Models                                       V2P->V2P                                           V2P->V2N
+                                                                          acc         pre          rec          f1          fpracc         pre          rec          f1          fpr
+                                      Qwen3-8B                     wo.   57.47     60.74     72.41     66.06     62.48      54.62     57.48     77.06     65.85     74.86
+                                                                 w.      52.62     60.49     49.30     54.33     42.95      50.98     57.81     50.34     53.82     48.19
+                            Qwen2.5-Coder-7B-Instruct      wo.           58.08     61.29     72.41     66.39     61.05      55.25     57.44     81.73     67.47     79.53
+                                                                 w.      53.36     60.32     53.87     56.92     47.32      51.67     57.95     54.00     55.91     51.39
+                               Llama-3.1-8B-Instruct           wo.       58.26     60.52     77.65     68.02     67.62      54.16     56.61     82.49     67.14     83.04
+                                                                 w.      53.93     59.67     59.84     59.75     53.95      53.48     58.65     61.02     59.81     56.42
+                                deepseek-llm-7b-chat            wo.      55.64     59.09     73.45     65.49     68.28      54.11     55.91     80.29     65.92     78.23
+                                                                 w.      51.85     61.07     46.31     52.67     40.54      49.43     50.26     46.47     48.29     47.50
+                           deepseek-coder-6.7b-instruct     wo.          55.63     61.14     56.73     58.85     45.75      51.82     64.29     59.61     61.86     63.00
+                                                                 w.      51.74     58.62     52.80     55.56     49.67      51.43     57.30     53.94     55.57     51.81
+                                        Models                                           V2N->V2P                                           V2N->V2N
+                                                                          acc         pre          rec          f1          fpracc         pre          rec          f1          fpr
+                                      Qwen3-8B                     wo.   58.13     57.96     97.46     72.69     94.38      81.28     82.95     84.37     83.65     22.78
+                                                                 w.      53.51     58.62     63.42     60.92     59.70      66.43     75.04     61.22     67.43     26.73
+                            Qwen2.5-Coder-7B-Instruct      wo.           58.72     58.04     97.82     72.86     94.43      81.63     83.63     84.13     83.88     21.65
+                                                                 w.      53.44     58.46     64.15     61.17     60.85      67.19     76.04     61.58     68.05     25.46
+                               Llama-3.1-8B-Instruct           wo.       57.85     57.84     96.98     72.46     94.38      81.23     82.50     84.97     83.72     23.67
+                                                                 w.      54.81     58.82     69.41     63.67     64.60      68.36     74.47     67.23     70.66     30.16
+                                deepseek-llm-7b-chat            wo.      57.61     57.76     96.94     72.39     95.21      75.36     76.56     79.86     78.18     30.21
+                                                                 w.      51.90     61.14     46.31     52.70     40.44      61.92     69.06     45.44     54.81     21.04
+                           deepseek-coder-6.7b-instruct     wo.          58.01     57.95     97.37     72.65     94.79      79.74     80.73     83.55     82.12     25.05
+                                                                 w.      53.32     59.04     58.51     58.78     53.51      64.33     74.14     55.75     63.64     24.75
+
+
+            ples (vulnerable code and its corresponding patched version)                                 Furthermore, the data augmentation experiments shown in
+            share nearly identical functional semantics and structures. This                         Figure 4 provide additional evidence of robustness differences.
+            proximity makes it extremely difficult for models to distin-                             Whenevaluatedonperturbedtestsets,theF1-scoresofmodels
+            guish between them, resulting in poor training performance.                              fine-tuned without explicit reasoning drop by between 3.86
+            Conversely, the seemingly superior metrics in V2N dataset                                and 7.21 percentage points. By contrast, models fine-tuned
+            suggest  that  models  might  merely  be  capturing  superficial                         with explicit reasoning remain comparatively stable, with F1
+            code patterns or broad functional semantics as a ”shortcut”                              decreases  largely  contained  within  1.12  percentage  points,
+            for learning, rather than identifying the intrinsic logical flaws.                       and even showing slight improvements in certain cases (e.g.,
+                                                                                                     −0.91%fordeepseek-llm-7b-chaton the V2P dataset
+                                                                                                     dataset).
+
+
+
+
+
+
+
+
+
+                To further investigate the learning behaviors, we evaluate
+            the  robustness  of  models  fine-tuned  with  (w.)  and  with-
+            out  (wo.)  explicit  reasoning.  As  evident  in  the  V2N-to-                              Despite the evident benefits in robustness, the overall per-
+            V2P  setting,  models  trained  without  explicit  reasoning  ex-                        formance metrics for with explicit reasoning paradigm are less
+            hibit a prohibitively high False Positive Rate (FPR) along-                              than  satisfactory.  Across  almost  all  experimental  groups  in
+            side  exceedingly  high  recall.  For  example,  the  recall  for                        Table III, the F1-scores of the models fine-tuned with explicit
+            Llama-3.1-8B-Instruct(wo.) reaches 96.98%, but its                                       reasoning are consistently lower than those of the models fine-
+            FPR surges to 94.38%. This indicates that models finetuned                               tuned without explicit reasoning. This performance degrada-
+            without  explicit  reasoning  overfit  to  the  surface  patterns                        tionisprimarily drivenbyasubstantialdrop inrecall,meaning
+            learned from V2N dataset; when presented with a patched                                  models fine-tuned with explicit reasoning produce consider-
+            version  in  V2P  dataset,  they  fail  to  recognize  the  fix  and                     ably more False Negatives (FN). For instance, in the V2P-to-
+Finding 2:Models fine-tuned without explicit reasoningblindly  flag  it  as  vulnerable  simply  because  it  shares  theV2P setting, the recall fordeepseek-llm-7b-chatdrops
+Finding  1:The  composition  of  the  training  dataset
+tend to overfit to the surface patterns of vulnerable codesame functional pattern. In contrast, fine-tuning with explicitdrastically from 73.45% (wo.) to 46.31% (w.), leading to an
+significantly impacts the model’s performance. Models
+and ignore the true root causes, leading to massive falsereasoning significantly mitigates this issue, reducing the FPRF1-scoredecreasefrom65.49%to52.67%.Therequirementto
+struggletolearnfromV2Pdataset(pairedvulnerableand
+alarms on patched code. Incorporating fine-tuning withofLlama-3.1-8B-Instructfrom 94.38% to 64.60%.  explicitly generate a reasoning chain makes models more con-
+patched code), indicating that high performance on V2N
+explicit reasoning forces the model to reason, making it
+dataset is likely an artifact of models adopting superficial
+significantly more robust against distribution shifts and
+code patterns as learning shortcuts rather than capturing
+data perturbations.
+the actual root causes of vulnerabilities.
+
+=== PÁGINA FÍSICA 10 ===
+                                                                                                                                                                      10
+
+
+           servative. If a model fails to construct a complete and correct                 consistent upward trend as the semantic divergence between
+           logical path to identify the subtle flaw, it defaults to predicting             vulnerable  and  patched  code  increases  (i.e.,  as  CodeBLEU
+           the code as benign, thereby missing the vulnerability.                          scores  decrease).  For  instance,Qwen3-8B’s  F1-score  im-
+                                                                                           proves from 50.41% (CodeBLEU>0.95) to 63.07% (Code-
+                                                                                           BLEU 0.75–0.80), an increase of over 12 percentage points.
+                                                                                           Similarly, deepseek-coder-6.7b-instructsees  its
+                                                                                           F1 rise from 41.91% to 58.77%. This stratification-level trend
+                                                                                           is supported by our statistical analysis: for all five models
+                                                                                           underthewithout-explicit-reasoningparadigm,theSpearman’s
+                                                                                           rank  correlation  coefficients  (sc)  are  strictly  negative,  their
+                                                                                           95%confidenceintervalslieentirelywithinthenegativerange,
+                                                                                           and all p-values are well below the 0.05 significance threshold
+                                                                                           (e.g.,p= 3.4084e                   −6    forQwen3-8Bandp= 3.3016e                                      −5
+           C. Semantic  Gap  Analysis:  Statistical  Correlation  Between                  fordeepseek-coder-6.7b-instruct). We emphasize,
+           Patch Proximity and Model Performance (RQ2)                                     however, that themagnitudeof this correlation is small (|sc|
+              In this RQ, we investigate how the semantic gap between a                    ranges from0.033to0.074, all below the conventional|ρ|=
+           vulnerable code snippet and its corresponding patch influences                  0.1threshold for a weak effect). The large sample size per
+           the model’s decision-making process. As established in RQ1,                     stratum  is  what  drives  statistical  significance,  not  a  strong
+           models fine-tuned without explicit reasoning often fall into                    dependency at the sample level. Accordingly, we interpret the
+           a ”semantic trap,” where they over-rely on superficial code                     result as aweak but systematicbias: the semantic gap is one
+           patterns  rather  than  capturing  the  intrinsic  root  causes  of             but not the dominant factor shaping a non-reasoning model’s
+           vulnerabilities.  However,  finetuning  with  explicit  reasoning               prediction on (vulnerable, patched) pairs. We also acknowl-
+           alleviatesthisissue,makingthemodelsnoticeablymorerobust                         edge an inherent confound: pairs with a higher CodeBLEU
+           against such pitfalls. Building on these findings, we hypoth-                   score differ by fewer security-critical tokens and are therefore
+           esize that the semantic gap (i.e., the degree of modification                   intrinsically harder to discriminate for any classifier, including
+           in a patch) is a decisive factor in this phenomenon: a smaller                  ahumanexpert;thesymptomweattributetotheSemanticTrap
+           gap (high similarity) creates a stronger ”trap” that misleads the               (symptom (ii) in §I) is the model’srelianceon this gap as a
+           model into treating both versions as identical, whereas a larger                discriminative cue rather than the existence of difficulty alone.
+           gap provides more distinct structural signals for the model to                     In  contrast,  models  fine-tuned  under  the  with-explicit-
+           differentiate between vulnerable and fixed states.                              reasoning paradigm do not exhibit a statistically detectable
+              To  test  this  hypothesis,  we  reorganize  V2P  dataset  into              dependency  on  CodeBLEU.  The  F1-scores  fluctuate  non-
+           distinct training and test splits where each vulnerable sample                  monotonically across CodeBLEU intervals; for example, the
+           is  strictly  paired  with  its  corresponding  patch  in  the  same            F1-score ofQwen2.5-Coder-7B-Instructmoves from
+           split. This ensures that evaluation always occurs on complete                   48.82% (>0.95) to 46.37% (0.85–0.90) and back to 49.48%
+           pairs (vuln, patch). We then fine-tune the five representative                  (0.80–0.85). Thescvalues are near zero, the 95% confidence
+           LLMs on this restructured V2P dataset under two paradigms.                      intervals all cross zero, and the p-values consistently exceed
+           We  evaluate  their  performance  across  subsets  of  test  pairs              0.05 (e.g.,p= 0.349forQwen2.5-Coder-7B-Instruct
+           stratifiedbyCodeBLEUscore,ametricintroducedin§III-Fto                           andp= 0.871fordeepseek-llm-7b-chat), indicating
+           quantify semantic similarity between code fragments. The test                   that under this paradigm we cannot reject the null hypothesis
+           samples are divided into five distinct intervals based on their                 of no correlation between the semantic gap and the model’s
+           CodeBLEU scores: (1)>0.95, (2) 0.90–0.95, (3) 0.85–0.90,                        detection metrics.
+           (4) 0.80–0.85, and (5) 0.75–0.80, with lower scores indicating                     We  are  careful,  however,  not  to  over-interpret  this  ab-
+           greater semantic divergence. Pairs with a CodeBLEU score                        sence of correlation as direct evidence that explicit reasoning
+           <0.75 are excluded, as there are fewer than 325 pairs in that                   “escapes”  the  Semantic  Trap.  Two  alternative  explanations
+           range,  which  is  not  statistically  significant  when  split  into           remain  compatible  with  the  data  and  should  be  ruled  out
+           intervals.                                                                      before drawing such a causal conclusion. First, a Fisherz-test
+              Furthermore,  to  rigorously  measure  the  statistical  depen-              comparing the two paradigms’ correlations on a per-model
+           dency between the semantic gap (CodeBLEU score) and the                         basis  reveals  that  the  gap  betweensc                   w.o.  andsc        w.  is  itself
+           models’ detection metrics, we calculated the Spearman’s rank                    statistically significant only for a subset of models, leaving
+           correlation coefficient (sc). We also report the 95% confidence                 open the possibility that the paradigm-level contrast is partly
+           intervals and p-values to evaluate the statistical significance                 driven by sampling variation. Second, and more importantly,
+           of  this  correlation  across  both  fine-tuning  paradigms.  The               the with-explicit-reasoning models exhibit substantially lower
+           comprehensive performance trends and statistical analyses are                   recall (Table III), pushing their F1 toward the∼50% region
+           presented in Table IV.                                                          acrossallCodeBLEUstrata;suchacompresseddynamicrange
+Finding  3:While fine-tuning with explicit reasoningAsshowninTableIV,therelationshipbetweenthesemanticcan attenuate any underlying correlation through afloor effect,
+successfully  enhances  model  robustness  and  mitigatesgap (measured by CodeBLEU) and model performance differsmimicking  the  appearance  of  paradigm-induced  decoupling
+superficial  overfitting,  it  comes  at  the  cost  of  overalldepending on the fine-tuning paradigm. Under the without-without the model actually reasoning over the security logic.
+model performance. The strict reasoning requirementsexplicit-reasoning  paradigm,  performance  metrics  exhibit  aThe reasoning-failure analysis in RQ3 corroborates that with-
+introduce more False Negatives, resulting in significantly
+lower recall and F1-scores compared to the paradigm
+without explicit reasoning.
+
+=== PÁGINA FÍSICA 11 ===
+                                                                                                                                                                                                             11
+
+
+
+                                                                                                        TABLE IV
+                    PERFORMANCE OFLLMS FINE-TUNED ON RESTRUCTUREDV2PDATASET,EVALUATED ACROSS VULNERABILITY–PATCH PAIRS STRATIFIED BY
+                  CODEBLEUSCORE. THE TABLE COMPARES TWO FINE-TUNING PARADIGMS:WITH AND WITHOUT EXPLICIT REASONING. THE‘COUNT’COLUMN
+                   INDICATES THE NUMBER OF SAMPLES WITHIN EACH INTERVAL. IN THE’RELEVANCE’COLUMN, ’SC’DENOTES THESPEARMAN’S CORRELATION
+                                        COEFFICIENT,THE BRACKETS INDICATE THE95%CONFIDENCE INTERVAL,AND’P’REPRESENTS THE P-VALUE.
+
+                                                                                             without explicit reasoning
+                                              model                         CodeBleu   Score       acc         pre         rec          f1          fpr       count            relevance
+                                                                                >0.95              53.79     54.38     46.98     50.41     39.41      1426
+                                                                               0.9-0.95            57.35     59.14     47.55     52.72     32.85       694                 sc:-0.0744
+                                            Qwen3-8B                           0.85-0.9            57.77     58.40     54.06     56.15     38.52       566             [-0.1079,-0.0428]
+                                                                               0.8-0.85            60.65     61.69     56.21     58.82     34.91       338                p:3.4084e-6
+                                                                               0.75-0.8            64.11     64.96     61.29     63.07     33.06       248
+                                                                                >0.95              54.49     55.37     46.35     50.46     37.36      1424
+                                                                               0.9-0.95            58.76     60.41     50.86     55.23     33.33       696                 sc:-0.0721
+                                Qwen2.5-Coder-7B-Instruct                      0.85-0.9            60.35     60.81     58.25     59.50     37.54       570             [-0.1024,-0.0397]
+                                                                               0.8-0.85            60.71     61.54     57.14     59.26     35.71       336                p:6.8837e-6
+                                                                               0.75-0.8            63.31     64.86     58.06     61.28     31.45       248
+                                                                                >0.95              53.79     55.25     39.83     46.29     32.26      1426
+                                                                               0.9-0.95            56.88     59.02     44.99     51.06     31.23       698                  sc:-0.048
+                                    Llama-3.1-8B-Instruct                      0.85-0.9            55.40     57.21     42.81     48.97     32.01       556             [-0.0801,-0.0157]
+                                                                               0.8-0.85            58.67     60.14     51.45     55.45     34.10       346                p:2.7695e-3
+                                                                               0.75-0.8            60.00     61.06     55.20     57.98     35.20       250
+                                                                                >0.95              50.74     51.68     23.95     32.73     22.43      1285
+                                                                               0.9-0.95            53.89     56.07     35.93     43.80     28.14       668                 sc:-0.0335
+                                     deepseek-llm-7b-chat                      0.85-0.9            52.43     53.10     43.17     47.62     38.27       555             [-0.0658,-0.0015]
+                                                                               0.8-0.85            53.96     54.86     47.88     51.13     39.88       328                p:4.1954e-2
+                                                                               0.75-0.8            58.47     59.29     54.03     56.54     37.10       248
+                                                                                >0.95              52.99     54.90     33.90     41.91     27.89      1421
+                                                                               0.9-0.95            55.00     58.37     34.86     43.65     24.86       700                 sc:-0.0666
+                                deepseek-coder-6.7b-instruct                   0.85-0.9            57.14     61.49     38.21     47.14     23.93       560             [-0.0973,-0.0377]
+                                                                               0.8-0.85            58.53     62.39     42.94     50.87     25.88       340                p:3.3016e-5
+                                                                               0.75-0.8            62.40     65.05     53.60     58.77     28.80       250
+                                                                                               with explicit reasoning
+                                              model                         CodeBleu   Score       acc         pre         rec          f1          fpr       count            relevance
+                                                                                >0.95              53.20     53.97     43.96     48.45     37.55      1423
+                                                                               0.9-0.95            51.81     52.40     41.16     46.10     37.50       689                 sc:-0.0192
+                                            Qwen3-8B                           0.85-0.9            53.89     55.50     39.22     45.96     31.45       566             [-0.0511,0.0126]
+                                                                               0.8-0.85            54.81     56.35     41.52     47.81     31.98       343                p:2.3079e-1
+                                                                               0.75-0.8            55.79     57.29     45.45     50.69     33.88       242
+                                                                                >0.95              52.74     53.23     45.08     48.82     39.61      1424
+                                                                               0.9-0.95            53.44     54.12     43.39     48.17     36.57       698                  sc:-0.015
+                                Qwen2.5-Coder-7B-Instruct                      0.85-0.9            52.84     53.74     40.78     46.37     35.11       564             [-0.0462,0.0187]
+                                                                               0.8-0.85            56.19     58.68     42.77     49.48     30.30       331                p:3.4936e-1
+                                                                               0.75-0.8            52.42     52.83     45.16     48.70     40.32       248
+                                                                                >0.95              52.14     52.18     50.35     51.25     46.08      1427
+                                                                               0.9-0.95            52.19     52.54     45.19     48.59     40.82       686                 sc:-0.0249
+                                    Llama-3.1-8B-Instruct                      0.85-0.9            55.87     56.37     51.96     54.07     40.21       562             [-0.0596,0.0009]
+                                                                               0.8-0.85            54.60     55.06     50.00     52.41     40.80       348                p:6.6968e-2
+                                                                               0.75-0.8            54.03     54.39     50.00     52.10     41.94       248
+                                                                                >0.95              51.50     51.93     40.38     45.43     37.38      1268
+                                                                               0.9-0.95            51.36     51.78     39.46     44.79     36.75       664                  sc:0.0027
+                                     deepseek-llm-7b-chat                      0.85-0.9            53.03     54.55     37.36     44.35     31.25       545             [-0.0283,0.0352]
+                                                                               0.8-0.85            51.65     52.88     32.93     40.59     29.52       333                p:8.7198e-1
+                                                                               0.75-0.8            52.03     52.58     41.46     46.36     37.40       246
+                                                                                >0.95              50.68     50.91     50.15     50.53     48.79      1326
+                                                                               0.9-0.95            51.95     52.49     41.14     46.13     37.24       666                 sc:-0.0186
+                                deepseek-coder-6.7b-instruct                   0.85-0.9            50.10     50.00     43.30     46.41     43.13       523             [-0.0519,0.0144]
+                                                                               0.8-0.85            52.32     53.54     41.72     46.90     36.88       323                p:2.6198e-1
+                                                                               0.75-0.8            53.14     53.27     47.90     50.44     41.67       239
+
+
+              explicit-reasoning models still systematically misinterpret con-
+              trol flow and API behavior, suggesting that any mitigation of
+              the trap is partial at best. Taken together, our results support
+              a more measured claim: under the without-explicit-reasoning
+Finding   4:   Under   the   without-explicit-reasoningparadigm we observe a weak but statistically systematic gap-
+paradigm, a fine-tuned model’s detection performance ondictated bias consistent with symptom (ii) of the Semantic
+(vulnerable, patched) pairs is weakly but systematicallyTrap, while the with-explicit-reasoning paradigm reduces but
+biased  by  the  superficial  semantic  gap  (CodeBLEU):does not demonstrably eliminate this dependency.
+Spearman|sc|<0.1across all five models withp <
+0.05,  consistent  with  symptom  (ii)  of  the  Semantic
+Trap. The with-explicit-reasoning paradigm reduces the
+measurable dependency to a statistically non-significant
+level, but the result must be interpreted cautiously: the
+
+=== PÁGINA FÍSICA 12 ===
+                                                                                                                                                                                12
+
+
+
+                                                                                         TABLE V
+             TAXONOMY AND DETAILED DEFINITIONS OF THE EIGHT DISTINCT REASONING FAILURE CATEGORIES IDENTIFIED INLLMS DURING VULNERABILITY
+                                                                                        DETECTION.
+
+              ID                       name                                                                         Definition
+              C1       Control Flow and Execution Path                 The model fails to correctly trace the logical sequence of code execution, leading to incorrect
+                                Misinterpretation                  conclusions about whether specific lines of code are reachable, the order of operations, or the impact
+                                                                                     of conditional branches (e.g., early returns, short-circuit evaluation).
+              C2        Library, API, and Framework                   The model demonstrates a fundamental lack of knowledge regarding the specific behavior, safety
+                            Semantics Hallucination                  guarantees, or return values of standard library functions, kernel helpers, or framework APIs, often
+                                                                                     assuming they are unsafe or behave differently than they actually do.
+              C3        Contextual and Scope Isolation              The model analyzes a code snippet in isolation, failing to account for broader architectural context,
+                                      Errors                           caller guarantees, upstream/downstream validation, or the specific environment (e.g., kernel vs.
+                                                                                      userspace, test harness vs. production) in which the code operates.
+              C4       Data Type and Arithmetic Logic                 The model exhibits misunderstandings of programming language semantics regarding data types
+                                      Flaws                         (signed vs. unsigned, fixed-width integers), arithmetic operations (overflow, underflow, wraparound),
+                                                                                                and memory layout (padding, struct alignment).
+              C5          Vulnerability Category and                    The model correctly identifies a potential issue but maps it to the wrong Common Weakness
+                            Definition Misapplication              Enumeration (CWE) category, or identifies a theoretical risk that does not meet the specific criteria of
+                                                                          the requested vulnerability type (e.g., confusing Input Validation with Buffer Overflow).
+              C6          Concurrency and Lifecycle                The model fails to accurately assess race conditions, reference counting mechanisms, object lifecycles,
+                           Management Blind Spots                     and synchronization primitives, often hallucinating race conditions where locks exist or missing
+                                                                                     Use-After-Free (UAF) scenarios due to complex ownership transfers.
+              C7           Input Trust Boundary and                The model incorrectly determines the trustworthiness of data sources, either treating sanitized/internal
+                           Sanitization Misjudgment                data as malicious or failing to recognize that certain inputs (e.g., hardware registers, network packets)
+                                                                                                     require strict validation that is absent.
+              C8      Speculative and Hallucinated Code            The model invents code behaviors, variables, function calls, or execution contexts that do not exist in
+                                     Analysis                       the provided snippet, basing its reasoning on fabricated premises rather than the actual source code.
+
+
+                                                                                                 flawed reasoning output. We prompt the LLM to compara-
+                                                                                                 tively analyze these inputs and pinpoint the specific logical
+                                                                                                 flaws, misinterpretations, or missing considerations that led
+                                                                                                 to the incorrect conclusion. From this comprehensive pool of
+                                                                                                 failure explanations, we randomly sample 3,000 texts. We then
+                                                                                                 prompt the LLM to synthesize and summarize these samples,
+            D. Demystifying the Semantic Trap: An In-depth Analysis of                           deriving  a  structured  categorization  of  reasoning  failures.
+            Reasoning Failures (RQ3)                                                             This process yielded eight distinct reasoning error categories
+               In  this  RQ,  we  delve  deeper  into  the  behavior  of  mod-                   (C1–C8), with detailed definitions presented in Table V.
+            els  fine-tuned  under  the  explicit-reasoning  paradigm.  RQ1                         Subsequently, to quantify the prevalence of these reasoning
+            and RQ2 showed that this paradigm reduces the measurable                             blindspots,weutilizetheLLMoncemoretoevaluateallfailed
+            symptoms of the Semantic Trap but does not eliminate failed                          samples  across  our  experiments,  mapping  each  individual
+            predictions. To understand the kinds of failures that remain,                        failure  to  its  most  appropriate  category  in  our  established
+            we analyze the explicit-reasoning traces produced alongside                          taxonomy. Finally, we analyze and compare the distribution
+            each incorrect prediction (i.e., False Positives and False Neg-                      of these reasoning error causes across various experimental
+            atives). We emphasize an important methodological point that                         configurations and different fine-tuned models. The resulting
+            determines what RQ3 can and cannot show: because the fine-                           statistical distributions, highlighting both False Positives (FP)
+            tuned model’s final label is binary (vulnerable/safe), categories                    and False Negatives (FN) for each category, are visualized in
+            such as “CWE misapplication” (C5) or “concurrency blind                              Figure 5.
+            spot” (C6) are not directly observable from the label alone,                            As detailed in Table V, we leveraged an advanced LLM to
+            they are derived by an evaluator LLM that reads the natural-                         systematicallycategorizetherootcausesofincorrectreasoning
+            language reasoning text the model emits under the explicit-                          generated by the fine-tuned models into eight distinct types.
+            reasoning prompt template (Figure 3) and compares it against                         These encompass Control Flow and Execution Path Misinter-
+            the ground-truth reasoning distilled in §III-C. Consequently,                        pretation (C1), Library/API and Framework Semantics Hal-
+            RQ3 is best understood as characterizing the distribution of                         lucination (C2), Contextual and Scope Isolation Errors (C3),
+            failure descriptionsproduced by this evaluator pipeline, not                         Data  Type  and  Arithmetic  Logic  Flaws  (C4),  Vulnerability
+            as a direct measurement of the fine-tuned model’s internal                           Category  and  Definition  Misapplication  (C5),  Concurrency
+            cognition.                                                                           and  Lifecycle  Management  Blind  Spots  (C6),  Input  Trust
+               Our analytical approach consists of two main steps. First,                        Boundary and Sanitization Misjudgment (C7), and Speculative
+            to construct a systematic taxonomy of reasoning errors, we                           and Hallucinated Code Analysis (C8).
+            employ an advanced LLM to act as an expert code security                                Subsequent analysis of the error distributions presented in
+            evaluator. For each failed sample, we provide the evaluator                          Figure 5 yields several critical observations regarding how and
+            LLM with a comprehensive context: the original code snip-                            why these models fail. Primarily, the distribution patterns of
+absence of correlation is also compatible with a floorpet, the ground-truth reasoning, and the fine-tuned model’sreasoning error causes are remarkably similar across different
+effect induced by the lower recall of these models, and
+reasoning failures persist (RQ3), suggesting that explicit
+reasoning mitigates rather than removes the trap.
+
+=== PÁGINA FÍSICA 13 ===
+                                                                                                                                                                       13
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+           Fig. 5.  Distribution of reasoning failure causes across different models and experimental configurations. In each subplot, the x-axis indicates the error category
+           IDs (C1–C8) as defined in Table V, and the y-axis represents the proportion of each error category within the specific experimental setup.
+
+
+           models and experimental configurations (e.g.,V2P_to_V2P                          sally prevalent cause of reasoning failure overall.
+           versusV2N_to_V2N). This consistency indicates that these                            Synthesizing these empirical observations, we find that the
+           reasoning flaws are systemic limitations inherent to the LLMs’                   most frequent failure categories are consistent with shallow
+           currentcapabilitiesratherthanartifactsofspecifictrainingdata                     understanding  of  specific  programming  environments  (such
+           compositions.                                                                    as C/C++ and the Linux kernel) rather than deep reasoning
+              Despite this overarching consistency, there is a significant                  about security-critical logic. The high C1 and C2 rates in FPs
+           divergence in the primary causes driving False Positives (FPs)                   are  consistent  with  hallucinated  API  behavior  and  misread
+           compared to False Negatives (FNs). For FPs, the proportions                      control flow, and the patterns in the failure texts often look
+           ofC1andC2errors  are  substantially  higher  than  those                         like heuristic pattern matching (e.g., flagging the absence of an
+           observed  in  FNs,  demonstrating  that  control  flow  misinter-                explicit check without verifying whether that check is implicit,
+           pretation  and  API  hallucination  are  the  leading  causes  of                delegated, or logically unnecessary). The dominance of C5 in
+           false  alarms.  For  example,  under  theV2N_to_V2Pset-                          FNs further indicates that models frequently confuse general
+           ting  forqwen2.5-Coder-7B-Instruct,  C1  and  C2                                 robustnessissuesorstandardlogicalbugswithsecurity-critical
+           account  for  32.0%  and  17.7%  of  FP  errors,  respectively,                  memory-safety flaws, suggesting an imprecise grasp of CWE
+           compared  to  a  mere  6.1%  and  5.2%  in  FN  errors.  Con-                    definitions and boundaries. We emphasize that these obser-
+           versely,  when  the  models  fail  to  detect  actual  vulnerabili-              vations describe the distribution of errorcategoriesproduced
+           ties  (FNs),  the  proportions  ofC5andC6generally  domi-                        by a single LLM-as-judge pipeline and should not be read as
+           nate. Takingdeepseek-coder-6.7b-instructin the                                   a direct measurement of the underlying cognitive mechanism;
+           V2N_to_V2Nsetting as an illustration, C5 and C6 constitute                       the next section discusses the corresponding threats to validity.
+           amassive37.0%and24.6%ofFNerrors,faroutweighingtheir
+           contributions to FPs (21.7% and 10.0%). This highlights that
+           vulnerability category misapplication and concurrency blind
+           spots are the primary reasons models miss real threats. Fur-
+           thermore, comprehensively observing all scenarios in Figure
+Finding 5:False Positives are dominated by errors con-3 reveals thatC5consistently exhibits the highest frequencies
+sistent with control-flow misinterpretation and API hal-across various conditions, establishing it as the most univer-
+lucination (C1, C2), whereas False Negatives are dom-
+inated by errors consistent with vulnerability-category
+misapplication (C5) and concurrency blind spots (C6).
+
+=== PÁGINA FÍSICA 14 ===
+                                                                                                                                                                    14
+
+
+                                                                                          models on unpaired code (V2N) versus paired code (V2P).
+                                                                                          As shown in RQ1, models that perform well in V2N-to-V2N
+                                                                                          scenarios suffer a large performance drop when faced with
+                                                                                          V2P pairs, often producing high false-alarm rates on patched
+                                                                                          code. RQ2 further quantifies this phenomenon: under standard
+                                                                                          fine-tuning, a model’s detection performance on (vulnerable,
+                                                                                          patched) pairs shows a weak but statistically systematic depen-
+                                                                                          dency on the superficial semantic gap (CodeBLEU) between
+                                                                                          the two snippets, consistent with the model exploiting text-
+                                       V.  DISCUSSION                                     modification  magnitude  as  a  partial  discriminative  signal.
+           A. Threats to validity                                                         However,  most  existing  research  evaluates  models  only  on
+              Threats to validity in our study primarily stem from the size               unpaired datasets, leaving potential risks in real-world deploy-
+           of the evaluated models and the potential noise inherent in the                ment unchecked. We therefore advocate for a routine cross-
+           vulnerability datasets. Regarding the size of the models, our                  evaluation protocol that includes both V2P and V2N datasets
+           evaluation focuses on open-source LLMs within the 7B–8B                        when  assessing  whether  a  model  has  grasped  fine-grained
+           parameter  range  due  to  computational  resource  constraints.               security logic or is partially relying on functional patterns.
+           We acknowledge that larger-scale models might demonstrate                         Moving Towards Code-Semantic-Aware Fine-Tuning.To
+           enhanced general reasoning capabilities. However, as corrob-                   escape  the  ”Semantic  Trap,”  future  work  must  bridge  the
+           orated  by  recent  study  [28],  the  fundamental  bottleneck  in             gap between statistical token learning and structured program
+           vulnerability  detection  lies  in  the  learning  paradigm  rather            logic. We suggest that fine-tuning should not rely on code
+           than  mere  model  capacity.  The  “Semantic  Trap”  illustrates               alone. Instead, integrating explicit structural information, such
+           a systemic flaw where models rely on superficial functional                    as data flow and control flow information, or security-related
+           patterns instead of causal security logic. Simply scaling up the               executionpaths,isessentialtoguideLLMstowardlearningthe
+           parameter count is unlikely to resolve this intrinsic limitation               ”causal logic” of vulnerabilities. By forcing LLMs to attend to
+           without significant shifts in model architectures or semantic-                 the relationships between variables and execution states rather
+           aware  training  methodologies.  Regarding  potential  dataset                 than just keywords, LLMs will be able to learn how the code
+           noise, it is well-recognized that commit-based datasets like                   looks to how the code behaves from a security perspective.
+           PrimeVul can contain inaccurate labels. To mitigate this, we
+           implemented a data cleaning pipeline, including hash-based                                                VI.  CONCLUSION
+           deduplication  and  a  priority-based  label  resolution  strategy                To summarize, in this paper we investigate whether fine-
+           across multiple high-quality sources. This mitigates the impact                tuned  LLMs  genuinely  learn  vulnerability  root  causes  or
+           of inherent noise on the model’s training and evaluation.                      instead rely on functional patterns in vulnerability detection,
+           B. Lessons Learned                                                             andweidentifyafailuremodethatwetermtheSemanticTrap,
+                                                                                          characterized by three observable symptoms (pairing-sensitive
+              Our investigation into the “Semantic Trap” provides critical                performance, gap-dictated decisions, and fragility to semantic-
+           insights for the future of LLM-based vulnerability detection.                  preserving change). Using TrapEval, an evaluation framework
+           We summarize the key lessons as follows:                                       that  combines  paired  (V2P)  and  unpaired  (V2N)  datasets,
+              Fine-tuning  is  not  a  Panacea  for  Logic  Comprehen-                    semantic-preserving perturbations, semantic-gap analysis, and
+           sion.A central observation of this study is that improving                     an  LLM-assisted  error  taxonomy,  we  conduct  an  extensive
+           performance metrics through fine-tuning does not necessarily                   study across five state-of-the-art LLMs under two fine-tuning
+           equate to a deeper understanding of vulnerability root causes.                 paradigms (with and without explicit reasoning). Our findings
+           As  demonstrated  in  RQ1,  fine-tuned  models  can  achieve                   highlight three key observations: (1) models trained under the
+           deceptively high accuracy on traditional V2N settings but ex-                  without-explicit-reasoning paradigm achieve deceptively high
+           hibit substantial robustness degradation under minor semantic-                 performance  on  traditional  datasets  (V2N)  but  suffer  large
+           preserving data augmentations. Furthermore, our failure analy-                 false-alarm rates on patched code (V2P) and noticeable robust-
+           sisinRQ3showsthatevenwhenmodelsareforcedtogenerate                             ness degradation under semantic-preserving transformations;
+           step-by-step reasoning, they frequently fall back on patterns                  (2) the detection performance of these models on (vulnera-
+           consistent with heuristic matching, hallucinating API behav-                   ble, patched) pairs shows a weak but statistically systematic
+           iors (C2) or misapplying vulnerability definitions (C5). This                  dependency  on  the  superficial  semantic  gap  (CodeBLEU),
+           suggests that the current fine-tuning paradigm inadvertently                   and although fine-tuning with explicit reasoning reduces this
+           trains models to behave as “sophisticated pattern matchers”                    measurable dependency, the result is partly compatible with a
+           rather than “logical reasoners.” Therefore, researchers should                 floor effect arising from lower recall and should not be read as
+           be cautious of high accuracy scores on standard benchmarks,                    direct evidence of escaping the trap; and (3) explicit-reasoning
+C5 is the most frequent category overall. These distribu-as they may mask limited comprehension of security-criticalmodels still frequently fail in ways consistent with shallow
+tions are consistent with shallow semantic understandinglogic.                            semanticunderstanding,predominantlymisinterpretingcontrol
+and reliance on heuristic patterns, although the catego-The Criticality of V2P vs. V2N Cross-Evaluation.Ourflow (driving False Positives) and misapplying vulnerability
+rization is produced by an LLM evaluator and should beempirical results highlight a clear contrast between evaluatingdefinitions  (driving  False  Negatives).  Taken  together,  these
+interpreted as a description of observable failure patterns
+rather  than  as  a  direct  probe  of  the  model’s  internal
+reasoning.
+
+=== PÁGINA FÍSICA 15 ===
+                                                                                                                                                       15
+
+
+results indicate that current fine-tuning practices tend to rein-             [10]W.Ma,D.Wu,Y.Sun,T.Wang,S.Liu,J.Zhang,Y.Xue,
+force shortcut learning rather than imparting genuine security                       and Y. Liu, “Combining fine-tuning and llm-based agents
+reasoning. We conclude that paired evaluations are essential                         for intuitive smart contract auditing with justifications,”
+for  accurately  assessing  LLM-based  vulnerability  detectors,                     arXiv preprint arXiv:2403.16073, 2024.
+and that future research should move toward code-semantic-                    [11]X. Du, M. Wen, J. Zhu, Z. Xie, B. Ji, H. Liu, X. Shi,
+aware training paradigms to enable reliable automated soft-                          and H. Jin, “Generalization-enhanced code vulnerability
+ware security analysis.                                                              detection  via  multi-task  instruction  fine-tuning,”arXiv
+                                                                                     preprint arXiv:2406.03718, 2024.
+                    VII.  ACKNOWLEDGEMENT                                     [12]B. Boi, C. Esposito, and S. Lee, “Smart contract vulnera-
+  This work was supported in part by National Key R&D                                bility detection: The role of large language model (llm),”
+Program of China (2023YFB3106800), by the National Nat-                              ACM SIGAPP applied computing review, vol. 24, no. 2,
+ural  Science  Foundation  of  China  (U25B2024,  62572437),                         pp. 19–29, 2024.
+by  the  National  Natural  Science  Foundation  of  Hangzhou                 [13]A.  Z.  Yang,  C.  Le  Goues,  R.  Martins,  and  V.  Hel-
+(No.2025SZRJJ1712).                                                                  lendoorn,  “Large  language  models  for  test-free  fault
+                                                                                     localization,”  inProceedings  of  the  46th  IEEE/ACM
+                             REFERENCES                                              InternationalConferenceonSoftwareEngineering,2024,
+ [1]Z.  Sheng,  Z.  Chen,  S.  Gu,  H.  Huang,  G.  Gu,  and                         pp. 1–12.
+      J.  Huang,  “Llms  in  software  security:  A  survey  of               [14]J. Zhang, C. Wang, A. Li, W. Sun, C. Zhang, W. Ma, and
+      vulnerability  detection  techniques  and  insights,”ACM                       Y. Liu, “An empirical study of automated vulnerability
+      Computing Surveys, vol. 58, no. 5, pp. 1–35, 2025.                             localization with large language models,”arXiv preprint
+ [2]X. Zhou, S. Cao, X. Sun, and D. Lo, “Large language                              arXiv:2404.00287, 2024.
+      model for vulnerability detection and repair: Literature                [15]L. Xu, H. Xie, S.-Z. J. Qin, X. Tao, and F. L. Wang,
+      review and the road ahead,”ACM Transactions on Soft-                           “Parameter-efficient fine-tuning methods for pretrained
+      ware Engineering and Methodology, vol. 34, no. 5, pp.                          language  models:  A  critical  review  and  assessment,”
+      1–31, 2025.                                                                    arXiv preprint arXiv:2312.12148, 2023.
+ [3]C. Shi, J. Yu, Z. Zhao, J. Chen, and F. Zhang, “Cgifuzz:                  [16]X.  L.  Li  and  P.  Liang,  “Prefix-tuning:  Optimizing
+      Enabling gray-box fuzzing for web cgi of iot devices,”                         continuous   prompts   for   generation,” arXiv   preprint
+      IEEE Transactions on Information Forensics and Secu-                           arXiv:2101.00190, 2021.
+      rity, 2025.                                                             [17]Z. Hu, L. Wang, Y. Lan, W. Xu, E.-P. Lim, L. Bing,
+ [4]Y. Sun, D. Wu, Y. Xue, H. Liu, H. Wang, Z. Xu, X. Xie,                           X. Xu, S. Poria, and R. Lee, “Llm-adapters: An adapter
+      and Y. Liu, “Gptscan: Detecting logic vulnerabilities in                       family for parameter-efficient fine-tuning of large lan-
+      smartcontractsbycombininggptwithprogramanalysis,”                              guage models,” inProceedings of the 2023 conference
+      inProceedings  of  the  IEEE/ACM  46th  International                          on empirical methods in natural language processing,
+      Conference on Software Engineering, 2024, pp. 1–13.                            2023, pp. 5254–5276.
+ [5]I. David, L. Zhou, K. Qin, D. Song, L. Cavallaro, and                     [18]B.  Lester,  R.  Al-Rfou,  and  N.  Constant,  “The  power
+      A. Gervais, “Do you still need a manual smart contract                         of  scale  for  parameter-efficient  prompt  tuning,”arXiv
+      audit?”arXiv preprint arXiv:2306.12338, 2023.                                  preprint arXiv:2104.08691, 2021.
+ [6]D.  Cao  and  W.  Jun,  “Llm-cloudsec:  Large  language                   [19]A. Petrov, P. H. Torr, and A. Bibi, “When do prompting
+      model empowered automatic and deep vulnerability anal-                         and  prefix-tuning  work?  a  theory  of  capabilities  and
+      ysis for intelligent clouds,” inIEEE INFOCOM 2024-                             limitations,”arXiv preprint arXiv:2310.19698, 2023.
+      IEEE Conference on Computer Communications Work-                        [20]E.J.Hu,Y.Shen,P.Wallis,Z.Allen-Zhu,Y.Li,S.Wang,
+      shops (INFOCOM WKSHPS).   IEEE, 2024, pp. 1–6.                                 L. Wang, W. Chenet al., “Lora: Low-rank adaptation of
+ [7]X.-C.  Wen,  C.  Gao,  S.  Gao,  Y.  Xiao,  and  M.  R.                          large language models.”ICLR, vol. 1, no. 2, p. 3, 2022.
+      Lyu,  “Scale:  Constructing  structured  natural  language              [21]S. Ullah, M. Han, S. Pujar, H. Pearce, A. Coskun, and
+      comment trees for software vulnerability detection,” in                        G. Stringhini, “Llms cannot reliably identify and reason
+      Proceedings of the 33rd ACM SIGSOFT International                              about  security  vulnerabilities  (yet?):  A  comprehensive
+      Symposium on Software Testing and Analysis, 2024, pp.                          evaluation, framework, and benchmarks,” in2024 IEEE
+      235–247.                                                                       symposium on security and privacy (SP).    IEEE, 2024,
+ [8]G.  Lu,  X.  Ju,  X.  Chen,  W.  Pei,  and  Z.  Cai,  “Grace:                    pp. 862–880.
+      Empowering llm-based software vulnerability detection                   [22]Y.  Li,  P.  Branco,  A.  M.  Hoole,  M.  Marwah,  H.  M.
+      with graph structure and in-context learning,”Journal of                       Koduvely,  G.-V.  Jourdan,  and  S.  Jou,  “Sv-trusteval-c:
+      Systems and Software, vol. 212, p. 112031, 2024.                               Evaluating  structure  and  semantic  reasoning  in  large
+ [9]P. V. Sindhwad, P. Ranka, S. Muni, and F. Kazi, “Vulnar-                         language models for source code vulnerability analysis,”
+      mor: mitigating software vulnerabilities with code reso-                       in2025 IEEE Symposium on Security and Privacy (SP).
+      lution and detection techniques,”International Journal of                      IEEE, 2025, pp. 3014–3032.
+      Information Technology, vol. 17, no. 9, pp. 5393–5408,                  [23]Y. Li, X. Li, H. Wu, M. Xu, Y. Zhang, X. Cheng, F. Xu,
+      2025.                                                                          and S. Zhong, “Everything you wanted to know about
+
+=== PÁGINA FÍSICA 16 ===
+                                                                                                                                                          16
+
+
+      llm-based vulnerability detection but were afraid to ask,”                      based  code  vulnerability  detection  mechanism,”arXiv
+      arXiv preprint arXiv:2504.13474, 2025.                                          preprint arXiv:2309.15324, 2023.
+[24]X. Yin, C. Ni, and S. Wang, “Multitask-based evaluation                     [39]A. A. Mahyari, “Harnessing the power of llms in source
+      of  open-source  llm  on  software  vulnerability,”IEEE                         code  vulnerability  detection,”  inMILCOM  2024-2024
+      Transactions on Software Engineering, 2024.                                     IEEE Military Communications Conference (MILCOM).
+[25]X. Jiang, L. Wu, S. Sun, J. Li, J. Xue, Y. Wang, T. Wu,                           IEEE, 2024, pp. 251–256.
+      and  M.  Liu,  “Investigating  large  language  models  for               [40]Z. Li, S. Dutta, and M. Naik, “Iris: Llm-assisted static
+      code  vulnerability  detection:  An  experimental  study,”                      analysis  for  detecting  security  vulnerabilities,”arXiv
+      arXiv preprint arXiv:2412.18260, 2024.                                          preprint arXiv:2405.17238, 2024.
+[26]Y.  Ding,  Y.  Fu,  O.  Ibrahim,  C.  Sitawarin,  X.  Chen,                 [41]Z. Liu, Z. Yang, and Q. Liao, “Exploration on prompt-
+      B. Alomair, D. Wagner, B. Ray, and Y. Chen, “Vulnera-                           ing llm with code-specific information for vulnerability
+      bility detection with code language models: How far are                         detection,” in2024 IEEE International Conference on
+      we?”arXiv preprint arXiv:2403.18624, 2024.                                      Software Services Engineering (SSE).    IEEE, 2024, pp.
+[27]N.  Risse  and  M.  B      ¨ohme,  “Uncovering  the  limits  of                   273–281.
+      machine learning for automatic vulnerability detection,”                  [42]A. Khare, S. Dutta, Z. Li, A. Solko-Breslin, R. Alur,
+      in33rd USENIX security symposium (USENIX Security                               and M. Naik, “Understanding the effectiveness of large
+      24), 2024, pp. 4247–4264.                                                       language models in detecting security vulnerabilities,” in
+[28]F. Weissberg, L. Pirch, E. Imgrund, J. M      ¨oller, T. Eisen-                   2025 IEEE Conference on Software Testing, Verification
+      hofer, and K. Rieck, “Llm-based vulnerability discov-                           and Validation (ICST).   IEEE, 2025, pp. 103–114.
+      ery  through  the  lens  of  code  metrics,”arXiv  preprint               [43]B. Steenhoek, M. M. Rahman, M. K. Roy, M. S. Alam,
+      arXiv:2509.19117, 2025.                                                         H. Tong, S. Das, E. T. Barr, and W. Le, “To err is ma-
+[29]Q.  Team,  “Qwen3  technical  report,”  2025.  [Online].                          chine: Vulnerability detection challenges llm reasoning,”
+      Available: https://arxiv.org/abs/2505.09388                                     arXiv preprint arXiv:2403.17218, 2024.
+[30]A. Grattafiori, A. Dubey, A. Jauhri, A. Pandey, A. Ka-                      [44]Y. Sun, D. Wu, Y. Xue, H. Liu, W. Ma, L. Zhang, Y. Liu,
+      dian, A. Al-Dahle, A. Letman, A. Mathur, A. Schelten,                           and Y. Li, “Llm4vuln: A unified evaluation framework
+      A. Vaughanet al., “The llama 3 herd of models,”arXiv                            for decoupling and enhancing llms’ vulnerability reason-
+      preprint arXiv:2407.21783, 2024.                                                ing,”arXiv preprint arXiv:2401.16185, 2024.
+[31]DeepSeek-AI,  “Deepseek-v3  technical  report,”  2024.                      [45]Y.   Zhao,   J.   Huang,   J.   Hu,   X.   Wang,   Y.   Mao,
+      [Online]. Available: https://arxiv.org/abs/2412.19437                           D.   Zhang,   Z.   Jiang,   Z.   Wu,   B.   Ai,   A.   Wang,
+[32]S. Ren, D. Guo, S. Lu, L. Zhou, S. Liu, D. Tang, N. Sun-                          W.  Zhou,  and  Y.  Chen,  “Swift:a  scalable  lightweight
+      daresan, M. Zhou, A. Blanco, and S. Ma, “Codebleu:                              infrastructure for fine-tuning,” 2024. [Online]. Available:
+      a method for automatic evaluation of code synthesis,”                           https://arxiv.org/abs/2408.05517
+      arXiv preprint arXiv:2009.10297, 2020.                                    [46]Y. Chen, Z. Ding, L. Alowain, X. Chen, and D. Wagner,
+[33]M.  Keltek,  R.  Hu,  M.  F.  Sani,  and  Z.  Li,  “Lsast:                        “Diversevul: A new vulnerable source code dataset for
+      Enhancing  cybersecurity  through  llm-supported  static                        deep learning based vulnerability detection,” inProceed-
+      application security testing,” inIFIP International Con-                        ings of the 26th International Symposium on Research in
+      ference on ICT Systems Security and Privacy Protection.                         Attacks, Intrusions and Defenses, 2023, pp. 654–668.
+      Springer, 2025, pp. 166–179.                                              [47]G.  Bhandari,  A.  Naseer,  and  L.  Moonen,  “Cvefixes:
+[34]V.Kouliaridis,G.Karopoulos,andG.Kambourakis,“As-                                  automated  collection  of  vulnerabilities  and  their  fixes
+      sessing the effectiveness of llms in android application                        from open-source software,” inProceedings of the 17th
+      vulnerability analysis,” inInternational Conference on                          International Conference on Predictive Models and Data
+      Attacks and Defenses for Internet-of-Things.    Springer,                       Analytics in Software Engineering, 2021, pp. 30–39.
+      2024, pp. 139–154.                                                        [48]B.  Hui,  J.  Yang,  Z.  Cui,  J.  Yang,  D.  Liu,  L.  Zhang,
+[35]N.  S.  Mathews,  Y.  Brus,  Y.  Aafer,  M.  Nagappan,                            T. Liu, J. Zhang, B. Yu, K. Danget al., “Qwen2. 5-
+      and  S.  McIntosh,  “Llbezpeky:  Leveraging  large  lan-                        codertechnicalreport,”arXivpreprintarXiv:2409.12186,
+      guage models for vulnerability detection,”arXiv preprint                        2024.
+      arXiv:2401.01269, 2024.                                                   [49]D.   Guo,   Q.   Zhu,   D.   Yang,   Z.   Xie,   K.   Dong,
+[36]X. Zhou, D.-M. Tran, T. Le-Cong, T. Zhang, I. C. Irsan,                           W. Zhang, G. Chen, X. Bi, Y. Wu, Y. K. Li, F. Luo,
+      J. Sumarlin, B. Le, and D. Lo, “Comparison of static                            Y.   Xiong,   and   W.   Liang,   “Deepseek-coder:   When
+      applicationsecuritytestingtoolsandlargelanguagemod-                             the  large  language  model  meets  programming  –  the
+      els for repo-level vulnerability detection,”arXiv preprint                      rise  of  code  intelligence,”  2024.  [Online].  Available:
+      arXiv:2407.16235, 2024.                                                         https://arxiv.org/abs/2401.14196
+[37]Q. Mao, Z. Li, X. Hu, K. Liu, X. Xia, and J. Sun, “To-                      [50]W. Kwon, Z. Li, S. Zhuang, Y. Sheng, L. Zheng, C. H.
+      wards effectively detecting and explaining vulnerabilities                      Yu, J. Gonzalez, H. Zhang, and I. Stoica, “Efficient mem-
+      using large language models,”arXiv e-prints, pp. arXiv–                         ory management for large language model serving with
+      2406, 2024.                                                                     pagedattention,” inProceedings of the 29th symposium
+[38]J.  Wang,  Z.  Huang,  H.  Liu,  N.  Yang,  and  Y.  Xiao,                        on operating systems principles, 2023, pp. 611–626.
+      “Defecthunter:  A  novel  llm-driven  boosted-conformer-

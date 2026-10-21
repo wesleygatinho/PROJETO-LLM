@@ -1,0 +1,38 @@
+[
+  {
+    "arquivo": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/rodadas/artigo_completo_01/consultas/001_revisar.json",
+    "session_id": "08746dbb-cb50-46bd-a285-3e58f2df9862",
+    "modelos": [
+      "claude-opus-5-5"
+    ],
+    "custo_estimado_usd": 0.9377936,
+    "duration_ms": 113934
+  },
+  {
+    "arquivo": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/rodadas/artigo_completo_01/consultas/003_revisar.json",
+    "session_id": "44ef23c7-0c24-49da-8924-94c7163a7bed",
+    "modelos": [
+      "claude-opus-5-5"
+    ],
+    "custo_estimado_usd": 0.5836898,
+    "duration_ms": 61510
+  },
+  {
+    "arquivo": "04_escrita/artigo/seminarios_2026/revisao/artigo_completo_2026-10-08/conferencia_primaria/resposta_bruta.json",
+    "session_id": "6b26d0d1-6ad0-4642-a8d1-922dc4908417",
+    "modelos": [
+      "claude-opus-5-5"
+    ],
+    "custo_estimado_usd": 1.4147465999999997,
+    "duration_ms": 127387
+  },
+  {
+    "arquivo": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/rodadas/artigo_completo_02/consultas/001_revisar.json",
+    "session_id": "a94a5700-8fbd-4ebe-be46-a920485f1ce2",
+    "modelos": [
+      "claude-opus-5-5"
+    ],
+    "custo_estimado_usd": 0.5578672,
+    "duration_ms": 41548
+  }
+]

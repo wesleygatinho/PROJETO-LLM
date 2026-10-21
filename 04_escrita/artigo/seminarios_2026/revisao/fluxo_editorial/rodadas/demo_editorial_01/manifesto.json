@@ -1,0 +1,198 @@
+{
+  "schema": 1,
+  "id": "demo_editorial_01",
+  "finalidade": "demonstracao",
+  "criado_utc": "2026-10-08T02:00:57.793476+00:00",
+  "fontes": [
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/BRIEFING_DEMONSTRACAO.md",
+      "sha256": "ff6df02a831da2b49ac82186a2a39bd9cb2c52f24a5db251d098496f81f03368"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/PADRAO_ESCRITA.md",
+      "sha256": "fa3e79d07d726bb778d16efcbe50aec731288f02eed0152cbdbeaa9e98cf0841"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/MATRIZ_EVIDENCIAS.md",
+      "sha256": "3f373c0e20775ea951c85ed1f75394246dc397122b48316dce830be38f9f2132"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/PLANO_ESCRITA.md",
+      "sha256": "ded6b9ae3b2bc1db7b55b4e62a088b5a2dd2e5202fda2ce0c3af721628bba5b4"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/prompts/redigir.md",
+      "sha256": "201eefb01eb59b01d0d2fb94e0dc00c4002180db21140f316c5546b390f51fe9"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/prompts/revisar.md",
+      "sha256": "7398693cc2742c7e03649a3c5aa5291742adaebfed923f28e18b07bc0cfc3ebb"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/prompts/corrigir.md",
+      "sha256": "16d3326d6930050e56a57d0967b1e187ad8a7282598b4859b387e5920a971323"
+    },
+    {
+      "arquivo": "04_escrita/artigo/seminarios_2026/AMOSTRA_REDACAO.md",
+      "sha256": "0c648ab9e533b3f5084addfbd28234d40f42c7605b6b347ac1a733435800b456"
+    }
+  ],
+  "artefatos": [
+    {
+      "arquivo": "briefing.md",
+      "sha256": "ff6df02a831da2b49ac82186a2a39bd9cb2c52f24a5db251d098496f81f03368"
+    },
+    {
+      "arquivo": "versoes/v001.md",
+      "sha256": "6ac1f3563ddedce5425b659d364718975f462ff2dccc92e1cba894363c91b224"
+    },
+    {
+      "arquivo": "pedidos/001_revisar.txt",
+      "sha256": "969300f52d9d9fd23ba1198306ada9cad5f0ce40367714dbffbf60e8109ebf98"
+    },
+    {
+      "arquivo": "entradas/revisao_v001.json",
+      "sha256": "b76155fcc2c18c114469d5fe02fc07a21d32fba7ee53bbb860baede91ad981ca"
+    },
+    {
+      "arquivo": "pareceres/v001.json",
+      "sha256": "9538aaa00d552ab45435509d6e5be8037a492c1a8502d25a3fc17ce32806fe8e"
+    },
+    {
+      "arquivo": "entradas/correcao_v002.json",
+      "sha256": "cd3a08ef9e8b5bd81d4be6ea2568d5c64f48bc2fdb9a27bd649d27f8c6e68653"
+    },
+    {
+      "arquivo": "versoes/v002.md",
+      "sha256": "83f6b71192f7f33c52fa027cdb6f09ab4f9125ababce9082b4b618ee02d3aa22"
+    },
+    {
+      "arquivo": "pedidos/002_revisar.txt",
+      "sha256": "dbca4e5ce61b071adb4a3f074de17aefcf0f75dff971fb9416708a6603c581d8"
+    },
+    {
+      "arquivo": "consultas/002_revisar.json",
+      "sha256": "0d2db20a53a9fc9a537e8e9319bfd6e8c2c2a9bd731c734ccca577d33a7ee205"
+    },
+    {
+      "arquivo": "entradas/revisao_v002.json",
+      "sha256": "0d2db20a53a9fc9a537e8e9319bfd6e8c2c2a9bd731c734ccca577d33a7ee205"
+    },
+    {
+      "arquivo": "pareceres/v002.json",
+      "sha256": "83b08a6ebd652a65c4ac04f085646a8f0f654cd0594418578b3a51361002dbce"
+    }
+  ],
+  "versoes": [
+    {
+      "numero": 1,
+      "texto": {
+        "arquivo": "versoes/v001.md",
+        "sha256": "6ac1f3563ddedce5425b659d364718975f462ff2dccc92e1cba894363c91b224"
+      },
+      "autor": "Codex — redator (amostra original)",
+      "data_utc": "2026-10-08T02:00:57.840367+00:00",
+      "pareceres": [
+        {
+          "arquivo": "pareceres/v001.json",
+          "sha256": "9538aaa00d552ab45435509d6e5be8037a492c1a8502d25a3fc17ce32806fe8e"
+        }
+      ],
+      "entrada": null,
+      "respostas": [],
+      "estado": "aguarda_correcao"
+    },
+    {
+      "numero": 2,
+      "texto": {
+        "arquivo": "versoes/v002.md",
+        "sha256": "83f6b71192f7f33c52fa027cdb6f09ab4f9125ababce9082b4b618ee02d3aa22"
+      },
+      "autor": "Codex — papel corretor",
+      "data_utc": "2026-10-08T02:04:02.921733+00:00",
+      "pareceres": [
+        {
+          "arquivo": "pareceres/v002.json",
+          "sha256": "83b08a6ebd652a65c4ac04f085646a8f0f654cd0594418578b3a51361002dbce"
+        }
+      ],
+      "entrada": {
+        "arquivo": "entradas/correcao_v002.json",
+        "sha256": "cd3a08ef9e8b5bd81d4be6ea2568d5c64f48bc2fdb9a27bd649d27f8c6e68653",
+        "origem": "arquivo_json"
+      },
+      "respostas": [
+        {
+          "id": "V1-R1",
+          "situacao": "corrigido",
+          "justificativa": "Adotado o verbo principal analisa, preservando o objetivo exploratório, o objeto e a retomada Para isso. Preferência do briefing, não erro do guia.",
+          "evidencias": []
+        },
+        {
+          "id": "V1-R2",
+          "situacao": "corrigido",
+          "justificativa": "Acrescentado do 3B para tornar o referente inequívoco. A comparação de volume foi delimitada à receita original versus receitas 1:1, sem alegar volumes distintos entre os dois braços 1:1 nem acrescentar números de desempenho.",
+          "evidencias": []
+        }
+      ],
+      "estado": "apto_editorial"
+    }
+  ],
+  "pedidos": [
+    {
+      "arquivo": "pedidos/001_revisar.txt",
+      "sha256": "969300f52d9d9fd23ba1198306ada9cad5f0ce40367714dbffbf60e8109ebf98",
+      "papel": "revisar",
+      "versao": 1
+    },
+    {
+      "arquivo": "pedidos/002_revisar.txt",
+      "sha256": "dbca4e5ce61b071adb4a3f074de17aefcf0f75dff971fb9416708a6603c581d8",
+      "papel": "revisar",
+      "versao": 2
+    }
+  ],
+  "eventos": [
+    {
+      "data_utc": "2026-10-08T02:00:57.793476+00:00",
+      "acao": "iniciar",
+      "detalhe": "demonstracao"
+    },
+    {
+      "data_utc": "2026-10-08T02:00:57.840367+00:00",
+      "acao": "rascunho",
+      "detalhe": "Demonstração extraída da amostra original, sem nova redação do manuscrito"
+    },
+    {
+      "data_utc": "2026-10-08T02:00:57.903623+00:00",
+      "acao": "pedido",
+      "detalhe": "revisar"
+    },
+    {
+      "data_utc": "2026-10-08T02:04:02.785908+00:00",
+      "acao": "parecer",
+      "detalhe": "corrigir"
+    },
+    {
+      "data_utc": "2026-10-08T02:04:02.921733+00:00",
+      "acao": "correcao",
+      "detalhe": "v1 -> v2; exige nova revisão"
+    },
+    {
+      "data_utc": "2026-10-08T02:04:05.421693+00:00",
+      "acao": "pedido",
+      "detalhe": "revisar"
+    },
+    {
+      "data_utc": "2026-10-08T02:04:34.736153+00:00",
+      "acao": "consulta_claude",
+      "detalhe": "revisar; modelo solicitado=opus; exit=0"
+    },
+    {
+      "data_utc": "2026-10-08T02:06:43.956661+00:00",
+      "acao": "parecer",
+      "detalhe": "aprovar"
+    }
+  ],
+  "integracao": null
+}

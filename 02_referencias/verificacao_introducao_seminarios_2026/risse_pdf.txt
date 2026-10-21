@@ -1,0 +1,1133 @@
+=== PÁGINA FÍSICA 1 ===
+Uncovering the Limits of Machine Learning for
+          Automatic Vulnerabilit  y Detec tion
+            Niklas Risse and Marcel Böhme, MPI -SP, Germany
+      ht tps://w  w  w.usenix.org /conference/usenixsecurit  y24 /presentation/risse
+
+=== PÁGINA FÍSICA 2 ===
+                                  Uncovering the Limits of Machine Learning
+                                        for Automatic Vulnerability Detection
+
+
+                                             Niklas Risse                          Marcel Böhme
+                                         MPI-SP, Germany                         MPI-SP, Germany
+
+
+
+                            Abstract                                         this mean that the problem of detecting security vulnerabil-
+Recentresultsofmachinelearningforautomaticvulnerability                      ities in software is solved? Are these models actually able
+detection(ML4VD)havebeenverypromising.Givenonlythe                           to detect security vulnerabilities, or do the reported scores
+sourcecodeofafunction f,ML4VDtechniquescandecideif                           provide a false sense of security?
+f containsa securityflawwithupto 70%accuracy. However,                          Even though ML4VD techniques achieve high scores on
+as evident in our own experiments, the same top-performing                   vulnerabilitydetectionbenchmarkdatasets,therearestillsitu-
+modelsareunable todistinguishbetweenfunctionsthatcon-                        ationsinwhichtheyfailtomeetexpectationswhenpresented
+tain avulnerability and functionswhere the vulnerability is                  with new data. For example, it is possible to apply small se-
+patched. So,how canwe explain thiscontradiction andhow                       manticpreservingchangestoaugmentthetestingdatasetofa
+canweimprovethewayweevaluateML4VDtechniquesto                                state-of-the-art model and then measure whether the model
+get a better picture of their actual capabilities?                           changesitspredictions.Ifitdoes,itwouldindicateadepen-
+   In thispaper,we identifyoverfitting tounrelated features                  dence of the prediction on unrelated features. Examples of
+andout-of-distributiongeneralizationastwoproblems,which                      suchtransformationsareidentifierrenaming[18,38,39,41,42],
+are not captured by the traditional approach of evaluating                   insertion of unexecuted statements [18,35,39,41] or re-
+ML4VD techniques. As aremedy,we proposea novel bench-                        placement of code elements with equivalent elements [2,21].
+marking methodology to help researchers better evaluate the                  The impact of augmenting testing data using these trans-
+true capabilities and limits of ML4VD techniques. Specifi-                   formations has been explored for many different software-
+cally, we propose (i) to augment the training and validation                 related tasks and the results seem to be clear: Learning-
+dataset according to our cross-validation algorithm, where                   based models fail to perform well when testing data gets
+a semantic preserving transformation is applied during the                   augmented using semantic preserving transformations of
+augmentationofeitherthe training setorthetestingset,and                      code [2,5,18,30,35,38,39,41,42].
+(ii) to augment the testing set with code snippets where the                    In our own experiments, we were able to reproduce the
+vulnerabilities are patched.                                                 findings of the literature and made additional observations:
+   Using six ML4VD techniques and two datasets, we find                      ML4VD techniquesthat were trainedon typical training data
+(a) that state-of-the-art models severely overfit to unrelated               for vulnerability detection are also unable to distinguish be-
+features for predicting the vulnerabilities in the testing data,             tweenvulnerablefunctionsandtheirpatchedcounterparts.Ifa
+(b)thattheperformancegainedbydataaugmentationdoesnot                         patchedfunctionisalsopredictedasvulnerable,thisindicates
+generalizebeyondthespecificaugmentationsappliedduring                        that the prediction critically depends on features unrelatedto
+training, and (c) that state-of-the-art ML4VD techniques are                 the presence of a security vulnerability.
+unabletodistinguishvulnerablefunctionsfromtheirpatches.                         It has previously beenproposed to reduce the dependence
+                                                                             on unrelated features by augmenting not just the testing data
+1   Introduction                                                             butalsothetrainingdata[5,18,35,38,39,41,42].Indeed,this
+                                                                             seemsto restorethe lostperformance backto previous levels,
+Recently several different publications have reported high                   butdoesitreallyreducethedependenceonunrelatedfeatures,
+scores on vulnerability detection benchmarks using machine                   orarethemodelsjustoverfittingtodifferentunrelatedfeatures
+learning(ML)techniques[1,12    –15,28].Theresultingmodels                    of the data?
+seemtooutperformtraditionalprogramanalysismethods,e.g.                          Inthis paper,we proposea novel benchmarkingmethodol-
+staticanalysis,evenwithoutrequiringanyhard-codedknowl-                       ogy thatcan be usedto evaluate the capabilitiesof ML4VD
+edgeofprogramsemanticsorcomputationalmodels.So,does                          techniques by using data augmentation. First, we propose
+
+
+
+
+USENIX Association                                                                                 33rd USENIX Security Symposium    4247
+
+=== PÁGINA FÍSICA 3 ===
+Algorithm 1,in which a selected semantic preserving trans-                    on a typical training dataset were unable to distinguish be-
+formation isappliedto the training datasetof amodel, anda                     tweenthevulnerablefunctionsandtheirpatchedcounterparts
+differenttransformationisappliedtothetestingdataset.When                      in VulnPatchPairs. On average, the accuracy turned out to be
+repeatedforallpossiblepairsoutofasetoftransformations,                        worsethanrandomguessing.Thetrainedmodelsareunable
+the resulting scores provide a better measure of overfitting                  to generalize froma standard vulnerability detectiondataset
+tothe unrelatedfeaturesthat areintroducedby thesemantic                       to the modified setting.
+preservingtransformationsduringtrainingdataaugmentation.                      Insummary,thispapercontributestwonovelalgorithmsthat
+Second,weproposeAlgorithm2,inwhichatrainedmodelis                             can be used to uncover major problems of ML4VD tech-
+evaluated on a testing dataset that contains both vulnerable                  niques that are not detected using the standard evaluation
+programs and their respective patches. The results provide                    setup: Overfitting to semantic preserving code changes and
+a measureof themodel’s ability togeneralize toa modified                      theinabilitytogeneralizebetweenrelatedvulnerabilitydetec-
+vulnerability detection setting.                                              tionsettings.Additionally,weprovideanempiricalevaluation
+   In order to validateAlgorithm 1andAlgorithm 2empir-                        ofsixstate-of-the-artML4VDtechniquesusingtheproposed
+ically, we selected six state-of-the-art ML4VD techniques.                    methodology.
+AllevaluatedML4VDtechniqueshappentobetoken-based                              ⋆ We presenta generalmethodology consisting oftwo algo-
+large language models (LLMs). As our selection criterion,                        rithms, that can be used to evaluate ML4VD techniques.
+we defined the top-performing ML4VD techniques on the
+most widely known ML vulnerability detection benchmark                        ⋆ We show empirically, that state-of-the-art ML4VD tech-
+CodeXGLUE [24,25] that are available as open source. This                        niques overfit to the unrelated features introduced by se-
+gave us ranks 1, 2, 6, 10, and 12 of the leaderboard, all of                     manticpreservingtransformationsduringdataaugmenta-
+which are token-based LLMs. In fact, 9 of the Top-10 solu-                       tion.
+tions on the leaderboard are token-based LLMs. By applying                    ⋆ We introduce VulnPatchPairs, anew dataset thatcontains
+Algorithm 1andAlgorithm 2in our empirical study of six                           vulnerableCfunctionandthecorrespondingpatchedver-
+state-of-the-art ML4VD techniques and three datasets, we                         sions of the same functions. It is available at
+confirmed that ML4VD techniquescontinue to leverage unre-                        https://github.com/niklasrisse/VPP.
+lated features when deciding whether a function contains a
+vulnerability.                                                                ⋆ We demonstrate, that six state-of-the-art ML4VD tech-
+   ForAlgorithm1,weimplemented11differentsemanticpre-                            niquesarenotabletodistinguishbetweenthevulnerable
+servingtransformationsfordataaugmentationandevaluated                            and patched functions in VulnPatchPairs.
+thetrainedmodelsusingtwopopularvulnerabilitydetection
+datasets. As expected, we find a strong benefit of training                   ⋆ Wepublishallofour codeandresultsfor reproducibility.
+data augmentation (69.0% and 66.2% average restoration of                        They are available at
+accuracy/f1-scorefor thetwo datasets)when thetransforma-                         https://github.com/niklasrisse/USENIX_2024.
+tions applied to training and testing datasets are the same.
+However, we find no improvement in performance when the                       2   Related Work
+transformations applied to training and testing datasets are
+different.Infact,weevenfindanadditional30.2%and77.5%                          One of the main tools to study the limits of ML4VD tech-
+average decrease in accuracy/f1-score for the two datasets.                   niquesare semanticpreserving transformationsof code.Pre-
+In other words, ML4VD techniques still severely overfit to                    vious work [2,5,18,21,22,30,35,38,39,41,42] proposed
+the specific label-unrelated features introduced by training                  methods to generate semantic preserving transformations for
+data augmentation. The improvement in performance gained                      source code datasets and investigated their impact when used
+by data augmentation only applies to the specific type of                     to augment testing data of learned models.
+transformations used during training.                                            Many of the works that reported the failures of learned
+   ForAlgorithm 2, we introduce a new dataset, VulnPatch-                     models when testing data was augmented also investigated
+Pairs,whichcontains26.2kCfunctionsandisderivedfrom                            training data augmentation using their respective methods
+theCodeXGLUE/Devignvulnerabilitydetectiondataset[43].                         [5,18,35,38,39,41,42].Acommonfindinginallofthesepub-
+Exactly half of the functions in VulnPatchPairs contain se-                   lications is that training data augmentation using a specific
+curityvulnerabilities.Theotherhalfarepatchedversionsof                        typeofsemanticpreservingtransformationleadstoimproved
+the first half.1 We investigated six ML4VD techniques using                   performance on testing sets that have been augmented the
+VulnPatchPairs and evaluated their ability to generalize from                 same way. But does the performance gained by data augmen-
+theirtypicaltrainingdatatoVulnPatchPairs,andviceversa.                        tation generalize beyond the specific augmentations applied
+To oursurprise,all sixML4VD techniquesthat weretrained                        during training?
+                                                                                 Some of the publications that propose methods for data
+   1SeeSection 4.4for details.                                                augmentation [5,18,35,38,41] take it a step further; they
+
+
+
+
+4248    33rd USENIX Security Symposium                                                                                       USENIX Association
+
+=== PÁGINA FÍSICA 4 ===
+                                                                                      1    staticinlineintcoeff_unpack_golomb(GetBitContext  *gb,intqfactor,int
+1    staticinlineintcoeff_unpack_golomb(GetBitContext  *gb,intqfactor,int                      qoffset)
+        qoffset)                                                                      2    {
+2    {                                                                                3             intcoeff  =  dirac_get_se_golomb(gb);
+3             intcoeff  =  dirac_get_se_golomb(gb);                                   4             constintsign  =  FFSIGN(coeff);
+4             constintsign  =  FFSIGN(coeff);                                         5             constunsignedsign  =  FFSIGN(coeff);
+5             constunsignedsign  =  FFSIGN(coeff);                                    6             if(coeff)
+6             if(coeff)                                                               7                       coeff  =  sign*((sign  *  coeff  *  qfactor  +  qoffset)  >>  2);
+7                       coeff  =  sign*((sign  *  coeff  *  qfactor  +  qoffset)  >>  2);8             if(0)
+8             returncoeff;                                                            9                       coeff  =  666;
+9    }                                                                               10             returncoeff;
+                                                                                     11    }
+                             (a) Code Snippet                                                                (b) Transformed Code Snippet
+
+  Figure1:Exampleof asimplesemanticpreservingtransformation.Thechange(orange)has noeffectonthevulnerabilitylabel.
+  Bothcodesnippetscontainasecurityvulnerability(integeroverflowinline4).ThecodewastakenfromtheFfmpegGitHub
+  repository(URL:https://github.com/FFmpeg/FFmpeg/commit/92da2309)andispartoftheCodeXGLUE/Devigndataset.
+
+
+  augmentthetrainingdatausingaslightlydifferentbutrelated                            of our knowledge, we are the first to utilize such a dataset to
+  type oftransformation than forthe testing data.For example,                        evaluate the general capabilities of ML4VD techniques.
+  Henkel et al. [18] apply their gradient-based approach for                            Tworecentlypublishedpapers[10,36]reportpoorgener-
+  identifierrenamingtothetrainingdataandarandomrenam-                                alization capabilities ofdifferent ML-based techniques (e.g.
+  ing strategy to the testing data. Similarly, Yang et al. [38]                      LLMsandGNNs)whenevaluatedonfunctionsfromunseen
+  applytheirmethodforvariablerenamingtoatrainingdataset                              gitprojects.OurAlgorithm2also investigatesthegeneraliza-
+  and the method proposed by Zhang et al. [42] to a testing                          tion capabilities of ML4VD techniques, but using a different
+  dataset. All of these works find an improved performance                           setup, in which functions in the evaluation data belong to a
+  whenthe training datasetisaugmentedina similarwaythan                              modified vulnerability detection setting (e.g. vulnerable func-
+  the testing dataset. However, the transformations used for                         tions and their patches), but can be from the same projects.
+  augmentingthetrainingandtestingdatainthesepublications
+  are all similar in type, e.g. they both rename identifiers. But                    3   Methodology
+  doestheperformancealsoimprovewhentrainingdataisaug-
+  mented in a different way than the testing data? Our work                          We propose a novel benchmarking methodology to help re-
+  aimstofillthisgapintheliteraturebycarryingoutathorough                             searchers better evaluate advances in ML4VD techniques.
+  empirical study that considers a diverse set of 11 different                       Themethodologyconsistsoftwoparts,Algorithm1(A1)and
+  transformations, six state-of-the-art ML4VD techniques, and                        Algorithm 2(A2).
+  two high-quality datasets.
+     Similar to other related publications listed above [18,35,                      3.1   Data Augmentation
+  38], Rahman et al. [31] investigate overfitting of ML4VD
+  techniques to variable and API names by transforming them                          A central componentof our methodologyis data augmenta-
+  in the testingdata. Additionally, they proposea new method                         tion,andtheexpectationsforvulnerabilitydetectionmodels
+  toaddresstheoverfittingbasedoncausallearning,whichaims                             that emerge from using code transformations for data aug-
+  todisablemodelsfromusingsuperficialfeatures(e.g.variable                           mentation.
+  names)entirely.Whiletheirapproachseemstobeeffective                                   We define data augmentation as the application of one
+  to avoid overfitting for concrete and simple transformations                       or multiple code transformations onto all code snippets of
+  (e.g. changing variable names),theauthors donot investigate                        a given code snippet dataset CD⊂C, where C is a space
+  howtheirmethodperformswhenfacedwithunseensemantic                                  that represents all possible code snippets c∈C in a given
+  preserving transformations, that were not specifically trained                     programming language.
+  for. Our proposed methodology can be used as a tool to do                             A code transformation t :C →C is a function that maps
+  this, which allows to draw conclusions about overfitting to                        from and toC. Let’s assume we have an oracle functiong:
+  unrelatedfeatures fundamentally,irrespective ofthe typeof                          C→{0,1},whichmapsfromthespaceofcodesnippetsC to
+  transformation applied to training- and testing data.                              either0or1.Theoraclefunctiongrepresentsthegroundtruth,
+     In order to evaluate the general capabilities of ML4VD                          i.e. it shows whether a code snippet c does (1) or does not
+  techniques, we collected a new dataset (VulnPatchPairs),                           (0) contain a security vulnerability. For a given code snippet
+  which contains both vulnerable functions and their respec-                         datasetCD⊂C,acodetransformationt canbecharacterized
+  tive patches. The collection of a pairwise vulnerability-patch                     by its effect ong(t(c))∀c∈CD:
+  datasethasbeenproposedbypreviouswork[4,8,29],e.g.for                                  Semantic Preserving Transformation. We call a trans-
+  the research field of automated fixing. However, to the best                       formation tp semantic preserving w.r.t. CD, if the changes
+
+
+
+
+  USENIX Association                                                                                        33rd USENIX Security Symposium    4249
+
+=== PÁGINA FÍSICA 5 ===
+Algorithm 1Detecting Overfitting to Code Changes
+
+Input:  Semantic Preserving Transformations T :={t1,...,tN}
+     Training Dataset Tr
+     Testing Dataset Te
+     ML Training Method train_model
+     ML Evaluation Method evaluate_model
+     Performance Metric M
+ 1:  MLM[Tr]= train_model(Tr)
+ 2:  score[MLM[Tr],Te]= evaluate_model(MLM[Tr],Te,M)
+ 3:  for eachtk∈T do
+ 4:        Tek =tk(Te)         // testing data augmentation
+ 5:     score[MLM[Tr],Tek]=  evaluate_model(MLM[Tr],Tek,M)
+ 6:     ef fect[Tr,Tek]=score[MLM[Tr],Tek]−score[MLM[Tr],Te]
+ 7:        Trk =tk(Tr)         // training data augmentation
+ 8:        MLM[Trk]= train_model(Trk)
+ 9:     score[MLM[Trk],Tek]=  evaluate_model(MLM[Trk],Tek,M)
+10:     MLM[Trk,Tek]=score[MLM[Trk],Tek]−score[MLM[Tr],Te]
+11:        for eachtj̸=k∈T do
+12:              Tej =tj(Te)     // testing data augmentation
+13:        score[MLM[Trk],Tej]=  evaluate_model(MLM[Trk],Tej,M)
+14:        ef fect[Trk,Tej]=score[MLM[Trk],Tej]−score[MLM[Tr],Te]
+15:        end for
+16:  end for
+Output:  outputA1.1 =(∑kef fect[Tr,Tek])/N
+     outputA1.2 =(∑kef fect[Trk,Tek])/N
+     outputA1.3 =(∑k∑j̸=kef fect[Trk,Tej])/(N(N−1))
+                                                                                  Figure2:VisualizationofAlgorithm1,whichwecreatedto
+                                                                                  detectoverfittingofML4VDtechniquestounrelatedfeatures
+introduced by applying it do notaffect the ground truth vul-                      introduced by data augmentation. Colors represent that either
+nerability label, g(c)= g(tp(c))∀ c∈CD.Figure 1shows                              only testing data is augmented (blue), training- and testing
+an example of a simple semantic preserving transformation                         dataareaugmentedusingthesame(orange),ordifferentaug-
+applied to a real-world code snippet.                                             mentation methods (green).
+   Label Inverting Transformation. We call a transforma-
+tion td label inverting w.r.t. CD, if the changes introduced                         ThegoalofAlgorithm1istomeasure,whetherML4VD
+by applying it change the ground truth vulnerability label,                       techniques overfit to augmentations of their training data that
+g(c)̸= g(td(c))∀ c∈CD. In other words, a label inverting                          areunrelatedtotherespectivevulnerabilitylabelsandwhether
+transformationeitheraddsorremovesavulnerabilityfroma                              the performance gained by data augmentation generalizes
+code snippet.                                                                     beyond the specific augmentations applied during training.
+   In general, we expect a vulnerability detection model to                       We provide a simple visualization of the idea behind the
+correctly predict, whether a given code snippet contains a                        algorithm inFigure 2, the algorithm itself inAlgorithm 1,
+securityvulnerability,independentofanysemanticpreserving                          andadescriptionofthemostimportantpartsinthefollowing
+or label inverting transformations that have been previously                      paragraphs. We use the colors            blue,  orange, and     green, to
+applied to the code snippet. Specifically, we can formulate                       connectthebasicideasofthealgorithmwiththeexperimental
+the following expectations:                                                       results across the paper2.
+  1. Ifwechangeacodesnippetwithoutaffectingthevulner-                                What are the inputs? The inputs ofAlgorithm 1are a
+      ability label (semantic preserving transformation), we                      set of different semantic preserving transformations T :=
+      expectavulnerabilitydetectiontooltocomputethesame                           {t1,...,tN}, a training dataset Tr, a testing dataset Te, a ML
+      correct prediction as before applying the change.                           trainingmethodtrain_model,aMLevaluationmethodeval-
+                                                                                  uate_model, and a performance metric M. The training and
+  2. If we addor remove avulnerability from a codesnippet                         testing datasets Tr and Te consist of code-label pairs(ci,vi),
+      (label inverting transformation), we expect a vulnerabil-                   withci∈C representingcodesnippetsandvi∈{0,1}repre-
+      itydetection tooltostill delivera correctprediction,or                      senting labelsthat indicatethe absence(0) orpresence (1)of
+      i.e. we expect it to change its prediction with the ground                  security vulnerabilities in the respective code snippets. The
+      truth label of the code snippet.                                            methodtrain_modelcanutilizethetrainingdatasetTrtotrain
+                                                                                  a machine learning model MLM :C →{0,1}, which maps
+Inthefollowingsections,wepresenttwoalgorithms,whichal-                            fromthespaceofcodesnippetsC toeither1(vulnerability)
+low to evaluate ML4VD techniques using the two formulated                         or0(novulnerability).Themethodevaluate_model canuse
+expectations.                                                                     theperformancemetricM toquantifyandaggregatetheper-
+                                                                                  formanceofatrainedmodelMLM onatestingdatasetTeinto
+                                                                                  a single number between 0 (bad) and 1 (perfect).
+3.2   A1:DetectingOverfittingtoCodeChanges
+                                                                                      2SeeFigure 2,Algorithm 1,Figure 5,Figure 7,Figure 7candTable 2.
+
+
+
+
+4250    33rd USENIX Security Symposium                                                                                              USENIX Association
+
+=== PÁGINA FÍSICA 6 ===
+                                                                                Algorithm 2 Distinguish between Vulnerability and Patch
+                                                                                Input:  Standard Training Dataset Tr
+                                                                                     Standard Testing Dataset Te
+                                                                                     Vulnerability-Patch Training Dataset VPTr
+                                                                                     Vulnerability-Patch Testing Dataset VPTe
+                                                                                     ML Training Method train_model
+                                                                                     ML Evaluation Method evaluate_model
+                                                                                     Performance Metric M
+                                                                                  1:  MLM[Tr]= train_model(Tr)
+                                                                                  2:  MLM[VPTr]= train_model(VPTr)
+                                                                                  3:  score[MLM[Tr],Te]= evaluate_model(MLM[Tr],Te,M)
+                                                                                  4: score[MLM[Tr],VPTe]=evaluate_model(MLM[Tr],VPTe,M)
+                                                                                  5:  score[MLM[VPTr],VPTe]= evaluate_model(MLM[VPTr],VPTe,M)
+                                                                                  6: score[MLM[VPTr],Te]=evaluate_model(MLM[VPTr],Te,M)
+Figure 3: Visualization ofAlgorithm 2, which we created                         Output:  outputA2.1 =score[MLM[Tr],Te]
+to test whether ML4VD techniques are able to generalize                              outputA2.2 =score[MLM[Tr],VPTe]
+                                                                                     outputA2.3 =score[MLM[VPTr],VPTe]
+to amodified setting,whichrequires todistinguish between                             outputA2.4 =score[MLM[VPTr],Te]
+vulnerabilities and patches.
+
+                                                                                the following questions:
+   What is computed? Algorithm 1computes the average                              1. How much does the performance of the selected ML
+effectsof(a)augmentingthe testingdataoftheselectedML                                  technique decrease if we augment the code snippets
+techniqueusingtransformationstk∈T (outputA1.1),(b)using                               for testing without affecting the vulnerability labels?
+the same transformations to also augment the training data                            Answer: On average, the performance does change by
+(outputA1.2), and (c) using different transformations to also                         outputA1.1 points.
+augment the training data (outputA1.3).
+   In lines 4-6, Algorithm 1 computes the effect of augment-                      2. How much performance of the selected ML technique
+ing the testing dataset Te with the transformation tk on the                          canberestored,ifweaugmentthetrainingcodesnippets
+performance of the trained model MLM[Tr]. The result is                               in a similar way than the testing code snippets? An-
+ef fect[Tr,Tek],theabsolutedifferencebetweenthescoresof                               swer: On average, outputA1.2−outputA1.1 of the initial
+MLM[Tr] on the clean testing dataset Te and the augmented                             decrease can be restored.
+testingdatasetTek.Inotherwords,ef fect[Tr,Tek]quantifies
+how many points in score are lost if we augment the test-                         3. How much performance of the selected ML technique
+ingdatasetwithtransformationtk.outputA1.1 aggregatesthis                              canberestored,ifweaugmentthetrainingcodesnippets
+intermediate result over all transformationstk∈T.                                     in a different way than the testing code snippets? An-
+   In lines 7-10, Algorithm 1 goes a step further and com-                            swer: On average, outputA1.3−outputA1.1 of the initial
+putes the effect of both augmenting the training dataset Tr                           decrease can be restored.
+and the testing dataset Te using the same transformation
+tk.Theresultisef fect[Trk,Tek],theabsolutedifferencebe-                           4. DoestheselectedMLtechniqueoverfittospecificaug-
+tween scores of MLM[Trk] on the augmented testing dataset                             mentationsofthetrainingdatathatareunrelatedtothere-
+Tek and MLM[Tr] on the testing dataset Te. In other words,                            spective vulnerabilitylabels?Answer:IfoutputA1.2 >>
+ef fect[Trk,Tek] quantifies how manypoints inscore are lost                           outputA1.3: Yes, otherwise No.
+if weaugment boththe training andthe testingdataset with
+transformationtk. outputA1.2 aggregates this intermediate re-
+sult over all transformationstk∈T.                                              3.3   A2:DistinguishbetweenVulnerabilityand
+   In lines 12-14, the algorithm computes the effect of aug-                            Patch
+menting the testing dataset using a different transformation
+tj thanforthetrainingdataset.Theresultisef fect[Trk,Tej],                       ThemaingoalofAlgorithm2istoevaluate,whetherML4VD
+the absolute difference between scores of MLM[Tr] on the                        techniques are able to generalize from their typical training
+testing dataset Te and MLM[Trk] on the augmented testing                        data to a modified setting, which requires to distinguish se-
+Tej. In other words, ef fect[Trk,Tej] quantifies how many                       curity vulnerabilities from their patches. Additionally, the
+pointsinscorearelostifweaugmentthetrainingandthetest-                           algorithm also aims to evaluate the reverse, or i.e. whether
+ingdatasetwithdifferenttransformationstk andtj.outputA1.3                       ML4VD techniques that were trained to distinguish between
+aggregates this intermediate result over all transformations                    vulnerabilitiesandtheirpatchesareabletoperformwellon
+tk∈T,tj̸=k∈T.                                                                   standard testing data. We provide a simple visualization of
+   How can the results be used? Using this algorithm, re-                       the idea behindthe algorithm inFigure 3,the algorithm itself
+searchers can effectively evaluate new ML4VD techniques.                        inAlgorithm2,and adescription ofthe mostimportant parts
+Specifically, for a selected technique researchers can answer                   in the following paragraphs. We use the colors              purple and
+
+
+
+
+USENIX Association                                                                                    33rd USENIX Security Symposium    4251
+
+=== PÁGINA FÍSICA 7 ===
+yellow to connect the basic ideas of the algorithm with the                      How can the results be used? UsingAlgorithm 2, re-
+experimental results across the paper 3.                                      searchers can effectively evaluate whether the high scores
+   What are the inputs? In addition to the inputs ofAlgo-                     of ML4VD techniques are specific to the testing datasets
+rithm 1,Algorithm 2requires a special vulnerability-patch                     on which they were computed. Specifically, for a selected
+testingdatasetVPTeandavulnerability-patchtrainingdataset                      technique researchers can answer the following questions:
+VPTr.VPTeandVPTr alsoconsistofcodesnippetsci∈C
+and vulnerability labels vi∈{0,1}, but for every code snip-                     1. DoestheperformanceoftheselectedMLtechniquegen-
+pet cj with label vj = 0, they also contain a snippet cl̸=j                         eralizefromastandardvulnerabilitydetectiondatasetto
+with vl =1 which represents the patched version of cj. The                          a modified setting,which requires todistinguish vulner-
+relationship between a code snippet and its patched ver-                            abilities from their patches? Answer: The selected ML
+sion canbe characterizedas alabelinvertingtransformation                            technique can distinguish between vulnerabilities and
+tPATCH :C→C,whichmapscodesnippetscj totheirpatched                                  their patches with performance outputA2.2, comparedto
+versionscl.                                                                         a score ofoutputA2.1 on the standard testing dataset.
+   What is computed? The purpose ofAlgorithm 2is to
+quantifytheabilityoftheselectedMLtechniquetogeneral-                            2. Does the performance of the selected ML technique
+ize between two related vulnerability detection settings. The                       generalize back to the standard vulnerability detection
+firstsetting,representedbythestandardtrainingandtesting                             setting when it is explicitly trained to distinguish vulner-
+datasets Tr and Te, consists of code snippets, which either                         abilities from their patches? Answer: The selected ML
+contain ordo notcontain avulnerability.This settingis most                          techniqueachievesascoreofoutputA2.4 onthestandard
+frequently used in the related literature [1,12    –15,28]. The                     testing dataset, compared to a score of outputA2.3 in the
+secondsetting,representedbythevulnerability-patchtraining                           modified setting.
+andtestingdatasetsVPTr andVPTe,consistsofvulnerable
+code snippets and their respective patches. As formulated in
+Section 3.1, a perfect vulnerability detection model should                   4   Experimental Setup
+be able to perform well in both settings, irrespective of the
+settingonwhichitwastrained.Inotherwords,avulnerability                        4.1   Research Questions
+detection model should be able to generalize between the
+settings.                                                                     Our objective is to validate empirically, whether the two pro-
+   In total,Algorithm 2computes four scores. In line 3,Al-                    posed algorithms can be used to evaluate state-of-the-art
+gorithm 2computes the score of a model   MLM[Tr], which                       ML4VD techniques. Specifically, we aim to answer the fol-
+was trained on the standard training dataset Tr, on the stan-                 lowing research questions.
+dard testing dataset Te. This score represents the standard                   RQ.1 How is the performance of ML4VD techniques af-
+evaluation and serves as a baseline for the other scores.                           fected,ifweaugmenttheinputcodesnippetswithout
+   In line 4,Algorithm 2computes the score of a model                               affecting the vulnerability labels? (a) Can we measure
+MLM[Tr], whichwas trained on the standard training dataset                          a decrease in performance, if we augment the testing
+Tr, on the vulnerability-patch testing dataset VPTe. When                           data of ML4VD techniques using semantic preserving
+compared to the first score,this result serves as a measure of                      transformations? (b) Does training data augmentation
+MLM[Tr]sabilitytogeneralizetothemodifiedsetting,which                               usingthesametransformationsrestoretheinitialperfor-
+requires to distinguish vulnerabilities from their patches.                         mance? (c)Are theredifferences between theindividual
+   In line 5,Algorithm 2computes the score of a model                               transformations?
+MLM[VPTr], which was trained on the vulnerability-patch                       RQ.2 Do ML4VD techniques overfit to specific augmen-
+training dataset VPTr, on  the vulnerability-patch testing                          tations of their training data that do not affect the
+datasetVPTe. Again, this score serves as a baseline for the                         respectivevulnerabilitylabels?Canwestillrestorethe
+other scores.                                                                       performance, if we augment the training dataset with a
+   In line 6,Algorithm 2computes the score of a model                               different semantic preserving transformation than the
+MLM[VPTr], which was trained on the vulnerability-patch                             testing dataset?
+training dataset VPTr, on the standard testing dataset Te.                    RQ.3ArethehighscoresofML4VDtechniquesspecificto
+When compared to the third score, this result serves as a                           benchmark datasets or dothey generalizeto amodi-
+measure of MLM[VPTr]s ability to generalize back to the                             fied vulnerability detection setting?(a) Are state-of-
+standard vulnerability detection setting.                                           the-art ML4VD techniques able to distinguish between
+   Thefourcomputedscoresarereturnedastheoutputsofthe                                vulnerablefunctionsandtheirpatches?(b)Doestraining
+algorithm(outputA2.1, outputA2.2, outputA2.3 and outputA2.4).                       to distinguish between vulnerable functions and their
+                                                                                    patches improve the performance on standard testing
+   3SeeFigure 3,Algorithm 2, andTable 3.                                            data?
+
+
+
+
+4252    33rd USENIX Security Symposium                                                                                       USENIX Association
+
+=== PÁGINA FÍSICA 8 ===
+Table 1: The semantic preserving transformations that we                           theCodeXGLUE/Devign dataset or justas theCodeXGLUE
+used in our experiments.                                                           dataset.TheCodeXGLUEdatasetcontains26.4kCfunctions,
+                                                                                   fromwhich 45.6%contain vulnerabilities, i.e.the datasetis
+  Identifier                      Type                      Description            fairlybalanced.Thetypesofvulnerabilitieswerenotformally
+     t1                Identifier Renaming          Rename all function parameters to a ran-classified, but based on the collection process the authors
+                                       dom token.                                  foundmostvulnerabilitiesinthedatasettobememory-related,
+     t2               Statement Reordering         Reorder all function parameters.
+     t3                Identifier Renaming          Rename the function.           e.g.memoryleaks,bufferoverflows,memorycorruption,or
+     t4                 Statement Insertion          Insert unexecuted code.       crashes. The authors of the CodeXGLUE benchmark also
+     t5                 Statement Insertion          Insert comment.
+     t6               Statement Reordering         Move the code of thefunction into a sep-maintain a leaderboard [25], which tracks the performance of
+                                       arate function.                             popularlearning-basedtechniquesonthedifferentdatasetsof
+     t7                 Statement Insertion          Insert white space.
+     t8                 Statement Insertion          Define additional void function and callthe benchmark.
+                                       it from the function.                          VulDeePecker. The other vulnerability detection dataset
+     t9                 Statement Removal          Remove all comments.
+    t10                Statement Insertion          Add code from training set as comment.that we use in this paper is the Code Gadget Database,which
+    t11            Random Transformation      One    transformation    sampled   fromwas introduced with the VulDeePecker bug detector[23]. We
+                                       {t1,...,t10} is applied to each function.
+                                                                                   refertothisdatasetastheVulDeePeckerdataset.Theoriginal
+                                                                                   datasetcontains61.6kC/C++codesamplesderivedfromthe
+4.2   Semantic Preserving Transformations                                          NVD[7]andtheSARD[6],fromwhich17.7kcontainvulner-
+                                                                                   abilities,mainlybuffer(CWE-119)andresourcemanagement
+One of the central components ofalgorithms1and2are se-                             errors (CWE-399).
+manticpreservingtransformationsofcode.Themostcommon
+semanticpreservingtransformationsthatareusedinthelitera-                           4.4   New Dataset: VulnPatchPairs
+turetoinvestigatethelimitsoflearnedmodelsforsourcecode
+relatedtasksareidentifierrenaming[18,35,38,39,41,42],in-                           In order to investigate the ability of ML4VD techniques to
+sertionofunexecutedstatements [18,35,39,41],replacement                            distinguish betweenvulnerabilities and theirpatches (RQ3),
+ofstatements with equivalent statements[21],reorderingof                          wecollectedanewdataset,whichwecallVulnPatchPairs.We
+unrelated statements [27], deletion of unexecuted statements                       provide a simple visualization of the collection process for
+(e.g. comments) [21], or combinations of the before men-                          VulnPatchPairs inFigure 4.
+tioned [18,35,41].                                                                    VulnPatchPairsisanextensionoftheCodeXGLUE/Devign
+   Table1showsthe11semanticpreservingtransformations                               vulnerability detection dataset [43], which consists of C func-
+thatweimplementedfortheexperimentspresentedinthispa-                               tions from two popular open source repositories, FFmpeg4
+per. We tried to cover alltypes of transformations commonly                        and Qemu5. The creators of the dataset describe the collec-
+usedintheliterature.Thetablelistsalltransformations,cate-                          tionprocessintheiroriginalpublication[43].Asafirststep,
+gorizesthembytype,andprovidesshortdescriptionsforeach                              theyfilteredtheselectedrepositoriesforsecurity-relatedcom-
+of them.                                                                           mitsusing alist ofkeywords.Then, theyinvested600 work
+   SinceML4VDtechniquesareultimatelyaimedatdetecting                               hoursofafour-personteamofsecurityresearcherstoclassify
+security vulnerabilities in real-world code, augmenting code                       the security-related commits into vulnerability-fix commits
+using our semantic preserving transformations should also                         (VFCs) and non vulnerability-fix commits (non-VFCs) and
+resultincodethatlooksnatural,ori.e.lookslikeitcouldoccur                           extracted the respective functions before the commits were
+in real-world software. To address this, we experimentally                         appliedasvulnerable(beforeVFCs)andnon-vulnerable(be-
+confirmedthatoursemanticpreservingtransformationsdonot                             fore non VFCs) functions. The actual patched versions of the
+decrease the naturalness (measured by cross entropy) of the                        functions(after theVFCswere applied)are notpartof their
+code.We providemoreinformation onthis assupplementary                              originaldataset.However,foreachfunctionoftheirdataset,
+material inAppendix A.                                                             theauthorsreleased therespective commitIDfromthe two
+                                                                                   open-sourcerepositoriesasadditionalinformation.Weused
+4.3   Vulnerability Detection Datasets                                             this informationto extract theactual patched versions ofthe
+                                                                                   vulnerable functions in the CodeXGLUE dataset from the
+Weusetwopubliclyavailablevulnerabilitydetectiondatasets                            FFmpeg and Qemu repositories and created a new dataset:
+for our experiments.                                                              VulnPatchPairs.
+   CodeXGLUE/Devign. CodeXGLUE is a machine learn-                                    Wemanuallyverified100randomlychosenfunctionsfrom
+ing benchmark for code understanding and generation [24].                          theCodeXGLUEdatasetthatwerelabelledasvulnerable.We
+It consists of several datasets for different source code re-                      found68outofthese100functionstoactuallycontainasecu-
+lated tasks.  In our experiments, we only use the dataset                          rityvulnerability,23tocontainnosecurityvulnerability,and9
+for vulnerability detection, which is based on the Devign                             4FFmpeg repository:https://github.com/FFmpeg/FFmpeg
+dataset[43].Throughoutthispaper,werefertothisdatasetas                                5Qemu repository:https://github.com/qemu/qemu
+
+
+
+
+USENIX Association                                                                                       33rd USENIX Security Symposium    4253
+
+=== PÁGINA FÍSICA 9 ===
+                                                                              selected GraphCodeBERT (abbreviated as GraphCB inTa-
+                                                                              ble 3) [14],a technique related to CodeBERT, which utilizes
+                                                                              graphrepresentations ofsource code duringthe trainingpro-
+                                                                              cess.
+                                                                                ModelDetails.Sincetheselectedtechniquesbelongtothe
+                                                                              same family of techniques, they also share the same basic
+Figure 4: Visualization of the collection process for our new                 architecture:
+dataset VulnPatchPairs.                                                         1.Tokenization: Agiven codefunction issplit intotokens
+                                                                                   (smallsequenceof charactersthatforms asemanticen-
+withnodecisionafter10minutesofmanualeffort.Theresults                              tity), based on a given strategy.
+areavailableathttps://github.com/niklasrisse/VPP_                               2.Embedding: Tokens are transformed into numbers, usu-
+label_accuracy. Even though theseresults show that there                           ally byindexingvia a learnedvocabulary andthe addi-
+are inaccurate labels in the CodeXGLUE dataset, we donot                           tion of positional information.
+expect any changes to our main findings. While the absolute
+performancemightchangeifweusedperfectlylabeleddata,                             3. Transformer Network: Several steps of parametrized
+weexpecttherelativeperformance(e.g.,augmentedvsnon-                                computation are applied, resulting in a final embedding.
+augmented) to remain comparable for all of our individual
+evaluations.                                                                    4. Prediction Layer:  The final layer of the model is a
+   Intotal,VulnPatchPairsconsistsof26.2kCfunctionsfrom                             parametrizedpredictionlayer,whichcomputesanoutput
+the two open source repositories FFmpeg and Qemu. Exactly                          number between 0 and 1 based on the final embedding
+half(13.1k)ofthe26.2kfunctionscontainsecurityvulnerabil-                           of the previous step. The output number represents the
+itiesand werecopiedfrom theCodeXGLUE/Devignvulner-                                 predictedprobabilitythattheinputfunctioncontainsa
+ability detection dataset. The other 13.1k are the respective                      security vulnerability.
+patches of the vulnerable functions, which we extracted from
+the open-source repositories. We published VulnPatchPairs                     Duringmodeltraining,theparametrizedcomputationallay-
+as supplementary material in an open GitHub repository6.                      ers of steps 3. and 4. are optimized to compute the correct
+                                                                              predictions for given training data. The six selected tech-
+4.5   Machine Learning Techniques                                             niques mainly differ in tokenization strategy, training data,
+                                                                              optimizationobjective,andthespecifictransformernetwork
+We selected six state-of-the-art ML4VD techniques for our                     architectureused.Weprovideadditionalinformationonthe
+experiments.                                                                  specific models inAppendix C.
+   Selection Criteria. In order to select techniques that rep-                  Theauthorsofallsixtechniquesprovidepubliclyavailable
+resent thestate-of-the-art of ML4VD,we chose thetop tech-                     implementations of their techniques [1,12–15,28].
+niquesfromtheCodeXGLUEleaderboard[25]forwhichthe
+authorsprovideopen-sourceimplementations.Measuredby                           4.6   Model Training Pipeline
+citations7 (496)andGitHubStars8 (1.2k),CodeXGLUEisthe
+mostwell-knownbenchmarkforsourcecoderelatedmachine                           Weusedasimilartrainingsetupforallmodelinstancesthat
+learning techniques. The vulnerability detection dataset of                  we trained for our experiments.
+the benchmark [43] is also highly cited (407 citations       9) and             Pre-training.All modelsthat wetrain inour experiments
+widely used to evaluate ML4VD techniques for automatic                        have been pre-trained bythe authorsof therespectivepubli-
+vulnerability detection.                                                      cations using various source code datasets. The size of the
+   Selected Techniques. Based on the described criteria,                      pre-trainingdatasetsspansfrom2.3million(VulBERTa)to
+weselected UniXcoder[13], CoTexT [28],VulBERTa[15],                           680 million code snippets (PLBart). The original publica-
+PLBart [1], and CodeBERT [12] for our experiments. At                         tions provide more information on the pre-training datasets
+submission time of this paper, the six techniques hold rank                   [1,13,15,28]. We usethe pre-trained models released by the
+1 (UniXcoder), rank 2 (CoTexT), rank 6 (VulBERTa), rank                       authorsof therespectivetechniques asstartingpoints forour
+10 (PLBart),and rank12 (CodeBERT) onthe CodeXGLUE                             pipeline and finetune the models on our selected datasets.
+leaderboard for vulnerability detection [25]. In addition to                    Data split. For theCodeXGLUE/Devign dataset,we used
+the five techniques from the CodeXGLUE leaderboard, we                        thetrain-/validation-/testingdatasetsplitprovidedbytheau-
+
+   6VulnPatchPairs:https://github.com/niklasrisse/VPP                         thors of the benchmark [24], which resulted in a training
+
+   7https://api.semanticscholar.org/CorpusID:231855531                        dataset with 21k functions, a validation dataset with 2.7k
+   8https://github.com/microsoft/CodeXGLUE                                    functions, and a testing dataset with 2.7k functions. For the
+   9https://api.semanticscholar.org/CorpusID:202539112                       VulDeePecker dataset, we used the split provided by Hanif et
+
+
+
+
+4254    33rd USENIX Security Symposium                                                                                      USENIX Association
+
+=== PÁGINA FÍSICA 10 ===
+al.[15],whichresultedinatrainingdatasetwith128.1kfunc-                      dataaugmentationusingthesametransformationsrestoresthe
+tions, a validation dataset with 16k functions, and a testing               performancetowardspreviouslevels,andwhether(c)there
+dataset with 16k functions. The split for VulnPatchPairs is                 are differences between the individual transformations.
+derived fromthesplit ofCodeXGLUE,such that alland only                         Methodology.WeusedAlgorithm1toinvestigateallthree
+vulnerable functions in training,validation, andtesting sets,               questions.WeranthealgorithmforeachMLtechniqueand
+respectively, of CodeXGLUE were taken as training, valida-                  dataset separately and measured the outcomes using the re-
+tion,andtesting setsofVulnPatchPairs,augmentedby their                      spective preferredperformancemetrics(seeSection4.6). We
+corresponding patches.                                                      did not only record the outcomes after completing the full
+   Pre-processing. For the VulDeePecker dataset, we re-                     training of the respective models but also after each train-
+moved all duplicate functions and also replaced all label-                  ingepoch inorderto observetheprogression ofthelearning
+revealing tokens (e.g. comment with token "bad" above a vul-                process.
+nerable function) that we found by manual inspection of the                    Results.Figure5ashowsthetestsetaccuracyofdifferent
+datasetwith randomlyselectedtokens.For theCodeXGLUE                         VulBERTa models measured after each of the ten training
+and VulnPatchPairs datasets, we applied no additional pre-                  epochs.Wecanobserve,thataugmentingthetestingdataset
+processing steps.                                                           Tewithtransformationt10 leadstoasubstantialdropin accu-
+   Hyperparameters. For all six ML4VD techniques, we                        racy,representedbythegapbetweenthedottedgrayandblue
+usedthepre-trainedmodelsandtokenizersprovidedbythere-                       graphs in the figure. We can also observe, that augmenting
+spectiveauthorsasstartingpointsforourexperiments.Similar                    thetrainingdatasetTr withthesametransformationt10 asthe
+toHanifetal.[15],wenoticedarelativelyquickconvergence                       testing dataset, restores the accuracy back to previous levels
+ofourperformancemetricsinourinitialexperimentsonthe                         (orange graph).
+validationdataset(after2-7epochs),whichiswhywetrained                          Figure 5bextends the results ofFigure 5ato all seman-
+each model instance for 10 epochs. For all model-specific                   tic preserving transformationstk∈T, and to all six ML4VD
+hyperparameters,weusedthevaluesthatwerereportedinthe                        techniques. Instead of showing the accuracyfor each training
+original papers [1,12    –15,28]. Consult our published training            epoch, we only use the maximum accuracy across the full
+scripts10 forthecompletelistof hyperparametervaluesthat                     training. Across all six ML4VD techniques, we can observe,
+we used.                                                                    thataugmentingthe testingdatasetTewithtransformations
+   Performancemetrics.Wetrackedandquantifiedtheper-                         tk∈T (represented by theblue boxplots), on average, leads
+formanceofourtrainedmodelsontheselectedtestingdatasets                      toadropinaccuracycomparedtoevaluationsonthestandard
+usingseveralcommonlyusedperformancemetrics.Wereport                         testing dataset Te (represented by the horizontal lines with
+sixmetricsinthispaper:Accuracy,f1-score,precision,recall,                   stars). In parallel toFigure 5awe can also observe that, on
+false positive rate (FPR), and false negative rate (FNR).                   average,trainingdataaugmentationusingthesametransfor-
+   ForCodeXGLUE/Devignasabalanceddataset(45.6%vul-                          mation as for testing data augmentation leads to a restoration
+nerablefunctions), weuseaccuracy asthemain performance                      of theobserveddrops in accuracy (representedby the orange
+metric,since it isalso usedexclusively inthe CodeXGLUE                      boxplots).
+benchmark [24] and on the leaderboard [25].                                    Table 2summarizes the outputs ofAlgorithm 1for all
+   For VulDeePecker as  a  relatively  imbalanced  dataset                  six ML4VD techniques and both datasets. Specifically, it
+(28.7%vulnerablefunctions)weusethef1-scoreasthemain                         showstheaveragerecordedchangesintherespectivemetrics,
+performancemetric.Thef1-scoreisdefinedastheharmonic                         when only the testing dataset was augmented (blue columns,
+mean of precision and recall and is most suitable when the                  outputA1.1), when the training and testing datasets were aug-
+positiveclass(inourcasevulnerablefunctions)istheminority                    mented using the same transformation (orange columns,
+class in an imbalanced dataset.                                             outputA1.2),andwhenthetrainingandtestingdatasetswere
+   Hardware. We used a setup of five Nvidia A100 GPUs,                      augmented using a different transformation (green columns,
+eachequipped with40 GBRAM. Onerun ofallour experi-                          outputA1.3).Weobservethat,onaverage,augmentingthetest-
+ments takes approximately 60 days on a single A100 GPU.                     ing datasetleads toa drop inaccuracy/f1-score(−0.025 for
+                                                                            CodeXGLUE,−0.043forVulDeePecker),andaugmenting
+5   Experimental Results                                                    the training dataset using the same transformation restores
+                                                                            that decrease towards previous levels. On average, approxi-
+RQ.1Testing-andTrainingDataAugmentation                                     mately69.0%(CodeXGLUE)and66.2%(VulDeePecker)of
+                                                                            the lost accuracy/f1-score is restored.
+Weinvestigate,whether(a)testingdataaugmentationusingse-                        Figure 6shows the impact on accuracy caused by aug-
+mantic preserving transformation decreases the performance                  menting only the testing data using the individual trans-
+ofstate-of-the-art ML4VDtechniques, whether(b) training                     formationstk∈T (impact(tk):=accuracy[MLM[Tr],Tek]−
+                                                                            accuracy[MLM[Tr],Te]) for all six ML4VD techniques. In
+  10GitHub:https://github.com/niklasrisse/USENIX_2024                       otherwords,Figure6displaystheseverityoftheperformance
+
+
+
+
+USENIX Association                                                                              33rd USENIX Security Symposium    4255
+
+=== PÁGINA FÍSICA 11 ===
+(a) Test set accuracy over ten training epochs of different models trained      (b) Extension of the results inFigure 5a, for all transformations       tk∈T, and
+withVulBERTaontheCodeXGLUE/Devigndataset.Augmentingthetesting                   forallsixML4VDtechniques.Theboxplotsrepresentdistributionsofthe
+set Te with transformation t10 (blue) decreases the accuracy, but applying      resulting accuracies. Augmenting the testing set Te with transformations
+thesametransformationalsotothetrainingdatasetTr (orange)restoresthe             tk∈T (blue boxplots)decreases the accuracy,butapplying the sametrans-
+accuracy back to previous levels.                                               formationalsotothetrainingdatasetTr (orangeboxplots)partiallyrestores
+                                                                                the accuracy, although not always to its previous levels.
+
+  Figure 5: Effects of augmenting the testing data and the training data using the same semantic preserving transformations.
+
+
+
+
+
+
+
+
+
+
+Figure 6:Impact on accuracycaused by augmentingthe testing datausing the individualtransformationstk∈T (impact(tk):=
+accuracy[MLM[Tr],Tek]−accuracy[MLM[Tr],Te]). The most impactful transformations for each ML technique are marked by
+red stars.
+
+
+declineof thetechniques whenonlyapplying semanticpre-                           andt3)and removalofcomments(t9),forwhich theseverity
+servingtransformationsonthetestingset.Themostimpactful                          of impact is also below or close to 1%. The most impactful
+transformations for each ML technique are marked by red                         transformations are changing the order ofthe function param-
+stars.                                                                          eters(t2),defininganadditionalvoidfunction(t8),andadding
+   Ifaspecificsemanticpreservingtransformationhasahigh                          code snippets from the training set as comments (t10). For
+negative impact on the accuracy of an ML technique, we                          thesetransformations,asubstantialpartofthepredictionsis
+can assume that either (a) the ML technique partly relied                       changed from correct to incorrect: Between 2.3% and 10.6%
+on unrelated features that were removed or modified by the                      fort2,between1.8%and18.1%fort8,andbetween2.1%and
+transformation (e.g. removal of comments) to achieve its                        11.5%fort10.Overall,transformationsthatinsertstatements
+original high accuracy, or (b) that the ML technique relied                     (e.g. t4, t5, t8, and t10) or reorder statements (e.g. t2 and t6)
+on unrelated features introduced by the transformation (e.g.                    seem to have a higher impact than the other types.
+additionofcomments)toachievethedecreasedaccuracyafter                              Additionally, there are also differences between the six
+applying the transformation.                                                    ML4VD techniques. For example, moving the code into a
+   FromtheresultspresentedinFigure6wecanobserve,that                            separate function (t6) only seems to have a high impact on
+there are clear differences both between transformations and                    CodeBERT, and inserting a simple comment (t5) seems to
+ML4VD techniques.As one might expect, atrivialtransfor-                         haveamuch higherimpact onUniXcoderthan onthe other
+mation such as adding whitespace (t7) has little to no impact                   ML4VD techniques. Future work is required to determine
+ontheaccuracyofallsixML4VDtechniques.Theseverityof                              why the ML4VD techniques are more or less robust against
+thisimpactis,onaverage,below1%accuracy,whichmeans                               specific transformations.
+that below 1% of predictions are changed from correct to                           We also investigated the impact of each individual trans-
+incorrectbyapplyingthistransformation.TheML4VDtech-                             formation when not only the testing data but also the training
+niquesalsoseemto berobustagainstidentifierrenaming (t1                          data is augmented using a different transformation than for
+
+
+
+
+4256    33rd USENIX Security Symposium                                                                                          USENIX Association
+
+=== PÁGINA FÍSICA 12 ===
+(a)Testsetaccuracyovertentrainingepochsofdifferentmodelstrainedwith                   (b)ExtensionoftheresultsinFigure7a,foralltransformations       tk∈T andfor
+VulBERTaontheCodeXGLUE/Devigndataset.Augmentingthetrainingset                         allsixML4VDtechniques.Theboxplotsrepresentdistributionsoftheresult-
+Tr with different transformationstj̸=10 than the testing dataset (green lines)        ingaccuracies.AugmentingthetrainingsetTrwithdifferenttransformations
+does not restore the accuracy back to previous levels.                                tk̸=j thanthetesting dataset(greenboxplots)doesnotrestoretheaccuracy
+                                                                                      back to previous levels. Instead of restoring, the accuracy sometimes even
+                                                                                      drops further compared to using standard training data (green below blue).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(c) Same setup as forFigure 7b, but using the VulDeePecker dataset. The               (d) Samesetup as forFigure 7b,but thegreen boxplots representthe accura-
+boxplots represent distributions ofthe resulting f1-scores. Augmenting the            ciesachievedbyaugmentingthe trainingdatausingthe metatransformation
+training set Tr with different transformations tk̸=j than the testing dataset         t11,inthiscasesampledfrom{t1,...,t10}\{tj},andthetestingdatausinga
+(green boxplots) does not restore the f1-score back to previous levels.               singleleft-outtransformationtj.AugmentingthetrainingdatasetTr witht11
+                                                                                      partially restores the accuracy, although not to its previous levels.
+
+   Figure 7: Effects of augmenting the training data with different semantic preserving transformations than the testing data.
+
+
+thetestingdata.However,duetotheresultsbeingverysim-                                   RQ.2 Overfitting to Specific Transformations
+ilar toFigure 6, we decided to omit this from the paper and                          We investigate, whether the performance of ML4VD tech-
+provide it as supplementary material inAppendix B.                                    niques can stillbe restored if we augmentthe training dataset
+  Across twodatasets, sixML4VD techniques, and11 trans-                               with a different semantic preserving transformation than the
+  formations, on average,(a) testing data augmentation us-                            testing dataset. We useAlgorithm 1to investigate RQ.2, with
+  ingsemanticpreservingtransformationsleadstoadropin                                  the same setup as for RQ.1.
+  accuracy/f1-score (CodeXGLUE:−0.025,VulDeePecker:                                      Results.Figure7aissimilartoFigure5a,italsoshowsthe
+  −0.043), (b)trainingdata augmentation usingthe same                                 testsetaccuraciesofdifferentVulBERTamodelsmeasured
+  transformationsrestores69.0%(CodeXGLUE)and66.2%                                     after each of the ten training epochs. In addition to the re-
+  (VulDeePecker)ofthelostaccuracy/f1-score,and(c)trans-                               sultsdisplayedinFigure5a,Figure7ashowstheaccuracies
+  formations that insert or reorder statements seem to be                             (green lines) of VulBERTa models trained on data that was
+  more impactful than other types of transformations.                                 augmented using all transformations except t10, which was
+                                                                                      used to augment the testing dataset. We observe, that aug-
+                                                                                      mentingthetrainingdatasetTr withdifferenttransformations
+   RQ.1 has already been studied in the literature, for many                          tj̸=10 asthe testingdatasetdoesnot restoretheaccuracyback
+differenttechniques,datasets,andtasks[5,18,22,35,38,39,                               to previous levels.
+41,42]. Based onour evidence,we canapprove the findings                                  Figure 7bvisualizes the same extended results for all
+of the literature.                                                                    semantic preserving transformations tk∈ T and for all six
+
+
+
+
+USENIX Association                                                                                           33rd USENIX Security Symposium    4257
+
+=== PÁGINA FÍSICA 13 ===
+Table 2: Algorithm 1: Average changes when augmenting                                  onaverage,augmentingthetrainingdatasetTrwithadifferent
+only the testing data (outputA1.1), training and testing data                          transformationtk̸=j as the testingdataset does not restorethe
+using the same (outputA1.2), or a different transformation                             accuracy back to previous levels.
+(outputA1.3).                                                                             InFigure7dthegreenboxplotsrepresentthedistributionof
+                                                                                       accuraciesachievedbyaugmentingthetrainingdatausingour
+                           CodeXGLUE                   VulDeePecker                    metatransformationt11.Slightlydifferenttothedefinitionof
+                          outA1.1outA1.2outA1.3       outA1.1outA1.2outA1.3
+                     Tr     Tr    Trk    Trk      Tr    Tr     Trk    Trk              t11 inTable 1, each function in the training set is transformed
+       Technique     Te    Tek    Tek   Tej̸=k    Te    Tek    Tek   Tej̸=k            using a random transformation tk with k∈[1,10]\ j, with
+
+       UniXcoder    0.693 -0.043 -0.011 -0.050  0.975 -0.005 -0.002 -0.010             one left-out transformationtj which is applied to the testing
+       CoTexT       0.673 -0.022 -0.014 -0.030  0.973 -0.001 -0.001 -0.003             data.Sinceoursetofimplementedtransformationscontains
+       GraphCB      0.655 -0.015 -0.006 -0.021  0.973 -0.014 -0.002 -0.015
+       CodeBERT     0.651 -0.034 -0.000 -0.040  0.974 -0.007 -0.002 -0.012             groups of similar transformations (e.g. adding different types
+       VulBERTa     0.639 -0.017 -0.004 -0.025  0.973 -0.011 -0.002 -0.012             ofcomments),wewouldexpecttheaccuraciestobehigher
+       PLBart       0.633 -0.021 -0.007 -0.026  0.972 -0.003 -0.002 -0.008
+                          -0.025 -0.007 -0.032        -0.007 -0.002 -0.010             comparedtoapplyingonlyasingledifferenttransformation
+       UniXcoder    0.680 -0.037 -0.007 -0.041  0.880 -0.028 -0.012 -0.054             to the training set (green boxplots ofFigure 7d), but lower
+       CoTexT       0.635  0.001   0.006   0.0060.872 -0.006 -0.006 -0.020
+       GraphCB      0.629 -0.024 -0.013 -0.033  0.869 -0.093 -0.006 -0.091             compared toapplying exactlythe same transformationto the
+       CodeBERT     0.596 -0.005  0.012   0.001 0.873 -0.045 -0.007 -0.082             trainingset(orangeboxplots).BasedonFigure7d,weobserve
+       VulBERTa     0.652 -0.050 -0.014 -0.048  0.873 -0.082 -0.009 -0.073
+       PLBart       0.618 -0.009 -0.006 -0.016  0.865 -0.014 -0.007 -0.035             thatisthecaseacrossallsixML4VDtechniques.Augmenting
+                          -0.021 -0.004 -0.022        -0.045 -0.008 -0.059             thetraining datasetTr withthe metatransformationt11 does
+       UniXcoder    0.787 -0.025 -0.016 -0.009  0.893 -0.034 -0.011 -0.041
+       CoTexT       0.851  0.066   0.074   0.1050.900 -0.004 -0.015 -0.029             not fully restore the accuracy, but moves it closer towards the
+       GraphCB      0.661 -0.023 -0.029 -0.031  0.895 -0.153 -0.005 -0.101             accuracyon unaugmenteddata comparedtoapplying onlya
+       CodeBERT     0.572  0.079   0.031   0.1060.890 -0.090 -0.004 -0.103
+       VulBERTa     0.759 -0.097 -0.029 -0.056  0.898 -0.094 -0.000 -0.073             single different transformation to the training set.
+       PLBart       0.658  0.025   0.003   0.0240.884 -0.008 -0.003 -0.015                In addition to the results forRQ.1,Table 2also shows the
+                          0.004   0.006   0.023       -0.064 -0.006 -0.060
+       UniXcoder    0.717 -0.033  0.020  -0.033 0.939 -0.008  0.030  -0.045            average recordedchanges in the respective metrics, when the
+       CoTexT       0.684 -0.029 -0.027 -0.044  0.955 -0.015  0.013  -0.012            training and testing datasets were augmented using different
+       GraphCB      0.734 -0.026 -0.019 -0.035  0.995 -0.016 -0.005 -0.040
+       CodeBERT     0.847 -0.115 -0.009 -0.107  1.000 -0.000 -0.007 -0.031             transformations(greencolumns,outputA1.3).Weobservethat,
+       VulBERTa     0.643 -0.004 -0.019 -0.034  0.850  0.023  -0.012 -0.010            onaverage,thescoredropsby0.032accuracy(CodeXGLUE)
+       PLBart       0.675 -0.031 -0.015 -0.049  0.971 -0.048  0.008  -0.068
+                          -0.040 -0.012 -0.051        -0.011  0.005  -0.034            and0.059f1-score(VulDeePecker).Acrossthesixtechniques,
+       UniXcoder    0.142  0.033  -0.018  0.049 0.006  0.001  -0.003  0.006            the decrease is on average 30.2% (CodeXGLUE) and 77.5%
+       CoTexT       0.211  0.018   0.028   0.0340.004  0.001  -0.001  0.001
+       GraphCB      0.079  0.040  -0.003  0.027 0.000  0.002   0.000   0.003           (VulDeePecker) stronger than for training on unaugmented
+       CodeBERT     0.026  0.140   0.005   0.1450.000  0.000   0.001   0.003           data. In other words, augmenting the training dataset using a
+       VulBERTa     0.194 -0.036  0.028   0.040 0.018 -0.004  0.002  -0.001
+       PLBart       0.137  0.016   0.020   0.0260.003  0.004  -0.001  0.007            differenttransformationthanforthetestingdatasetdidnotre-
+                          0.035   0.010   0.053        0.001  -0.000  0.003            storethescoretowardspreviouslevels,butinsteaddecreased
+       UniXcoder    0.213  0.025   0.016   0.0090.107  0.034   0.011   0.041
+       CoTexT       0.149 -0.066 -0.074 -0.105  0.100  0.004   0.015   0.029           it even further.
+       GraphCB      0.339  0.023   0.029   0.0310.105  0.153   0.005   0.101              For the other metrics (recall, precision, FPR and FNR),
+       CodeBERT     0.428 -0.079 -0.031 -0.106  0.110  0.090   0.004   0.103
+       VulBERTa     0.241  0.097   0.029   0.0560.102  0.094   0.000   0.073           wegenerallyobservesimilarpatternsthanforaccuracyand
+       PLBart       0.342 -0.025 -0.003 -0.024  0.116  0.008   0.003   0.015           f1-score. However, there are also slight deviations, e.g. for
+                          -0.004 -0.006 -0.023         0.064   0.006   0.060
+                                                                                       CodeXGLUErecallimprovesonaverageby0.023whentrain-
+                                                                                       ing data is augmented using a different transformation than
+                                                                                       thetestingdatainsteadofdecreasingasexpected.Thesedevi-
+ML4VD techniques. Again, the blue and the orange boxplots                              ations can be explained by innate tradeoffs between recall/-
+representthedistributionsofaccuracies,wheneitheronlythe                                precisionandFPR/FNR,andcanonlybeintepretedincontext
+testingdataset(blue)ortrainingandtestingdatasetswereaug-                               of the other metrics. Accuracy and f1-score provide a better
+mented using the same transformation (orange). The green                               summaryoftheperformance,whichiswhytheyareusedas
+boxplotsrepresentthedistributionofaccuraciesachievedby                                 the preferred metrics for the two datasets.
+modelsthatweretrainedondata,whichwasaugmentedusing
+a different transformation than for the testing data. Across                             Across twodatasets, sixML4VD techniques, and11 trans-
+allsixML4VDtechniques,weobservethat,onaverage,aug-                                       formations, augmenting the training dataset using a dif-
+mentingthetrainingdatasetTrwithadifferenttransformation                                  ferent transformation than for the testing dataset does
+tk̸=j thanthetestingdatasetdoesnotrestoretheaccuracyback                                 not restore the performance back to previous levels. In
+to previous levels.                                                                      other words, the ML4VD techniques overfit to the label-
+   Figure 7cvisualizes the same results asFigure 7b, but                                 unrelated features  introduced by semantic preserving
+using the VulDeePecker dataset. In this figure, the y-axis                               transformations during training data augmentation.
+measures the f1-score, since it is the preferred evaluation
+metricfortheVulDeePeckerdataset.Again,weobservethat,                                      Insummary,wecanobservethatacrossthetestedML4VD
+
+
+
+
+4258    33rd USENIX Security Symposium                                                                                                     USENIX Association
+
+=== PÁGINA FÍSICA 14 ===
+Table 3: Algorithm 2: Performance of six ML4VD tech-                                  whether training to distinguish between vulnerabilities and
+niquesevaluatedonthestandardCodeXGLUE/Devigntesting                                   patches improves the performance on standard testing data.
+datasetTe or the vulnerability-patch testing datasetVPTe.                                 Methodology. We usedAlgorithm 2to investigate both
+                                                                                      questions.Asinputstothealgorithm,weselectedthetraining
+                               outA2.1outA2.2     outA2.3outA2.4                      andtestingsubsetsoftheCodeXGLUE/Devigndatasetasthe
+                                 Tr     Tr        VPTr   VPTr
+                   Technique     Te   VPTe  Test:VPTe     Te                          standardtrainingandtestingdatasetsTr andTe,andthetrain-
+                   UniXcoder    0.693   0.414      0.616      0.546                   ingandtestingsubsetsofVulnPatchPairsasthevulnerability-
+                   CoTexT       0.673   0.503      0.607      0.575                   patch training and testing datasetsVPTr andVPTe. We ran
+                   GraphCB      0.655   0.342      0.596      0.546                   the algorithm for all six ML4VD techniques separately.
+                   CodeBERT     0.651   0.294      0.571      0.548
+                   VulBERTa     0.639   0.527      0.602      0.564                       Results.Table3showstheresultsofrunningAlgorithm2.
+                   PLBart       0.633   0.524      0.598      0.572
+                                0.657   0.434      0.598      0.559                   Specifically, it shows  the  performance  of different mod-
+                   UniXcoder    0.680   0.582      0.662      0.613                   els evaluated on the standard CodeXGLUE/Devign testing
+                   CoTexT       0.635   0.667      0.665      0.616
+                   GraphCB      0.629   0.508      0.654      0.603                   datasetTeorthevulnerability-patchtestingdatasetVPTe.We
+                   CodeBERT     0.596   0.455      0.629      0.613                   focus our analysis on the results measured in accuracy since
+                   VulBERTa     0.652   0.610      0.651      0.615
+                   PLBart       0.618   0.583      0.633      0.575                   it is the preferred performance metric for balanced datasets
+                                0.635   0.567      0.649      0.606                   such as CodeXGLUE and VulnPatchPairs.
+                   UniXcoder    0.787   0.819      0.870      0.896
+                   CoTexT       0.851   1.000      0.975      0.941                       Weobserve,thattheaccuracyofallsixML4VDtechniques
+                   GraphCB      0.661   0.680      0.835      0.873                   is highest (between 0.633 and 0.693) when trained and eval-
+                   CodeBERT     0.572   0.589      0.770      0.883
+                   VulBERTa     0.759   0.758      0.909      0.928                   uatedonstandardtrainingandtestingdata(secondcolumn,
+                   PLBart       0.658   0.680      0.741      0.738                   outputA2.1). This is expected and consistent with the findings
+                                0.715   0.754      0.850      0.876
+                   UniXcoder    0.717   0.452      0.668      0.518                   intheliterature[1,12    –15,28].Whentrainedandevaluatedon
+                   CoTexT       0.684   0.502      0.724      0.702                   VulnPatchPairs (fourth column, outputA2.3) the accuracy is
+                   GraphCB      0.734   0.406      0.622      0.509
+                   CodeBERT     0.847   0.371      0.656      0.516                   consistentlylowerthaninthestandardsetting(between0.558
+                   VulBERTa     0.643   0.531      0.781      0.647                   and 0.617), but still significantly higher than the expected
+                   PLBart       0.675   0.535      0.663      0.547
+                                0.717   0.466      0.686      0.573                   accuracy of a random guesser11. However, when trained on
+                   UniXcoder    0.142   0.816      0.107      0.172                   standard training data and evaluated on the VulnPatchPairs
+                   CoTexT       0.211   0.823      0.060      0.041                   testingdataset(thirdcolumn,outputA2.2),theaccuracydrops
+                   GraphCB      0.079   0.840      0.091      0.177
+                   CodeBERT     0.026   0.849      0.102      0.233                   dramatically(between0.294and0.527).Eventhebestmodel
+                   VulBERTa     0.194   0.312      0.034      0.061                   (VulBERTa)isonly0.027pointsbetterthanarandomguesser.
+                   PLBart       0.137   0.251      0.138      0.213
+                                0.131   0.649      0.089      0.149                   Onaverage,theaccuracyisworsethanrandomguessing.In
+                   UniXcoder    0.213   0.181      0.130      0.104                   otherwords, allsixML4VD techniques thatwe evaluatedare
+                   CoTexT       0.149   0.000      0.025      0.059
+                   GraphCB      0.339   0.320      0.165      0.127                   unabletodistinguishbetweenvulnerabilitiesandtheirpatches
+                   CodeBERT     0.428   0.411      0.230      0.117                   when trained on a typical vulnerability detection dataset.
+                   VulBERTa     0.241   0.242      0.091      0.072
+                   PLBart       0.342   0.320      0.259      0.262                       WhentrainedonVulnPatchPairsandevaluatedonstandard
+                                0.285   0.246      0.150      0.124                   testingdata(fifthcolumn,outputA2.4),wegetasimilarpicture.
+                                                                                      The performance is significantly worse (between 0.546 and
+techniques, transformations, and datasets, training data aug-                         0.575)comparedtomodelstrainedonstandardtrainingdata
+mentation only restores the performance to previous levels                            (second column). However, the performance in this case is
+whenthetestingdatasetisaugmentedinasimilarwaythan                                     notably better than random guessing.
+the training dataset.                                                                   (a) Allsix ML4VDtechniques are notable todistinguish
+  The performance gained by data augmentation only ap-                                  between vulnerabilities and their patches when trained
+  pliestothespecifictransformationsusedduringthetrain-                                  on standard training data. On average, the accuracy is
+  ing of the model. ML4VD techniques continue to leverage                               lowerthantheexpectedaccuracyofarandomguesser.(b)
+  unrelatedfeatureswhendecidingwhetherafunctioncon-                                     When trained to distinguish between vulnerabilities and
+  tains a security vulnerability.                                                       theirpatches,theML4VDtechniquesareabletopredict
+                                                                                        standard testing data better than a random guesser, but
+                                                                                        still significantly worse than when trained on standard
+RQ.3 Generalization to VulnPatchPairs                                                   training data. In other words, the ML4VD techniques are
+                                                                                        unable to generalize from their training data to a slightly
+We investigate, whether (a) ML4VD techniques are able                                   modified vulnerability detection setting.
+to generalize from typical vulnerability detection training
+datasets to a modified setting, in which they are required to                            11SinceVPTeisperfectlyclassbalanced(50%vulnerable,50%clean),a
+distinguishbetween vulnerabilitiesand their patches,and(b)                            randomguesser(coinflip)wouldbeexpectedtoachieveanaccuracyof0.5.
+
+
+
+
+USENIX Association                                                                                            33rd USENIX Security Symposium    4259
+
+=== PÁGINA FÍSICA 15 ===
+6   Threats to Validity                                                       and VulDeePecker datasets, even though they do not reflect a
+                                                                              realistic class distribution.
+As for any empirical study, there are various threats to the
+validity of our results and conclusions.                                      7   Discussion and Future Work
+   Internal validity. A common source of systematic error in
+empiricalstudiesonML4VDtechniquesishyperparameterse-                          Overfittingof learned models is a well-known problem in
+lection. Given a particular desired outcome, hyperparameters                  the machine learning research field [11,40]. However, as
+canbeoptimizedtomovetheresultinthedesireddirection.                           shown in our experiments,the traditional approach toevalu-
+We tried to minimize this risk by taking the values for hyper-                ating ML4VD techniques often fails to detect overfitting to
+parameters provided by the authors of the chosen ML4VD                        label-unrelated features in the training data. Our proposed
+techniques.                                                                   Algorithm1isanovelwaytomeasureoverfittingofML4VD
+   Anotherpotentialsourceofsystematicerroristhetraining-                      techniques,thatgoesbeyondthetraditionalapproach,andcan
+/testing dataset split. Similar to hyperparameter selection,                  even detect overfitting if there is no gap in the standard setup
+datasetsplitcanalsobevariedtochangearesultinadesired                          at all. There are several common strategies to reduce over-
+direction. We tried to avoid this risk by taking the provided                 fitting in the standard evaluation setup, e.g. early-stopping,
+splits of the CodeXGLUE benchmark [24] and by Hanif et                        dropout,or large pre-training datasets[40], whichare already
+al. [26].                                                                     integrated intheML4VD techniquesthat weused inour ex-
+   External validity. The degree to which our results gen-                    periments. However, our experiments demonstrate that the
+eralize to other learning-based techniques, datasets, seman-                  techniques are still severely overfitting to label-unrelated fea-
+tic preserving transformations, and performance metrics, are                  tures introduced by semantic preserving transformations dur-
+concerns of external validity. We tried to minimize the risk                  ing training data augmentation. Finding ways to robustify
+attachedtotheseconcernsbyevaluatingawidesetofsixstate-                        ML4VD techniques without or with minimal overfitting will
+of-the-arttechniques,twodatasets,sixperformancemetrics,                       be a central challenge of the ML4VD research area.
+and 11 semantic preserving transformations. For RQ.3, we                         Generalization. The results for RQ.3 (seeSection 5) re-
+onlyinvestigatethegeneralizationbetweenCodeXGLUE/De-                          veal,thatstate-of-the-artML4VDtechniques lacktheability
+vign and VulnPatchPairs. To maximize generality, we tried                     to generalize from their training data to a modified setting,
+tokeepbothAlgorithm1andAlgorithm2asgeneralaspos-                              whichrequirestodistinguishbetweenvulnerabilitiesandtheir
+sible,sothattheycaneasilybe adaptedtoothertechniques,                         patches. Since we can not assume that real-world software
+datasets, transformations, and metrics.                                       systems would be similar to the training data of these tech-
+   Simplicity of Transformations. Some of the semantic                        niques,theabilitytogeneralizetomodifiedsettingswouldbe
+preserving transformations thatwe used(seeTable1) could                       required for these techniques to be safely integrated into real
+beeasilyaddressedbyaddingadditionaldatapre-processing                         software engineering environments.
+(e.g. mapping identifiers to standardized names). However,                       TheabilityofaMLtechniquetogeneralizetotestingdata
+thespecifictransformationsthatweimplementedaremerely                          that is differently distributed than the training data is also
+atooltodemonstrate,thattheperformancegainedbytraining                         calledout-of-distributiongeneralization,andthelackofitfor
+dataaugmentationonlyappliestothespecifictransformations                       learning-based techniques has been recently identified (e.g.
+usedfortrainingandthatthetechniquesthatweinvestigated                         inthecomputervision domain[17,34]).OurproposedAlgo-
+overfit to the label-unrelated features introduced by these                   rithm 2can be seen as a tool to measure out-of-distribution
+transformations. For a new technique, they could be replaced                  generalizationforthedomainofautomaticvulnerabilitydetec-
+by a different set of transformations.                                        tion. It would be interesting to try approaches that have been
+   Class balance. Multiple works have shown that learning-                    used to address out-of-distribution generalization in other do-
+basedvulnerabilitydetectiontechniquestrainedonfairlybal-                      mains (e.g. causal representation learning [32]) on the task
+anceddatasets(suchasCodeXGLUE)oftenfailtogeneralize                           of automatic vulnerabilitydetection and measure the success
+toreal-worldcoderepositories[3,9,16],whichusuallycontain                      using ourAlgorithm 2.
+amuchsmallerratioofsecurityvulnerabilities[20].However,
+measured by citations, class-balanced datasets are still by far
+the most popular datasets to evaluate learning-based tech-                    Acknowledgements
+niques forvulnerability detection.Toour current knowledge,
+there is no vulnerability detection dataset with sufficient size              SpecialthankstoLukasPirch,KonradRieck,KevinBorgolte,
+(more than 10k code snippets), high-quality labels (manually                  and Seongmin Lee for their constructive feedbackon earlier
+provided by security experts), and a realistic distribution of                versions of this paper.
+vulnerabletonon-vulnerablecodesnippetsthatiswidelyused                           Funded by the Deutsche Forschungsgemeinschaft (DFG,
+intheresearchcommunity(atleast50citations).Thisiswhy                          German Research Foundation) under Germany’s Excellence
+we decided to focus our experiments on the CodeXGLUE                          Strategy - EXC 2092 CASA - 390781972.
+
+
+
+
+4260    33rd USENIX Security Symposium                                                                                       USENIX Association
+
+=== PÁGINA FÍSICA 16 ===
+References                                                                [10] Yizheng Chen,Zhoujie Ding, Lamya Alowain, Xinyun
+                                                                                Chen,andDavidWagner. Diversevul:Anewvulnerable
+ [1]  Wasi Ahmad,Saikat Chakraborty,Baishakhi Ray,and                           source code dataset for deep learning based vulnerabil-
+      Kai-Wei Chang. Unified pre-training for program un-                       ity detection. In Proceedings of the 26th International
+      derstandingand generation. In Proceedings ofthe 2021                      Symposium on Research in Attacks, Intrusions andDe-
+      ConferenceoftheNorthAmericanChapteroftheAssoci-                           fenses,RAID’23,page654–668,NewYork,NY,USA,
+      ation for ComputationalLinguistics: Human Language                        2023. Association for Computing Machinery.
+     Technologies,pages 2655–2668, Online,June 2021. As-                  [11] Tom Dietterich.   Overfitting and undercomputing in
+      sociation for Computational Linguistics.                                  machinelearning. ACMComput. Surv.,27(3):326–327,
+
+ [2]  Leonhard Applis, Annibale Panichella, and Arie van                        sep 1995.
+      Deursen.  Assessing robustness of ml-based program                  [12] ZhangyinFeng, DayaGuo,Duyu Tang,Nan Duan,Xi-
+      analysis tools using metamorphic program transforma-                      aochengFeng,MingGong,LinjunShou,BingQin,Ting
+      tions.  In 2021 36th IEEE/ACM International Confer-                       Liu, Daxin Jiang, and Ming Zhou.  Codebert: A pre-
+      enceon AutomatedSoftwareEngineering(ASE),pages                            trained modelfor programmingand natural languages,
+     1377–1381, 2021.                                                           2020.
+
+ [3]  DanielArp,ErwinQuiring,FeargusPendlebury,Alexan-                    [13] Daya Guo, Shuai Lu, Nan Duan, Yanlin Wang, Ming
+      der Warnecke, Fabio Pierazzi, Christian Wressnegger,                      Zhou, and Jian Yin.  Unixcoder: Unified cross-modal
+      LorenzoCavallaro,andKonradRieck. Dosanddon’tsof                           pre-training for code representation.   arXiv preprint
+      machinelearningincomputersecurity. In31stUSENIX                           arXiv:2203.03850, 2022.
+      SecuritySymposium(USENIXSecurity22),pages3971–
+      3988, 2022.                                                         [14]DayaGuo,Shuo Ren,ShuaiLu,ZhangyinFeng,Duyu
+ [4]  GuruBhandari,AmaraNaseer,andLeonMoonen. Cve-                              Tang, Shujie Liu, Long Zhou, Nan Duan, Alexey Svy-
+      fixes: Automated collection of vulnerabilities and their                  atkovskiy, Shengyu Fu, et al.    Graphcodebert:  Pre-
+      fixes from open-source software.   In Proceedings of                      training code representations with data flow.   arXiv
+      the17thInternationalConferenceonPredictiveModels                          preprint arXiv:2009.08366, 2020.
+      andDataAnalyticsinSoftwareEngineering,PROMISE                       [15] Hazim Hanif and Sergio Maffeis.   Vulberta: Simpli-
+      2021, page 30–39, New York,NY, USA,2021. Associa-                         fiedsourcecodepre-trainingforvulnerabilitydetection.
+      tion for Computing Machinery.                                             In 2022 International Joint Conference on Neural Net-
+ [5]  Pavol Bielik and Martin Vechev.  Adversarial robust-                      works (IJCNN), pages 1–8, 2022.
+      nessforcode. In Proceedingsofthe37thInternational                   [16] JingxuanHe,LucaBeurer-Kellner,andMartinVechev.
+      ConferenceonMachineLearning,ICML’20.JMLR.org,                             Ondistributionshiftinlearning-basedbugdetectors. In
+      2020.                                                                     KamalikaChaudhuri, StefanieJegelka,Le Song,Csaba
+ [6]  Paul Black.  A software assurance reference dataset:                      Szepesvari, Gang Niu, and Sivan Sabato, editors, Pro-
+      Thousands of programs with known bugs, 2018-04-16                         ceedings of the 39th International Conference on Ma-
+      2018.                                                                     chineLearning,volume 162of Proceedings ofMachine
+                                                                                Learning Research, pages 8559–8580. PMLR, 17–23
+ [7]  Harold Booth, Doug Rike, and Gregory Witte.   The                         Jul 2022.
+      nationalvulnerability database(nvd):Overview,2013-                  [17] Dan Hendrycks, Steven Basart, Norman Mu, Saurav
+     12-18 2013.                                                                Kadavath, Frank Wang, Evan Dorundo, Rahul Desai,
+
+ [8]  Quang-CuongBui,RiccardoScandariato,andNicolás                             Tyler Zhu, Samyak Parajuli, Mike Guo, Dawn Song,
+      E. Díaz Ferreyra. Vul4j: A dataset of reproducible java                   Jacob Steinhardt, and Justin Gilmer.  The many faces
+      vulnerabilitiesgearedtowardsthestudyofprogramre-                          ofrobustness:A criticalanalysisofout-of-distribution
+      pairtechniques. InProceedingsofthe19thInternational                       generalization. In Proceedings ofthe IEEE/CVF Inter-
+      Conference on Mining Software Repositories,MSR ’22,                       nationalConferenceonComputerVision(ICCV),pages
+      page 464–468, New York, NY, USA, 2022. Association                        8340–8349, October 2021.
+      for Computing Machinery.                                            [18] JordanHenkel,Goutham Ramakrishnan, ZiWang,Aws
+
+ [9]  Saikat Chakraborty, Rahul Krishna, Yangruibo Ding,                        Albarghouthi,SomeshJha,andThomasReps. Semantic
+      and Baishakhi Ray. Deep learning based vulnerability                      robustnessof modelsofsource code. In2022IEEE In-
+      detection: Are we there yet?   IEEE Transactions on                       ternational Conference on Software Analysis, Evolution
+      Software Engineering, PP:1–1, 06 2021.                                    and Reengineering (SANER). IEEE, mar 2022.
+
+
+
+
+USENIX Association                                                                            33rd USENIX Security Symposium    4261
+
+=== PÁGINA FÍSICA 17 ===
+[19] AbramHindle,EarlT.Barr,ZhendongSu,MarkGabel,                               Multi-task learning with code-text transformer. InPro-
+      and Premkumar Devanbu. On the naturalness of soft-                        ceedings of the 1st Workshop on Natural Language Pro-
+     ware. In 2012 34th International Conference on Soft-                       cessing for Programming (NLP4Prog 2021), pages 40–
+      ware Engineering (ICSE), pages 837–847, 2012.                             47,Online,August2021.AssociationforComputational
+                                                                                Linguistics.
+[20] Rafael-Michael Karampatsis and Charles Sutton. How
+      oftendosingle-statementbugsoccur?themanysstubs4j                    [29] Serena  E.   Ponta, Henrik  Plate, Antonino  Sabetta,
+      dataset.  In 2020 IEEE/ACM 17th International Con-                        Michele Bezzi, and Cédric Dangremont. A manually-
+      ference on Mining Software Repositories (MSR), pages                      curateddatasetoffixestovulnerabilitiesofopen-source
+      573–577, 2020.                                                            software. In Proceedings of the 16th International Con-
+                                                                                ference on Mining Software Repositories, MSR ’19,
+[21] Yaoxian Li, Shiyi Qi, Cuiyun Gao, Yun Peng, David                          page 383–387. IEEE Press, 2019.
+      Lo, Zenglin Xu, and Michael R. Lyu.  A closer look                  [30] Md RafiqulIslam Rabin, NghiD.Q. Bui,Ke Wang, Yi-
+      intotransformer-basedcodeintelligencethroughcode                          junYu,LingxiaoJiang,andMohammadAminAlipour.
+      transformation: Challenges and opportunities, 2022.                       Onthegeneralizabilityofneuralprogrammodelswith
+
+[22] Zhen Li, JingTang, Deqing Zou, Qian Chen, Shouhuai                         respecttosemantic-preservingprogramtransformations.
+     Xu,ChaoZhang,YichenLi,andHaiJin. Towardsmak-                               Information and Software Technology, 135:106552, jul
+      ingdeeplearning-based vulnerability detectorsrobust,                      2021.
+      2021.                                                               [31] MdMahbuburRahman,IraCeka,ChengzhiMao,Saikat
+
+[23] Zhen Li, Deqing Zou,Shouhuai Xu, Xinyu Ou, Hai Jin,                        Chakraborty, Baishakhi Ray, and Wei Le.   Towards
+      SujuanWang,ZhijunDeng,andYuyiZhong. VulDeeP-                              causal deep learning for vulnerability detection.   In
+      ecker: A deep learning-based system for vulnerability                     Proceedings of the 46th International Conference on
+      detection. InProceedings2018NetworkandDistributed                         Software Engineering, ICSE ’24. IEEE Press, 2024.
+      System Security Symposium. Internet Society, 2018.                  [32] B.Schölkopf,F.Locatello,S.Bauer,N.R.Ke,N.Kalch-
+[24] Shuai   Lu,  Daya   Guo,  Shuo   Ren,  Junjie   Huang,                     brenner,A. Goyal, and Y. Bengio. Toward causal repre-
+     AlexeySvyatkovskiy,AmbrosioBlanco,ColinClement,                            sentationlearning.ProceedingsoftheIEEE,109(5):612–
+      Dawn  Drain, Daxin  Jiang, Duyu  Tang, Ge  Li, Li-                        634, 2021.
+      dong Zhou,Linjun Shou, Long Zhou,Michele Tufano,                    [33] Rico Sennrich, Barry Haddow, and Alexandra Birch.
+      MING GONG, Ming Zhou, Nan Duan, Neel Sundare-                             Neural machine translation of rare words with subword
+      san, Shao Kun Deng, Shengyu Fu, and Shujie LIU.                           units. In Katrin Erk and Noah A. Smith, editors, Pro-
+      Codexglue: A machine learning benchmark dataset for                       ceedings of the 54th Annual Meeting of the Association
+      code understanding and generation. In J. Vanschoren                       forComputationalLinguistics(Volume1:LongPapers),
+      and S. Yeung, editors, Proceedings of the Neural In-                      pages 1715–1725, Berlin, Germany, August 2016. As-
+      formation Processing Systems Track on Datasets and                        sociation for Computational Linguistics.
+     Benchmarks, volume 1, 2021.
+[25] Codexglue leaderboards, 2021. https://microsoft.                     [34] Zheyan Shen, Jiashuo Liu, Yue He, Xingxuan Zhang,
+      github.io/CodeXGLUE/#LB-DefectDetection.                                  Renzhe Xu, Han Yu, and Peng Cui.  Towards out-of-
+                                                                                distribution generalization: A survey, 2021.
+[26] Vuldeepecker       function-level        dataset,     2022.          [35] ShashankSrikant,Sijia Liu,TamaraMitrovska,Shiyu
+      https://github.com/ICL-ml4csec/VulBERTa/                                  Chang, Quanfu Fan, Gaoyuan Zhang, and Una-May
+      tree/main/data.                                                           O’Reilly. Generatingadversarialcomputerprogramsus-
+[27] PedroOrvalho,MikolášJanota,andVascoManquinho.                              ingoptimizedobfuscations. InInternationalConference
+      Multipas:applyingprogramtransformationstointroduc-                        on Learning Representations, 2021.
+      tory programming assignmentsfor data augmentation.                  [36] BenjaminSteenhoek,MdMahbuburRahman,Richard
+      In Proceedings of the 30th ACM Joint European Soft-                       Jiles,andWeiLe. Anempiricalstudyofdeeplearning
+      ware Engineering Conference and Symposium on the                          modelsforvulnerabilitydetection. InProceedingsofthe
+     FoundationsofSoftwareEngineering,pages1657–1661,                           45thInternationalConferenceonSoftwareEngineering,
+      2022.                                                                     ICSE ’23, page 2237–2248. IEEE Press, 2023.
+
+[28] LongPhan,HieuTran,DanielLe,HieuNguyen,James                          [37] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob
+     Annibal, Alec Peltekian, and Yanfang Ye.   CoTexT:                         Uszkoreit,LlionJones,AidanNGomez,ŁukaszKaiser,
+
+
+
+
+4262    33rd USENIX Security Symposium                                                                                 USENIX Association
+
+=== PÁGINA FÍSICA 18 ===
+                                                                            A   Naturalness
+
+                                                                            Since vulnerability detection techniques are ultimately de-
+                                                                            signed to be applied to real-world code, we also need to en-
+                                                                            sure that our transformations lead to code snippets that could
+                                                                            occur in the real world, or i.e., leadto natural code. We mea-
+                                                                            suredthenaturalnessofourtransformationsusingthemethod
+                                                                            introduced by Hindle et al. [19] (implemented as a 2-gram
+                                                                            markov model) and present the results inFigure 8. Using
+                                                                            the method introduced byHindle et al., we can computethe
+                                                                            cross entropyof agiven codesnippet, whichrepresents how
+Figure 8: Naturalness of the semantic preserving transforma-                surprisingorunnaturalthecodesnippetisrelativetothecode
+tions,thatweusedinourexperiments.Lowercrossentropy                          snippets observed in the training dataset (for a detailed ex-
+meanshighernaturalness.Alltransformationsexceptt1 (iden-                    planationconsulttheworkofHindleetal.[19]).Usingthis
+tifier renaming) lead to lower or equal cross entropy than no               approach,wecomputedthecrossentropyforallcodesnippets
+transformation (None).                                                      intheCodeXGLUEtestingdataset(darkgrayboxplot),and
+                                                                            fortransformedversionsoftheCodeXGLUEtestingdataset
+                                                                            (lightgrayboxplots).Thehorizontalblacklinerepresentsthe
+      and Illia Polosukhin.   Attention is all you need.   In               average cross entropy for all code snippets in the untrans-
+      I. Guyon, U. Von Luxburg, S. Bengio, H. Wallach,                      formedCodeXGLUEtestingdataset.Wecanobserve,thatfor
+      R. Fergus, S. Vishwanathan, and R. Garnett, editors,                  alltransformationsexceptt1 (identifierrenaming),thecross
+      Advances in Neural Information Processing Systems,                    entropyissimilarorlowerthanfortheuntransformeddataset.
+      volume 30. Curran Associates, Inc., 2017.                             In other words, all transformations except t1 (identifier re-
+                                                                            naming) lead tocode snippets that are similar innaturalness
+[38] ZhouYang,JiekeShi,JundaHe,andDavidLo. Natural                          compared to the real-world code of the CodeXGLUE testing
+      attack for pre-trained models of code. In Proceedings                 dataset.
+      of the 44th International Conference on Software En-
+      gineering,ICSE’22,page1482–1493,NewYork,NY,                           B   Impact of Individual Transformations
+      USA, 2022. Association for Computing Machinery.
+[39] Noam Yefet, Uri Alon, and Eran Yahav.  Adversarial                     Figure    9  shows    the    impact   on    accuracy   caused
+      examples for models of code.   Proc. ACM Program.                     by    augmenting     the     testing     data     with    a     dif-
+      Lang., 4(OOPSLA), nov 2020.                                           ferent     transformation      than      the      training      data
+                                                                            (impact(tk)    :=           1(N−1)∑tj∈T accuracy[MLM[Trj],Te]  −
+[40] XueYing. Anoverviewofoverfittinganditssolutions.                       accuracy[LLM[Trj],Tek]). The most impactful transforma-
+      Journal of Physics: Conference Series, 1168(2):022022,                tions foreachLLM aremarkedbyred stars. Theresults are
+      feb 2019.                                                             very similar toFigure 6, which is why we chose to omit
+                                                                            Figure9fromthemainpaperandprovideitassupplementary
+[41] Huangzhao Zhang, Zhiyi Fu, Ge Li, Lei Ma, Zhehao                       material.
+      Zhao, Hua’an Yang, Yizhe Sun, Yang Liu, and Zhi Jin.
+      Towards robustness of deep program processing mod-
+      els—detection, estimation, and enhancement.     ACM                   C   Model Architecture Details
+      Trans. Softw. Eng. Methodol., 31(3), apr 2022.                        All selected ML4VD techniques happen to be token-based
+
+[42] HuangzhaoZhang,ZhuoLi,GeLi,L.Ma,YangLiu,and                            large language models (LLMs), specialized for the task of
+      Zhi Jin.  Generating adversarial examples for holding                 vulnerability detection. LLMs are based on the transformer
+      robustness of source code processing models. In AAAI                  architecture, which is a neural network model architecture
+      Conference on Artificial Intelligence, 2020.                          forsequence-to-sequence tasksbasedon theattention mecha-
+                                                                            nism[37].Theattentionmechanismisessentiallyaweighted
+[43] YaqinZhou,ShangqingLiu,JingkaiSiow,XiaoningDu,                         dot product that allows models to focus on specific parts of
+      andYangLiu. Devign:EffectiveVulnerabilityIdentifi-                    the input data that are most relevant to the task at hand, im-
+      cation by Learning Comprehensive Program Semantics                    proving their ability to capture dependencies and context. In
+      via Graph Neural Networks.  Curran Associates Inc.,                   a transformer model, the attention mechanism is combined
+      Red Hook, NY, USA, 2019.                                              withparametrizedfeed-forwardlayersandrepeatedmultiple
+                                                                            times,resulting ina complexmulti-layer network. Adetailed
+
+
+
+
+USENIX Association                                                                               33rd USENIX Security Symposium    4263
+
+=== PÁGINA FÍSICA 19 ===
+Figure 9: Impact on accuracy caused by augmenting the testing data with a different transformation than the training data
+(impact(tk):=      1(N−1)∑tj∈T accuracy[MLM[Trj],Te]−accuracy[MLM[Trj],Tek]). The most impactful transformations for each
+ML technique are marked by red stars.
+
+
+
+
+
+
+ (a) Accuracy               (b) F1-Score               (c) Precision               (d) Recall                  (e) FPR                    (f) FNR
+
+Figure 10: Additional metrics for RQ.2 using the CodeXGLUE/Devign dataset. The results support the conclusions that we
+generated based on the main metric (accuracy).
+
+
+
+
+
+
+ (a) Accuracy               (b) F1-Score               (c) Precision               (d) Recall                  (e) FPR                    (f) FNR
+
+Figure 11: Additional metrics for RQ.2 using the VulDeePecker dataset. The results support the conclusions thatwe generated
+based on the main metric (f1-score).
+
+
+descriptionofthetransformerarchitecturecanbefoundinthe                        be reversed by the model.
+originalpaper[37].Whilethebasearchitectureisthesamefor                           CodeBERT.CodeBERTusesapre-trainingsetupinwhich
+all ofthe six techniques, thereare some notable differences                   naturallanguage(e.g.documentation)andcodearecombined
+in the pre-training setup, size, or specific parts of the model               to produce a more semantically stable representation of the
+training:                                                                     input.
+   VulBERTa. VulBERTa leverages a custom tokenization                            GraphCodeBERT.GraphCodeBERTusesapre-training
+strategy,which isbasedon thebytepair encodingalgorithm                        task, where in addition to natural language and the code, a
+[33] combined with a set of pre-defined code tokens (stan-                    graph-basedrepresentationofthedataflowofthefunctionis
+dard C/C++ keywords, punctuation, and library API calls)                      provided.
+to achieve better code encodings through maintaining the
+syntactical structure of source code.                                         D   Additional Metrics for RQ.2
+   CoTexT. CoTexT uses multi-task learning for pre-training,
+which means that the model is trained to perform multiple                     Figure 10andFigure 11show additional results for RQ.2 us-
+code-related tasks (e.g. vulnerability detection, code summa-                 ing all ofour available metrics (accuracy,f1-score, precision,
+rization,andcodegeneration)inparallel.Themodelarchitec-                       recall,FPR,andFNR).Generally,theresultssupportthecon-
+turealsocontainssignificantlymoretrainableparametersthan                      clusions that we generated based on the respective preferred
+the other techniques (222M parameters), because it contains                   metrics on the two datasets (accuracy for CodeXGLUE/De-
+more more multi-head attention layers. CoTexT also uses a                     vign and f1-score for VulDeePecker). While the observed
+different tokenizer than the other techniques.                                patterns deviate for some of the metrics (e.g. precision, re-
+   UniXcoder.  UniXcoder introduces  a  new pre-training                      call,FPR,orFNR),thesedeviationscanbeexplainedbythe
+setup,whichincludestokenizationoftheabstractsyntaxtrees                       relationships between them. For example, a model can have
+(ASTs)of the code,andthreedifferent’training modes’that                       a really high precision, but low recall. Similarly, a model
+leverage different self-attention masks.                                      canhavereallylowfalse-negative-rate,butthecorresponding
+   PLBart. PLBart uses a special pre-training procedure                       false-positive-rateisreallyhigh.Accuracyandf1-scorepro-
+called’denoisingautoencoding’,whichisacombinationof                           vide a bettersummary of theperformance, which is whythey
+token masking, token deletion, and token infilling, that has to               are used as the preferred metrics for the two datasets.
+
+
+
+
+4264    33rd USENIX Security Symposium                                                                                       USENIX Association

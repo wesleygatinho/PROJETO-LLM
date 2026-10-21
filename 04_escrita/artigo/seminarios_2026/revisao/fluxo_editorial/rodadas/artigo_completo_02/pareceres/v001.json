@@ -1,0 +1,33 @@
+{
+  "versao": 1,
+  "sha256": "8ee65a8fd09cb16c1e525863fcecf79136caa38940fba79e85e3693b7f6683b6",
+  "contexto_sha256": "1c17f962f30ff81204c9ac852bfd2004f6ad4b4bd14930229d8ad0e0b54a3fa2",
+  "abrangencia": "texto_integral_da_versao",
+  "revisor": "Claude — papel revisor",
+  "escopo": "cientifico_editorial",
+  "decisao": "aprovar",
+  "itens": [],
+  "verificacoes_anteriores": [],
+  "limites": [
+    "O campo respostas_anteriores do pacote está vazio nesta rodada (artigo_completo_02, versão 1). Por isso, verificacoes_anteriores está vazio. O item P1 da conferência primária, que o briefing pediu para examinar, foi conferido diretamente e está registrado aqui.",
+    "P1 foi resolvido no texto. Em v002, a linha 37 dizia: 'a atualização assume a forma W₀ + BA, com posto r menor que as dimensões da matriz'. O texto atual diz: 'Para uma matriz pré-treinada W₀ de dimensões d × k, a atualização é representada por ΔW = BA, de modo que o peso adaptado é W₀ + BA, com posto r muito menor que o mínimo entre d e k'. Conferi essa frase em lora_pdf.txt, página física 4. As linhas 211-213 trazem 'W0 +∆W = W0 +BA, whereB∈Rd×r,A∈Rr×k, and the rankr≪ min(d,k)' e 'W0 isfrozen'. A linha 234 traz 'W = W0 +BA'. A formulação final segue a fonte.",
+    "Sugestão opcional, que não condiciona a aprovação: a fonte aplica a escala α/r a ΔWx (lora_pdf.txt, linha 218). O texto omite essa escala na Seção 2, o que é aceitável nesse nível de fundamentação. A Seção 3.2 já informa α = 32 e r = 16.",
+    "Procurei regressões em relação a v002 por amostragem, sem diff integral linha a linha. Busquei em v002 as frases que sustentaram os oito itens resolvidos (V1-R1 a V1-R8), entre elas '0,22 ponto percentual', 'No limiar histórico zero, as 564', a entrada 'Hui, B. et al. (2024)', 'Historical records of prompting' e os valores 50,62%/49,97%. Também busquei outros trechos das Seções 1 a 4: 'Mantiveram-se os 564 pares', 'Reamostraram-se os 550', 'piso de 0,005', 'apenas 16 e 14 tiveram', 'reduziu principalmente os resultados da seed 2' e 'aproximadamente 67%'. Todos estão em v002 e no texto atual sem alteração aparente. A única diferença encontrada foi a frase de P1. Não comparei caractere a caractere as linhas que não amostrei.",
+    "Arquivos examinados nesta chamada: conferencia_primaria/parecer.json, resposta_P1.json, rodadas/artigo_completo_01/pareceres/v002.json, trechos de rodadas/artigo_completo_01/versoes/v002.md (buscas e linhas 35-37) e lora_pdf.txt (busca nas linhas 73-1063, com foco nas linhas 211-235). Também usei os guias PADRAO_ESCRITA, MATRIZ_EVIDENCIAS e PLANO_ESCRITA incluídos no pacote.",
+    "Nesta chamada, não reli as demais extrações primárias (PrimeVul, Risse, Huang, Qwen e QLoRA), as saídas consolidadas, os scripts nem os arquivos pai/commit dos cinco casos. A conferência desses materiais vem do parecer primário e do parecer v002, cujas limitações se mantêm. Entre elas: leitura focalizada das extrações em texto, e não dos PDFs; nenhuma conferência de que os arquivos pai/commit correspondem aos commits remotos; nenhuma conferência do cálculo da sensibilidade de 559 pares feita pelo parecer primário; nenhuma conferência do corte de 8.192 tokens dentro do script de prompting, que aparece só no manifesto.",
+    "Não calculei os hashes. Os valores de sha256 e contexto_sha256 foram copiados do pacote. Nenhum comando, script ou modelo foi executado.",
+    "A aprovação é científico-editorial e cobre só o texto e as conferências declaradas. Ela não certifica validade científica além dessas conferências, não certifica todos os rótulos do PrimeVul e não substitui reprodução independente.",
+    "Não li PDF compilado nem verifiquei diagramação SBC, o limite de dez linhas do Resumo e do Abstract ou o limite de páginas. Também não verifiquei as regras do professor. As duas compilações falharam na preparação do ambiente e não validam nada. Autoria, afiliação e título definitivo continuam pendentes com o pesquisador. O texto não está pronto para submissão como PDF."
+  ],
+  "proveniencia": {
+    "arquivo": "entradas/revisao_v001.json",
+    "sha256": "f02a8b4eb21b2bd1868753adb386a3f0a5d2a8674e4d1c49f9d82c95e407ed36",
+    "origem": "claude_cli",
+    "modelos": [
+      "claude-opus-5-5"
+    ],
+    "session_id": "a94a5700-8fbd-4ebe-be46-a920485f1ce2",
+    "duration_ms": 41548,
+    "custo_estimado_cli": 0.5578672
+  }
+}

@@ -1,0 +1,428 @@
+<!-- pagina 1 -->
+Diagno´stico do Glaucoma em Imagens de Retinografia
+usando Variantes de Padro˜es Locais Bina´rios
+MayaraG.Silva1,AlexandreC.P.Pessoa1,Joa˜oD.S.deAlmeida1,
+GeraldoBrazJunior1,AnselmoCardosodePaiva1
+1Nu´cleodeComputac¸a˜oAplicada(NCA),UniversidadeFederaldoMaranha˜o(UFMA)
+CaixaPostal65.085-580–Sa˜oLu´ıs–MA–Brazil
+mayara@nca.ufma.br,alexandre.pessoa0707@gmail.com,jdalyson@nca.ufma.br,geraldo@nca.ufma.br,
+paiva@nca.ufma.br
+Abstract. Glaucomaisanopticaldiseasethatdegradestheopticnerveuntilto-
+tallossofthefieldofview. Thesymptomsonlyappearwhenthediseaseisinan
+advancedandirreversiblestage,thus,makingtheearlydiagnosisofthispatho-
+logy necessary. The main objective of this work is to present a computational
+method that uses texture descriptors to detect glaucoma automatically in reti-
+nographies (eye fundus images). To describe the image texture, it was utilized
+the LBP, LQP, CS-LBP and CLBP. For image classification, SVM was utilized.
+The proposed method is organized in four steps: (1) pre-processing, (2) spatial
+decomposition, (3) feature extraction, and (4) pattern recognition. This method
+showedpromisingresultsof90.70%ofaccuracy.
+Resumo. O glaucoma e´ uma doenc¸a o´ptica que degrada o nervo o´ptico ate´ a
+perda total do campo visual. Os sintomas so´ aparecem quando a doenc¸a esta´
+em esta´gio avanc¸ado e e´ irrevers´ıvel, sendo assim e´ necessa´rio o diagno´stico
+precoce de tal patologia. O principal objetivo deste trabalho e´ apresentar um
+me´todo computacional utilizando descritores de textura para detectar o glau-
+coma automaticamente em retinografias (imagem de fundo de olho). Para des-
+crever a textura foram utilizados os descritores LBP, LQP, CS-LBP e CLBP.
+Para a classificac¸a˜o das imagens foi utilizada a SVM. O me´todo proposto esta´
+organizado em quatro etapas: (1) pre´-processamento, (2) decomposic¸a˜o espa-
+cial,(3)extrac¸a˜odecaracter´ısticase(4)reconhecimentodepadro˜es. Ome´todo
+apresentouresultadospromissoresde90,70%deacura´cia.
+1. Introduc¸a˜o
+A Pesquisa Nacional de Sau´de (PNS) de 2013 revelou que dentre as deficieˆncias f´ısicas
+pesquisadas no Brasil, a com mais representatividade na populac¸a˜o foi a visual, regis-
+trando maior proporc¸a˜o estimada para as pessoas que a adquiriram por doenc¸a ou aci-
+dente [Cavararo2015]. O glaucoma e´ uma doenc¸a ocular e inicialmente assintoma´tica,
+que causa dano ao nervo o´ptico ocasionando a perda irrevers´ıvel do campo visual e cujo
+maior fator de risco e´ o aumento da pressa˜o intraocular [Talebetal. 2012]. Por ser as-
+sintoma´tico os sintomas so´ aparecem quando a doenc¸a esta´ em esta´gio avanc¸ado. Conse-
+quentemente,faz-senecessa´rioodiagno´sticoprecocedetalpatologia.
+O glaucoma geralmente tende a ser heredita´rio, sendo relacionado a pressa˜o in-
+traocular (pressa˜o dentro do olho). Normalmente pessoas desse grupo de risco fazem
+
+<!-- pagina 2 -->
+acompanhamento da pressa˜o intraocular, mas o diagno´stico e´ feito por outros tipos de
+exames, sendo a retinografia um dos principais. A retinografia e´ uma forma muito co-
+mum de se diagnosticar algumas doenc¸as oculares, na qual utiliza-se imagem do fundo
+deolhoparaanalisaronervoo´ptico[Dorion2002].
+Odiagno´sticodoglaucomaatrave´sdeimagensrequerumaana´liseeinterpretac¸a˜o
+de um especialista na a´rea. Ao longo dos anos pesquisas na a´rea de diagno´stico as-
+sistido por computador (CAD) vem crescendo, onde ocorre a ana´lise de imagens com-
+putadorizadas a fim de melhorar a interpretac¸a˜o de exames com imagens me´dicas for-
+necendo uma padronizac¸a˜o nas ana´lises e uma segunda opinia˜o para o especialista
+[GigerandSuzuki2008]. As principais formas encontradas de detecc¸a˜o para diagnosti-
+caroglaucomasa˜o: porsegmentac¸a˜odaregia˜ododiscoo´pticoedacavidade;eextrac¸a˜o
+de caracter´ısticas com te´cnicas de classificac¸a˜o. Na detecc¸a˜o por segmentac¸a˜o e´ cal-
+culado o CDR (cup-to-disc ratio), que e´ a raza˜o do DO (disco o´ptico) com a CDO
+(escavac¸a˜o do disco o´ptico) e, segundo [Spaeth1981], se o valor gerado for maior ou
+igual a 0,65 normalmente indica que a pessoa tem glaucoma. Um problema desse
+me´todo e´ encontrar as regio˜es de interesse (ROI). Essa abordagem, por utilizar algo-
+ritmos de segmentac¸a˜o, pode apresentar problemas de localizac¸a˜o para determinac¸a˜o
+de valores de limiar ou demarcac¸a˜o que levam a erros no diagno´stico [Sousa2017].
+Uma abordagem diferente desta e´ a extrac¸a˜o de caracter´ısticas que consideram a ima-
+gem como um todo descrevendo-as baseadas em cor, textura e/ou forma. Alguns autores
+[deSousaetal. 2017,Alietal. 2014,Arau´joetal. 2017]obtiveramresultadosrelevantes
+comestaabordagem.
+Este trabalho tem como objetivo avaliar a utilizac¸a˜o de descritores de carac-
+ter´ısticas como o LBP (Padra˜o Bina´rio Local) e variantes, com a decomposic¸a˜o espa-
+cial juntamente com a ma´quina de vetores de suporte (SVM, do ingleˆs: support vector
+machine)aplicadosnodiagno´sticodoglaucomaemretinografias.
+O restante deste artigo esta organizado da seguinte forma. Na Sec¸a˜o 2, sa˜o apre-
+sentados os trabalhos relacionados ao tema da pesquisa. Na Sec¸a˜o 3, sa˜o descritos os
+materiais e me´todos utilizados neste trabalho. Os resultados obtidos, as discusso˜es sobre
+esses resultados e um comparativo com outros trabalhos equivalentes ao nosso sa˜o apre-
+sentadosnaSec¸a˜o4. Concluindo,naSec¸a˜o5sa˜oapresentadosasconcluso˜esdapesquisa
+eostrabalhosfuturosemandamentoouarealizar.
+2. Trabalhos Relacionados
+Esta sec¸a˜o apresenta trabalhos ja´ existentes na literatura sobre a utilizac¸a˜o de descritores
+detexturaemimagensme´dicasparadiagnosticaroglaucomaemretinografias.
+Alietal. (2014)apresentamumametodologiaparaadetecc¸a˜oautoma´ticadeglau-
+coma,baseadaemcaracter´ısticasdetexturalocalextra´ıdasdefotografiasdofundodeolho
+utilizando o LBP. Utilizam padro˜es bina´rios locais para capturar recursos de textura re-
+presentativosdaimageminteira. Umaregia˜olocale´ representadaportreˆsoperadores: seu
+pixel central (LBPC) e suas diferenc¸as locais como dois componentes complementares,
+o sinal (que e´ o LBP cla´ssico) e a magnitude (LBPM). A textura de imagem e´ descrita
+tanto pela distribuic¸a˜o de LBP quanto pela distribuic¸a˜o conjunta de LBPM e LBPC. As
+imagens foram enta˜o classificadas usando um me´todo de vizinhanc¸a mais pro´xima com
+a estrate´gia de validac¸a˜o leave-one-out. Em um conjunto de amostras de 41 imagens de
+
+<!-- pagina 3 -->
+fundodeolho,ome´todoatingiutaxadesucessode95%. Apartirdasimagensdigitaisde
+fundo de olho, Sousa (2017) propoˆs uma metodologia para diagnosticar o glaucoma uti-
+lizando func¸o˜es geoestat´ısticas como: semivariograma, semimadograma, covariograma,
+correlograma. Inicialmente as imagens passaram por um pre´-processamento na qual fo-
+ram convertidas para n´ıvel de cinza e em seguidas equalizadas. Para a representac¸a˜o da
+regia˜ododiscoo´pticofoiaplicadooPadra˜oBina´rioLocal(LBP)efunc¸o˜esgeoestat´ısticas
+paradescreverospadro˜esdetextura.
+Ja´ Arau´joetal. (2017)propoˆsumme´tododediagno´sticodoglaucomatambe´mem
+imagensdefundodeolhoutilizando´ındicesdediversidadedeShannoneMcIntoshcomo
+descritores dos padro˜es de textura e SVM para classificac¸a˜o. A aplicac¸a˜o dos ´ındices
+de Shannon e McIntosh como descritores de textura mostrou-se eficaz alcanc¸ando como
+melhorresultadoumaacura´ciade88,35%.
+Ja´ Ramos (2016) utilizou variantes de padro˜es locais em imagens digitais para
+discriminar os padro˜es de massas malignas e benignas, para o diagno´stico de caˆncer de
+mama. Esta discriminac¸a˜o se da´ atrave´s da utilizac¸a˜o de operadores locais, das te´cnicas
+LocalBinaryPattern(LBP),LocalQuinaryPattern(LQP),Circular-SymmetricLocalBi-
+naryPattern(CS-LBP)eCompoundLocalBinaryPattern(CLBP),combinandocadauma
+comasabordagensCartesianGrid,GridX,CompleteGrid,AbordagemCircular. Porfim,
+classificando a textura utilizando a SVM. Este estudo foi utilizado como base para o de-
+senvolvimento desta pesquisa, onde utilizamos os mesmos descritores de caracter´ısticas
+eadecomposic¸a˜ocartesiangrid,quecomplementamoscompre´-processamentodasima-
+gens.
+3. Materiais e Me´todos
+Esta sec¸a˜o apresenta a base de imagens e as etapas do me´todo proposto que esta´
+organizado em quatro etapas: (1) pre´-processamento (Sec¸a˜o 3.2), (2) decomposic¸a˜o
+espacial(Sec¸a˜o 3.3), (3) extrac¸a˜o de caracter´ısticas (Sec¸a˜o 3.4) e (4) reconhecimento de
+padro˜es(Sec¸a˜o3.5). AFigura1apresentaasetapasdome´todoproposto.
+Figura1. Etapasdome´todoproposto.
+
+<!-- pagina 4 -->
+3.1. BasedeImagens
+Nestapesquisautilizou-seabasedeimagenspu´blicaRIM-ONE[Truccoetal. 2013],que
+e´ disponibilizadagratuitamenteee´ formadaportreˆsverso˜esdiferente. Nestetrabalhofoi
+utilizadaaversa˜o2,quepossui455imagensnoformatoRGB(Red,Green,Blue)esa˜ose-
+paradasemduasclasses: Normal(255)eGlaucomaandsuspicious(200). Essasimagens
+foram adquiridas em treˆs hospitais: Hospital Universita´rio de Canarias, Hospital Cl´ınico
+San Carlos e Hospital Universita´rio Miguel Servet. A Figura 2 apresenta uma imagem
+deumindiv´ıduodaclasseNormal(Figura2A)edeumpacientedaclasseGlaucomaand
+suspicious(Figura2B).
+Figura2. (A)Normal,(B)Glaucomaandsuspicious.
+3.2. Pre´-Processamento
+O pre´-processamento teve como objetivo amenizar as diferenc¸as de luminosidade e evi-
+denciar caracter´ısticas da regia˜o do disco o´ptico e da cavidade do disco o´ptico. A
+preparac¸a˜odasimagensparaaextrac¸a˜odecaracter´ısticasfoidivididaemtreˆsfases,inici-
+almente para diminuir o custo computacional as imagens foram redimensionadas e enta˜o
+a partir da imagem original (RGB) foram separados os canais de cores R (vermelho), G
+(verde), e B (azul). A Figura 3 (B) mostra o canal R em n´ıvel de cinza apo´s a separac¸a˜o
+doscanais.
+Em seguida foram aplicadas as equac¸o˜es de transformac¸a˜o de cores opostas
+[Hering1880]nostreˆscanais. Ascoresopostassa˜o,vermelhoversusverde,verdeversus
+vermelho e azul versus amarelo. Segundo Sande, Gevers e Snoek (2010) os treˆs canais
+opostossa˜ocalculadosconformeEquac¸a˜o1:
+(R−G) ((R+G)−2B) (R+G+B)
+R = √ ,G = √ ,B = √ . (1)
+g r y
+2 6 3
+Atransformac¸a˜oemcoresopostasresultaemtreˆsnovasimagens. Emseguidaasimagens
+sa˜o equalizadas [Gonzalezetal. 2004]. Na Figura 2 (C) tem-se um exemplo de uma
+imagem resultante apo´s a te´cnica de cores opostas, a vermelho-verde. Ja´ na Figura 2 (D)
+apresenta-seaimagemresultantedaequalizac¸a˜odohistograma.
+Aequalizac¸a˜odehistogramae´ umate´cnicaqueobjetivaredistribuirosvaloresde
+tons de cinza dos pixels em uma imagem, de modo a obter um histograma uniforme, no
+qual o nu´mero (percentual) de pixels de qualquer n´ıvel de cinza e´ praticamente o mesmo
+
+<!-- pagina 5 -->
+[MarquesFilhoandNeto1999]. A equalizac¸a˜o tem papel fundamental na melhoria do
+contrastedasimagensrealc¸andosuascaracter´ısticas.
+Figura 3. Pre´-Processamento. (A) imagem em RGB; (B) canal R (vermelho) em
+n´ıveldecinza;(C)coroposta(vermelho-verde);(D)imagemequalizada.
+3.3. Decomposic¸a˜oEspacial
+Nesta etapa aplica-se na imagem uma te´cnica de representac¸a˜o visando analisar a tex-
+tura localmente. Desta forma, foi utilizada a decomposic¸a˜o espacial Cartesian Grid
+[Ahmedetal. 2011].
+A Cartesian Grid divide a imagem em sub-regio˜es como uma grade e e´ dada
+por uma func¸a˜o parametrizada de M e N, onde M e´ o nu´mero de diviso˜es horizontais
+e N e´ o nu´mero de diviso˜es verticais [Ahmedetal. 2011]. Neste trabalho, atrave´s de
+testes emp´ıricos, foi determinada a configurac¸a˜o do Grid na proporc¸a˜o 3x3. A Figura 4
+representaumadasimagenscomgrid 3x3.
+Figura4. ExemplodeCartesianGrid3x3.
+3.4. Extrac¸a˜odeCaracter´ısticas
+Na etapa de extrac¸a˜o de caracter´ısticas foi utilizado o LBP (Local Binary
+Pattern) [Ojalaetal. 1996] e alguns variantes como, o LQP (Local Qui-
+nary Pattern) [Nannietal. 2012], o CS-LBP (Center-Symmetric Local Binary
+Pattern) [Heikkila¨ etal. 2006] e o CLBP (Compound Local Binary Pattern)
+[Ahmedetal. 2011].O LBP e´ um descritor de textura simples e tem sido ampla-
+menteutilizadoemva´riasaplicac¸o˜esobtendoresultadosrelevantes[Ahonenetal. 2006].
+O LBP e´ um operador de textura invariante aos n´ıveis de cinza e rotac¸a˜o, baseado em
+padro˜eslocaisbina´rios[RamosNeto2016]. AEquac¸a˜o2descreveoca´lculodoLBP:
+
+<!-- pagina 6 -->
+n−1
+LBP(x ,y ) = (cid:88) S(i −i )2n (2)
+c c n c
+n=0
+Ondene´ aquantidadedevizinhosdopixelcentral(x ,y ),i e´ ovalorden´ıvelde
+c c c
+cinza do pixel central (x ,y ), i e´ o valor de n´ıvel de cinza de cada pixel vizinho e S(x)
+c c n
+e´ uma func¸a˜o que devolve 1 se x >= 0e0, caso contra´rio. A te´cnica LBP foi aplicada
+em sua forma padra˜o [Ojalaetal. 1996], onde o ca´lculo e´ feito com 8 vizinhos e Raio 1.
+Foramestudados,tambe´m,osvariantesLQP,CS-LBPeCLBP.
+O LQP (Local Quinary Pattern) foi proposto, inicialmente, no trabalho
+[Nannietal. 2012] a fim de reduzir a sensibilidade de ru´ıdos em regio˜es de imagens
+aproximadamente uniformes, sendo um descritor relevante para a pesquisa, pois a ROI
+das imagens utilizadas sa˜o aproximadamente uniformes. O LQP foi aplicado em jane-
+las 3x3, utilizando limiares τ e τ , encontrados empiricamente com valores de 1 e 10
+1 2
+respectivamente.
+O CS-LBP tambe´m foi aplicado em janelas 3x3, utilizando limiar 10 para o
+ca´lculo do CS-LBP. O CS-LBP e´ um descritor que visa reduzir o tamanho dos histo-
+gramasgeradospelooperadordoLBP,comparandoparesdepixelssime´tricosemrelac¸a˜o
+aocentro,produzindoassimhistogramasmaiscompactos[Heikkila¨ etal. 2006].
+O CLBP tambe´m foi calculado em janela 3x3 e para calcular o threshold foi uti-
+lizada a me´dia dos mo´dulos das diferenc¸as entre o centro e os valores de n´ıvel de cinza
+vizinhos. O CLBP [Ahmedetal. 2011] e´ uma variac¸a˜o do operador LBP. Ao contra´rio
+doLBPqueutilizasomenteainformac¸a˜ogeradapelossinaisdasdiferenc¸asentreopixel
+central e os vizinhos, o CLBP tambe´m utiliza a magnitude dessa diferenc¸a, que e´ uma
+importanteinformac¸a˜osobreatextura,mostrandobonsresultadoseate´ melhoresquando
+comparadoaoLBP[RamosNeto2016].
+Em seguida, para cada abordagem foram gerados histogramas parciais (aplicado
+em cada sub-regia˜o resultante da abordagem de decomposic¸a˜o utilizada), que foram nor-
+malizados e concatenados de forma que no reconhecimento de padro˜es as caracter´ısticas
+de cada sub-regia˜o sejam comparadas somente com seu correspondente nas outras ima-
+gens,porfimformandoovetordecaracter´ısticas.
+3.5. ReconhecimentodePadro˜es
+Nesta etapa o objetivo foi classificar cada imagem em glaucomatosa ou sauda´vel, uti-
+lizando o reconhecimento de padro˜es. Os resultados foram avaliados analisando-se o
+desempenho de cada um dos me´todos utilizados, decomposic¸a˜o/descritor, classificando
+as imagens em sauda´veis e glaucomatosas por meio do uso do SVM [Vapnik1999]. O
+SVMmapeiaosdadosparaumespac¸oeemseguidaencontraumhiperplanodeseparac¸a˜o
+linear com margem para dividir em classes diferentes [Riveraetal. 2012]. Dado o con-
+juntodetreinamento(x ,y ),oobjetivodaclassificac¸a˜oe´ estimarumafunc¸a˜oquesepare
+i i
+corretamente os exemplos de teste em classes distintas [Ahmedetal. 2011]. O SVM foi
+utilizadocomFunc¸a˜odeBaseRadial(RBF).
+Na realizac¸a˜o dos experimentos, foram utilizadas as 455 imagens da base (Sec¸a˜o
+3.1). Aclassificac¸a˜ofoirealizadaseguindoasclassesatribu´ıdaspeloespecialistanabase
+de imagens. Para os experimentos, foi utilizado o me´todo de aprendizagem de ma´quina
+
+<!-- pagina 7 -->
+comdivisa˜oproporcionaldabaseparatreinoeteste,utilizandoasrespectivasproporc¸o˜es,
+de50/50,60/40,70/30e80/20. Osresultadosforamavaliadosutilizandoaabordagemde
+validac¸a˜ocruzada.
+Em posse dos resultados gerados, a configurac¸a˜o que obteve melhor resultado
+foi submetida a selec¸a˜o de caracter´ısticas. A selec¸a˜o foi feita pelo algoritmo PSO
+[EberhartandKennedy1995], em seguida as instaˆncias com as caracter´ısticas selecio-
+nadas foram submetidas ao classificador SVM. A capacidade de generalizac¸a˜o do classi-
+ficadorfoiavaliadaatrave´sdome´tododevalidac¸a˜ocruzadak-fold(comk=10).
+3.6. Validac¸a˜odosResultados
+A validac¸a˜o dos resultados tem como objetivo avaliar o desempenho e promover
+a validac¸a˜o dos resultados obtidos. Neste trabalho foram utilizadas as estat´ısticas:
+Acura´cia,SensibilidadeeEspecificidade[ChimieskiandFagundes2013].
+Segundo Sousa (2017) para ana´lise de amostra de determinada doenc¸a com caso
+positivo e negativo, os resultados dos testes de classificac¸a˜o dos casos analisados podem
+serdivididosemquatrogrupos:
+-VP:VerdadeiroPositivo-otestee´ positivoeopacientetemglaucoma.
+-FP:FalsoPositivo-otestee´ positivo,masopacientena˜otemglaucoma.
+-VN:VerdadeiroNegativo-otestee´ negativoeopacientena˜otemglaucoma.
+-FN:FalsoNegativo-otestee´ negativo,masopacientetemglaucoma.
+A sensibilidade (SEN) e´ o nu´mero de imagens corretamente classificadas como
+glaucomatosas.
+VP
+SEN = (3)
+VP +FN
+A especificidade (ESP) e´ o nu´mero de imagens classificadas corretamente como
+sauda´veis.
+VN
+ESP = (4)
+VN +FP
+A acura´cia (AC) e´ a proporc¸a˜o total dos resultados corretos. Definida como a
+raza˜oentreonu´merodecasosnaamostraemestudoqueforamclassicadoscorretamente
+eonu´merototaldeamostras.
+VP +VN
+ACU = (5)
+VP +FP +FN +VN
+4. Resultados e Discusso˜es
+Nesta sec¸a˜o sa˜o apresentados os resultados obtidos por este estudo e sua ana´lise. Foram
+utilizadastodasasimagensdabase,cadaimagempre´-processadagerou3imagensecom
+aaplicac¸a˜odadecomposic¸a˜oespacial,cadaimagemgerou9,totalizandovinteeseteima-
+gens. Emcadaumadessasimagensforamaplicadososdescritoresdecaracter´ısticas,cada
+
+<!-- pagina 8 -->
+descritor gerando uma quantidade de imagens: LBP (1), CS-LBP (1), LQP (4) e CLBP
+(2). Foram realizadas para cada proporc¸a˜o treino/teste cinco repetic¸o˜es e os paraˆmetros
+estimados, usando validac¸a˜o cruzada. A seguir, apresentaremos os resultados para cada
+uma das abordagens de extrac¸a˜o de caracter´ısticas utilizadas durante o desenvolvimento
+destetrabalho.
+NaTabela1pode-seobservarqueparaodescritorLBPomelhorresultadofoiob-
+tidonaproporc¸a˜o80/20comsensibilidademe´diade86,50%eacura´ciame´diade87,25%.
+Pore´maespecificidadefoimelhornaproporc¸a˜o50/50,masna˜ohouveumadiferenc¸asig-
+nificativa.
+Tabela1. TestedoCartesiangrid3X3comLBP
+Treino/Teste(%) Acura´cia(%) Sensibilidade(%) Especificidade(%)
+50/50 84,29±0,01 78,20±0,04 89,06±0,01
+60/40 84,17±0,03 78,50±0,06 88,62±0,02
+70/30 83,79±0,02 79,66±0,05 87,01±0,01
+80/20 87,25±0,01 86,50±0,03 87,84±0,01
+Para o descritor LQP, os testes apresentados na Tabela 2 demostraram que foram
+obtidos melhores resultados na proporc¸a˜o 50/50, com especificidade me´dia de 89,21%
+e acura´cia me´dia de 84,73%, pore´m a sensibilidade foi melhor na proporc¸a˜o 80/20 com
+me´dia de 86,50%. Na Tabela 3 esta˜o os resultados com o descritor CS-LBP que, assim
+como o LQP obteve melhor resultado na proporc¸a˜o 50/50 com sensibilidade me´dia de
+62,40%,especificidademe´diade75,93%eacura´ciame´diade70%.
+Tabela2. TestedoCartesiangrid3X3comLQP.
+Treino/Teste(%) Acura´cia(%) Sensibilidade(%) Especificidade(%)
+50/50 84,73±0,01 79,00±0,04 89,21±0,02
+60/40 83,29±0,03 78,75±0,07 86,86±0,01
+70/30 82,48±0,02 79,66±0,06 84,67±0,01
+80/20 81,00±0,04 86,50±0,10 85,88±0,03
+Tabela3. TestedoCartesiangrid3X3comCS-LBP
+Treino/Teste(%) Acura´cia(%) Sensibilidade(%) Especificidade(%)
+50/50 70,00±0,04 62,40±0,06 75,93±0,10
+60/40 68,79±0,04 61,50±0,11 74,50±0,08
+70/30 67,00±0,03 61,00±0,02 71,68±0,07
+80/20 67,03±0,08 56,00±0,06 75,68±0,11
+Os testes com o descritor CLBP (Tabela 4) demostraram resultados de acura´cia
+e especificidade melhores que os demais, com uma acura´cia me´dia de 89,45% e especi-
+ficidade me´dia de 92,54% na proporc¸a˜o treino/teste 80/20, seguido do LBP que obteve
+uma acura´cia de 87,25%. Analisando esses resultados, percebe-se que o LBP e CLBP na
+
+<!-- pagina 9 -->
+proporc¸a˜o de treino/teste 80/20 apresentaram melhores´ındices, ja´ o LQP e CS-LBP tive-
+ram melhores resultados com 50/50. Observa-se tambe´m que os resultados apresentam
+valoresdeespecificidadesempremaioresqueosdesensibilidade,indicandoqueome´todo
+se mostra mais eficiente na detecc¸a˜o de casos sauda´veis. Os resultados demonstram,
+ainda, que atrave´s do baixo desvio padra˜o resultante entre as proporc¸o˜es de treino/teste,
+existeumpoderdegeneralizac¸a˜odome´todoempregado,emboranovasinvestigac¸o˜esde-
+vamserrealizadasafimdeverificaracomplexidadedomodelogerado.
+Tabela4. TestedoCartesiangrid3X3comCLBP
+Treino/Teste(%) Acura´cia(%) Sensibilidade(%) Especificidade(%)
+50/50 85,87±0,02 81,20±0,05 89,53±0,01
+60/40 85,16±0,01 79,25±0,04 89,80±0,02
+70/30 86,42±0,01 82,33±0,05 89,61±0,01
+80/20 89,45±0,02 85,50±0,05 92,54±0,01
+A Tabela 5 apresenta os resultados com a selec¸a˜o de caracter´ısticas. Pode-se ob-
+servar que o resultado do descritor CLBP apo´s a selec¸a˜o de caracter´ısticas aumentou
+relativamenteaacura´cia,de89,45%para90,75%.
+Tabela5. Comparac¸a˜odosresultadosdoCLBPapo´saselec¸a˜odecaracter´ısticas
+Qtd. Caracter´ısticas Acura´cia(%) Sensibilidade(%) Especificidade(%)
+13824 89,40 85,50 92,50
+2822 90,70 90,80 90,80
+Diante dos resultados obtidos, a Tabela 6 mostra uma breve comparac¸a˜o dos re-
+sultadosencontradosnestetrabalhocomalgunstrabalhosrelacionados. Sa˜oapresentadas
+a metodologia utilizada, quantidade de amostras, e as me´tricas de validac¸a˜o. Este tra-
+balho comparado aos que usam a mesma base de imagens e tambe´m o LBP, ficou com
+o segundo melhor resultado em todas as estat´ısticas, com resultado de acura´cia supe-
+rior e sensibilidade consideravelmente melhor ao do trabalho de Araujo et al. (2017) e
+resultado da acura´cia um pouco inferior a Sousa (2017), pore´m a especificidade foi ligei-
+ramentemaior. Amaioriadostrabalhosrelacionadosutilizouamesmabaseequantidade
+de amostras, exceto o trabalho de Ali et al. (2014) que possui o melhor resultado en-
+tre todos os trabalhos. Esse, pore´m, utiliza uma quantidade consideravelmente menor de
+imagens, significando uma baixa variabilidade de casos, acarretando assim, em melhores
+resultados.
+Tabela6. Comparac¸a˜ocomostrabalhosrelacionados
+Autor Caracter´ısticas Imagens ACU. SEN. ESP.
+Sousa(2017) Func¸o˜esGeoestat´ısticas 455 91,20 95,00 88,20
+Alietal. (2014) LBP 41 95,00 96,00 92,00
+Arau´joetal. (2017) ´Indicesdediversidade 455 88,30 84,50 91,30
+Me´todoproposto CLBP 455 90,70 90,80 90,80
+
+<!-- pagina 10 -->
+5. Conclusa˜o
+Para objetivo deste trabalho, foram comparadas 4 te´cnicas de ana´lise de textura junta-
+mente com a te´cnica de decomposic¸a˜o espacial cartesiam grid, visando o uso no de di-
+agno´stico de imagens glaucomatosas. Os resultados obtidos entre o cruzamento desses
+me´todosrevelaramqueocartesiangrideoCLBPjuntocomSVMeopre´-processamento
+dascoresopostasobtiveramresultadospromissoresapresentando um´ındicede90,7%de
+acura´cia.
+Como trabalhos futuros, a fim de ampliar e melhorar os resultados, sugere-se a
+realizac¸a˜o de testes com outros me´todos de aprendizagem de ma´quina como o Random
+Forest, utilizar outras estrate´gias de extrac¸a˜o de caracter´ısticas baseado em Deep Lear-
+ning, testar a estrate´gia de selec¸a˜o de instaˆncias realizada por Sousa (2017) e realizar
+testeemumvolumemaiordeimagens.
+6. Agradecimentos
+Os autores agradecem a` FAPEMA (Processo: UNIVERSAL-01082/16) e ao CNPq (Pro-
+cesso: 423493/2016-7)peloapoiofinanceiro.
+Refereˆncias
+Ahmed,F.,Hossain,E.,Bari,A.H.,andShihavuddin,A.(2011). Compoundlocalbinary
+pattern (clbp) for robust facial expression recognition. In Computational Intelligence
+and Informatics (CINTI), 2011 IEEE 12th International Symposium on, pages 391–
+395.IEEE.
+Ahonen, T., Hadid, A., and Pietikainen, M. (2006). Face description with local binary
+patterns: Application to face recognition. IEEE transactions on pattern analysis and
+machineintelligence,28(12):2037–2041.
+Ali, M. A., Hurtut, T., Faucon, T., and Cheriet, F. (2014). Glaucoma detection based on
+localbinarypatternsinfundusphotographs. InSPIEMedicalImaging,pages903531–
+903531.
+Arau´jo,J.D.L.,dePaiva,A.C.,DeAlmeida,J.D.,Neto,O.P.S.,deSousa,J.A.,Silva,
+A. C., and Ju´nior, G. B. (2017). Diagno´stico de glaucoma em imagens de fundo de
+olho utilizando os´ındices de diversidade de shannon e mcintosh. XVII Workshop de
+Informa´ticaMe´dica.
+Cavararo, R. (2015). Pesquisa nacional de sau´de 2013. instituto brasileiro de geografia e
+estat´ıstica–ibge. diretoria de pesquisas. coordenac¸a˜o de trabalho e rendimento, rio de
+janeiro,2015.
+Chimieski, B. F. and Fagundes, R. D. R. (2013). Association and classification data
+mining algorithms comparison over medical datasets. Journal of health informatics,
+5(2).
+de Sousa, J. A., de Paiva, A. C., de Almeida, J. D. S., Silva, A. C., Junior, G. B., and
+Gattass,M.(2017). Texturebasedongeostatisticforglaucomadiagnosisfromfundus
+eyeimage. MultimediaToolsandApplications,pages1–18.
+Dorion,T.(2002). ManualdeExameDoFundodeOlho. Manolen.
+
+<!-- pagina 11 -->
+Eberhart, R. and Kennedy, J. (1995). A new optimizer using particle swarm theory. In
+Micro Machine and Human Science, 1995. MHS’95., Proceedings of the Sixth Inter-
+nationalSymposiumon,pages39–43.IEEE.
+Giger, M. L. and Suzuki, K. (2008). Computer-aided diagnosis. In Biomedical informa-
+tiontechnology,pages359–XXII.Elsevier.
+Gonzalez,R. C.E.,Woods, S.L.,Gonzalez, R.E.R. E.R.C., Woods,R.E., andEddins,
+S.L.(2004). DigitalimageprocessingusingMATLAB. Number04;TA1637,G6.
+Heikkila¨,M.,Pietika¨inen,M.,andSchmid,C.(2006). Descriptionofinterestregionswith
+center-symmetriclocalbinarypatterns. InICVGIP,volume6,pages58–69.Springer.
+Hering,E.(1880). ZurErkla¨rungderFarbenblindheitausderTheoriederGegenfarben,
+volume1. Tempsky.
+MarquesFilho,O.andNeto,H.V.(1999). Processamentodigitaldeimagens. Brasport.
+Nanni, L., Lumini, A., and Brahnam, S. (2012). Survey on lbp based texture descriptors
+forimageclassification. ExpertSystemswithApplications,39(3):3634–3641.
+Ojala,T.,Pietika¨inen,M.,andHarwood,D.(1996). Acomparativestudyoftexturemea-
+sureswithclassificationbasedonfeatureddistributions. Patternrecognition,29(1):51–
+59.
+Ramos Neto, G. M. (2016). Estudo de Variantes de Padro˜es Locais Bina´rios para o Di-
+agno´stico de Caˆncer de Mama. Monografia (Bacharel em Cieˆncia da Computac¸a˜o),
+UFMA(UniversidadeFederaldoMaranha˜o),Sa˜oLu´ıs,Brasil.
+Rivera, A. R., Castillo, J. A. R., and Chae, O. (2012). Recognition of face expressions
+using local principal texture pattern. In Image Processing (ICIP), 2012 19th IEEE
+InternationalConferenceon,pages2609–2612.IEEE.
+Sousa, J. A. d. (2017). Diagno´stico de glaucoma em retinografias utilizando func¸o˜es
+geoestat´ıstica. Dissertac¸a˜o (Mestrado) - Universidade Federal do Maranha˜o, Curso de
+Po´sGraduac¸a˜oemCieˆnciadaComputac¸a˜o,Sa˜oLu´ıs,MA.
+Spaeth, G. (1981). Appearances of the optic disc in glaucoma: a pathogenetic classifica-
+tion. InTransAcadOphthalmolSymposiumonGlaucoma.CVMosby,St.Louis.
+Taleb, A., Faria, M. A. R. d., A´vila, M., and Mello, P. (2012). As condic¸o˜es de sau´de
+ocularnobrasil–2012. ConselhoBrasileirodeOftalmologia.Sa˜oPaulo.
+Trucco, E., Ruggeri, A., Karnowski, T., Giancardo, L., Chaum, E., Hubschman, J. P.,
+Al-Diri, B., Cheung, C. Y., Wong, D., Abramoff, M., et al. (2013). Validating retinal
+fundusimageanalysisalgorithms: Issuesandaproposalvalidatingretinalfundusimage
+analysisalgorithms. Investigativeophthalmology&visualscience,54(5):3546–3559.
+Vapnik, V. N. (1999). An overview of statistical learning theory. IEEE transactions on
+neuralnetworks,10(5):988–999.

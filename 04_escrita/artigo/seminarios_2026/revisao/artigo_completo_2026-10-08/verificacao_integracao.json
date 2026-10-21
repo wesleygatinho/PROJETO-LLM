@@ -1,0 +1,243 @@
+{
+  "versao": 1,
+  "sha256": "8ee65a8fd09cb16c1e525863fcecf79136caa38940fba79e85e3693b7f6683b6",
+  "verificador": "Codex — conferência local de fontes, métricas e incorporação",
+  "escopo": "Conteúdo científico/editorial do manuscrito. Identificação, regras de extensão e compilação/diagramação são limitações externas explicitadas no fechamento; não se declara prontidão de submissão.",
+  "pendencias": [],
+  "checagens": [
+    {
+      "alegacao": "A avaliação de modelos de linguagem de código para detecção de vulnerabilidades exige distinguir o desempenho agregado de classificação da capacidade de reconhecer a diferença entre uma função vulnerável e sua versão corrigida. Em conjuntos nos quais as funções não vulneráveis predominam, a acurácia pode permanecer elevada mesmo quando poucas vulnerabilidades são identificadas. Além disso, uma medida agregada como F1 não explicita, isoladamente, o comportamento do detector sob uma restrição de falsos alarmes. Ding et al. (2024) discutem essas limitações e mostram que a composição dos dados e as condições de avaliação alteram a interpretação do desempenho dos modelos. Para essa tarefa, a questão não se restringe a classificar funções corretamente em média, mas envolve examinar quais erros ocorrem e em quais condições o modelo distingue a presença da vulnerabilidade.",
+      "fonte": "02_referencias/verificacao_introducao_seminarios_2026/primevul_pdf.txt",
+      "localizador": "páginas físicas 2 e 6; seção IV, avaliação",
+      "verificacao": "Conferido que as métricas agregadas, o desbalanceamento, os pares e a restrição de FPR são discutidos. O artigo não transfere os números de Ding ao bloco Qwen."
+    },
+    {
+      "alegacao": "O PrimeVul foi desenvolvido para investigar esse problema em funções C/C++ provenientes de projetos de código aberto. O conjunto combina procedimentos de rotulação, remoção de duplicatas e divisão temporal dos dados com diretrizes que complementam as métricas globais. Entre essas diretrizes estão a avaliação de pares rotulados como uma função vulnerável e sua versão corrigida e a análise da taxa de falsos negativos sob uma restrição de falsos positivos (Ding et al., 2024). A avaliação pareada é relevante porque pretende reunir versões de código semelhantes que diferem pela correção da vulnerabilidade e examina as decisões sobre ambas, tornando visíveis erros que uma avaliação agregada não descreve diretamente. A correspondência entre os membros requer conferência na release utilizada, como examinado neste estudo. As avaliações global e pareada oferecem, portanto, informações complementares sobre o comportamento do detector, embora não constituam, por si só, uma demonstração de compreensão semântica do código.",
+      "fonte": "02_referencias/verificacao_introducao_seminarios_2026/primevul_pdf.txt",
+      "localizador": "páginas 2–6; criação e avaliação do PrimeVul",
+      "verificacao": "C/C++, deduplicação, divisão temporal e diretrizes de avaliação; texto final qualifica a correspondência na release e não declara compreensão semântica."
+    },
+    {
+      "alegacao": "Essa cautela encontra respaldo em estudos sobre as limitações dos detectores aprendidos. Risse e Böhme (2024) observaram, nas técnicas e nos conjuntos avaliados, dificuldades em distinguir funções vulneráveis de suas correções e dependência de características sem relação com a vulnerabilidade, investigada por transformações que preservam a semântica. Huang et al. (2026) estenderam essa investigação a modelos de linguagem ajustados, incluindo Qwen2.5-Coder-7B-Instruct, por meio do TrapEval. Seu protocolo contrasta pares vulnerável/corrigida com exemplos vulneráveis associados a funções não vulneráveis sem correspondência, além de examinar perturbações e supervisão de raciocínio. Esses trabalhos justificam avaliar conjuntamente o desempenho global e o pareado, mas seus resultados não podem ser transferidos automaticamente a outras receitas, variantes de modelo ou condições de implantação.",
+      "fonte": "02_referencias/verificacao_introducao_seminarios_2026/risse_pdf.txt",
+      "localizador": "página física 2 e páginas 7–10; limitações e transformações",
+      "verificacao": "Conferidas dificuldades nas técnicas e conjuntos daquele trabalho; não universalizadas. A descrição de TrapEval também foi conferida em Huang, pp. 1–4 e 7–10, nas leituras primárias registradas."
+    },
+    {
+      "alegacao": "A análise dessas condições também envolve os recursos computacionais associados à adaptação e à inferência. A família Qwen2.5-Coder disponibiliza modelos especializados em código em diferentes escalas, entre elas as variantes de 3 e 7 bilhões de parâmetros utilizadas neste estudo (Hui et al., 2024). LoRA, ou adaptação de baixo posto, permite ajustar matrizes adicionais mantendo congelados os pesos pré-treinados (Hu et al., 2021). QLoRA combina essa adaptação com uma base quantizada em quatro bits e introduz o formato NormalFloat de quatro bits (NF4) para reduzir a memória necessária ao ajuste (Dettmers et al., 2023). Essas técnicas tornam pertinente examinar qualidade de classificação e recursos nas configurações disponíveis, sem pressupor que a redução de memória preserve o desempenho na detecção de vulnerabilidades ou produza o mesmo comportamento em diferentes formas de implantação.",
+      "fonte": "02_referencias/verificacao_introducao_seminarios_2026/qlora_pdf.txt",
+      "localizador": "pp. 1–4, seção 3; NF4, base congelada e adaptação",
+      "verificacao": "Escopo de memória/adaptação; não se transfere equivalência de tarefas. Qwen pp. 1,3–4,7–8 e LoRA pp. 1,4–5 conferidos no registro primário."
+    },
+    {
+      "alegacao": "LoRA representa uma atualização de pesos por matrizes de baixo posto. Para uma matriz pré-treinada W₀ de dimensões d × k, a atualização é representada por ΔW = BA, de modo que o peso adaptado é W₀ + BA, com posto r muito menor que o mínimo entre d e k; os pesos originais permanecem congelados e os parâmetros adicionais são ajustados à tarefa (Hu et al., 2021). QLoRA utiliza uma base congelada quantizada e adaptadores treináveis, distinguindo o formato de armazenamento do formato de computação. Dettmers et al. (2023) apresentam NF4 e a quantização dos próprios fatores de quantização para reduzir a memória associada aos pesos. Neste estudo, a adaptação empregou NF4 e computação BF16, mas o otimizador foi AdamW convencional: não se atribui à implementação local a adoção de todos os componentes do trabalho original, como otimizadores paginados.",
+      "fonte": "02_referencias/verificacao_introducao_seminarios_2026/lora_pdf.txt",
+      "localizador": "pp. 4–5, seção 4.1; W0+BA",
+      "verificacao": "Base congelada, matrizes de baixo posto. QLoRA distingue armazenamento e computação; implementação local AdamW convencional, conferida em 06_treinar_qlora.py:273–274."
+    },
+    {
+      "alegacao": "O posicionamento científico resulta de diferenças concretas de desenho. PrimeVul fornece dados e diretrizes de avaliação; Risse e Böhme (2024) investigam limitações de detectores aprendidos e a influência de características sem relação com a vulnerabilidade; Huang et al. (2026) examinam modelos ajustados no TrapEval, com conjuntos V2P/V2N de múltiplas fontes, perturbações e supervisão de raciocínio. O presente artigo caracteriza um bloco de execuções Qwen no teste do próprio PrimeVul, combinando scores classificatórios, seeds observadas e recursos registrados. Não executa o protocolo TrapEval, não compara diretamente números obtidos em diferentes benchmarks e não interpreta ordenação próxima de 50% como diagnóstico de Semantic Trap. O contraste com esses estudos orienta a cautela necessária à leitura dos resultados, sem sustentar uma reivindicação de pioneirismo.",
+      "fonte": "02_referencias/verificacao_introducao_seminarios_2026/huang_pdf.txt",
+      "localizador": "pp. 1–4 e 7–10; TrapEval, V2P/V2N, modelos",
+      "verificacao": "Protocolo e modelo Instruct conferidos; o estudo local não executa esses testes nem diagnostica Semantic Trap ou reivindica prioridade."
+    },
+    {
+      "alegacao": "Realizou-se uma consolidação retrospectiva dos experimentos existentes, com acesso prévio ao teste durante a investigação. O estudo, portanto, tem caráter exploratório. Foram incluídas quatro avaliações por prompting (3B e 7B Instruct, cada um no teste global e no pareado), três pilotos 3B e seis avaliações de três adaptadores 7B, cada um implantado em NF4 e BF16, além da referência de tamanho. Para os classificadores e a referência de tamanho, cada avaliação reúne seus respectivos splits. Linhas de depuração, a release v0.1 e execuções descartadas ficaram fora da análise principal. Nesta consolidação não foram realizados treinamento, inferência, recuperação de pesos ou novas medições em GPU; os cálculos utilizaram exclusivamente os registros disponíveis e processamento em CPU.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/manifesto.json",
+      "localizador": "execucoes; logs; treinos_oficiais",
+      "verificacao": "14 avaliações/33 arquivos; nove classificadores, quatro avaliações de prompting e referência de tamanho. A consolidação executada foi em CPU; não houve novas execuções de modelos."
+    },
+    {
+      "alegacao": "A release original foi recuperada da pasta pública indicada pelo repositório oficial do PrimeVul. O treino contém 184.427 funções, sendo 5.574 vulneráveis; a validação global contém 25.430, sendo 699 vulneráveis; o teste global contém 25.911, sendo 695 vulneráveis, aproximadamente 2,68%. Os arquivos pareados têm 4.354 pares de treino, 562 de validação e 564 de teste. Os hashes SHA-256 completos calculados nesta etapa coincidiram com os prefixos históricos de 12 caracteres disponíveis para treino, teste global e teste pareado. Essa correspondência reforça a rastreabilidade da recuperação; não transforma prefixos históricos em hashes completos que teriam sido gravados na execução.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/manifesto.json",
+      "localizador": "fontes/release e inventário",
+      "verificacao": "Contagens conferidas nos seis JSONL recuperados e registradas na auditoria; coincidência com prefixos históricos, sem alegação de hashes completos passados."
+    },
+    {
+      "alegacao": "Cada log foi alinhado à fonte por posição original, identificador idx, projeto, commit e rótulo. A ordem de processamento do prompting, registrada em i, não foi utilizada como identidade. Conferiram-se cobertura integral, unicidade de posições e ausência de divergências desses campos. O campo func_hash nulo não foi empregado como prova. Os pares foram reconstruídos pela ordem da release oficial, exigindo duas posições consecutivas, classes opostas e projeto/commit coincidentes, sem fallback por agrupamento arbitrário. O arquivo de teste reutiliza duas identidades de funções corrigidas em pares distintos; a validação pareada reutiliza uma identidade em cinco pares. Essas ocorrências correspondem ao mesmo código e foram documentadas, preservando a unidade posicional e os denominadores oficiais.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/auditoria_integridade.json",
+      "localizador": "identidade; reutilizações teste e validação",
+      "verificacao": "Alinhamento integral por posição/idx/projeto/commit/rótulo, sem divergências. Reutilizações oficiais conferidas por conteúdo, preservadas posicionalmente."
+    },
+    {
+      "alegacao": "A auditoria distinguiu identidade documental e correspondência de correção. Quinze pares de teste apresentam diferenças de cabeçalho ou assinatura. A inspeção focalizada dos diffs e, nos cinco casos suspeitos, dos arquivos e commits originais, identificou que a função rotulada como corrigida já existia antes do patch e não era a versão corrigida da função vulnerável: libjpeg (2022), PHP (2011), rizin (2022), Linux (2008) e drogon (2022). Os registros e as fontes primárias dessas decisões integram o suplemento. Mantiveram-se os 564 pares como referência do conjunto oficial e calculou-se uma sensibilidade que remove somente esses cinco pares, com 559 restantes. Não foram substituídas funções por contrapartes sem previsões, nem se certificou por essa inspeção a correção semântica de todos os pares restantes.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/inspecao_correspondencia_commits.json",
+      "localizador": "cinco registros; fontes.pai/commit; decisões",
+      "verificacao": "Arquivos primários antes/depois e diffs conferidos para os cinco pares. Membro benigno corresponde a outra função preexistente; não é prova de validade dos demais pares. Hashes das dez cópias primárias reconferidos."
+    },
+    {
+      "alegacao": "As avaliações por prompting utilizaram Qwen2.5-Coder-3B-Instruct e 7B-Instruct em FP16. A instrução solicitou uma única palavra, YES ou NO, para cada função, sem exemplos; a geração foi determinística, com até cinco novos tokens. O código foi limitado a 8.192 tokens nas rodadas incluídas, conforme os registros históricos. O parser aceita a primeira palavra reconhecida e, quando necessário, termos de decisão nos primeiros 60 caracteres; respostas indefinidas recebem rótulo não vulnerável e são contabilizadas. Os quatro logs incluídos não registraram respostas indefinidas. O texto integral da instrução e o parser permanecem no código histórico e no suplemento, permitindo avaliar essa política.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/manifesto.json",
+      "localizador": "quatro registros prompting, historico.observacoes e n_cortadas; logs",
+      "verificacao": "FP16 e parser conferidos no código 03; limite 8192 consta dos quatro registros históricos, com 76 truncadas no global e 38 no pareado, não inferido do default atual do script."
+    },
+    {
+      "alegacao": "Para os classificadores, utilizaram-se os modelos Base Qwen2.5-Coder-3B e 7B com uma cabeça de duas saídas. O escore de vulnerabilidade foi definido pela diferença entre o logit vulnerável e o não vulnerável. O ajuste empregou base NF4, dupla quantização, computação BF16 e cabeça em precisão plena. Aplicou-se LoRA às projeções de atenção q, k, v e o e às projeções gate, up e down, com r = 16, α = 32 e dropout de 0,05. A cabeça classificatória também foi treinada. O otimizador AdamW utilizou taxa inicial de 0,0002, weight decay zero, aquecimento de 3% dos passos e decaimento linear; o lote efetivo continha 16 funções, com divisão por orçamento de tokens, checkpointing de gradientes e corte da norma do gradiente em 1,0. A perda foi entropia cruzada, sem aumento do peso da classe vulnerável. Os demais argumentos, revisões e versões estão preservados nas receitas.",
+      "fonte": "03_experimentos/codigo/06_treinar_qlora.py",
+      "localizador": "argumentos 168–175; otimizador/agendamento 269–280; loop 300–340",
+      "verificacao": "Receitas históricas conferem lr0.0002/lote16/warmup0.03/r16/alpha32/dropout0.05; AdamW peso0, agendamento linear e treinamento da cabeça. NF4/double quant/compute BF16 conferidos em classificador.py."
+    },
+    {
+      "alegacao": "Todos os pilotos 3B utilizaram seed 1. A receita 1:1 sorteada reteve todas as funções vulneráveis e sorteou igual quantidade de funções não vulneráveis; a receita de proporção real utilizou todo o treino; a receita 1:1 com controle de tamanho escolheu, sem reutilização, funções não vulneráveis com comprimento tokenizado mais próximo ao de cada vulnerável. O comprimento considerado já estava limitado a 2.048 tokens. Esse controle procura reduzir diferenças de tamanho entre classes no treino, sem remover necessariamente outras características correlacionadas com os rótulos. O modelo 7B utilizou essa última receita nas seeds 1, 2 e 3. Como composição, número de exemplos, duração e repetições diferem entre receitas, essas comparações não isolam o efeito causal da escala ou da amostragem.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/manifesto.json",
+      "localizador": "treinos_oficiais; argumentos das receitas; seis rodadas",
+      "verificacao": "Composições, seeds e orçamentos conferidos. Pareamento por tamanho utiliza comprimentos limitados a 2048; código histórico confirma seleção sem reutilização. Comparação não causal."
+    },
+    {
+      "alegacao": "A seleção histórica de época utilizou ordenação estrita no pareado da validação e AUC como desempate. A checagem global por época empregou 699 vulneráveis e 2.796 não vulneráveis; essa amostra não é a validação global completa usada na calibração posterior. As épocas selecionadas estão na Tabela 1. A correção retrospectiva de 06/10 atribuiu meio crédito aos empates. Nos quatro treinos com controle de tamanho, os registros de empates por época permitiram reconstruir esse ajuste e a época selecionada permaneceu a mesma. Nos pilotos sem esse registro não foi possível conferir a seleção corrigida; mantiveram-se os checkpoints históricos, sem afirmar que a revisão seria inócua em todas as receitas.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/selecao_epocas.json",
+      "localizador": "seis rodadas; historica_estrita; ajustada_reconstruida; mesma",
+      "verificacao": "Seleção ajustada reconferível e mantida nas quatro rodadas com tamanho; duas sem registro de empates têm null e limite explícito. Subamostra da AUC por época não confundida com dev completo."
+    },
+    {
+      "alegacao": "Para cada checkpoint 7B selecionado, a avaliação NF4 manteve a base quantizada e o adaptador separado. A avaliação BF16 carregou a base em BF16 e mesclou o adaptador aos pesos. A comparação é feita dentro da mesma seed e época, mas envolve tanto a representação da base quanto a forma de incorporar o adaptador. Não se trata de um experimento que altera exclusivamente o número de bits.",
+      "fonte": "03_experimentos/codigo/07_avaliar_classificador.py",
+      "localizador": "carga e merge, linhas 113–123; variante e época",
+      "verificacao": "Mesmo checkpoint/seed em NF4 com adaptador e BF16 mesclada. Construção e representação diferem simultaneamente, impedindo isolamento causal de bits."
+    },
+    {
+      "alegacao": "Os classificadores e a referência de tamanho utilizaram contexto de 2.048 tokens, preservando o início da função. A referência atribui como escore o número de tokens visíveis após esse corte. A revisão histórica do tokenizer não foi registrada separadamente para o baseline; recuperou-se o artefato da revisão do modelo 3B registrada nos classificadores e verificou-se coincidência de todos os comprimentos do teste e do pareado com os logs. Os arquivos tokenizer.json das revisões recuperadas de 3B e 7B são idênticos. A validação do baseline foi recontada em CPU, e seus valores de calibração e teste reproduziram os números publicados.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/tokenizacao_proveniencia.json",
+      "localizador": "revisao_modelo_recuperada; historico; pares_tokens_identicos_2048; pares_ambos_nao_truncados",
+      "verificacao": "Tokenizer recuperado da revisão histórica, comprimentos/truncamentos confrontados aos logs; revisão própria do baseline ausente e explicitada. Tokenizers 3B/7B têm o mesmo hash."
+    },
+    {
+      "alegacao": "A regra classificatória é s > t. Foram mantidas duas calibrações distintas, ambas na validação global completa. Para F1, ordenaram-se os scores e escolheram-se cortes entre valores distintos, incluindo o grupo empatado acima do corte; em empate entre valores máximos de F1, a implementação escolhe o primeiro corte encontrado na ordem decrescente. Numericamente, o limiar fica no valor representável imediatamente inferior ao último score incluído. Para limitar falsos positivos no dev, o limiar foi o score da função não vulnerável que delimita o número máximo de alarmes, dado por piso de 0,005 vezes a quantidade dessa classe. A regra estrita exclui os scores empatados nesse limiar. Em ambos os casos, o limiar escolhido no dev foi aplicado sem recalibração ao teste global e ao pareado.",
+      "fonte": "03_experimentos/codigo/consolidacao_artigo/comum.py",
+      "localizador": "best_f1 e fpr_threshold, linhas 39–49; metrics",
+      "verificacao": "Score>limiar, agrupamento de empates no F1 e corte nextafter; seleção de restrição nos negativos do dev. Limiares aplicados sem recálculo no teste."
+    },
+    {
+      "alegacao": "No teste global, calcularam-se precisão, revocação, F1, taxa de falsos positivos (FPR) e área sob a curva ROC (AUC), quando havia scores. Também se calculou a taxa de falsos negativos (FNR) no limiar calibrado para FPR ≤ 0,5% no dev, acompanhada da FPR realmente observada no teste. Esse ponto não deve ser descrito como cumprimento da restrição no teste quando sua FPR ultrapassa 0,5%. O script oficial de VD-Score escolhe um ponto da curva ROC no conjunto fornecido e aplica uma regra inclusiva; o presente procedimento próprio separa calibração e teste e aplica s > t. Portanto, seus números não são tratados como reprodução direta do VD-Score oficial. Valores históricos de oráculo, com limiar escolhido no teste, não foram usados como resultados principais.",
+      "fonte": "03_experimentos/dados/artigo_seminarios_2026/fontes_publicas/calc_vd_score_oficial.py",
+      "localizador": "calc_vd_score, curva ROC e comparação inclusiva",
+      "verificacao": "Código oficial escolhe ponto no conjunto fornecido e usa >=. Procedimento local distinto usa calibração no dev e >; FPR de teste explicitamente relatada."
+    },
+    {
+      "alegacao": "No pareado, orientando primeiro a função rotulada como vulnerável, as decisões (1,0), (1,1), (0,0) e (0,1) definem P-C, P-V, P-B e P-R. As tabelas principais dos classificadores utilizam o limiar F1 do dev; as categorias históricas no limiar zero foram reconstruídas e preservadas no suplemento. Para prompting, permanece a decisão do parser. Essas categorias não devem ser confundidas com a ordenação contínua, definida por A_par = [Σ 1(s_v > s_c) + 0,5 Σ 1(s_v = s_c)]/N. A ordenação não depende do limiar e atribui meio crédito a empates nos scores disponíveis. Seu valor de referência 50% pressupõe simetria; não corresponde a uma prova ou a uma medida direta de compreensão semântica. Uma referência P-C de 25% exigiria decisões independentes e equiprováveis e não foi adotada como limiar universal.",
+      "fonte": "03_experimentos/codigo/consolidacao_artigo/02_consolidar_metricas.py",
+      "localizador": "pair categories e pair_value; política historico/dev_f1",
+      "verificacao": "Categorias P-C/P-V/P-B/P-R conferidas contra decisões, ordenação meio crédito independente de limiar. Referência de simetria não adotada como teste semântico."
+    },
+    {
+      "alegacao": "Os scores históricos foram gravados com cinco casas decimais. A reconstrução utilizou essa precisão disponível, sem criar casas internas ausentes ou ajustar epsilon ao resultado desejado. Os limiares derivados foram armazenados sem novo arredondamento. Contagens globais históricas, categorias pareadas no limiar original, AUC, F1 calibrado e FNR/FPR da calibração reproduziram os registros na precisão publicada. Essa coincidência não garante a recuperação da precisão interna de todas as operações; as novas categorias calibradas devem ser entendidas como resultados derivados dos logs disponíveis.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/divergencias.json",
+      "localizador": "lista vazia; verificação round4 na consolidação",
+      "verificacao": "Contagens, categorias históricas e métricas calibradas/AUC coincidiram na precisão publicada; logs têm cinco casas. Limite de precisão preservado."
+    },
+    {
+      "alegacao": "A variação entre seeds foi descrita por valores individuais, média e desvio padrão amostral das três execuções 7B, sem agregar pilotos 3B como repetições. A incerteza amostral da ordenação foi examinada por bootstrap percentil de 95%, com 10.000 réplicas e seed 20261008. Reamostraram-se os 550 grupos projeto/commit dos 564 pares, mantendo todas as funções de cada grupo e os mesmos índices entre variantes e seeds. Cada réplica estima a média ponderada pelos pares efetivamente reamostrados, preservando o vetor de resultados das três seeds. Assim, a média não representa um ensemble nem uma amostra triplicada. Calcularam-se intervalos por modelo, da média das seeds e das diferenças NF4 − BF16 dentro da seed e para a média. A análise é condicional aos modelos treinados e aos limiares observados, sob a hipótese de grupos de commit independentes/intercambiáveis; dependência entre commits do mesmo projeto continua possível. Uma reamostragem por par foi preservada como sensibilidade. A comparação dos endpoints entre 5.000 e 10.000 réplicas variou no máximo 0,10 ponto percentual por modelo, arredondada a duas casas. Não foram transportados p-valores das notas históricas nem realizados testes adicionais de hipótese.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/estatistica.json",
+      "localizador": "parametros; seeds_7b; comparacoes; por_execucao",
+      "verificacao": "10.000 réplicas, seed20261008,550grupos, alinhamento de variantes e seeds, pesos por pares. Média e DP descritivos; IC condicionado a modelos. Estabilidade max0.10448pp expressa 0.10pp."
+    },
+    {
+      "alegacao": "Para examinar truncamento, repetiu-se a ordenação nos 465 pares em que ambas as versões cabem em 2.048 tokens, mantendo as mesmas regras. Foram comparadas as sequências tokenizadas dos membros para distinguir igualdade de entrada e igualdade de score. A sensibilidade de correspondência removeu os cinco pares documentados; seu cruzamento com o recorte sem truncamento contém 460 pares. Esses recortes retrospectivos mudam a composição do teste e não certificam os pares restantes ou a generalização para funções longas.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/sensibilidade_truncamento.csv",
+      "localizador": "n_pares e ordenacao; recorte465",
+      "verificacao": "Denominador465 e política constante. Cruzamento com cinco exclusões resulta460, conferido em sensibilidade_correspondencia.csv; mudança composicional explicitada."
+    },
+    {
+      "alegacao": "Os recursos provêm das execuções históricas em NVIDIA A40, com PyTorch 2.8.0+cu128, CUDA 12.8, Transformers 5.17.0, tokenizers 0.23.2, PEFT 0.21.0 e bitsandbytes 0.50.2. Nos classificadores, a memória após carga é a memória CUDA alocada, em GB decimais. O pico foi reiniciado após carga/merge e observado na janela que abrange validação, teste e pareado; não inclui necessariamente o pico transitório do merge. O tempo amortizado do teste corresponde ao tempo de pontuação dividido pelo número de funções, em lotes limitados a 32.768 tokens, incluindo preenchimento. O custo computacional estimado usa tempo de pontuação do teste e preço histórico de US$ 0,50/h. Não representa memória total/reservada, latência individual, energia ou fatura real. Os tempos de prompting, obtidos por geração sequencial e em outro contexto, não foram comparados diretamente aos dos classificadores.",
+      "fonte": "03_experimentos/codigo/07_avaliar_classificador.py",
+      "localizador": "linhas 125–157; janela/reset/tempo e preço; manifesto historico",
+      "verificacao": "GPU/versões conferidos nos CSVs e receitas. Memória alocada e janela após carga/merge; tempo dividido por n_teste e custo histórico. Não é energia, faturamento ou latência individual."
+    },
+    {
+      "alegacao": "A junção dos 33 arquivos de previsão das 14 avaliações selecionadas com os splits oficiais não apresentou divergências de posição, idx, projeto, commit ou rótulo e manteve cobertura integral. A reconstrução não exigiu alterar CSVs ou registros históricos. O teste pareado tem 1.128 posições, mas 1.126 identidades idx distintas por causa das duas reutilizações oficiais documentadas. A distinção entre correspondência documental e correspondência de correção é relevante: os cinco casos confirmados pelos patches afetam a interpretação do pareado, embora não indiquem erro de alinhamento dos logs.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/auditoria_integridade.json",
+      "localizador": "identidade; arquivos de 14 avaliações",
+      "verificacao": "33arquivos alinhados, cobertura integral; 1128posições e1126idx distintos no pareado. Campos documentais conferidos sem certificar correspondência semântica."
+    },
+    {
+      "alegacao": "No prompting global, o 3B apresentou F1 de 0,119 e o 7B de 0,062. A maior revocação do 7B, 0,160 frente a 0,144, foi acompanhada de FPR de 11,00%, contra 3,49% no 3B, reduzindo a precisão. Nos pares, a categoria P-B concentrou 463 e 454 dos 564 casos, respectivamente; apenas 16 e 14 tiveram decisões P-C. Esses resultados descrevem a instrução e o parser utilizados, e não o desempenho de toda forma de prompting possível.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/metricas_por_execucao.csv",
+      "localizador": "duas linhas prompting teste; metricas_pareadas.csv prompting",
+      "verificacao": "Precisão, revocação, F1 e FPR reconferidos; categorias somam564. Escopo restrito à instrução/parser registrados."
+    },
+    {
+      "alegacao": "A referência de tamanho alcançou F1 de 0,200 e AUC de 0,810. Entre os pilotos 3B, a receita de proporção real apresentou o maior F1 global observado, 0,262, e AUC de 0,851; a receita 1:1 com controle de tamanho apresentou F1 de 0,121 e AUC de 0,746. Esse contraste é descritivo, pois número de exemplos, duração, composição e repetições diferem. Nas seis avaliações 7B, F1 variou entre 0,114 e 0,148 e AUC entre 0,726 e 0,765. Não houve predominância global consistente de NF4 ou BF16 entre as três seeds.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/metricas_por_execucao.csv",
+      "localizador": "dez linhas de classificadores/referência; f1/auc/precisao/recall",
+      "verificacao": "Valores das tabelas e faixas conferidos. F1 máximo3Breal e comparação não causal; tabelas verificadas integralmente por igualdade aos exports derivados."
+    },
+    {
+      "alegacao": "O limiar F1 e o limiar de restrição de falsos positivos expressam escolhas diferentes. Na receita 3B real, por exemplo, FNR foi 88,06% no limiar de FPR calibrado no dev, acompanhado de FPR de 0,65% no teste, acima da restrição nominal. No 7B, FNR variou de 97,99% a 98,71%; somente as avaliações da seed 2 tiveram FPR de teste inferior a 0,5%. A referência de tamanho resultou em FNR de 100% e FPR zero nesse ponto: seu limiar foi o teto de 2.048 tokens e, pela regra estrita, nenhum escore truncado o ultrapassou. Esse efeito não demonstra que comprimento seja incapaz de discriminar classes; sua AUC e seu F1 sob outra calibração mostram que as interpretações dependem da regra adotada.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/metricas_por_execucao.csv",
+      "localizador": "fnr_limiar_fpr_dev; fpr_teste_limiar_fpr_dev; limiar_fpr",
+      "verificacao": "FPR acima do nominal explicitada, somente seed2 7B abaixo. Baseline limiar2048 com regra estrita implica nenhum positivo. São pontos de decisão distintos."
+    },
+    {
+      "alegacao": "A ordenação da referência de tamanho foi 21,10%, embora sua AUC global tenha sido 0,810. O piloto 3B real, que apresentou o maior F1 global observado, ordenou 37,50% dos pares com meio crédito para empates. O piloto 3B com controle de tamanho atingiu 49,20%. No 7B, a ordenação variou de 45,04% a 55,23% em NF4 e de 44,68% a 53,28% em BF16. As decisões P-C no limiar F1 do dev permaneceram baixas: de cinco a oito pares nas seis avaliações. Uma ordem relativa favorável dos scores não implica que o limiar escolhido produza simultaneamente as duas decisões corretas.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/metricas_pareadas.csv",
+      "localizador": "politica dev_f1; ordenacao e P_C",
+      "verificacao": "Ordenação, empates e categorias conferidos para dezconfigurações; PC5–8 nos seis 7B. Ordenação não implica duas decisões corretas."
+    },
+    {
+      "alegacao": "A média de ordenação das três seeds foi 50,62% para NF4, com desvio padrão de 5,17 pontos percentuais, e 49,97% para BF16, com desvio padrão de 4,63 pontos. Os intervalos condicionais por grupo de commit são apresentados na Tabela 5. A diferença média NF4 − BF16 foi 0,65 ponto percentual, com intervalo de −1,22 a 2,54 pontos. Esse intervalo abrange diferenças em ambas as direções e não estabelece equivalência. A dispersão entre as seeds observadas é distinta dessa incerteza condicional do teste e não foi substituída pelo intervalo da média.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/estatistica.json",
+      "localizador": "seeds_7b; comparacoes última linha",
+      "verificacao": "NF4mean50.62SD5.17, BF16mean49.97SD4.63, diferença0.65ppIC[-1.22,2.54]. IC não comprova equivalência nem representa futuros treinamentos."
+    },
+    {
+      "alegacao": "Nos 465 pares sem truncamento, a ordenação NF4 foi 54,09%, 42,37% e 51,61%, nas seeds 1, 2 e 3; BF16 apresentou 51,94%, 41,94% e 52,04%. A retirada das funções truncadas reduziu principalmente os resultados da seed 2. A inspeção das entradas encontrou 32 pares com sequências idênticas após o corte, enquanto as seis avaliações 7B registraram de 32 a 40 empates de score. Portanto, parte dos empates corresponde a entradas idênticas, mas scores empatados não são, isoladamente, prova dessa identidade. A mudança de denominador também impede atribuir toda diferença da sensibilidade exclusivamente ao truncamento.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/tokenizacao_proveniencia.json",
+      "localizador": "pares_tokens_identicos_2048=32; pares_ambos_nao_truncados=465",
+      "verificacao": "Resultados por seed conferidos na sensibilidade e32sequências idênticas. Empates de score32–40; não inferir identidade apenas por empate ou isolar efeito causal do truncamento."
+    },
+    {
+      "alegacao": "Ao remover os cinco pares cuja correspondência não representa o patch da mesma função, a ordenação ficou entre 45,26% e 55,19% em NF4 e entre 44,90% e 53,22% em BF16. A maior alteração absoluta nos seis resultados 7B foi 0,22 ponto percentual, arredondada a duas casas. O padrão descritivo de variação entre seeds permaneceu, mas esse resultado não valida os outros 559 pares nem recupera avaliações das verdadeiras versões corrigidas. A tabela completa dos recortes 564/559/460 integra o suplemento.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/estatistica.json",
+      "localizador": "sensibilidade_cinco; linhas dos seis7B; variacao_pp",
+      "verificacao": "Faixas559 reconferidas; maior alteração0.2239308pp arredondada0.22. Não valida559pares nem recupera contrapartes semprevisões."
+    },
+    {
+      "alegacao": "NF4 registrou 4,63 GB alocados após carga e pico de 12,49 GB, contra 14,15 GB e 20,76 GB em BF16 mesclada. A redução observada após carga foi aproximadamente 67%, e a diferença dos picos correspondeu a cerca de 40%. Entretanto, o tempo amortizado de pontuação por função foi maior em NF4: 59,6–60,0 ms, frente a 46,8–47,1 ms em BF16. No mesmo preço histórico por hora, o custo computacional estimado de pontuação do teste acompanhou essa diferença de tempo.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/tabelas_artigo.md",
+      "localizador": "Tabela5 derivados: recursos; seislinhas7B",
+      "verificacao": "Memórias4.63/12.49vs14.15/20.76; redução67%apóscarga e40%picos; tempos59.6–60.0vs46.8–47.1ms e custos. Números descritivos, sem repetição independente de desempenho."
+    },
+    {
+      "alegacao": "A calibração também altera o objeto observado. No limiar histórico zero, as 564 decisões pareadas do piloto 3B real foram P-B. No teste global, seu F1 foi 0,262 no limiar reconstruído da validação. Nos modelos com controle de tamanho, a adoção do limiar F1 reduz a frequência de decisões positivas e modifica as categorias pareadas, sem alterar a ordenação dos scores. Relatar apenas F1 no limiar zero ou apenas ordenação excluiria parte relevante dessa relação. Sob a política de poucos falsos alarmes calibrada no dev, as altas taxas de falsos negativos e a extrapolação da FPR no teste explicitam outra limitação das configurações examinadas.",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/metricas_pareadas.csv",
+      "localizador": "3Breal politica historico, P_B564",
+      "verificacao": "Discussão corrigida limita afirmação zero ao pareado; F1global0.262 fica separado. As demais sínteses da discussão e conclusão correspondem às checagens numéricas anteriores e mantêm limitações."
+    },
+    {
+      "alegacao": "| Configuração | Vulneráveis | Benignas | Épocas | Selecionada | Treino (h) | Custo total (US$) |\n| --- | --- | --- | --- | --- | --- | --- |\n| 3B 1:1 | 5574 | 5574 | 3 | 1 | 3,37 | 1,85 |\n| 3B real | 5574 | 178853 | 1 | 1 | 10,16 | 5,14 |\n| 3B 1:1 tamanho | 5574 | 5574 | 3 | 3 | 4,98 | 2,65 |\n| 7B 1:1 tamanho s1 | 5574 | 5574 | 3 | 3 | 7,89 | 4,21 |\n| 7B 1:1 tamanho s2 | 5574 | 5574 | 3 | 2 | 7,89 | 4,21 |\n| 7B 1:1 tamanho s3 | 5574 | 5574 | 3 | 3 | 7,91 | 4,23 |",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/tabelas_artigo.md",
+      "localizador": "tabela derivada T1_configuracoes.md",
+      "verificacao": "Cada célula coincide com a tabela gerada diretamente dos CSVs/JSONs já conferidos. Numeração no artigo ajustada pela aparição; identificadores de arquivos preservados."
+    },
+    {
+      "alegacao": "| Modelo | F1 | Precisão | Revocação | FPR (%) | P-C | P-V | P-B | P-R |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| Prompt 3B | 0,119 | 0,102 | 0,144 | 3,49 | 16 | 67 | 463 | 18 |\n| Prompt 7B | 0,062 | 0,038 | 0,160 | 11,00 | 14 | 78 | 454 | 18 |",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/tabelas_artigo.md",
+      "localizador": "tabela derivada T2_prompting.md",
+      "verificacao": "Cada célula coincide com a tabela gerada diretamente dos CSVs/JSONs já conferidos. Numeração no artigo ajustada pela aparição; identificadores de arquivos preservados."
+    },
+    {
+      "alegacao": "| Configuração | F1 | Precisão | Revocação | FPR (%) | AUC | FNR* (%) | FPR* (%) |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| Tamanho | 0,200 | 0,152 | 0,294 | 4,53 | 0,810 | 100,00 | 0,00 |\n| 3B 1:1 | 0,195 | 0,142 | 0,312 | 5,19 | 0,795 | 94,10 | 0,54 |\n| 3B real | 0,262 | 0,200 | 0,380 | 4,19 | 0,851 | 88,06 | 0,65 |\n| 3B 1:1 tamanho | 0,121 | 0,083 | 0,224 | 6,86 | 0,746 | 96,26 | 0,63 |\n| 7B NF4 s1 | 0,114 | 0,077 | 0,222 | 7,36 | 0,738 | 97,99 | 0,69 |\n| 7B BF16 s1 | 0,119 | 0,081 | 0,229 | 7,19 | 0,740 | 98,13 | 0,67 |\n| 7B NF4 s2 | 0,142 | 0,103 | 0,229 | 5,47 | 0,726 | 98,71 | 0,38 |\n| 7B BF16 s2 | 0,148 | 0,115 | 0,207 | 4,41 | 0,728 | 98,71 | 0,38 |\n| 7B NF4 s3 | 0,127 | 0,084 | 0,258 | 7,75 | 0,765 | 98,27 | 0,56 |\n| 7B BF16 s3 | 0,124 | 0,087 | 0,220 | 6,39 | 0,765 | 98,27 | 0,52 |",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/tabelas_artigo.md",
+      "localizador": "tabela derivada T3_global.md",
+      "verificacao": "Cada célula coincide com a tabela gerada diretamente dos CSVs/JSONs já conferidos. Numeração no artigo ajustada pela aparição; identificadores de arquivos preservados."
+    },
+    {
+      "alegacao": "| Configuração | P-C | P-V | P-B | P-R | Empates | Ord. 564 (%) | Ord. 465 (%) |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| Tamanho | 2 | 156 | 398 | 8 | 124 | 21,10 | 15,16 |\n| 3B 1:1 | 13 | 155 | 372 | 24 | 52 | 42,38 | 39,03 |\n| 3B real | 6 | 200 | 344 | 14 | 43 | 37,50 | 34,09 |\n| 3B 1:1 tamanho | 6 | 120 | 422 | 16 | 37 | 49,20 | 48,71 |\n| 7B NF4 s1 | 7 | 116 | 435 | 6 | 39 | 55,23 | 54,09 |\n| 7B BF16 s1 | 6 | 125 | 425 | 8 | 39 | 53,28 | 51,94 |\n| 7B NF4 s2 | 5 | 128 | 423 | 8 | 40 | 45,04 | 42,37 |\n| 7B BF16 s2 | 7 | 113 | 434 | 10 | 34 | 44,68 | 41,94 |\n| 7B NF4 s3 | 6 | 134 | 412 | 12 | 32 | 51,60 | 51,61 |\n| 7B BF16 s3 | 8 | 113 | 434 | 9 | 32 | 51,95 | 52,04 |",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/tabelas_artigo.md",
+      "localizador": "tabela derivada T4_pareado.md",
+      "verificacao": "Cada célula coincide com a tabela gerada diretamente dos CSVs/JSONs já conferidos. Numeração no artigo ajustada pela aparição; identificadores de arquivos preservados."
+    },
+    {
+      "alegacao": "| Medida | Estimativa (%) ou p.p. | DP seeds (p.p.) | IC95% inferior | IC95% superior |\n| --- | --- | --- | --- | --- |\n| NF4 | 50,62 | 5,17 | 47,92 | 53,33 |\n| BF16 | 49,97 | 4,63 | 47,14 | 52,73 |\n| NF4 − BF16 (p.p.) | 0,65 | — | -1,22 | 2,54 |",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/tabelas_artigo.md",
+      "localizador": "tabela derivada T6_incerteza.md",
+      "verificacao": "Cada célula coincide com a tabela gerada diretamente dos CSVs/JSONs já conferidos. Numeração no artigo ajustada pela aparição; identificadores de arquivos preservados."
+    },
+    {
+      "alegacao": "| Configuração | Após carga (GB) | Pico (GB) | Tempo/função (ms) | Custo teste (US$) |\n| --- | --- | --- | --- | --- |\n| 7B NF4 s1 | 4,63 | 12,49 | 59,6 | 0,2145 |\n| 7B BF16 s1 | 14,15 | 20,76 | 46,8 | 0,1684 |\n| 7B NF4 s2 | 4,63 | 12,49 | 59,8 | 0,2152 |\n| 7B BF16 s2 | 14,15 | 20,76 | 46,9 | 0,1687 |\n| 7B NF4 s3 | 4,63 | 12,49 | 60,0 | 0,2160 |\n| 7B BF16 s3 | 14,15 | 20,76 | 47,1 | 0,1696 |",
+      "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/tabelas_artigo.md",
+      "localizador": "tabela derivada T5_recursos.md",
+      "verificacao": "Cada célula coincide com a tabela gerada diretamente dos CSVs/JSONs já conferidos. Numeração no artigo ajustada pela aparição; identificadores de arquivos preservados."
+    }
+  ]
+}

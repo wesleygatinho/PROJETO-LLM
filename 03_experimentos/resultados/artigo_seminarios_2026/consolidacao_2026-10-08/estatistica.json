@@ -1,0 +1,274 @@
+{
+  "parametros": {
+    "replicas": 10000,
+    "seed": 20261008,
+    "metodo": "Bootstrap percentil, quantis 0.025 e 0.975; primário por project+commit, sensibilidade por par",
+    "grupos_commit": 550,
+    "n_pares": 564,
+    "n_projetos": 200,
+    "grupo_maximo_pares": 3,
+    "hipotese": "Grupos de commit intercambiáveis/independentes; possível dependência entre commits do mesmo projeto não eliminada",
+    "condicional": "Modelos já treinados, três seeds observadas, limiares fixos. Não representa variabilidade de futuros treinos.",
+    "pareado_e_global_nao_independentes": true,
+    "p_valores": "Não calculados nem usados; p-valores históricos não transportados",
+    "estabilidade_endpoint_max": 0.0010448182744481338
+  },
+  "por_execucao": [
+    {
+      "id": "baseline_tamanho_tokens_20260924_012407",
+      "rotulo": "Tamanho",
+      "ordenacao": 0.21099290780141844,
+      "ic95_inferior_commit": 0.18374423736970757,
+      "ic95_superior_commit": 0.2393617021276596,
+      "ic95_inferior_par": 0.18351063829787234,
+      "ic95_superior_par": 0.23847517730496454,
+      "variacao_endpoint_5000_10000": 0.00047019578637313986
+    },
+    {
+      "id": "etapa3_aval_nf4_20260929_065623",
+      "rotulo": "3B 1:1 nf4 s1",
+      "ordenacao": 0.4237588652482269,
+      "ic95_inferior_commit": 0.3858407079646018,
+      "ic95_superior_commit": 0.4633518371353777,
+      "ic95_inferior_par": 0.38563829787234044,
+      "ic95_superior_par": 0.46187943262411346,
+      "variacao_endpoint_5000_10000": 0.0009565518636728276
+    },
+    {
+      "id": "etapa3_aval_nf4_20260929_072628",
+      "rotulo": "3B real nf4 s1",
+      "ordenacao": 0.375,
+      "ic95_inferior_commit": 0.3359784878863826,
+      "ic95_superior_commit": 0.4137018507844218,
+      "ic95_inferior_par": 0.33599290780141844,
+      "ic95_superior_par": 0.41400709219858156,
+      "variacao_endpoint_5000_10000": 0.0010448182744481338
+    },
+    {
+      "id": "etapa3_aval_nf4_20261004_185414",
+      "rotulo": "3B 1:1 tamanho nf4 s1",
+      "ordenacao": 0.4920212765957447,
+      "ic95_inferior_commit": 0.45089285714285715,
+      "ic95_superior_commit": 0.5337477797513321,
+      "ic95_inferior_par": 0.4512411347517731,
+      "ic95_superior_par": 0.5328014184397163,
+      "variacao_endpoint_5000_10000": 0.00018230905521010587
+    },
+    {
+      "id": "etapa3_aval_nf4_20261005_035114",
+      "rotulo": "7B 1:1 tamanho nf4 s1",
+      "ordenacao": 0.5523049645390071,
+      "ic95_inferior_commit": 0.5124777183600713,
+      "ic95_superior_commit": 0.5910683794095571,
+      "ic95_inferior_par": 0.5132978723404256,
+      "ic95_superior_par": 0.5913120567375887,
+      "variacao_endpoint_5000_10000": 0.000731977096681713
+    },
+    {
+      "id": "etapa3_aval_bf16_20261005_044536",
+      "rotulo": "7B 1:1 tamanho bf16 s1",
+      "ordenacao": 0.5328014184397163,
+      "ic95_inferior_commit": 0.4919925257388624,
+      "ic95_superior_commit": 0.5725667285184127,
+      "ic95_inferior_par": 0.49379432624113473,
+      "ic95_superior_par": 0.5726950354609929,
+      "variacao_endpoint_5000_10000": 0.0006213129599126344
+    },
+    {
+      "id": "etapa3_aval_nf4_20261005_135446",
+      "rotulo": "7B 1:1 tamanho nf4 s2",
+      "ordenacao": 0.450354609929078,
+      "ic95_inferior_commit": 0.41160593101075804,
+      "ic95_superior_commit": 0.4894179894179894,
+      "ic95_inferior_par": 0.41134751773049644,
+      "ic95_superior_par": 0.48936170212765956,
+      "variacao_endpoint_5000_10000": 0.0008302375323652189
+    },
+    {
+      "id": "etapa3_aval_bf16_20261005_144918",
+      "rotulo": "7B 1:1 tamanho bf16 s2",
+      "ordenacao": 0.44680851063829785,
+      "ic95_inferior_commit": 0.40757042253521125,
+      "ic95_superior_commit": 0.4866785079928952,
+      "ic95_inferior_par": 0.40691489361702127,
+      "ic95_superior_par": 0.4867021276595745,
+      "variacao_endpoint_5000_10000": 0.0002636586796530005
+    },
+    {
+      "id": "etapa3_aval_nf4_20261006_000016",
+      "rotulo": "7B 1:1 tamanho nf4 s3",
+      "ordenacao": 0.5159574468085106,
+      "ic95_inferior_commit": 0.475177304964539,
+      "ic95_superior_commit": 0.5570435446906035,
+      "ic95_inferior_par": 0.475177304964539,
+      "ic95_superior_par": 0.5549645390070922,
+      "variacao_endpoint_5000_10000": 0.0003794907388970925
+    },
+    {
+      "id": "etapa3_aval_bf16_20261006_005502",
+      "rotulo": "7B 1:1 tamanho bf16 s3",
+      "ordenacao": 0.5195035460992907,
+      "ic95_inferior_commit": 0.47941738494064073,
+      "ic95_superior_commit": 0.5595452117066139,
+      "ic95_inferior_par": 0.4787234042553192,
+      "ic95_superior_par": 0.5585106382978723,
+      "variacao_endpoint_5000_10000": 0.0008459563692121419
+    }
+  ],
+  "seeds_7b": [
+    {
+      "variante": "nf4",
+      "seeds": [
+        1,
+        2,
+        3
+      ],
+      "media": 0.5062056737588653,
+      "desvio_padrao_seeds": 0.05167002525141068,
+      "minimo": 0.450354609929078,
+      "maximo": 0.5523049645390071,
+      "ic95_media_inferior_commit": 0.4791666666666667,
+      "ic95_media_superior_commit": 0.5333333333333333,
+      "ic95_media_inferior_par": 0.4793144208037825,
+      "ic95_media_superior_par": 0.5325059101654847
+    },
+    {
+      "variante": "bf16",
+      "seeds": [
+        1,
+        2,
+        3
+      ],
+      "media": 0.4997044917257683,
+      "desvio_padrao_seeds": 0.046289274822577275,
+      "minimo": 0.44680851063829785,
+      "maximo": 0.5328014184397163,
+      "ic95_media_inferior_commit": 0.4714277374697689,
+      "ic95_media_superior_commit": 0.5273346820626883,
+      "ic95_media_inferior_par": 0.47222222222222227,
+      "ic95_media_superior_par": 0.5268986406619385
+    }
+  ],
+  "comparacoes": [
+    {
+      "comparacao": "NF4 - BF16",
+      "seed": 1,
+      "diferenca": 0.01950354609929078,
+      "ic95_inferior_commit": -0.013274336283185861,
+      "ic95_superior_commit": 0.05193661971830987
+    },
+    {
+      "comparacao": "NF4 - BF16",
+      "seed": 2,
+      "diferenca": 0.0035460992907801418,
+      "ic95_inferior_commit": -0.025709219858155996,
+      "ic95_superior_commit": 0.033097782973570994
+    },
+    {
+      "comparacao": "NF4 - BF16",
+      "seed": 3,
+      "diferenca": -0.0035460992907801418,
+      "ic95_inferior_commit": -0.03454983661605669,
+      "ic95_superior_commit": 0.02817150251331313
+    },
+    {
+      "comparacao": "NF4 - BF16 média das três seeds",
+      "seed": null,
+      "diferenca": 0.0065011820330969266,
+      "ic95_inferior_commit": -0.012159497952097953,
+      "ic95_superior_commit": 0.025368731563421787
+    }
+  ],
+  "sensibilidade_cinco": [
+    {
+      "id": "baseline_tamanho_tokens_20260924_012407",
+      "rotulo": "Tamanho",
+      "n_pares": 559,
+      "ordenacao_sem_cinco": 0.20572450805008943,
+      "variacao_pp": -0.5268399751329006,
+      "ordenacao_sem_cinco_sem_truncamento": 0.14456521739130435,
+      "n_sem_cinco_sem_truncamento": 460
+    },
+    {
+      "id": "etapa3_aval_nf4_20260929_065623",
+      "rotulo": "3B 1:1 nf4 s1",
+      "n_pares": 559,
+      "ordenacao_sem_cinco": 0.42397137745974955,
+      "variacao_pp": 0.021251221152263078,
+      "ordenacao_sem_cinco_sem_truncamento": 0.39021739130434785,
+      "n_sem_cinco_sem_truncamento": 460
+    },
+    {
+      "id": "etapa3_aval_nf4_20260929_072628",
+      "rotulo": "3B real nf4 s1",
+      "n_pares": 559,
+      "ordenacao_sem_cinco": 0.37298747763864043,
+      "variacao_pp": -0.201252236135957,
+      "ordenacao_sem_cinco_sem_truncamento": 0.33804347826086956,
+      "n_sem_cinco_sem_truncamento": 460
+    },
+    {
+      "id": "etapa3_aval_nf4_20261004_185414",
+      "rotulo": "3B 1:1 tamanho nf4 s1",
+      "n_pares": 559,
+      "ordenacao_sem_cinco": 0.49016100178890876,
+      "variacao_pp": -0.18602748068359265,
+      "ordenacao_sem_cinco_sem_truncamento": 0.48478260869565215,
+      "n_sem_cinco_sem_truncamento": 460
+    },
+    {
+      "id": "etapa3_aval_nf4_20261005_035114",
+      "rotulo": "7B 1:1 tamanho nf4 s1",
+      "n_pares": 559,
+      "ordenacao_sem_cinco": 0.5518783542039356,
+      "variacao_pp": -0.042661033507152,
+      "ordenacao_sem_cinco_sem_truncamento": 0.5402173913043479,
+      "n_sem_cinco_sem_truncamento": 460
+    },
+    {
+      "id": "etapa3_aval_bf16_20261005_044536",
+      "rotulo": "7B 1:1 tamanho bf16 s1",
+      "n_pares": 559,
+      "ordenacao_sem_cinco": 0.5322003577817531,
+      "variacao_pp": -0.060106065796317054,
+      "ordenacao_sem_cinco_sem_truncamento": 0.5184782608695652,
+      "n_sem_cinco_sem_truncamento": 460
+    },
+    {
+      "id": "etapa3_aval_nf4_20261005_135446",
+      "rotulo": "7B 1:1 tamanho nf4 s2",
+      "n_pares": 559,
+      "ordenacao_sem_cinco": 0.4525939177101968,
+      "variacao_pp": 0.22393077811188045,
+      "ordenacao_sem_cinco_sem_truncamento": 0.4260869565217391,
+      "n_sem_cinco_sem_truncamento": 460
+    },
+    {
+      "id": "etapa3_aval_bf16_20261005_144918",
+      "rotulo": "7B 1:1 tamanho bf16 s2",
+      "n_pares": 559,
+      "ordenacao_sem_cinco": 0.4490161001788909,
+      "variacao_pp": 0.22075895405930246,
+      "ordenacao_sem_cinco_sem_truncamento": 0.4217391304347826,
+      "n_sem_cinco_sem_truncamento": 460
+    },
+    {
+      "id": "etapa3_aval_nf4_20261006_000016",
+      "rotulo": "7B 1:1 tamanho nf4 s3",
+      "n_pares": 559,
+      "ordenacao_sem_cinco": 0.5152057245080501,
+      "variacao_pp": -0.07517223004605,
+      "ordenacao_sem_cinco_sem_truncamento": 0.5152173913043478,
+      "n_sem_cinco_sem_truncamento": 460
+    },
+    {
+      "id": "etapa3_aval_bf16_20261006_005502",
+      "rotulo": "7B 1:1 tamanho bf16 s3",
+      "n_pares": 559,
+      "ordenacao_sem_cinco": 0.518783542039356,
+      "variacao_pp": -0.07200040599347757,
+      "ordenacao_sem_cinco_sem_truncamento": 0.5195652173913043,
+      "n_sem_cinco_sem_truncamento": 460
+    }
+  ]
+}

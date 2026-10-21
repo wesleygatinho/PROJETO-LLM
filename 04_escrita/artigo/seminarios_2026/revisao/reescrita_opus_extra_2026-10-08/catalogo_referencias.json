@@ -1,0 +1,120 @@
+{
+  "ding2024primevul": {
+    "tipo": "misc",
+    "author": "Ding, Yangruibo and Fu, Yanjun and Ibrahim, Omniyyah and Sitawarin, Chawin and Chen, Xinyun and Alomair, Basel and Wagner, David and Ray, Baishakhi and Chen, Yizheng",
+    "title": "Vulnerability Detection with Code Language Models: How Far Are We?",
+    "year": "2024",
+    "howpublished": "arXiv:2403.18624v2",
+    "doi": "10.48550/arXiv.2403.18624",
+    "url": "https://arxiv.org/abs/2403.18624v2",
+    "note": "Preprint, versão 2, 10 de julho de 2024",
+    "autores_citacao": "Ding et al.",
+    "referencia": "Ding, Yangruibo; Fu, Yanjun; Ibrahim, Omniyyah; Sitawarin, Chawin; Chen, Xinyun; Alomair, Basel; Wagner, David; Ray, Baishakhi; Chen, Yizheng (2024). Vulnerability Detection with Code Language Models: How Far Are We?. arXiv:2403.18624v2. DOI: 10.48550/arXiv.2403.18624."
+  },
+  "risse2024limits": {
+    "tipo": "inproceedings",
+    "author": "Risse, Niklas and Böhme, Marcel",
+    "title": "Uncovering the Limits of Machine Learning for Automatic Vulnerability Detection",
+    "booktitle": "33rd USENIX Security Symposium (USENIX Security 24)",
+    "year": "2024",
+    "pages": "4247--4264",
+    "address": "Philadelphia, PA",
+    "publisher": "USENIX Association",
+    "isbn": "978-1-939133-44-1",
+    "url": "https://www.usenix.org/conference/usenixsecurity24/presentation/risse",
+    "autores_citacao": "Risse e Böhme",
+    "referencia": "Risse, Niklas; Böhme, Marcel (2024). Uncovering the Limits of Machine Learning for Automatic Vulnerability Detection. 33rd USENIX Security Symposium (USENIX Security 24). p. 4247–4264."
+  },
+  "huang2026trap": {
+    "tipo": "misc",
+    "author": "Huang, Feiyang and Sun, Yuqiang and Zhang, Fan and Yang, Ziqi and Liu, Han and Liu, Yang",
+    "title": "Do Fine-Tuned LLMs Understand Vulnerabilities? An Investigation into the Semantic Trap",
+    "year": "2026",
+    "howpublished": "arXiv:2601.22655v3",
+    "doi": "10.48550/arXiv.2601.22655",
+    "url": "https://arxiv.org/abs/2601.22655v3",
+    "note": "Preprint, versão 3, 21 de maio de 2026",
+    "autores_citacao": "Huang et al.",
+    "referencia": "Huang, Feiyang; Sun, Yuqiang; Zhang, Fan; Yang, Ziqi; Liu, Han; Liu, Yang (2026). Do Fine-Tuned LLMs Understand Vulnerabilities? An Investigation into the Semantic Trap. arXiv:2601.22655v3. DOI: 10.48550/arXiv.2601.22655."
+  },
+  "hui2024qwen": {
+    "tipo": "misc",
+    "author": "Hui, Binyuan and Yang, Jian and Cui, Zeyu and Yang, Jiaxi and Liu, Dayiheng and Zhang, Lei and Liu, Tianyu and Zhang, Jiajun and Yu, Bowen and Lu, Keming and Dang, Kai and Fan, Yang and Zhang, Yichang and Yang, An and Men, Rui and Huang, Fei and Zheng, Bo and Miao, Yibo and Quan, Shanghaoran and Feng, Yunlong and Ren, Xingzhang and Ren, Xuancheng and Zhou, Jingren and Lin, Junyang",
+    "title": "Qwen2.5-Coder Technical Report",
+    "year": "2024",
+    "howpublished": "arXiv:2409.12186v3",
+    "doi": "10.48550/arXiv.2409.12186",
+    "url": "https://arxiv.org/abs/2409.12186v3",
+    "note": "Relatório técnico, versão 3, 12 de novembro de 2024",
+    "autores_citacao": "Hui et al.",
+    "referencia": "Hui, Binyuan; Yang, Jian; Cui, Zeyu; Yang, Jiaxi; Liu, Dayiheng; Zhang, Lei; Liu, Tianyu; Zhang, Jiajun; Yu, Bowen; Lu, Keming; Dang, Kai; Fan, Yang; Zhang, Yichang; Yang, An; Men, Rui; Huang, Fei; Zheng, Bo; Miao, Yibo; Quan, Shanghaoran; Feng, Yunlong; Ren, Xingzhang; Ren, Xuancheng; Zhou, Jingren; Lin, Junyang (2024). Qwen2.5-Coder Technical Report. arXiv:2409.12186v3. DOI: 10.48550/arXiv.2409.12186."
+  },
+  "hu2021lora": {
+    "tipo": "misc",
+    "author": "Hu, Edward J. and Shen, Yelong and Wallis, Phillip and Allen-Zhu, Zeyuan and Li, Yuanzhi and Wang, Shean and Wang, Lu and Chen, Weizhu",
+    "title": "LoRA: Low-Rank Adaptation of Large Language Models",
+    "year": "2021",
+    "howpublished": "arXiv:2106.09685v2",
+    "doi": "10.48550/arXiv.2106.09685",
+    "url": "https://arxiv.org/abs/2106.09685v2",
+    "note": "Preprint, versão 2, 16 de outubro de 2021",
+    "autores_citacao": "Hu et al.",
+    "referencia": "Hu, Edward J.; Shen, Yelong; Wallis, Phillip; Allen-Zhu, Zeyuan; Li, Yuanzhi; Wang, Shean; Wang, Lu; Chen, Weizhu (2021). LoRA: Low-Rank Adaptation of Large Language Models. arXiv:2106.09685v2. DOI: 10.48550/arXiv.2106.09685."
+  },
+  "dettmers2023qlora": {
+    "tipo": "misc",
+    "author": "Dettmers, Tim and Pagnoni, Artidoro and Holtzman, Ari and Zettlemoyer, Luke",
+    "title": "QLoRA: Efficient Finetuning of Quantized LLMs",
+    "year": "2023",
+    "howpublished": "arXiv:2305.14314v1",
+    "doi": "10.48550/arXiv.2305.14314",
+    "url": "https://arxiv.org/abs/2305.14314v1",
+    "note": "Preprint, versão 1, 23 de maio de 2023",
+    "autores_citacao": "Dettmers et al.",
+    "referencia": "Dettmers, Tim; Pagnoni, Artidoro; Holtzman, Ari; Zettlemoyer, Luke (2023). QLoRA: Efficient Finetuning of Quantized LLMs. arXiv:2305.14314v1. DOI: 10.48550/arXiv.2305.14314."
+  },
+  "chen2023diversevul": {
+    "tipo": "inproceedings",
+    "author": "Chen, Yizheng and Ding, Zhoujie and Alowain, Lamya and Chen, Xinyun and Wagner, David",
+    "title": "DiverseVul: A New Vulnerable Source Code Dataset for Deep Learning Based Vulnerability Detection",
+    "booktitle": "26th International Symposium on Research in Attacks, Intrusions and Defenses (RAID 2023)",
+    "year": "2023",
+    "doi": "10.1145/3607199.3607242",
+    "note": "PDF primário local, arXiv:2304.00409v2, 9 de agosto de 2023",
+    "autores_citacao": "Chen et al.",
+    "referencia": "Chen, Yizheng; Ding, Zhoujie; Alowain, Lamya; Chen, Xinyun; Wagner, David (2023). DiverseVul: A New Vulnerable Source Code Dataset for Deep Learning Based Vulnerability Detection. 26th International Symposium on Research in Attacks, Intrusions and Defenses (RAID 2023). DOI: 10.1145/3607199.3607242."
+  },
+  "fu2022linevul": {
+    "tipo": "inproceedings",
+    "author": "Fu, Michael and Tantithamthavorn, Chakkrit",
+    "title": "LineVul: A Transformer-based Line-Level Vulnerability Prediction",
+    "booktitle": "19th International Conference on Mining Software Repositories (MSR 2022)",
+    "year": "2022",
+    "pages": "608--620",
+    "doi": "10.1145/3524842.3528452",
+    "autores_citacao": "Fu e Tantithamthavorn",
+    "referencia": "Fu, Michael; Tantithamthavorn, Chakkrit (2022). LineVul: A Transformer-based Line-Level Vulnerability Prediction. 19th International Conference on Mining Software Repositories (MSR 2022). p. 608–620. DOI: 10.1145/3524842.3528452."
+  },
+  "chakraborty2020reveal": {
+    "tipo": "misc",
+    "author": "Chakraborty, Saikat and Krishna, Rahul and Ding, Yangruibo and Ray, Baishakhi",
+    "title": "Deep Learning based Vulnerability Detection: Are We There Yet?",
+    "year": "2020",
+    "howpublished": "arXiv:2009.07235",
+    "doi": "10.48550/arXiv.2009.07235",
+    "note": "Preprint de 2020 correspondente à fonte lida; não identificado como edição TSE de 2022",
+    "autores_citacao": "Chakraborty et al.",
+    "referencia": "Chakraborty, Saikat; Krishna, Rahul; Ding, Yangruibo; Ray, Baishakhi (2020). Deep Learning based Vulnerability Detection: Are We There Yet?. arXiv:2009.07235. DOI: 10.48550/arXiv.2009.07235."
+  },
+  "zhou2019devign": {
+    "tipo": "inproceedings",
+    "author": "Zhou, Yaqin and Liu, Shangqing and Siow, Jingkai and Du, Xiaoning and Liu, Yang",
+    "title": "Devign: Effective Vulnerability Identification by Learning Comprehensive Program Semantics via Graph Neural Networks",
+    "booktitle": "Advances in Neural Information Processing Systems",
+    "volume": "32",
+    "year": "2019",
+    "note": "Metadados conferidos no registro primário NeurIPS 2019; texto local em versão preprint",
+    "autores_citacao": "Zhou et al.",
+    "referencia": "Zhou, Yaqin; Liu, Shangqing; Siow, Jingkai; Du, Xiaoning; Liu, Yang (2019). Devign: Effective Vulnerability Identification by Learning Comprehensive Program Semantics via Graph Neural Networks. Advances in Neural Information Processing Systems. v. 32."
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "versao": 1,
+  "sha256": "6ac1f3563ddedce5425b659d364718975f462ff2dccc92e1cba894363c91b224",
+  "contexto_sha256": "40112ef4d956579c2b52659256a83c37d96c0b4cb34082ffeaa2b14a312c9ddb",
+  "abrangencia": "texto_integral_da_versao",
+  "revisor": "Claude — papel revisor",
+  "escopo": "editorial",
+  "decisao": "corrigir",
+  "itens": [
+    {
+      "id": "V1-R1",
+      "tipo": "editorial",
+      "gravidade": "menor",
+      "trecho": "Este trabalho tem como objetivo analisar, de forma exploratória, o comportamento de configurações da família Qwen na detecção de vulnerabilidades em funções C/C++ do PrimeVul.",
+      "problema": "O primeiro período ainda usa a construção \"tem como objetivo analisar\". O briefing desta rodada pede, para esse período, o verbo principal \"analisa\". Pelo guia, a construção não está errada: a tabela de finalidade do PADRAO_ESCRITA.md, seção 3, admite \"com o objetivo de\", e o exemplo da seção 4 usa \"Este trabalho analisa...\". A troca é uma decisão de concisão deste teste, não a correção de uma regra violada.",
+      "acao": "Reescrever o primeiro período com \"analisa\" como verbo principal, por exemplo: \"Este trabalho analisa, de forma exploratória, o comportamento de configurações da família Qwen na detecção de vulnerabilidades em funções C/C++ do PrimeVul.\" Manter \"de forma exploratória\", o objeto e o recorte. Conferir que o período seguinte (\"Para isso, o estudo considera...\") continua retomando o objetivo sem repetir a finalidade."
+    },
+    {
+      "id": "V1-R2",
+      "tipo": "editorial",
+      "gravidade": "menor",
+      "trecho": "A receita 3B na proporção original foi treinada por uma época, enquanto as duas receitas 1:1 foram executadas por três épocas, com volumes distintos de dados.",
+      "problema": "O referente de \"as duas receitas 1:1\" é ambíguo. O parágrafo menciona duas receitas 1:1 no 3B e, no período imediatamente anterior, a receita 1:1 com controle de tamanho do 7B. Assim, o leitor pode entender que \"as duas\" são uma receita do 3B e uma do 7B. Também não fica claro se \"volumes distintos de dados\" compara as duas receitas 1:1 entre si ou com a receita na proporção original. A seção 2 do PADRAO_ESCRITA.md pede referentes identificáveis.",
+      "acao": "Especificar o referente, por exemplo \"as duas receitas 1:1 do 3B\". Explicitar a comparação de volume, por exemplo \"com volumes de dados distintos entre si\" ou \"diferentes do volume da receita na proporção original\", conforme o fato registrado na amostra. Não acrescentar números."
+    }
+  ],
+  "verificacoes_anteriores": [],
+  "limites": [
+    "Primeira versão: não há parecer nem respostas do corretor anteriores, e respostas_anteriores está vazio. Por isso, verificacoes_anteriores fica vazio.",
+    "Os valores de sha256 e contexto_sha256 foram copiados do pacote. Não recalculei nenhum hash, porque esta consulta não permite executar comandos.",
+    "Arquivos lidos com Read: AMOSTRA_REDACAO.md e revisao/fluxo_editorial/BRIEFING_DEMONSTRACAO.md. O texto da versão 1 é idêntico à amostra, e o briefing lido coincide com o do pacote. PADRAO_ESCRITA.md, MATRIZ_EVIDENCIAS.md e PLANO_ESCRITA.md foram examinados apenas pelo conteúdo transcrito no pacote. Os prompts redigir.md, revisar.md e corrigir.md não foram abertos.",
+    "Revisão apenas editorial, como pede o briefing. Não verifiquei contra logs, CSVs ou código os fatos sobre receitas, seeds, épocas, volumes de dados e NF4/BF16. Também não certifiquei experimentos, avaliação pareada, métricas, literatura ou diagramação. A aprovação editorial futura não equivale a validade científica.",
+    "Não houve leitura de PDF nem de diagramação SBC.",
+    "Sugestão opcional, não exigida para aprovação: o guia, seção 7, pede definir \"seed\" (semente de aleatoriedade) e siglas como NF4 e BF16 na primeira ocorrência. Como o trecho é ilustrativo e pode ser precedido de definições no manuscrito, não registrei isso como item. No texto final, convém conferir onde essas definições aparecem pela primeira vez.",
+    "Verifiquei que o futuro em \"serão descritas\" se mantém, que a distinção entre NF4 com adaptador e BF16 mesclado está preservada e que o trecho não traz números de desempenho nem referências. Esses pontos estão de acordo com o briefing."
+  ],
+  "proveniencia": {
+    "arquivo": "entradas/revisao_v001.json",
+    "sha256": "b76155fcc2c18c114469d5fe02fc07a21d32fba7ee53bbb860baede91ad981ca",
+    "origem": "claude_cli",
+    "modelos": [
+      "claude-opus-5-5"
+    ],
+    "session_id": "1b48e258-e16a-46a4-825e-c1d3eacefc1d",
+    "duration_ms": 29338,
+    "custo_estimado_cli": 0.2207112
+  }
+}

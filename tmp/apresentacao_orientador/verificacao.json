@@ -1,0 +1,26 @@
+{
+  "pages_full": 45,
+  "slides_main": 18,
+  "slides_backup": 4,
+  "speech_pages": 22,
+  "source_self_contained": true,
+  "text_bounds": "ok",
+  "overfull_boxes": 0,
+  "numeric_anchors": "ok",
+  "contacts": [
+    "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\tmp\\apresentacao_orientador\\render\\contato-01.jpg",
+    "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\tmp\\apresentacao_orientador\\render\\contato-02.jpg",
+    "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\tmp\\apresentacao_orientador\\render\\contato-03.jpg",
+    "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\tmp\\apresentacao_orientador\\render\\contato-04.jpg",
+    "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\tmp\\apresentacao_orientador\\render\\contato-05.jpg",
+    "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\tmp\\apresentacao_orientador\\render\\contato-06.jpg",
+    "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\tmp\\apresentacao_orientador\\render\\contato-07.jpg",
+    "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\tmp\\apresentacao_orientador\\render\\contato-08.jpg"
+  ],
+  "words_main_speech": 2490,
+  "outputs": [
+    "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\output\\apresentacao_orientador\\apresentacao_orientador_com_roteiro.pdf",
+    "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\output\\apresentacao_orientador\\apresentacao_orientador_slides.pdf",
+    "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\output\\apresentacao_orientador\\apresentacao_orientador.tex"
+  ]
+}

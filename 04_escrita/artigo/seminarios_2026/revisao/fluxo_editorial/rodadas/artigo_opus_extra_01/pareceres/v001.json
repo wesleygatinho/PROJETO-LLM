@@ -1,0 +1,120 @@
+{
+  "versao": 1,
+  "sha256": "d39876cb28943a6eb96e87ac7443fa238b62b4c18eebcc1ca308ca0362b12aa6",
+  "contexto_sha256": "54f59854b20f96317483a1d94cb4e40f69e4f45180584249f493f1cb471a15b9",
+  "abrangencia": "texto_integral_da_versao",
+  "revisor": "Claude — papel revisor",
+  "escopo": "cientifico_editorial",
+  "decisao": "corrigir",
+  "itens": [
+    {
+      "id": "V1-R1",
+      "tipo": "cientifico",
+      "gravidade": "maior",
+      "trecho": "O segundo é o maior limiar que mantém a taxa de falsos positivos (FPR) em no máximo 0,5% na validação",
+      "problema": "Em comum.py, fpr_threshold ordena os escores das não vulneráveis da validação em ordem decrescente e devolve o elemento de índice floor(0,005·n). Pela regra s > t, qualquer limiar acima desse valor também satisfaz a restrição; o limiar mais alto possível chega a FPR nula. O valor escolhido é, portanto, o menor limiar candidato (o mais permissivo) que mantém a FPR em no máximo 0,5%. Escrever 'maior' inverte o critério e entra em conflito com a S7, que descreve o mesmo procedimento corretamente.",
+      "acao": "Substituir 'maior limiar' por uma formulação equivalente ao código. Exemplo de sentido, sem impor redação: o menor limiar, entre os escores das funções não vulneráveis da validação, que pela regra s > t admite no máximo floor(0,005·n) falsos positivos. Manter a coerência com a S7."
+    },
+    {
+      "id": "V1-R2",
+      "tipo": "cientifico",
+      "gravidade": "maior",
+      "trecho": "A heurística obteve AUC global de 0,810, mas ordenou favoravelmente apenas 21,10% dos pares.",
+      "problema": "A_par dá meio crédito aos empates, então 21,10% não é a fração de pares ordenados a favor da versão vulnerável. Com 124 empates, 0,2110·564 − 62 = 57 pares estritamente favoráveis, cerca de 10,1%. Na configuração 3B de proporção original, metricas_pareadas.csv (linha dev_f1) registra 190 pares estritos e 43 empates, ou seja, 33,7% e não 37,50%. A mesma leitura literal se repete em: Abstract 'ranked only 21.10% of the pairs favorably' e 'ranked 37.50%'; Resumo 'O classificador de maior F1 global (0,262) ordenou 37,50%.'; Seção 4.2 'Nos pares, porém, a mesma heurística ordenou apenas 21,10%.' e 'mas ordenou 37,50% dos pares'; Conclusão 'alcançou AUC de 0,810 e ordenou 21,10% dos pares, e o classificador de maior F1 (0,262) ordenou 37,50%'.",
+      "acao": "Em todas essas ocorrências, apresentar o valor como a métrica de ordenação pareada com meio crédito para empates (por exemplo, 'ordenação pareada de 21,10%'), e não como percentual de pares ordenados. Se o texto quiser frações literais, usar somente contagens estritas presentes nas fontes congeladas, como os 190 pares do 3B registrados em metricas_pareadas.csv, sem criar novos números."
+    },
+    {
+      "id": "V1-R3",
+      "tipo": "cientifico",
+      "gravidade": "maior",
+      "trecho": "A seleção de época foi retrospectiva;",
+      "problema": "selecao_epocas.json separa 'historica_estrita' de 'ajustada_reconstruida'. A época foi escolhida nas execuções originais pela ordenação estrita, com a AUC como desempate. Retrospectiva foi apenas a reconstrução com meio crédito, como a própria Seção 3.4 descreve. Chamar a seleção de retrospectiva contradiz o método e descreve de forma errada a cronologia.",
+      "acao": "Reformular nas Limitações: a época foi escolhida nas execuções originais pelo critério estrito; apenas a verificação com meio crédito foi retrospectiva, e não pôde ser feita nas receitas 3B 1:1 e de proporção original porque os empates por época não foram registrados."
+    },
+    {
+      "id": "V1-R4",
+      "tipo": "cientifico",
+      "gravidade": "maior",
+      "trecho": "Entre as configurações observadas, portanto, maior desempenho global veio acompanhado de ordenação pareada mais distante de 50% e abaixo desse valor.",
+      "problema": "Pela Tabela 4/5 congelada, a generalização não se sustenta em todas as configurações. Dentro do 7B, a semente 2 tem a menor AUC (0,726 e 0,728) e as menores ordenações (45,04 e 44,68). A semente 3 tem a maior AUC do 7B (0,765) e ordenação acima de 50 (51,60 e 51,95), assim como a semente 1 (55,23 e 53,28). O 'portanto' apresenta como relação geral um contraste que vale para as configurações 3B de maior desempenho global, mas não dentro do 7B.",
+      "acao": "Limitar a afirmação ao contraste que os dados sustentam: as duas configurações 3B de maior F1/AUC (proporção original e 1:1) tiveram ordenações de 37,50% e 42,38%, abaixo das obtidas pelas configurações com controle de tamanho (44,68% a 55,23%). Declarar que dentro do 7B não há relação consistente entre desempenho global e ordenação."
+    },
+    {
+      "id": "V1-R5",
+      "tipo": "cientifico",
+      "gravidade": "menor",
+      "trecho": "Diferentemente do TrapEval, avalia classificadores com cabeça de classificação, e não modelos que geram respostas com ou sem raciocínio.",
+      "problema": "O próprio estudo avalia variantes Instruct que geram respostas YES/NO, sem raciocínio (Seções 3.3 e 4.1). Por isso, o contraste de posicionamento contradiz o método.",
+      "acao": "Precisar a diferença. O TrapEval ajusta LLMs generativos com e sem raciocínio explícito. Aqui, o ajuste usa uma cabeça de classificação, e a geração aparece apenas na instrução YES/NO sem exemplos e sem ajuste."
+    },
+    {
+      "id": "V1-R6",
+      "tipo": "editorial",
+      "gravidade": "menor",
+      "trecho": "Diferentemente de Risse e Böhme, não aplica transformações de código.",
+      "problema": "O contrato proíbe digitar autoria manualmente fora dos tokens. Essas menções não serão convertidas em citação natbib vinculada. O mesmo ocorre em 'Os protocolos, porém, diferem: Risse e Böhme usaram transformações' (Discussão) e em 'a família Qwen2.5-Coder não integrou o grupo avaliado por Ullah et al.' (Discussão).",
+      "acao": "Usar [!risse2024limits] e [!ullah2024sec] ou uma retomada anafórica sem nome (por exemplo, 'esses autores'), mantendo o referente claro."
+    },
+    {
+      "id": "V1-R7",
+      "tipo": "editorial",
+      "gravidade": "menor",
+      "trecho": "Ele também não estabelece equivalência, que exigiria uma margem definida antes da análise, e não prova que os modelos ordenem ao acaso.",
+      "problema": "'Ele' remete ao intervalo da diferença NF4 − BF16, que não informa nada sobre ordenação ao acaso. A evidência pertinente são os intervalos das médias (47,92–53,33 e 47,14–52,73), que incluem 50%, e o texto nunca diz isso explicitamente. No mesmo parágrafo, o 'portanto' de 'A dispersão entre treinamentos é, portanto, comparável' não decorre da frase anterior.",
+      "acao": "Separar as duas leituras: o intervalo da diferença não estabelece equivalência; os intervalos das médias incluem 50%, sem provar ordenação ao acaso. Retirar ou justificar o 'portanto' da comparação entre o DP e a amplitude dos intervalos."
+    },
+    {
+      "id": "V1-R8",
+      "tipo": "editorial",
+      "gravidade": "menor",
+      "trecho": "Os 124 empates refletem, em parte, versões que diferem pouco no comprimento ou que atingem o teto de 2.048 tokens.",
+      "problema": "Na heurística, empate significa número idêntico de tokens visíveis, não versões que 'diferem pouco no comprimento'. As fontes conferidas não quantificam como os 124 empates se distribuem. O que se sabe é que os 32 pares com entradas idênticas após o corte e os pares com ambas as versões no teto empatam necessariamente.",
+      "acao": "Descrever os empates como pares com o mesmo número de tokens visíveis. Indicar, sem quantificar além das fontes, que eles incluem pares cujas duas versões atingem o teto e os 32 pares com entradas idênticas."
+    },
+    {
+      "id": "V1-R9",
+      "tipo": "editorial",
+      "gravidade": "menor",
+      "trecho": "Nesse limiar, as 564 decisões da configuração 3B de proporção original foram P-B.",
+      "problema": "P-B é uma categoria de par, e 564 pares correspondem a 1.128 decisões. metricas_pareadas.csv (linha historico: 0,0,564,0) sustenta que os 564 pares foram P-B no teste pareado. Nada nessa fonte cobre a validação global.",
+      "acao": "Escrever que, no limiar zero, os 564 pares da configuração 3B de proporção original caíram em P-B, mantendo o escopo restrito ao teste pareado."
+    },
+    {
+      "id": "V1-R10",
+      "tipo": "editorial",
+      "gravidade": "menor",
+      "trecho": "Em seguida, dois limiares foram calibrados na validação global e aplicados, sem recalibração, ao teste global e ao teste pareado.",
+      "problema": "Pela Seção 3.5 e pelas Tabelas 4/5, só o limiar de maior F1 é aplicado ao teste pareado (categorias). O limiar de FPR serve apenas para FNR*/FPR* no teste global. A visão geral sugere que os dois foram aplicados aos pares.",
+      "acao": "Atribuir cada limiar ao seu uso: maior F1 para as métricas globais e as categorias pareadas; FPR ≤ 0,5% para FNR*/FPR* no teste global."
+    },
+    {
+      "id": "V1-R11",
+      "tipo": "cientifico",
+      "gravidade": "menor",
+      "trecho": "Avaliações de detectores de vulnerabilidade, portanto, precisam reportar a discriminação pareada, a calibração e as condições de implantação junto às métricas globais.",
+      "problema": "O 'portanto' transforma um estudo exploratório (uma família de modelos, um conjunto, uma GPU, acesso prévio ao teste) em uma prescrição geral. O Resumo é mais cauteloso ('indicam que ... deve ser interpretado').",
+      "acao": "Delimitar a implicação às configurações e ao conjunto avaliados, com o mesmo grau de cautela do Resumo/Abstract."
+    }
+  ],
+  "verificacoes_anteriores": [],
+  "limites": [
+    "Arquivos lidos por completo: tabelas_artigo.md e selecao_epocas.json. comum.py foi lido nas linhas 1–74 (auc, metrics, best_f1, fpr_threshold, verify_alignment, official_pairs). Fiz buscas focalizadas em: devign_pdf.txt ('4 popular and diversified libraries in C', rotulação manual), risse_pdf.txt (overfitting a características sem relação com o rótulo, 'worse than random guessing'), diversevul_pdf.txt (18.945/150 CWEs/330.492/7.514, projetos não vistos, LLMs como direção promissora que supera modelos em grafos), reveal_pdf.txt (queda acima de 50%, duplicação, distribuição irreal, balanceamento), huang_pdf.txt linhas 33–39 (cinco LLMs, com e sem CoT; escores altos em V2N e falsos positivos em versões corrigidas), primevul_pdf.txt (cópias exatas e clones; 3,09% de F1), qwen_pdf.txt (seis tamanhos de 0,5B a 32B; 5,5 trilhões de tokens) e ullah_compacto.txt (228 cenários; nenhuma ocorrência de 'Qwen'). Também busquei em 06_treinar_qlora.py (AdamW com weight_decay 0, lora_alpha 32, dropout 0,05, modules_to_save score), 07_avaliar_classificador.py (merge_and_unload antes de reset_peak_memory_stats e max_memory_allocated), tokenizacao_proveniencia.json (32 pares idênticos, 465), estatistica.json (10.000 réplicas, semente 20261008, 550 grupos, 564 pares) e metricas_pareadas.csv (3B real).",
+    "Células conferidas: todas as Tabelas 2 a 7, a Tabela S1 e a Tabela S2 coincidem com tabelas_artigo.md congelado. Também conferi as contas derivadas no texto (67%, 40%, intervalo de FPR* 0,52–0,69, alteração máxima de 0,22 p.p., faixas de empates e de P-C, custos). A seleção de época descrita na Seção 3.4 e na S6 coincide com selecao_epocas.json. S7, sobre o limiar de maior F1, coincide com best_f1.",
+    "Não verifiquei: as contagens da Tabela 1 (25.430/699/562 e 4.354 pares de treino); a amostra de 699/2.796 e a AUC como desempate no código; taxa de aprendizado, aquecimento, corte de norma, lote efetivo, valor de r e lado do truncamento; o código de 03_inferencia_etapa1.py, 08_baseline_tamanho.py e classificador.py; inspecao_correspondencia_commits.json, pares_inspecao.json e reutilizacoes_release_oficial.json (cinco casos, posições, 1.128/1.126); manifesto.json (14 avaliações, 33 arquivos, versões de software da S11); intervalos.csv, comparacoes.csv e os CSVs de sensibilidade (a Tabela S1 foi conferida só contra tabelas_artigo.md); recuperacao_dados.json e auditoria_final.json, que não estão no pacote; e a afirmação sobre a implementação oficial do VD-Score.",
+    "Originais não lidos nesta sessão: linevul (188 mil funções), saito, field, lora e qlora, LEITURA_ADICIONAIS.md e catalogo_verificado.json. Por isso, não conferi as chaves dos tokens contra o catálogo nem as atribuições a LineVul, Saito, Field, LoRA e QLoRA. As formulações sobre Saito e Field estão textualmente moderadas, como pede o briefing, mas não as confrontei com o original.",
+    "Corpus de estilo: li apenas as linhas 1–45 de A08.txt (resumo e começo da introdução), não A08 integral. A01, A06 e 01_analise/retorno.json não foram lidos. Isso aconteceu por limite de orçamento da sessão, e a avaliação da arquitetura narrativa está, portanto, incompleta frente à instrução. Na leitura do texto em si, a Introdução tem cinco parágrafos em prosa (contexto → problema → justificativa → posicionamento/objetivo/contribuição → organização), sem lista de contribuições. Os relacionados trazem proposições concretas, e as atribuições que conferi correspondem aos originais.",
+    "O acesso prévio ao teste está explícito nas Seções 1, 3.1 e 6. NF4/BF16 é tratado como uma comparação de configurações completas. As 3 seeds e os 564 pares não são inflados para 1.692. Não foi feita leitura de PDF, compilação ou diagramação. Identificação dos autores, afiliação e regra de páginas são pendências externas e não entraram como apontamentos.",
+    "Como esta é a versão 1, não havia respostas anteriores a conferir. Mesmo depois das correções, aprovar exigirá conferir os pontos listados acima como não verificados."
+  ],
+  "proveniencia": {
+    "arquivo": "entradas/revisao_v001.json",
+    "sha256": "88ab3db1fc1873dbb79f4c0bd2efe9ae1ed3da63c9533086ba7645e82da116bf",
+    "origem": "claude_cli",
+    "modelos": [
+      "claude-opus-5-5"
+    ],
+    "session_id": "7d1083df-ab62-4a6b-b1a3-51a56d1ded7a",
+    "duration_ms": 429887,
+    "custo_estimado_cli": 1.552963
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "versao": 1,
+  "sha256": "22d5ad0b75b45c5aae7b0db180f92a069a8ca630645d106cd202fb1af81472f3",
+  "contexto_sha256": "567ceb5d8f8c5dc09f50bed727eff51943f290601c93da087cac7e20749782e5",
+  "abrangencia": "texto_integral_da_versao",
+  "revisor": "Claude — papel revisor",
+  "escopo": "cientifico_editorial",
+  "decisao": "corrigir",
+  "itens": [
+    {
+      "id": "V1-R1",
+      "tipo": "evidencia",
+      "gravidade": "maior",
+      "trecho": "A maior alteração absoluta nos seis resultados 7B foi 0,23 ponto percentual.",
+      "problema": "Em estatistica.json (sensibilidade_cinco), a maior variação absoluta do bloco 7B é 0,22393 p.p. (NF4 s2), e a seguinte é 0,22076 p.p. (BF16 s2). Com duas casas, o valor é 0,22, não 0,23. A diferença entre os valores já arredondados da Tabela 7 (45,26 − 45,04) também dá 0,22.",
+      "acao": "Substituir 0,23 por 0,22 ponto percentual ou indicar explicitamente outra regra de arredondamento que produza o valor publicado."
+    },
+    {
+      "id": "V1-R2",
+      "tipo": "evidencia",
+      "gravidade": "maior",
+      "trecho": "O piloto 3B real classificava todas as funções como não vulneráveis no limiar histórico zero",
+      "problema": "Nas saídas consolidadas, a única evidência para o limiar zero desse piloto está em metricas_pareadas.csv, linha 'historico': P-B = 564 e P-C = P-V = P-R = 0, isto é, 1.128 funções do pareado. metricas_por_execucao.csv traz apenas a política 'maior F1 no dev reconstruído' para o teste global. A afirmação sobre 'todas as funções' generaliza para o teste global e o dev sem resultado consolidado no pacote.",
+      "acao": "Restringir a frase ao teste pareado, por exemplo: 'no limiar histórico zero, as 564 decisões pareadas foram P-B'. A alternativa é acrescentar às saídas consolidadas a contagem global no limiar zero e citá-la."
+    },
+    {
+      "id": "V1-R3",
+      "tipo": "editorial",
+      "gravidade": "menor",
+      "trecho": "Tabela 6. Ordenação pareada do 7B: média das três seeds",
+      "problema": "No texto, a Tabela 6 aparece na Seção 4.2, antes da Tabela 5, que fica na Seção 4.3. A numeração não segue a ordem de aparição, o que no template SBC (numeração automática) produzirá incoerência entre rótulos e chamadas.",
+      "acao": "Renumerar as tabelas pela ordem de aparição (a de ordenação do 7B passa a 5 e a de recursos a 6) e atualizar todas as chamadas no texto, inclusive 'são apresentados na Tabela 6'."
+    },
+    {
+      "id": "V1-R4",
+      "tipo": "evidencia",
+      "gravidade": "menor",
+      "trecho": "A comparação dos endpoints entre 5.000 e 10.000 réplicas variou no máximo 0,11 ponto percentual por modelo.",
+      "problema": "Em estatistica.json, estabilidade_endpoint_max = 0,0010448, ou seja, 0,10 p.p. com duas casas. O valor 0,11 não corresponde ao arredondamento do registro.",
+      "acao": "Informar 0,10 ponto percentual, ou 'cerca de 0,1 ponto percentual'."
+    },
+    {
+      "id": "V1-R5",
+      "tipo": "editorial",
+      "gravidade": "menor",
+      "trecho": "cada uma com uma semente de aleatoriedade (*seed*), e uma receita principal do 7B executada com três sementes",
+      "problema": "O termo é definido como seed, mas o Resumo e a Introdução usam 'sementes' ('três sementes do 7B', 'variação entre sementes', 'As três sementes do 7B'). A partir do Método o texto passa a 'seed'/'seeds' ('seed 1', 'seeds 1, 2 e 3', 'DP seeds'). PADRAO_ESCRITA §7 pede convenção consistente após a definição.",
+      "acao": "Adotar uma única forma após a definição (por exemplo, 'seed', como nas tabelas) no Resumo, na Introdução e no restante do texto. Se as duas formas forem mantidas, declarar explicitamente que são equivalentes."
+    },
+    {
+      "id": "V1-R6",
+      "tipo": "editorial",
+      "gravidade": "menor",
+      "trecho": "As médias de ordenação pareada foram 50,62% e 49,97%, respectivamente, com variação entre sementes.",
+      "problema": "'Respectivamente' remete a 'NF4 e BF16' no fim da frase anterior, que enumera vários objetos (prompting, referência de tamanho, pilotos 3B, 7B). Lida isoladamente, a frase não identifica que se trata das médias das três seeds 7B por variante. O mesmo ocorre no Abstract ('Mean paired ordering was 50.62% and 49.97%, respectively').",
+      "acao": "Nomear o referente nas duas versões, por exemplo: 'No 7B, as médias de ordenação pareada das três seeds foram 50,62% em NF4 e 49,97% em BF16' / 'For the 7B model, mean paired ordering across seeds was 50.62% (NF4) and 49.97% (BF16)'."
+    },
+    {
+      "id": "V1-R7",
+      "tipo": "editorial",
+      "gravidade": "menor",
+      "trecho": "Hui, B. et al. (2024). Qwen2.5-Coder Technical Report. arXiv:2409.12186v3. Lista completa de autores na bibliografia BibTeX.",
+      "problema": "A lista de referências do manuscrito contém uma nota interna de trabalho ('Lista completa de autores na bibliografia BibTeX'), que não pertence ao texto do artigo e não segue a forma das demais entradas.",
+      "acao": "Remover a nota e deixar que a entrada seja gerada pelo BibTeX/sbc.bst a partir de artigo.bib. Na versão em Markdown, usar a mesma forma abreviada das demais entradas, sem comentário editorial."
+    },
+    {
+      "id": "V1-R8",
+      "tipo": "editorial",
+      "gravidade": "menor",
+      "trecho": "Foram incluídas quatro avaliações Instruct, três pilotos 3B e seis avaliações de três adaptadores 7B",
+      "problema": "'Quatro avaliações Instruct' pode ser lido como quatro modelos ou configurações, mas a Tabela 2 apresenta dois modelos (3B e 7B Instruct). As quatro correspondem aos logs de teste global e pareado de cada um. A soma com os demais logs (14) depende dessa leitura.",
+      "acao": "Explicitar, por exemplo: 'quatro avaliações por prompting (3B e 7B Instruct, cada um no teste global e no pareado)'."
+    }
+  ],
+  "verificacoes_anteriores": [],
+  "limites": [
+    "Arquivos efetivamente lidos ou consultados: tabelas_artigo.md, estatistica.json, sensibilidade_truncamento.csv, divergencias.json, pares_inspecao.json (primeiros cinco pares), auditoria_integridade.json (reutilizações e limites), metricas_por_execucao.csv e metricas_pareadas.csv (linhas do 3B real), calc_vd_score_oficial.py, trechos de 03_inferencia_etapa1.py e 06_treinar_qlora.py, artigo.bib (Ding, Risse, Huang), LEITURA_FONTES.md (busca focalizada) e huang_pdf.txt (busca por Qwen2.5-Coder-7B-Instruct).",
+    "Conferências feitas contra as saídas consolidadas e de resultado coincidente: todos os valores das Tabelas 1–6; as faixas 564/559/460; as médias, DPs e ICs bootstrap por commit; as diferenças NF4−BF16; os percentuais de redução de memória (67% e 40%); a precisão do prompting; a regra inclusiva (>=) do VD-Score oficial; o otimizador AdamW com weight_decay 0; LoRA r/α/dropout; até cinco novos tokens; os 60 caracteres do parser; FP16 no prompting. As duas reutilizações do teste e a da validação pertencem cada uma a um único commit, o que é compatível com a afirmação de que o agrupamento por commit as acomoda.",
+    "Itens não verificados nesta rodada: o corte de 8.192 tokens do prompting (não localizado no trecho consultado do script); taxa, aquecimento e escalonador do treino; selecao_epocas.json; tokenizacao_proveniencia.json (contagem de 32 pares com entradas idênticas); inspecao_correspondencia_commits.json e os arquivos pai/commit dos cinco casos; manifesto.json integral; scripts de consolidação; extrações de PrimeVul, Risse, Qwen, LoRA e QLoRA, além da busca pontual em Huang. As afirmações de literatura da Introdução e da Seção 2 foram avaliadas quanto à cautela da redação, não confrontadas integralmente com as fontes.",
+    "Não houve leitura visual de PDFs, compilação LaTeX nem verificação de diagramação SBC, de limite de linhas do Resumo/Abstract ou de limite de páginas. Autoria, afiliação e regras de extensão continuam pendências externas do pesquisador e não foram avaliadas.",
+    "Esta revisão não certifica a validade científica dos resultados além das conferências listadas. Nenhum script foi executado, e hashes e pareceres não substituem reprodução independente.",
+    "Sugestão opcional, não exigida para aprovação: o Resumo e o Abstract poderiam mencionar o contraste central da Discussão (referência de tamanho com AUC 0,810 e ordenação 21,10%; maior F1 global com ordenação 37,50%), que hoje aparece só na Conclusão."
+  ],
+  "proveniencia": {
+    "arquivo": "entradas/revisao_v001.json",
+    "sha256": "3a63786b5dedd53655630e03011463c7ea7e2fb25c3766c9237d495387276280",
+    "origem": "claude_cli",
+    "modelos": [
+      "claude-opus-5-5"
+    ],
+    "session_id": "08746dbb-cb50-46bd-a285-3e58f2df9862",
+    "duration_ms": 113934,
+    "custo_estimado_cli": 0.9377936
+  }
+}

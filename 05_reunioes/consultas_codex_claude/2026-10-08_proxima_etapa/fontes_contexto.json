@@ -1,0 +1,26 @@
+[
+  {
+    "arquivo": "01_planejamento/artigo_seminarios_2026/PLANO_EXECUCAO.md",
+    "sha256": "5982b95c8e9f7154a1637a65574f62ac9bf9816fad3ea8bcc2856cc7a0a21bb8"
+  },
+  {
+    "arquivo": "01_planejamento/artigo_seminarios_2026/CRONOGRAMA_CHECKLIST.md",
+    "sha256": "aa7ebe4a0ae92b3e935cd6ba86df5a2b8e6addd40560d7f37fc1bc879df42679"
+  },
+  {
+    "arquivo": "04_escrita/artigo/seminarios_2026/PLANO_ESCRITA.md",
+    "sha256": "ded6b9ae3b2bc1db7b55b4e62a088b5a2dd2e5202fda2ce0c3af721628bba5b4"
+  },
+  {
+    "arquivo": "04_escrita/artigo/seminarios_2026/revisao/introducao_2026-10-07/FECHAMENTO.md",
+    "sha256": "07e6fc49cd22a4b945268426e003942a97a3ef0b1dd9199a452a4eecfa458c41"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/consolidacao_artigo/README.md",
+    "sha256": "0ed3e7f1be431d41fcf24a19409513e6849d6da1bfe3eb2c910e180342df6b2d"
+  },
+  {
+    "arquivo": "04_escrita/artigo/seminarios_2026/referencias/MATRIZ_INTRODUCAO.md",
+    "sha256": "9e1cf708ddf53927846216ae681d8a3d38021c948aca2a53f1b0dd3231237a41"
+  }
+]

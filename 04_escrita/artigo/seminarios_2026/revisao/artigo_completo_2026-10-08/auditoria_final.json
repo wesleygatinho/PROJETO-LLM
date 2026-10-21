@@ -1,0 +1,35 @@
+{
+  "versao": 1,
+  "sha256": "8ee65a8fd09cb16c1e525863fcecf79136caa38940fba79e85e3693b7f6683b6",
+  "arquivos_preservados": 110,
+  "alteracoes_historicas": [],
+  "fontes_editoriais_conferidas_por_hash": 63,
+  "tabelas_conferidas": [
+    "T1_configuracoes.md",
+    "T2_prompting.md",
+    "T3_global.md",
+    "T4_pareado.md",
+    "T6_incerteza.md",
+    "T5_recursos.md"
+  ],
+  "avaliacoes": 14,
+  "arquivos_previsao": 33,
+  "divergencias_metricas": [],
+  "commits_inspecionados": 5,
+  "testes_cientificos": "Oito testes passaram na execução local registrada nesta conversa.",
+  "fontes_exportadas_inalteradas": 26,
+  "diferencas_hash_codigo": [
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/04_exportar_artigo.py",
+      "motivo": "Fixação posterior do cache MPLCONFIGDIR no workspace."
+    },
+    {
+      "arquivo": "03_experimentos/codigo/consolidacao_artigo/recuperar_tokenizer.py",
+      "motivo": "Inclusão posterior da recuperação do tokenizer7B e assert de identidade com3B; artefatos recuperados possuem proveniência própria. Nenhuma alteração de cálculo."
+    }
+  ],
+  "observacao": "Código final congelado na rodada. Proveniência da exportação anterior preservada; diferenças explicitadas, sem apagar cronologia ou alterar resultados.",
+  "rodada": "artigo_completo_02",
+  "manuscrito": "v003",
+  "diff_integral_v002_v003": "A única alteração textual foi a correção P1 da definição LoRA; comparação integral feita localmente, normalizando apenas espaços externos."
+}

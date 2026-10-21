@@ -1,0 +1,438 @@
+[
+  {
+    "arquivo": "03_experimentos/codigo/.gitkeep",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/00_baixar_primevul.py",
+    "sha256": "87ca81b0cc79c34a2b16cbaa2f3bb679f900231c6262d8a3ba74cad0efeb0b78"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/01_setup_runpod.sh",
+    "sha256": "546b222249c800a80f189d2de931789695233dff81c7d71d1d97e4ac87b89ffc"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/02_ver_dados.py",
+    "sha256": "94a8aee3388841c2df23fbca2609fca586a05bd4e5becf35b532be05f5c812f3"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/03_inferencia_etapa1.py",
+    "sha256": "4012cf1b63188dc83d066951300a0cc743f0a5cacc21fb0fe0cb16ba0f66305f"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/04_metricas_pareadas.py",
+    "sha256": "82081de8b7efca0d008507a29495aa222a32f4aab108af8e750a54b1b31bd68a"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/05_comparar_logs.py",
+    "sha256": "b7026d04dd834ec2a5bb250714c5d55242758ff85123dd0ab6f69c5bbe48dc08"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/06_treinar_qlora.py",
+    "sha256": "a720c4c6f04cc6ef09df341f09bf4c195866cceaaeabedb25501b1d88969427f"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/07_avaliar_classificador.py",
+    "sha256": "a1428cca9620866c439e6903ff2f4a2483ac16df32498227e526d508aa11620e"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/08_baseline_tamanho.py",
+    "sha256": "1ea6ed21f2a13dc55e344f3f7dd7d6f28546d986ade056678fd9bee56b5ecdf4"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/__pycache__/00_baixar_primevul.cpython-311.pyc",
+    "sha256": "8b1a008b81ce853e7ee26e0df104937533fd540aa37b9d671d03e6400d142a3c"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/__pycache__/03_inferencia_etapa1.cpython-311.pyc",
+    "sha256": "47bdb8dba8223d90cafb9aa6203b53035337416d3903a65c1fe64e6a2bc06ec8"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/__pycache__/04_metricas_pareadas.cpython-311.pyc",
+    "sha256": "563f879267f2133900ad0f47bf41680f76e6c625fac80e483fa412360abd86ff"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/__pycache__/05_comparar_logs.cpython-311.pyc",
+    "sha256": "8eb021f5ec90626395f9f83de4edc142a5355450e32b2a08c85394a19413e04e"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/__pycache__/06_treinar_qlora.cpython-311.pyc",
+    "sha256": "a455671b10de244ce5b14b65a798536fedb58e89af665f086491596dce430507"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/__pycache__/07_avaliar_classificador.cpython-311.pyc",
+    "sha256": "37e84a10ac64e099a1265e1ad96ce9cea8c526e0e718cac6401e8f0492daa6cb"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/__pycache__/08_baseline_tamanho.cpython-311.pyc",
+    "sha256": "012a0d9dd2a31766f037b8519dfcd864f14e09103759f64c075edcbcd547c893"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/__pycache__/ambiente.cpython-311.pyc",
+    "sha256": "ef055566a988da30ffb7d84bd9ac9000f1a9ade2494c2331b1db61160a993663"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/__pycache__/classificador.cpython-311.pyc",
+    "sha256": "d6aed44a006d255d88e2fe19dbe7295e13e8997bba50d221e3bf328b633ba5d0"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/ambiente.py",
+    "sha256": "4e71755f3881e4a10c1553aa96c5dbad85856e98908f748cc14628eca668f2a6"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/classificador.py",
+    "sha256": "850ba2cb500d5e88dd461c2013faf15d68fa1d7e97b14178c3fd3680a0028470"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/consolidacao_artigo/README.md",
+    "sha256": "0ed3e7f1be431d41fcf24a19409513e6849d6da1bfe3eb2c910e180342df6b2d"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/README.md",
+    "sha256": "639b4b2a4190a4f127c036f401e47c928bc923bb89a32cbdd29761f54992bf11"
+  },
+  {
+    "arquivo": "03_experimentos/codigo/requisitos_travados.txt",
+    "sha256": "1532393dd9cd4262e50cdbe9e5e2c4064e5dd6c9368ede574e879ccd6e117850"
+  },
+  {
+    "arquivo": "03_experimentos/dados/.gitkeep",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arquivo": "03_experimentos/logs/.gitkeep",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arquivo": "03_experimentos/logs/baseline_tamanho_tokens_20260924_012407_pareado.jsonl",
+    "sha256": "5c396385747ce859f8e0ca227fa2ae9713e5543348dd3959a4a4255b8f845509"
+  },
+  {
+    "arquivo": "03_experimentos/logs/baseline_tamanho_tokens_20260924_012407_teste.jsonl",
+    "sha256": "01774c65c9b2f452dca8ee87f107a5c0e38366117555a466659f44e883852749"
+  },
+  {
+    "arquivo": "03_experimentos/logs/descartados/etapa1_20260917_003514.jsonl",
+    "sha256": "2ba274f0dfd72a4c4a03e528f36a41897000198c36659e1eaad82c902ad5e0c3"
+  },
+  {
+    "arquivo": "03_experimentos/logs/descartados/LEIA.md",
+    "sha256": "fd218981f9b646e0ea0a52b2aea3c8724a6f2d1e7b09499347115b1e6ee1785b"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa1_20260923_234340.jsonl",
+    "sha256": "83ae2737ee811cefb6d54e652fcb02c7d768a2bd66301ea1f6bda607c05a0884"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa1_20260923_234702.jsonl",
+    "sha256": "05c1317f6162b40831bd16e8dcfc831eeddd65584a92664f560d261e88121bd0"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa1_20260923_235217.jsonl",
+    "sha256": "09a8f3946bb00c9abaa253527338e608159778b60f0403c649cacbb8ee102a63"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa1_20260924_002415.jsonl",
+    "sha256": "aaf8e7c426a7318ef8c4fe8a9772eb5e190211718f4caa4a1bfb92d9f822ff22"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_bf16_20261005_044536_pareado.jsonl",
+    "sha256": "9befae464a38f86a9cc23daa23a4fb756d22b7c35371228f177fdadb9b7bef42"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_bf16_20261005_044536_teste.jsonl",
+    "sha256": "0028ebd3525bcd9174db473a83253e3d17e345b507fda970d92df3595f474c40"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_bf16_20261005_044536_validacao.jsonl",
+    "sha256": "8bc082891da27a0faaeb319097ea806cbd37e1e29c3621384af933943e5dd2a9"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_bf16_20261005_144918_pareado.jsonl",
+    "sha256": "7b48df791acbc730f4b8130ef62b298be9045770ea430e3da091f29a212141f1"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_bf16_20261005_144918_teste.jsonl",
+    "sha256": "3cf1d6c015eab5436fb3af6b46214f782f63c7c4a0ac59f55bc032cc79301c7f"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_bf16_20261005_144918_validacao.jsonl",
+    "sha256": "a72f5192779cc58356baf63b852eb8dd10ff741bcb9c582fbfdd7da0fed4cb70"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_bf16_20261006_005502_pareado.jsonl",
+    "sha256": "79eee9b0156edc33b44d6baf79a61fe122a4446b675d071d5afad5490a03f9c3"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_bf16_20261006_005502_teste.jsonl",
+    "sha256": "cae6710d244c35977a09d73127de7313154b687c285787341f95d4513e13856f"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_bf16_20261006_005502_validacao.jsonl",
+    "sha256": "e1351eec53bc5bec1672cc881ec868863e5d298e65013b0111dcdef062b6bd33"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20260929_065623_pareado.jsonl",
+    "sha256": "ecd40107395f22aa762ea1b06cc958f781ab1c1281c13ecd4a44246c0d5a03fd"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20260929_065623_teste.jsonl",
+    "sha256": "b4c2a800be4784c275148b5a85974f89c8f0948e6e39a5e2bda368b3c1a968a6"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20260929_065623_validacao.jsonl",
+    "sha256": "bf01931bed6af2e86f2cb47e33d7a82e35602105f0dcbfadcc17a1cdfb554952"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20260929_072628_pareado.jsonl",
+    "sha256": "ad10209abcbfb4184c9f7ea45dc86a6ebd9937597cebda47c467398946f57f70"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20260929_072628_teste.jsonl",
+    "sha256": "0681b316d92e84e77a43761c6090a307388c78094cb1a172de4a3b403432a2d5"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20260929_072628_validacao.jsonl",
+    "sha256": "204f0dfbe2fb130c28ece17c16697633fcc0f537cc61f4ea1abe03efd2fcfece"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20261004_185414_pareado.jsonl",
+    "sha256": "ce7220cfbb1e5086116f0c2f5c86823067ac4798768dc37f26b10d8c7f8525d5"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20261004_185414_teste.jsonl",
+    "sha256": "57d34a6c8096ab7739d80aa6bc29bcd544553076bf762395e67b39a63b77bc40"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20261004_185414_validacao.jsonl",
+    "sha256": "ce9d7bb0d1214b972c62b1e6703667bff78dddfdefe715b31664e64987164ab7"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20261005_035114_pareado.jsonl",
+    "sha256": "8dbebf9107719abdd1d1ebce5e277031d8eaee7ae9f89c6f7e3cb07dda3d5628"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20261005_035114_teste.jsonl",
+    "sha256": "5beba2505f9a197807cdccf63c3e90021e66dc0b4c7e7811c9dae7219ab1e0c7"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20261005_035114_validacao.jsonl",
+    "sha256": "44c5d3a57e4a17ed94713167adcb6f060519319af9f7af3a1a376a2c297516e0"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20261005_135446_pareado.jsonl",
+    "sha256": "49e6951d29d055cb0f351103b70bb1abdb8ea7a9d10051440af19ed420530a01"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20261005_135446_teste.jsonl",
+    "sha256": "6c48f0d919a267a7bef8fef728062ab192ab679cdd2aef9fb05b1a1d77dbd363"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20261005_135446_validacao.jsonl",
+    "sha256": "164ea11f18b05091b09f87d95a8f5ffec41e0f27bf21f8b417f46b7757be44fd"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20261006_000016_pareado.jsonl",
+    "sha256": "c184eea1884e753566372e3e690257c498a2c0e3516356adae9fbd487926620d"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20261006_000016_teste.jsonl",
+    "sha256": "7f109eb0723f37b15e21663877d697dc64f8c7367cd96c9449628909a13bd512"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_aval_nf4_20261006_000016_validacao.jsonl",
+    "sha256": "ca4b1b530f820bb6361772d31aa3ca20c2327b67d09427227a1c764067af51dc"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-3B_ben1_s1_20260923_233514_depuracao.json",
+    "sha256": "777d64212a5170229a6acd304b3d324b1a83579b53039d805e3e01dc399e6b40"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-3B_ben1_s1_20260923_233514_depuracao_passos.jsonl",
+    "sha256": "bb19f2ffb76a8409ba62e006421457a2791dfdb096659fd520c447938971c201"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-3B_ben1_s1_20260924_172035.json",
+    "sha256": "9dbe7fe9a9f03ec48e6a902d2093c289756fc8be3e5ad660c06691d1ada3ccf6"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-3B_ben1_s1_20260924_172035_passos.jsonl",
+    "sha256": "89c0785c873156194600f103f1d765b657b5d2e0a213c77ffeddbe6d086bb18f"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-3B_ben1tam_s1_20260929_012851_depuracao.json",
+    "sha256": "aa02dfa5d5c43d3d8fb37747edca1024e62c47da3b4c11bc365f1ac3c2a2f050"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-3B_ben1tam_s1_20260929_012851_depuracao_passos.jsonl",
+    "sha256": "71093456494f7643c5a575b62a8093e5c86ce16f16228cb3f5aca3cb8ff9ff2e"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-3B_ben1tam_s1_20260929_013715.json",
+    "sha256": "88f4eba195d3bed3dd4410e0ab07877fdb1cd1eb34e2271780900b79d8e10e80"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-3B_ben1tam_s1_20260929_013715_passos.jsonl",
+    "sha256": "82d0cfcd7b48a2bb263d5e2bf5d33bd64649316a1a5830efa336fdfb9a68df6d"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-3B_benreal_s1_20260924_210301.json",
+    "sha256": "7ca3154de7b89649cd79443d475aad40689847de3de51d876255f3d945d71bb4"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-3B_benreal_s1_20260924_210301_passos.jsonl",
+    "sha256": "afa9f5fc5f93bb70750238fb07f2a811657144c66b9a572414ce3c3be593e915"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-7B_ben1tam_s1_20261004_183725_depuracao.json",
+    "sha256": "5a05d1da6fc3817a5816df2d50b3228c5429f4802e59195c634521602e746ff4"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-7B_ben1tam_s1_20261004_183725_depuracao_passos.jsonl",
+    "sha256": "f79ba78adbc0018f13ce500878252d85b2e401622fcc8905aac71d264850bc1b"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-7B_ben1tam_s1_20261004_192443.json",
+    "sha256": "e82fcf00ceb8b0ccaa2c153caeeb504d2fd83cc7427c6d446dfa4e7880f1f793"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-7B_ben1tam_s1_20261004_192443_passos.jsonl",
+    "sha256": "48aa098f7d228c50cd8ac29817f9b17cfa1ba3e281f02829e87a545620b63db1"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-7B_ben1tam_s2_20261005_052812.json",
+    "sha256": "eda7b8ace25df18ecef7cb70d4edc7759b2b03cd6f5d84315f6a7d0f25679e97"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-7B_ben1tam_s2_20261005_052812_passos.jsonl",
+    "sha256": "529ed96391786363da8d3e0f1934a945aa48e4e046922162aa0f300d3d214707"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-7B_ben1tam_s3_20261005_153159.json",
+    "sha256": "2dfd11e63fe67d94b73fdd0919e2303030e915527241e17fa23079cbceb8201c"
+  },
+  {
+    "arquivo": "03_experimentos/logs/etapa3_Qwen2.5-Coder-7B_ben1tam_s3_20261005_153159_passos.jsonl",
+    "sha256": "210f0044555d1a8ae5f0b1c27615669f9d65220c6978637170458bd6c0ea2ffc"
+  },
+  {
+    "arquivo": "03_experimentos/logs/v01/etapa1_20260912_015319.jsonl",
+    "sha256": "a2cd63c2f8403cef56cf75e1c00d9c4b156b7de36e9f0e7bece84c9d888e177d"
+  },
+  {
+    "arquivo": "03_experimentos/logs/v01/etapa1_20260912_020014.jsonl",
+    "sha256": "3ee04135d44acf4b1c74f3bd1311ddf9b8e8e9e4d2250a31c3dc7bd3b100980f"
+  },
+  {
+    "arquivo": "03_experimentos/logs/v01/etapa1_20260912_020109.jsonl",
+    "sha256": "2255e136aaf81d1c2a7c4cc48b00832c015ff739f0dbbcd8450246b049615940"
+  },
+  {
+    "arquivo": "03_experimentos/logs/v01/etapa1_20260912_020137.jsonl",
+    "sha256": "3f6039a423f4ea7f678c0e633f36da91e2ee1c355d5ba19c4b7f1d45e9386e5e"
+  },
+  {
+    "arquivo": "03_experimentos/logs/v01/etapa1_20260912_020340.jsonl",
+    "sha256": "0aec8f05792d4bef362c8bc73ecc123ca0c85b2e243c4d35f799ae3f57aafb05"
+  },
+  {
+    "arquivo": "03_experimentos/logs/v01/etapa1_20260912_025431.jsonl",
+    "sha256": "3d6bd03039c81fe505acea51db90fc2c2d621c785d07cecdd6d02317cf84eba4"
+  },
+  {
+    "arquivo": "03_experimentos/logs/v01/etapa1_20260912_231245.jsonl",
+    "sha256": "7d679555bf6b58f45edb36e2a81e922ad7dbf87a00fbfe3e28e338704f8aeb61"
+  },
+  {
+    "arquivo": "03_experimentos/logs/v01/etapa1_20260912_231331.jsonl",
+    "sha256": "bf6b20c07ac314a28bbf4366a4f5bb160d2e63ef4024cc642d51d26ee136f053"
+  },
+  {
+    "arquivo": "03_experimentos/logs/v01/etapa1_20260912_232024.jsonl",
+    "sha256": "b993596ff1fd1586259e5c3f630b773fa93754b2fab8101780429096e4d5b776"
+  },
+  {
+    "arquivo": "03_experimentos/logs/v01/etapa1_20260913_001529.jsonl",
+    "sha256": "227f00a39e089fe3deb9e82d9d4edc4da54d067613adb63833ef48eb8e85c91b"
+  },
+  {
+    "arquivo": "03_experimentos/logs/v01/etapa1_20260913_010615.jsonl",
+    "sha256": "d20a7370e280b387f1dacd662e755f17f1a0bede0e1df977a9eeaf63c2e55b91"
+  },
+  {
+    "arquivo": "03_experimentos/logs/v01/etapa1_20260917_012400.jsonl",
+    "sha256": "84d98132dbd14121eedaa9a809922594c36c910405bb220905036c12e4180ead"
+  },
+  {
+    "arquivo": "03_experimentos/logs/v01/etapa3_aval_nf4_20260917_021200_pareado.jsonl",
+    "sha256": "2f45bc09d39fb2fe98817cb51336611270e731fd96f9265cc8938b62dfd627d2"
+  },
+  {
+    "arquivo": "03_experimentos/logs/v01/etapa3_aval_nf4_20260917_021200_teste.jsonl",
+    "sha256": "9c6080a2c1245540304fe43ede3cc5cbe9cc70a6a37d7abd2449fe83e60ff84b"
+  },
+  {
+    "arquivo": "03_experimentos/logs/v01/etapa3_aval_nf4_20260917_021200_validacao.jsonl",
+    "sha256": "2158ca0b88a8ba01bdfbebf2c11e15c0fb57d7672dc8898b455697f63b377e52"
+  },
+  {
+    "arquivo": "03_experimentos/logs/v01/etapa3_Qwen2.5-Coder-3B_ben1_s1_20260917_020521_depuracao.json",
+    "sha256": "9aef607482ea4b9f0111eae4a35afa8e62786f03681876c1650907da35eb8cf3"
+  },
+  {
+    "arquivo": "03_experimentos/logs/v01/etapa3_Qwen2.5-Coder-3B_ben1_s1_20260917_020521_depuracao_passos.jsonl",
+    "sha256": "eab27edf30d09acd6faae811f0682d4b31187cacaf06d1720c63e06b7719553d"
+  },
+  {
+    "arquivo": "03_experimentos/resultados/.gitkeep",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arquivo": "03_experimentos/resultados/artigo_seminarios_2026/README.md",
+    "sha256": "3d25b2bed330ba5b20e5a2fa7a04b771dcb0497c6ec1be37484cd5feea1cd76e"
+  },
+  {
+    "arquivo": "03_experimentos/resultados/NOTAS_etapa1.md",
+    "sha256": "461488d4c4be975a2c5a84faf416fa00f1aa4c403c511c78d84992d64fb271af"
+  },
+  {
+    "arquivo": "03_experimentos/resultados/NOTAS_etapa3.md",
+    "sha256": "79beed01cf0ed6997209d2159d0c247ffed23eecbe4a1e80c1efc1c68fbcb643"
+  },
+  {
+    "arquivo": "03_experimentos/resultados/resultados_etapa1.csv",
+    "sha256": "512210e16536c5fa020c7062f2ca0c6eef886427848a82c09897022ba6a7fb3b"
+  },
+  {
+    "arquivo": "03_experimentos/resultados/resultados_etapa3.csv",
+    "sha256": "16d52db21109ef535caefd703a2a7438c9020cdeff7375422101da6025df526a"
+  },
+  {
+    "arquivo": "03_experimentos/resultados/resultados_pareado.csv",
+    "sha256": "6c8afa792c08104f1eb4a1dafe0ae6e2b9f7f552baca79a46c8bcdf0aa7d08c5"
+  },
+  {
+    "arquivo": "03_experimentos/resultados/treinos_etapa3.csv",
+    "sha256": "45852d549bca31f8a0e0332809901f81230f6aae1f9aebfab06bdf869059c43b"
+  },
+  {
+    "arquivo": "03_experimentos/resultados/v01/LEIA.md",
+    "sha256": "77282fb15cfb440bc5630bc40d2bd727743684ce60bcb16930e846e469b6f29a"
+  },
+  {
+    "arquivo": "03_experimentos/resultados/v01/resultados_etapa1.csv",
+    "sha256": "5457f372c2644e78c136c77c31c88a34f1d02dd2fa223f757535997a0391dc80"
+  },
+  {
+    "arquivo": "03_experimentos/resultados/v01/resultados_etapa3.csv",
+    "sha256": "d6700b07732a83cd4687f44b3e9a21b5551f862874a8cb34237a77412078a839"
+  },
+  {
+    "arquivo": "03_experimentos/resultados/v01/resultados_pareado.csv",
+    "sha256": "4807a584708578cd64a4a02aac523aed6d21a1c253e239daf4e3533d9a095d87"
+  },
+  {
+    "arquivo": "03_experimentos/resultados/v01/treinos_etapa3.csv",
+    "sha256": "e03c435ca24565bf1c89720d4c9b72cb2f5645bc2c366c158de422c76f965f6b"
+  }
+]

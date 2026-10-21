@@ -1,0 +1,204 @@
+[
+  {
+    "page": 1,
+    "title": "Capa"
+  },
+  {
+    "page": 2,
+    "title": "Como ler este guia",
+    "source": "",
+    "lowest_content_y": 255.7
+  },
+  {
+    "page": 3,
+    "title": "Primeiro: qual problema queremos resolver?",
+    "source": "Base: anteprojeto e manuscrito atual [S1, S4]. Exemplo de código criado para ensino.",
+    "lowest_content_y": 281.2
+  },
+  {
+    "page": 4,
+    "title": "O que é um modelo de linguagem?",
+    "source": "Base: configurações e fundamentação do manuscrito [S4].",
+    "lowest_content_y": 232.3
+  },
+  {
+    "page": 5,
+    "title": "Como o projeto nasceu",
+    "source": "Base: anteprojeto, dossiê v3 e protocolo [S1, S2].",
+    "lowest_content_y": 272.5
+  },
+  {
+    "page": 6,
+    "title": "Linha do tempo do trabalho",
+    "source": "Base: histórico Git, notas de execução e registros editoriais [S3-S6]. Datas em horário local quando disponível.",
+    "lowest_content_y": 276.8
+  },
+  {
+    "page": 7,
+    "title": "Dataset: o material usado para ensinar e testar",
+    "source": "Base: release original recuperada, esquema JSONL e scripts [S3, S5].",
+    "lowest_content_y": 205.4
+  },
+  {
+    "page": 8,
+    "title": "Por que o PrimeVul foi escolhido?",
+    "source": "Base: manuscrito e fontes primárias nele verificadas [S4; R1, R2].",
+    "lowest_content_y": 217.7
+  },
+  {
+    "page": 9,
+    "title": "Treino, validação e teste",
+    "source": "Base: contagens oficiais recuperadas e manuscrito [S4, S5].",
+    "lowest_content_y": 194.1
+  },
+  {
+    "page": 10,
+    "title": "O que é a avaliação pareada?",
+    "source": "Base: partições pareadas e definições do manuscrito [S4, S5].",
+    "lowest_content_y": 211.1
+  },
+  {
+    "page": 11,
+    "title": "A mudança de versão do dataset",
+    "source": "Base: downloader, README experimental, arquivo v01 e auditoria [S3, S5].",
+    "lowest_content_y": 209.0
+  },
+  {
+    "page": 12,
+    "title": "Como contar os acertos e os erros",
+    "source": "Base: método do manuscrito [S4]. Exemplo numérico criado para ensino.",
+    "lowest_content_y": 236.2
+  },
+  {
+    "page": 13,
+    "title": "Precisão, revocação, F1 e falsos alarmes",
+    "source": "Base: definições usadas no manuscrito [S4]. Contas sobre o exemplo fictício da página 12.",
+    "lowest_content_y": 317.4
+  },
+  {
+    "page": 14,
+    "title": "Notas, limiares e AUC",
+    "source": "Base: calibração e métricas do manuscrito [S4].",
+    "lowest_content_y": 238.8
+  },
+  {
+    "page": 15,
+    "title": "Duas medidas diferentes dentro dos pares",
+    "source": "Base: definições e revisão metodológica [S4, S5].",
+    "lowest_content_y": 257.8
+  },
+  {
+    "page": 16,
+    "title": "A bancada de experimentos",
+    "source": "Base: README do código, trava de versões e notas de reprodutibilidade [S3, S6].",
+    "lowest_content_y": 245.2
+  },
+  {
+    "page": 17,
+    "title": "Primeiros resultados: perguntar YES ou NO",
+    "source": "Base: quatro avaliações oficiais e tabelas consolidadas [S3-S5].",
+    "lowest_content_y": 257.9
+  },
+  {
+    "page": 18,
+    "title": "Depois: especializar o modelo com QLoRA",
+    "source": "Base: código, receitas e método do manuscrito [S3, S4; R3, R4].",
+    "lowest_content_y": 234.4
+  },
+  {
+    "page": 19,
+    "title": "O piloto 3B: três receitas de treino",
+    "source": "Base: receitas oficiais, notas históricas e tabela consolidada [S3-S5].",
+    "lowest_content_y": 205.9
+  },
+  {
+    "page": 20,
+    "title": "O achado que mudou a interpretação: tamanho",
+    "source": "Base: baseline de comprimento e discussão atual [S4, S5]. Exemplo inventado para ensino.",
+    "lowest_content_y": 196.1
+  },
+  {
+    "page": 21,
+    "title": "O controle de tamanho e a chegada ao 7B",
+    "source": "Base: receitas, seleção de épocas e análise atual [S3-S5].",
+    "lowest_content_y": 169.7
+  },
+  {
+    "page": 22,
+    "title": "O que os resultados principais mostram?",
+    "source": "Base: tabelas 3 e 4 da consolidação [S5]. Todos os F1 abaixo usam limiar da validação.",
+    "lowest_content_y": 164.1
+  },
+  {
+    "page": 23,
+    "title": "Por que uma única semente não basta?",
+    "source": "Base: tabela 6, intervalos e comparação alinhada [S5].",
+    "lowest_content_y": 173.5
+  },
+  {
+    "page": 24,
+    "title": "Quantização: memória e tempo não andam juntos",
+    "source": "Base: tabelas de recursos e método [S4, S5].",
+    "lowest_content_y": 230.0
+  },
+  {
+    "page": 25,
+    "title": "E se só pudermos aceitar poucos alarmes falsos?",
+    "source": "Base: FNR* e FPR* das tabelas consolidadas [S5].",
+    "lowest_content_y": 176.8
+  },
+  {
+    "page": 26,
+    "title": "Consolidar: transformar registros em evidência",
+    "source": "Base: implementação, manifesto, auditoria e suplemento [S5].",
+    "lowest_content_y": 201.1
+  },
+  {
+    "page": 27,
+    "title": "Conferir também os pares e o corte do código",
+    "source": "Base: auditoria de pares, tokenização e tabelas de sensibilidade [S4, S5].",
+    "lowest_content_y": 230.2
+  },
+  {
+    "page": 28,
+    "title": "O que podemos concluir com responsabilidade",
+    "source": "Base: discussão e limitações do manuscrito atual [S4].",
+    "lowest_content_y": 248.1
+  },
+  {
+    "page": 29,
+    "title": "O que está pronto e o que continua aberto",
+    "source": "Base: README atual, consolidação e registros de fechamento [S5, S6].",
+    "lowest_content_y": 219.7
+  },
+  {
+    "page": 30,
+    "title": "Como continuar a pesquisa a partir daqui",
+    "source": "Base: conclusão do manuscrito e distinção entre recorte atual e plano amplo [S2, S4, S6].",
+    "lowest_content_y": 245.7
+  },
+  {
+    "page": 31,
+    "title": "Glossário para consultar durante a leitura",
+    "source": "",
+    "lowest_content_y": 156.1
+  },
+  {
+    "page": 32,
+    "title": "Onde encontrar cada parte no projeto",
+    "source": "Base: organização atual das pastas e README do código [S3, S6]. Caminhos relativos à raiz do projeto.",
+    "lowest_content_y": 169.5
+  },
+  {
+    "page": 33,
+    "title": "Fontes deste relato",
+    "source": "Este guia foi elaborado a partir dos arquivos disponíveis na pasta compartilhada, sem novos experimentos com modelos.",
+    "lowest_content_y": 320.1
+  },
+  {
+    "page": 34,
+    "title": "Para lembrar e para aprofundar",
+    "source": "Referências científicas abaixo constam das fontes verificadas no manuscrito atual [S4].",
+    "lowest_content_y": 282.5
+  }
+]

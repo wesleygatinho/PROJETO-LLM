@@ -1,0 +1,47 @@
+{
+  "versao_sha256": "d39876cb28943a6eb96e87ac7443fa238b62b4c18eebcc1ca308ca0362b12aa6",
+  "arquivo": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\revisao\\fluxo_editorial\\rodadas\\artigo_opus_extra_01\\versoes\\v001.md",
+  "fontes_experimentais_preservadas": 150,
+  "alteracoes_experimentais": [],
+  "tabelas": [
+    {
+      "tabela_artigo": 2,
+      "tabela_congelada": 1,
+      "celulas_conferidas": 36,
+      "diferencas": []
+    },
+    {
+      "tabela_artigo": 3,
+      "tabela_congelada": 2,
+      "celulas_conferidas": 18,
+      "diferencas": []
+    },
+    {
+      "tabela_artigo": 4,
+      "tabela_congelada": 3,
+      "celulas_conferidas": 80,
+      "diferencas": []
+    },
+    {
+      "tabela_artigo": 5,
+      "tabela_congelada": 4,
+      "celulas_conferidas": 80,
+      "diferencas": []
+    },
+    {
+      "tabela_artigo": 6,
+      "tabela_congelada": 6,
+      "celulas_conferidas": 15,
+      "diferencas": []
+    },
+    {
+      "tabela_artigo": 7,
+      "tabela_congelada": 5,
+      "celulas_conferidas": 30,
+      "diferencas": []
+    }
+  ],
+  "dados_tabela1": "Conferência das contagens registradas da release original",
+  "numero_tokens_citacao": 36,
+  "validacao": "Conferência de cópia, sem produzir novos resultados, testes estatísticos ou avaliações. Não valida a prosa por contagem de referências."
+}

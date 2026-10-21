@@ -1,0 +1,9 @@
+{
+  "verificador": "Codex, orientação e conferência de fontes",
+  "observacao_original_claude": [
+    "Não impede finalizar: a orientação dizia que a época foi escolhida por F1 na validação, mas selecao_epocas.json e o artigo anterior registram ordenação estrita nos pares de validação, com desempate pela AUC em uma amostra global. O texto segue o registro congelado; Codex deve confirmar antes da transposição."
+  ],
+  "fonte": "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/selecao_epocas.json",
+  "sha256_fonte": "76cface8862b6f66f45eb9e2eb9597fd73f3a35dcc46b81a7fcc51c4018be967",
+  "verificacao": "As épocas históricas são 1,1,3,3,2,3; critério histórico de ordenação estrita com AUC para desempate. Nos quatro treinos de controle de tamanho, a seleção reconstruída com meio crédito é igual à histórica; nos dois outros não há empates por época. O manuscrito Claude segue os registros e não a orientação equivocada que confundia época com limiar F1. A pendência de conferência foi resolvida sem editar nenhuma frase. Submeter ainda à revisão independente."
+}

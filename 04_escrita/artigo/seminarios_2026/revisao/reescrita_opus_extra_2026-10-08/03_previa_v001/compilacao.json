@@ -1,0 +1,8 @@
+{
+  "ferramenta": "mcp__codex_app__compile_latex_document",
+  "arquivo": "D:/UFMA UNIVERSIDADE/MESTRADO - ESTUDO LLM/04_escrita/artigo/seminarios_2026/revisao/introducao_2026-10-07/previa_rascunho_sbc.tex",
+  "resultado": "compile-failed",
+  "mensagem": "Could not prepare the LaTeX preview",
+  "log": "exec failed: windows sandbox: helper_unknown_error: setup refresh had errors",
+  "interpretacao": "Falha na preparação do ambiente. Nenhum diagnóstico de linha TeX ou PDF disponível; não se declara compilação ou diagramação validadas. Não houve compilação externa."
+}

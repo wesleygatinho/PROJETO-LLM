@@ -1,0 +1,38 @@
+[
+  {
+    "consulta": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/rodadas/introducao_01/consultas/002_revisar.json",
+    "versao": 1,
+    "sessao": "52244100-e7c1-4fb4-abd7-83ffc5827700",
+    "modelo_real": "claude-opus-5-5",
+    "decisao": "corrigir",
+    "ids_abertos": [
+      "V1-R1",
+      "V1-R2",
+      "V1-R3"
+    ],
+    "duracao_ms": 90929,
+    "custo_estimado_cli_usd": 0.6000286000000001
+  },
+  {
+    "consulta": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/rodadas/introducao_01/consultas/004_revisar.json",
+    "versao": 2,
+    "sessao": "df491923-2585-4d21-b34a-8d7fcaf910ca",
+    "modelo_real": "claude-opus-5-5",
+    "decisao": "corrigir",
+    "ids_abertos": [
+      "V2-R1"
+    ],
+    "duracao_ms": 37850,
+    "custo_estimado_cli_usd": 0.41410079999999994
+  },
+  {
+    "consulta": "04_escrita/artigo/seminarios_2026/revisao/fluxo_editorial/rodadas/introducao_01/consultas/006_revisar.json",
+    "versao": 3,
+    "sessao": "14a69b13-ac66-4c4c-a150-b81b0777e98b",
+    "modelo_real": "claude-opus-5-5",
+    "decisao": "aprovar",
+    "ids_abertos": [],
+    "duracao_ms": 34678,
+    "custo_estimado_cli_usd": 0.2902356
+  }
+]

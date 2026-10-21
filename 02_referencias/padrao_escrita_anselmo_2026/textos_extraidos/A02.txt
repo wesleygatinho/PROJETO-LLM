@@ -1,0 +1,439 @@
+<!-- pagina 1 -->
+Detecc¸a˜o de No´dulos da Tireoide em Exames de Termografia
+utilizando Redes Neurais Convolucionais em Cascata
+RicardoJose´ FernandesAnchietaJu´nior1,ItaloFrancylesSantosdaSilva1,
+Aristo´fanesCorreˆaSilva1,AnselmoCardosodePaiva1
+1Nu´cleodeComputac¸a˜oAplicada(NCA)-UniversidadeFederaldoMaranha˜o(UFMA)
+Av. dosPortugueses,1966-VilaBacanga,Sa˜oLu´ıs-MA,65080-805
+{ricardo.anchieta, francyles, ari, paiva}@nca.ufma.br
+Abstract. Thermography exams can be used as a non-invasive way for detec-
+ting diseases through the analysis of thermal images of the human body. The
+present work presents a method to detect nodules of the thyroid gland in ther-
+mal images using two cascade Convolutional Neural Networks (CNNs). The
+firstCNNoperatesinthegenerationofcandidatenodules,andthesecondCNN
+refines the detection, eliminating false positives. The experiments were carried
+out with thermal images of 20 patients. The final result reaches 97% accuracy,
+95%recalland80%f1-scoreusingtwoAlexNetCNNs.
+Resumo. Os exames de termografia podem ser utilizados como um meio na˜o
+invasivo para a detecc¸a˜o de doenc¸as atrave´s da ana´lise de imagens te´rmicas
+do corpo humano. O presente trabalho apresenta um me´todo para detectar
+no´dulos da glaˆndula tireoide em imagens te´rmicas utilizando duas Redes Neu-
+rais Convolucionais (CNN’s) em cascata. A primeira CNN atua na gerac¸a˜o de
+candidatos a no´dulo, e a segunda faz o refinamento da detecc¸a˜o, eliminando
+falsospositivos. Osexperimentosforamrealizadoscomimagenste´rmicasde20
+pacientes. O resultado final atinge 97% de acura´cia, 95% de sensibilidade e
+80%def1-scoreutilizandoduasCNN’sAlexNet.
+1. Introduc¸a˜o
+Osno´dulosdatireoidesetornaramumproblemacomumnaa´reame´dica,representandoa
+principalcausadeva´riasdoenc¸asrelacionadasaesseo´rga˜o,comoocaˆncer,que,segundo
+estimativas, sera´ o segundo mais comum entre as mulheres em 2030 [Rahibetal. 2014].
+Dessaforma,adetecc¸a˜oprecocedetumorescancer´ıgenosaumentaachancedeumtrata-
+mentobem-sucedidoemelhoraataxadesobreviveˆnciaaocaˆncer[McPhailetal. 2015].
+O comportamento funcional da tireoide representa a principal informac¸a˜o no di-
+agno´stico de no´dulos malignos. A caracterizac¸a˜o do no´dulo permite ao especialista de-
+cidir se a bio´psia de aspirac¸a˜o e´ necessa´ria. Nesse processo, tamanho, posic¸a˜o e malig-
+nidade do no´dulo sa˜o observados. Dois dos exames indicados para esta avaliac¸a˜o sa˜o a
+ultrassonografiacervicaleressonaˆnciamagne´tica[Nguyenetal. 2015].
+Fisiologicamente, as doenc¸as da tireoide, incluindo no´dulos, geralmente induzem
+uma temperatura elevada na superf´ıcie da pele do pescoc¸o, que pode ser adotada como
+um ´ındice diagno´stico potencial. Assim, a termografia poderia ser implementada como
+um me´todo complementar para a detecc¸a˜o de no´dulos, visto que a sua temperatura se
+
+<!-- pagina 2 -->
+comporta de maneira diferente em relac¸a˜o a`s outras regio˜es do pescoc¸o. Esse exame
+permite capturar a radiac¸a˜o infravermelha emitida por objetos e converte esta radiac¸a˜o
+emtemperaturasquandoascondic¸o˜esambientaissa˜obemconhecidas.
+Emcomparac¸a˜oaoutrosexamesdeimagemutilizadosparaadetecc¸a˜odeno´dulos
+na tireoide, a termografia tem custo extremamente baixo [Brioschietal. 2010]. Ale´m
+disso, e´ um me´todo ra´pido, sem contato e na˜o invasivo e ja´ tem sido empregado para o
+diagno´stico de tumor cerebral, caˆncer de pele, doenc¸as oculares e neuropatia diabe´tica
+[BahramianandMojra2020].
+Com o avanc¸o dos recursos tecnolo´gicos, e considerando a natureza digital das
+imagens te´rmicas, o desenvolvimento de me´todos computacionais baseados em proces-
+samento de imagem pode auxiliar os especialistas na interpretac¸a˜o dos exames, garan-
+tindomaiseficieˆnciaeprecisa˜oaosdiagno´sticoseaprimorandoaqualidadedaassisteˆncia
+me´dica.
+Na literatura, me´todos baseados em te´cnicas de aprendizado profundo,
+como as Redes Neurais Convolucionais (CNN’s), sa˜o amplamente usados para a
+classificac¸a˜o de problemas cl´ınicos, alcanc¸ando resultados promissores no aˆmbito da
+classificac¸a˜o de no´dulos, tumores, leso˜es e outras anormalidades em imagens me´dicas
+[Le´vyandJain2016,Moranetal. 2018,Estevaetal. 2017].
+Tambe´m sa˜o encontrados trabalhos relacionados especificamente aos exames
+de termografia da tireoide. Moran et al. (2018) analisaram o paraˆmetro de assime-
+tria de temperatura entre os lados direito e esquerdo da tireoide para extrair regio˜es
+de no´dulo nas imagens te´rmicas. Essas imagens foram utilizadas no treinamento de
+treˆs redes neurais, com arquiteturas baseadas na GoogLeNet [Zhuetal. 2015], AlexNet
+[Krizhevskyetal. 2012] e VGG [SimonyanandZisserman2014]. A rede que obteve o
+melhor resultado na ocasia˜o foi a GoogLeNet, com 86% de acura´cia. Entretanto, esse
+me´todo depende da imagem resultante do paraˆmetro de assimetria. Logo, se alguma
+regia˜o de no´dulo for descartada no processo de gerac¸a˜o da imagem de entrada da rede, o
+resultadofinalsera´ afetado.
+Gonza´lez et al. (2019) investigaram duas te´cnicas de ana´lise de no´dulos tireoidi-
+anos em imagens te´rmicas. Sa˜o elas: o uso de uma u´nica imagem do exame, verificando
+se existe um limiar de temperatura que diferencia os no´dulos de regio˜es sauda´veis do
+pescoc¸o; e o uso de se´ries de temperatura, analisando o comportamento do no´dulo ao
+longo do tempo. Os resultados mostraram que existem regio˜es do pescoc¸o que possuem
+temperaturassimilaresa`sdeno´dulos,na˜otornandoposs´ıvelanalisaradiferenc¸adetempe-
+raturaemambososcasosanalisados. Apesardeaana´lisepropostaserbastantepertinente,
+osautoresna˜outilizamme´todosdeaprendizadoparaadetecc¸a˜oderegio˜esnodulares.
+O trabalho de Moran et al. (2019) utiliza a rede convolucional ResNet
+[Heetal. 2016] para classificar regio˜es nodulares. Os autores fazem um estudo compa-
+rativoentrete´cnicasresponsa´veispelasegmentac¸a˜oderegio˜escandidatasano´dulocomo
+um processo anterior a` classificac¸a˜o. Essas te´cnicas sa˜o: paraˆmetros estat´ısticos, ´ındice
+termogra´fico,agrupamentodetemperaturaeparaˆmetrodeassimetria. Nosexperimentos,
+o melhor resultado alcanc¸ado pela ResNet foi 92% de acura´cia usando como imagens de
+entrada aquelas obtidas pelo paraˆmetro de assimetria, sendo pass´ıvel de erro quando este
+paraˆmetrodescartaalgumaregia˜onodularantesdasubmissa˜odeimagensa` rede.
+
+<!-- pagina 3 -->
+Dado esse contexto, e diferenciando-se das abordagens mencionadas, o presente
+trabalho propo˜e um me´todo para detectar no´dulos da tireoide em exames de termogra-
+fia utilizando duas CNN’s em cascata. Primeiro, sa˜o aplicadas te´cnicas nas imagens do
+examedemodoaconstruirumase´rietemporaldetemperaturaseextrairjanelascontendo
+todas as regio˜es do pescoc¸o. Dessa forma, garante-se que o no´dulos sejam mantidos, e
+busca-seanalisarascaracter´ısticasdatemperaturaaolongodotempo. Emseguida,asja-
+nelas extra´ıdas sa˜o submetidas a` primeira CNN que e´ responsa´vel por indicar candidatos
+a no´dulo. Por fim, esses candidatos sa˜o direcionados a` segunda CNN para o refinamento
+dosresultadoscomareduc¸a˜odefalsospositivos.
+Este trabalho esta´ dividido nas seguintes sec¸o˜es: na Sec¸a˜o 2, a base de imagens
+utilizada e´ detalhada e as etapas do me´todo proposto sa˜o explicadas; a Sec¸a˜o 3 apresenta
+osresultadosobtidos;E,naSec¸a˜o4,sa˜oexpostasasconcluso˜eseostrabalhosfuturos.
+2. Materiais e me´todo
+Estasec¸a˜oapresentaabasedeimagensutilizadanopresenteestudo,juntocomodetalha-
+mentodome´todoproposto.
+2.1. Basedeimagens
+Abasedeimagensutilizadanestetrabalho,consisteemtermografiasde20pacientesque
+apresentam no´dulos na regia˜o da tireoide. O protocolo utilizado para obter os exames
+mostra o comportamento da temperatura na superf´ıcie da regia˜o da tireoide apo´s um es-
+tresse te´rmico. Esse estresse e´ causado pelo resfriamento da superf´ıcie do pescoc¸o com
+umfluxodeardeumventilador. Duranteoprocessoderesfriamento,acada15segundos
+sa˜o capturadas as imagens te´rmicas. [Fiirstetal. 2018, Moranetal. 2018] . Cada exame
+termogra´ficotem20imagensdeummesmopacienteaolongodotempo(Figura1). Cada
+imagem da base possui um arquivo adicional indicando a marcac¸a˜o do especialista da
+localizac¸a˜odono´dulo,eum arquivocomamatrizde temperatura. Essamatrizinforma o
+valor da temperatura de cada pixel da imagem. E´ importante ressaltar que essas imagens
+fazem parte de um banco de dados fornecido pelo Visual Lab1 da Universidade Federal
+FluminensenoaˆmbitodoprojetoThyroid [Gonzalez2017,Fiirstetal. 2019].
+Figura1. Resultadodoexamedetermografia.
+1Dispon´ıvelem: http://visual.ic.uff.br/thyroid
+
+<!-- pagina 4 -->
+2.2. Me´todoProposto
+Neste artigo e´ proposto um me´todo de detecc¸a˜o de no´dulos da tireoide utilizando duas
+CNN’semcascata. AsduasCNN’sutilizadasesta˜oassociadas,comomostraaFigura2.
+Figura 2. Demonstrac¸a˜o do me´todo de detecc¸a˜o em cascata proposto neste es-
+tudo.
+AntesdeseremsubmetidasparaasCNN’s,asimagenspassamporcincoetapasde
+pre´-processamento: transformac¸a˜o das imagens em n´ıveis de cinza, registro, extrac¸a˜o da
+regia˜o de interesse, melhoramento de contraste e janelamento. Depois dessas etapas, as
+imagenschegamate´ aCNN1comojanelas. NessaCNNsera˜ogeradasregio˜escandidatas
+a no´dulo. Essas regio˜es sera˜o passadas para a CNN 2 e enta˜o classificadas novamente,
+com o intuito de retirar poss´ıveis falsos positivos e detectar definitivamente as regio˜es
+nodulares. Aseguir,cadaetapadome´todopropostosera´ explanada.
+2.3. Pre´-processamento
+Asmatrizesdetemperaturadabasedeimagens,conteˆmastemperaturasemgrausCelsius
+de cada pixel das imagens te´rmicas. Para poder utilizar as informac¸o˜es das matrizes, e´
+feito como primeira etapa do pre´-processamento a transformac¸a˜o das matrizes em ima-
+gensemn´ıveisdecinza,emumprocessodenormalizac¸a˜ocomomostraaFigura3.
+Figura 3. Transformac¸a˜o da matriz de temperatura em imagens em escala de
+cinza
+Para o processo de normalizac¸a˜o, utiliza-se a Equac¸a˜o 1, onde M e´ a matriz de
+temperatura,e(x,y)sa˜oascoordenadas.
+M(x,y)−min(M)
+N(x,y) = ∗255 (1)
+max(M)−min(M)
+Apo´s a transformac¸a˜o em escala de cinza ser feita nas imagens, elas passam pelo
+processo de registro. Ao longo do exame de termografia, a movimentac¸a˜o do paciente
+pode influenciar a retirada correta das imagens. Quando isso ocorre, a regia˜o do no´dulo
+pode mudar de posic¸a˜o ao longo das imagens do exame. Para corrigir esse erro, usa-se o
+
+<!-- pagina 5 -->
+registro de sub-pixel [Guizar-Sicairosetal. 2008]. Essa te´cnica toma a primeira imagem
+como base e corrige as demais utilizando uma correlac¸a˜o cruzada entre a imagem base e
+aimagemasercorrigida.
+A tireoide esta´ localizada no pescoc¸o, enta˜o apenas essa regia˜o deve ser conside-
+rada na ana´lise das imagens. Sendo assim, para extrair a regia˜o de interesse, e´ feito um
+recorte manual a ser utilizado em todas as imagens, que foram previamente registradas,
+de modo que nenhuma regia˜o nodular de nenhum paciente fosse perdida. No final desse
+processo, todas as imagens que antes tinham 640x480 tera˜o 320x320 de dimensa˜o. Em
+seguidae´ retiradoofundodosrecortes,deixandoapenasaregia˜odopescoc¸odopaciente
+(Figura4).
+Figura4. Processodeextrac¸a˜odaregia˜odeinteresse
+Nasregio˜esdeinteresseja´ extra´ıdas,sa˜oaplicadasduaste´cnicas. Sa˜oelas: ofiltro
+Gaussiano, para a suavizac¸a˜o; e o Contrast Limited Adaptive Histogram Equalization
+(CLAHE). Esse u´ltimo foi utilizado com o intuito de realc¸ar as regio˜es nodulares atrave´s
+da equalizac¸a˜o do histograma que produz um melhoramento no contraste. As imagens
+resultantesdestaetapasera˜outilizadasnoprocessodacriac¸a˜odasse´riestemporais.
+Como dito anteriormente, o no´dulo geralmente apresenta uma temperatura mais
+elevada do que as demais regio˜es do pescoc¸o. Baseado nisso, foi proposto um me´todo
+para levar em considerac¸a˜o o comportamento da temperatura dos no´dulos perante ao
+tempo atrave´s das se´ries temporais. A termografia de um paciente resulta em 20 ima-
+gens te´rmicas capturadas em tempos diferentes ao longo do exame. Neste trabalho, para
+construir a se´rie temporal de um paciente e´ utilizada a primeira (T1), a de´cima (T10) e
+a vige´sima (T20) imagem do exame de um paciente, essas foram escolhidas por repre-
+sentarem respectivamente o in´ıcio, o meio e o fim do exame de termografia. As imagens
+selecionadas sa˜o concatenadas para construir uma u´nica imagem com 3 dimenso˜es,uma
+demonstrac¸a˜oe´ mostradanaFigura5.
+Figura 5. Demonstrac¸a˜o da se´rie temporal,a` esquerda as 20 imagens de um
+paciente organizadas pelo tempo T em que foram tiradas, a` direita a
+concatenac¸a˜odaprimeira(T1),de´cima(T10)evige´sima(T20)imagempara
+acriac¸a˜odase´rietemporal
+
+<!-- pagina 6 -->
+Para conseguir identificar as regio˜es nodulares nas imagens te´rmicas, as imagens
+foram divididas em janelas menores, esse processo de janelamento recebe a imagem re-
+sultante da se´rie temporal de um paciente e a divide em janelas sendo suas dimenso˜es de
+64x64, o que resulta em 81 janelas por imagem. Dentre as janelas obtidas existira˜o as
+de regio˜es de no´dulo e de na˜o no´dulo. Para uma janela ser considerada de uma regia˜o
+de no´dulo, o mesmo precisa abranger mais que 50% da a´rea da janela ou a janela precisa
+abranger mais que 50% da a´rea do no´dulo, caso ele seja menor que janela. No processo
+de janelamento as janelas extra´ıdas se sobrepo˜em, como por exemplo a segunda janela
+comec¸a 32 pixels apo´s a primeira como demonstra a Figura 6. Esta e´ a u´ltima etapa do
+pre´-processamento. Asjanelasgeradasaquisera˜outilizadasparaasdetecc¸o˜esdeno´dulos
+feitaspelasCNN’s.
+Figura6. Demonstrac¸a˜odasobreposic¸a˜onojanelamento
+2.4. Detecc¸a˜ousandoCNNsemcascata
+Nestetrabalho,ome´todoutilizadoparaadetecc¸a˜oseda´ pelaclassificac¸a˜odasjanelasem
+no´dulo e na˜o no´dulo. Este me´todo foi dividido em duas etapas, de modo que cada qual
+utilizaumaCNN.
+Na etapa 1, para classificar primariamente as janelas, utiliza-se uma CNN com a
+arquitetura baseada na AlexNet. A AlexNet [Krizhevskyetal. 2012] e´ uma rede neural
+profundamente convolucional, e consiste em oito camadas: cinco camadas convolucio-
+nais, algumas das quais sa˜o seguidas por camadas de max-pooling e treˆs camadas to-
+talmente conectadas com a camada final. A camada final, para este trabalho, foi alterada
+paraumacamadasigmo´ide,ja´ queaclassificac¸a˜oe´ bina´ria,istoe´,entreregio˜esdeno´dulo
+ena˜ono´dulo.
+Na etapa 2 da detecc¸a˜o em cascata proposta, utiliza-se a CNN que melhor per-
+formou na primeira classificac¸a˜o, pore´m o treino desta nova CNN sera´ com o todas as
+janelas de regio˜es de no´dulo utilizadas no primeiro treino, adjunto a todos os falsos po-
+sitivos gerados pelo treino da CNN 1. A CNN 2 sera´ testada com as janelas que a CNN
+1 classificou como sendo de no´dulo, com a finalidade de diminuir a quantidade de fal-
+sos positivos gerados. Dessa forma, no resultado final, sera˜o mantidas apenas as regio˜es
+nodulares.
+
+<!-- pagina 7 -->
+3. Resultados e Discussa˜o
+Neste trabalho, os processos de pre´-processamento e detecc¸a˜o foram implementados em
+linguagem Python 3.8, utilizando as bibliotecas OpenCV2 versa˜o 4.1.2, Scikit-learn3
+versa˜o 0.22.1, Keras4 versa˜o 2.4.0 e Tensorflow5 versa˜o 2.4.1. O hardware utilizado pos-
+sui um processador AMD Ryzen 5 1600 de seis nu´cleos e 3.20 GHz, 16 gigabytes de
+memo´riaRAMeumaplacadev´ıdeoNVIDIAGeForceGTX1050Ti.
+Nesse experimento, treˆs CNN’s foram testadas na etapa 1 da
+classificac¸a˜o, sa˜o elas: a AlexNet, a ResNet50 [Heetal. 2016] e a VGG16
+[SimonyanandZisserman2014]; e foram treinadas utilizando um tamanho do batch de
+8, uma taxa de aprendizagem de 0,001 e 100 e´pocas. Na etapa 2 a CNN foi treinada
+utilizando um tamanho de batch de 4, taxa de aprendizagem de 0,001 e 50 e´pocas.
+Foi decidido usar os mesmos paraˆmetros para todas as treˆs CNN’s que foram testadas
+na etapa 1 a fim de verificar melhor o comportamento de cada CNN na resoluc¸a˜o do
+problema, excluindo variac¸o˜es causadas pelo uso de paraˆmetros diferentes. Apo´s o
+processo de janelamento foram obtidas 1620 janelas. 60% das imagens do conjunto
+de imagens foram usadas na fase de treinamento, totalizando 972 janelas, sendo 85 de
+regio˜es de no´dulo e 887 de na˜o no´dulo. Os 40% restantes foram usados na fase de teste,
+queconsisteem648janelas,sendo37deregio˜esdeno´duloe611dena˜ono´dulo.
+TodasasCNN’squeforamtestadasnasetapa1e2daclassificac¸a˜o,foramtreina-
+das usando duas func¸o˜es de custo distintas: a binary cross-entropy e a binary focal loss,
+essau´ltimautilizadapelasuaeficieˆnciaquandosetemumconjuntodetreinodesbalance-
+ado[Linetal. 2018].
+As me´tricas usadas para avaliar o resultado das CNN’s sa˜o: acura´cia (Acc), pre-
+cisa˜o (Prec.), sensibilidade (Sens.), f1-score (F1); essas sa˜o representadas respectiva-
+mente pelas equac¸o˜es 2,3,4,5, onde VP significa verdadeiro positivo, VN e´ verdadeiro
+negativo, FP e´ falso positivo e FN e´ falso negativo. Tambe´m foram usadas mais duas
+me´tricas importantes para o contexto da detecc¸a˜o. A primeira e´ o nu´mero de falsos po-
+sitivos por imagem (FP/Img), que consiste na me´dia entre o nu´mero de falsos positivos
+dividido pela quantidade de imagens. A segunda e´ o nu´mero de detecc¸o˜es (ND), que
+calculaonu´merodepacientesquetiveramno´dulosdetectados.
+VP +VN
+DP = (2)
+VP +VN +FP +FN
+VP
+Prec = (3)
+VP +FP
+VP
+Sens = (4)
+VP +FN
+Prec∗Sens
+F1 = 2∗ (5)
+Prec+Sens
+2Dispon´ıvelem:https://opencv.org/
+3Dispon´ıvelem:https://scikit-learn.org/stable/
+4Dispon´ıvelem:https://keras.io/
+5Dispon´ıvelem: https://www.tensorflow.org/
+
+<!-- pagina 8 -->
+Como a proposta do trabalho trata de detecc¸a˜o, isto e´, indicar em qual regia˜o o
+no´dulo se encontra, as me´tricas de avaliac¸a˜o consideram que se as janelas classificadas
+como regia˜o de no´dulo pelas CNN’s preencherem no m´ınimo 50% da regia˜o nodular
+marcada pelo especialista, isso sera´ considerado como um acerto, pois assim a maior
+partedono´duloja´ tera´ sidodetectadaearegia˜oqueeleseencontraja´ estara´ expl´ıcita.
+Nos resultados para a CNN 1, mostrados na Tabela 1, a AlexNet com a func¸a˜o
+de custo binary cross-entropy foi a que obteve o melhor resultado dentre as CNN’s testa-
+das. Mesmo a VGG16 apresentando um menor valor de falsos positivos por imagem, ela
+detectano´dulosemmenospacientesdoqueaAlexNet.
+CNN Func¸a˜odecusto Acc Prec. Sens. F1 FP/Img ND
+AlexNet B.Cross-Entropy 0,96 0,60 0,95 0,74 2,875 8/8
+ResNet50 B.Cross-Entropy 0,93 0,35 0,37 0,36 4,000 3/8
+VGG16 B.FocalLoss 0,94 0,42 0,62 0,50 1,750 5/8
+Tabela1. ResultadosdasCNN’stestadasnaetapa1comafunc¸a˜odecustoque
+obteveomelhorresultadoemcadauma.
+Tambe´m foram feitos testes para avaliar o uso da func¸a˜o de custo binary focal
+lossjuntoa` AlexNetnocontextodaCNN1dacascata. Contudo,osresultadosna˜oforam
+satisfato´rios, visto que a CNN na˜o conseguiu identificar regio˜es nodulares nos pacientes
+detestecomomostraoresultadodasme´tricasnaTabela2.
+Func¸a˜odecusto Acc Prec. Sens. F1 FP/Img ND
+B.Cross-Entropy 0,96 0,60 0,95 0,74 2,875 8/8
+B.FocalLoss 0,94 0,00 0,00 0,00 0,000 0/8
+Tabela2. ResultadosdaAlexNetdaCNN1comfunc¸o˜esdecustodiferentes.
+Como o melhor resultado da CNN 1 foi obtido pela AlexNet, ela tambe´m foi
+utilizada como a CNN 2 do me´todo em cascata. Os resultados desse teste podem ser
+vistosnaTabela3.
+CNN Func¸a˜odecusto Acc Prec. Sens. F1 FP/Img ND
+AlexNet B.Cross-Entropy 0,97 0,72 0,70 0,74 1,250 6/8
+AlexNet B.FocalLoss 0,97 0,69 0,95 0,80 2,000 8/8
+Tabela3. Resultadosapo´saCNN2comfunc¸o˜esdecustodiferentes.
+ACNN2quefoiutilizadacomafinalidadedereduzirosfalsospositivosgerados
+pelo resultado da CNN 1, se mostrou capaz de realizar a tarefa ao utilizar a binary focal
+loss como func¸a˜o de custo para o seu treinamento. Isso se reflete na reduc¸a˜o do valor
+obtido para a me´trica de falso positivo por imagem, bem como no aumento da precisa˜o e
+doF1-score. Ressalta-sequeasensibilidadesemanteve,oqueindicaquenenhumno´dulo
+foiperdidonoprocessodedetecc¸a˜oemcascata.
+Das 648 janelas no conjunto de treinamento da CNN 1, apenas 50 sa˜o janelas de
+regio˜es nodulares. Isso revela um desbalanceamento nota´vel nesse conjunto, o que afeta
+
+<!-- pagina 9 -->
+diretamente o treinamento das CNN’s da primeira etapa da detecc¸a˜o. Esse desbalancea-
+mentopersisteate´ aCNN2ondeteremos59janelasnototalparaotreinamentoeapenas
+9janelasderegio˜esna˜onodulares. Pore´m,comoobservado,ousodabinaryfocallossfoi
+importanteparamelhorarosresultados,corroborandosuaaplicac¸a˜onocontextodedados
+desbalanceados. O resultado final pode ser conferido na Tabela 4. A AlexNet se mostrou
+a CNN mais efetiva, dentre as testadas neste trabalho, para a classificac¸a˜o de janelas no
+aˆmbitodadetecc¸a˜odeno´dulos.
+CNN Func¸a˜odecusto Acc Prec. Sens. F1 FP/Img ND
+1-AlexNet B.Cross-Entropy 0,96 0,60 0,95 0,74 2,875 8/8
+2-AlexNet B.FocalLoss 0,97 0,69 0,95 0,80 2,000 8/8
+Tabela4. Resultadofinaldome´todoproposto.
+Entre os testes, tambe´m foi realizada uma ana´lise comparativa entre duas aborda-
+gens de aplicac¸a˜o do me´todo proposto, uma usando na entrada uma se´rie temporal com
+3 imagens do paciente, conforme descrito na Sec¸a˜o 2.3, e a outra utilizando todas as 20
+imagens capturadas durante o exame. Os resultados podem ser visualizados na Tabela 5.
+Com esse teste, verifica-se que mesmo possuindo mais informac¸o˜es por causa da adic¸a˜o
+de imagens, o me´todo proposto produz mais falsos positivos em comparac¸a˜o a utilizac¸a˜o
+de somente 3 imagens na se´rie temporal, ale´m de na˜o detectar no´dulos em todos os pa-
+cientes testados. Dessa forma, infere-se que o uso de somente 3 imagens para compor a
+se´rie,representandoostemposT1,T10eT20,e´ aabordagemmaispromissora.
+Se´rieTemporal Acc. Prec. Sens. F1 FP/Img ND
+Com3imagens 0,97 0,69 0,95 0,80 2,000 8/8
+Com20imagens 0,95 0,55 0,82 0,69 3,625 7/8
+Tabela 5. Comparac¸a˜o do resultado final utilizando se´ries temporais de tama-
+nhosdiferentes.
+Foramfeitosestudosdecasoparadoispacientesdoconjuntodeteste. Analisando
+o primeiro paciente, apresentado na Figura 8, e´ poss´ıvel verificar ainda a presenc¸a de um
+falso positivo, mesmo apo´s o uso da CNN 2. No caso apresentado, a regia˜o da clav´ıcula,
+onde se encontra o falso positivo remanescente, apresenta uma temperatura mais elevada
+em comparac¸a˜o ao pescoc¸o, similar a um no´dulo. Essas regio˜es similares trazem uma
+desvantagemaome´todopropostoumavezqueelasinfluenciamaaparic¸a˜odemaisfalsos
+positivos. Osfalsospositivospodemlevaraumaleituraerradadoquadrodeumpaciente,
+tornandosuacondic¸a˜opiordoquedeveriaser.
+No segundo paciente, mostrado na Figura 9, verifica-se que a CNN 2 na˜o retira
+nenhuma detecc¸a˜o antes feita pela primeira CNN. Nesse caso, a CNN 1 ja´ fornece o
+resultadoidealparaadetecc¸a˜o,na˜ogerandonenhumfalsopositivo,oresultadosemante´m
+apo´s a passagem pela CNN 2. Os resultados mostram a vantagem do uso da segunda
+CNN, uma vez que ela na˜o atrapalha os resultados ideais obtidos, alterando somente os
+resultadosquenecessitamdareduc¸a˜odefalsospositivos.
+A partir dessa ana´lise, e´ poss´ıvel apontar que o me´todo proposto apresenta resul-
+tadospromissores. Noentanto,acredita-setambe´mqueoacre´scimodenovospacientesa`
+amostrapodecontribuirparaqueosresultadossejammelhorados.
+
+<!-- pagina 10 -->
+Figura 7. Resultados para o estudo de caso do primeiro paciente analisado. O
+no´duloesta´ marcadoemvermelho;a` esquerdaoresultadodaCNN1,com
+as janelas de no´dulo preditas marcadas em azul. A` direita, o resultado
+apo´sapassagemdaCNN2,comasregio˜espreditasmarcadasemverde.
+Figura 8. Resultados para o estudo de caso do segundo paciente analisado. O
+no´duloesta´ marcadoemvermelho;a` esquerdaoresultadodaCNN1,com
+as janelas de no´dulo preditas pela CNN marcadas em azul. A` direita o
+resultado apo´s a passagem da CNN 2, com as regio˜es preditas marcadas
+emverde.
+4. Conclusa˜o
+Astermografias,porseremna˜oinvasivasedebaixocusto,semostramumaboaalternativa
+de exame a ser usado para detectar no´dulos na glaˆndula tireo´ide. Utilizando o me´todo
+proposto que usa CNN’s em cascata foi poss´ıvel detectar regio˜es nodulares, podendo
+colaborarcomoespecialistanaobtenc¸a˜odeumdiagno´sticomaispreciso,etambe´mcom
+oprocessodetriagemme´dicaparaqueaassisteˆnciasejaprestadadeformace´lere.
+O melhor resultado alcanc¸ado pelo me´todo proposto se deu com o uso de duas
+CNN’s AlexNet, obtendo a acura´cia de 0,97. O me´todo apresentou uma taxa de falsos
+positivos por imagem relativamente baixa (2,000 FP/img) em comparac¸a˜o com o uso de
+umau´nicaCNN,quefoide2,875FP/img. Ointuitodautilizac¸a˜odeCNN’semcascatafoi
+validado,umavezqueaCNN2reduziuosfalsospositivosgeradospelaCNN1. Ressalta-
+setambe´mqueosno´dulosforamdetectadosemtodosospacientesdoconjuntodetestes.
+Dessa forma, e´ poss´ıvel apontar que arquiteturas mais simples foram as mais indicadas
+para a tarefa proposta neste trabalho, e isso e´ corroborado pelos resultados obtidos que
+sa˜osatisfato´rios.
+
+<!-- pagina 11 -->
+Pretende-se, como trabalho futuro, melhorar a fase de janelamento da se´rie tem-
+poral, fazendo com que mais janelas sejam geradas sobrepondo as ja´ extra´ıdas, de modo
+que se tenha mais janelas para o treinamento das CNN’s. Ale´m disso, sera˜o testadas ou-
+trasarquiteturasdeCNN,comoaEfficientNet[TanandLe2019];utilizando-setambe´ma
+abordagem de data augmentation como forma de reduzir o desbalanceamento, buscando
+tambe´m uma maior reduc¸a˜o de falsos positivos. Os autores agradecem a´ Fundac¸a˜o de
+Amparo a` Pesquisa e ao Desenvolvimento Cient´ıfico e Tecnolo´gico do Maranha˜o (FA-
+PEMA)peloapoiofinanceiro.
+Refereˆncias
+Bahramian, F. and Mojra, A. (2020). Thyroid cancer estimation using infrared thermo-
+graphydata. InfraredPhysics&Technology,104:103126.
+Brioschi, M., Teixeira, M., Silva, F., and Colman, D. (2010). Medical thermography
+textbook: principlesandapplications. EditoraeLivraraiAndreoli.
+Esteva, A., Kuprel, B., Novoa, R. A., Ko, J., Swetter, S. M., Blau, H. M., and Thrun, S.
+(2017). Dermatologist-level classification of skin cancer with deep neural networks.
+nature,542(7639):115–118.
+Fiirst, W., Montenegro, A., Machenry, T., Li, H., Du, C., and Conci, A. (2018). Intro-
+ducing tensor analysis for biomedical image registration. 6o. Encontro Nacional de
+EngenhariaBiomecanica(ENEBI2018),AguasdeLindoia,SP(proc.ABCM,SBB).
+Fiirst, W. G., Resmini, R., and Conci, A. (2019). Desenvolvimento e comparac¸a˜o de
+me´todos para gerac¸a˜o de se´ries temporais para imagens te´rmicas da tireoide. In Anais
+Estendidos do XIX Simpo´sio Brasileiro de Computac¸a˜o Aplicada a` Sau´de, pages 43–
+48.SBC.
+Gonzalez, J. (2017). Um estudo sobre a possibilidade do uso de imagens infravermelhas
+naanalisedenodulosdetireoide. Dissertation,IC,UniversidadeFederalFluminense.
+Gonza´lez, J., Conci, A., Moran, M., Araujo, A., Paes, A., Damia˜o, C., and Fiirst, W.
+(2019). Analysis of static and dynamic infrared images for thyroid nodules investi-
+gation. In 2019 IEEE/ACS 16th International Conference on Computer Systems and
+Applications(AICCSA),pages1–7.IEEE.
+Guizar-Sicairos, M., Thurman, S., and Fienup, J. (2008). Efficient subpixel image regis-
+trationalgorithms. Opticsletters,332:156–8.
+He, K., Zhang, X., Ren, S., and Sun, J. (2016). Deep residual learning for image re-
+cognition. In Proceedings of the IEEE conference on computer vision and pattern
+recognition,pages770–778.
+Hernandez Moran, M., Conci, A., and Arau´jo, A. (2019). Evaluation of quantitative
+featuresandconvolutionalneuralnetworksfornoduleidentificationinthyroidthermo-
+graphies. pages747–751.
+Krizhevsky,A.,Sutskever,I.,andHinton,G.E.(2012). Imagenetclassificationwithdeep
+convolutional neural networks. Advances in neural information processing systems,
+25:1097–1105.
+Le´vy, D. and Jain, A. (2016). Breast mass classification from mammograms using deep
+convolutionalneuralnetworks. arXivpreprintarXiv:1612.00542.
+
+<!-- pagina 12 -->
+Lin, T.-Y., Goyal, P., Girshick, R., He, K., and Dolla´r, P. (2018). Focal loss for dense
+objectdetection.
+McPhail,S.,Johnson,S.,Greenberg,D.,Peake,M.,andRous,B.(2015). Stageatdiagno-
+sisandearlymortalityfromcancerinengland. Britishjournalofcancer,112(1):S108–
+S115.
+Moran, M. B., Conci, A., Gonza´lez, J. R., Arau´jo, A. S., Fiirst, W., Damia˜o, C. P., Lima,
+G. A., and da Cruz Filho, R. A. (2018). Identification of thyroid nodules in infrared
+images by convolutional neural networks. In 2018 International joint conference on
+neuralnetworks(IJCNN),pages1–7.IEEE.
+Nguyen, Q. T., Lee, E. J., Huang, M. G., Park, Y. I., Khullar, A., and Plodkowski, R. A.
+(2015). Diagnosis and treatment of patients with thyroid cancer. American health &
+drugbenefits,8(1):30.
+Rahib, L., Smith, B. D., Aizenberg, R., Rosenzweig, A. B., Fleshman, J. M., and Matri-
+sian, L. M. (2014). Projecting cancer incidence and deaths to 2030: the unexpected
+burden of thyroid, liver, and pancreas cancers in the united states. Cancer research,
+74(11):2913–2921.
+Simonyan,K.andZisserman,A.(2014).Verydeepconvolutionalnetworksforlarge-scale
+imagerecognition. arXivpreprintarXiv:1409.1556.
+Tan, M. and Le, Q. V. (2019). Efficientnet: Rethinking model scaling for convolutional
+neuralnetworks. arXivpreprintarXiv:1905.11946.
+Zhu, R., Zhang, R., and Xue, D. (2015). Lesion detection of endoscopy images based on
+convolutional neural network features. In 2015 8th International Congress on Image
+andSignalProcessing(CISP),pages372–376.IEEE.

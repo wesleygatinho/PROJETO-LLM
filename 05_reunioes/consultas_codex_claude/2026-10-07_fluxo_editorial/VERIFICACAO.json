@@ -1,0 +1,22 @@
+{
+  "verificado_utc": "2026-10-08T02:08:30.529243+00:00",
+  "teste_demonstrativo": {
+    "rodada": "demo_editorial_01",
+    "finalidade": "demonstracao",
+    "versao": 2,
+    "estado": "apto_editorial",
+    "sha256": "83f6b71192f7f33c52fa027cdb6f09ab4f9125ababce9082b4b618ee02d3aa22",
+    "diretorio": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\revisao\\fluxo_editorial\\rodadas\\demo_editorial_01",
+    "fontes_conferidas_por_hash": 8,
+    "nota": "Integridade do pacote não certifica validade das afirmações. Revisões são declarações registradas."
+  },
+  "testes_offline_aprovados": 16,
+  "links_locais_conferidos": 28,
+  "retornos_claude_preservados": true,
+  "manuscrito_integrado": false,
+  "limites": [
+    "Sem auditoria científica concluída",
+    "Sem treinamento/GPU",
+    "Sem auditoria do código pelo Claude"
+  ]
+}

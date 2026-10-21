@@ -1,0 +1,56 @@
+{
+  "versao": 1,
+  "sha256": "0b5e67a1dd869f81f62116587c332a0c4746b66eea075098736d9f3daabdb463",
+  "contexto_sha256": "52e300e5ad2c5fb1274678f98308a670e82ceea920f9874c091e0cfcd3e6157d",
+  "abrangencia": "texto_integral_da_versao",
+  "revisor": "Claude — papel revisor",
+  "escopo": "cientifico_editorial",
+  "decisao": "corrigir",
+  "itens": [
+    {
+      "id": "V1-R1",
+      "tipo": "cientifico",
+      "gravidade": "maior",
+      "trecho": "Esse enquadramento aproxima o artigo das investigações de Ding et al. (2024), Risse e Böhme (2024) e Huang et al. (2026), com foco nas configurações efetivamente disponíveis e em suas condições de comparação.",
+      "problema": "O briefing exige um posicionamento em relação aos trabalhos próximos. Pela LEITURA_FONTES, a sobreposição com Huang é substancial. Em huang_pdf.txt, Huang et al. já ajustam o Qwen2.5-Coder-7B-Instruct com LoRA pelo ms-swift (linhas 456 e 501). Também constroem pares V2P a partir de fontes que incluem o PrimeVul (linhas 245–255 e 306–308). O texto, porém, apenas diz que 'aproxima' o artigo dessas investigações e não informa em que o recorte local difere delas. O leitor não consegue avaliar a contribuição descrita no mesmo parágrafo, e a frase deixa indefinida a relação entre o estudo e Huang et al.",
+      "acao": "Substituir 'aproxima' por uma descrição concreta das diferenças que podem ser verificadas no código ou nos registros. Exemplos: teste pareado do próprio PrimeVul, em vez de conjuntos V2P/V2N derivados de várias fontes; cabeça de classificação com escores, em vez de SFT generativo com ou sem raciocínio; referência de tamanho; contraste de implantação NF4 com adaptador versus BF16 mesclado. Cada diferença deve ser conferida em classificador.py, nos logs ou no PDF de Huang. O texto não deve alegar novidade nem superioridade. Se alguma diferença não puder ser conferida, ela deve ser omitida."
+    },
+    {
+      "id": "V1-R2",
+      "tipo": "editorial",
+      "gravidade": "menor",
+      "trecho": "Na leitura dos registros, decisões de classificação e ordenação dos escores das duas versões são tratadas como objetos distintos",
+      "problema": "A introdução nunca apresentou a ordenação pareada de escores. O segundo parágrafo descreve a avaliação pareada só como exame das 'decisões sobre ambas'. Por isso, o termo 'ordenação' surge sem antecedente, e a distinção entre decisões pareadas e ordenação, que o briefing prioriza, fica opaca. A frase também deixa ambíguo se 'das duas versões' se aplica a ambos os termos.",
+      "acao": "Explicar em uma frase curta que as decisões pareadas são os desfechos de classificação das duas versões e que a ordenação compara os escores atribuídos à função vulnerável e à corrigida. Na frase citada, escrever explicitamente 'decisões pareadas de classificação' e 'ordenação dos escores da versão vulnerável e da corrigida'."
+    },
+    {
+      "id": "V1-R3",
+      "tipo": "editorial",
+      "gravidade": "menor",
+      "trecho": "Essas duas perspectivas oferecem, portanto, informações complementares sobre o comportamento do detector",
+      "problema": "O referente de 'Essas duas perspectivas' é ambíguo. Ele pode remeter às duas diretrizes citadas antes (pares e FNR sob restrição de FPR) ou ao contraste entre avaliação pareada e agregada da frase anterior. Além disso, a frase anterior, 'mantém versões de código semelhantes', descreve mal o mecanismo: o par reúne versões textualmente semelhantes que diferem pela correção.",
+      "acao": "Retomar o objeto de forma explícita, por exemplo: 'As avaliações global e pareada oferecem…'. Reformular 'mantém versões de código semelhantes' para dizer que o par reúne versões semelhantes que diferem pela correção da vulnerabilidade."
+    }
+  ],
+  "verificacoes_anteriores": [],
+  "limites": [
+    "Arquivos examinados nesta sessão: LEITURA_FONTES.md e introducao.bib, lidos integralmente. Também foram feitas buscas focalizadas em primevul_pdf.txt, huang_pdf.txt, risse_pdf.txt, qlora_pdf.txt e lora_pdf.txt, em 07_avaliar_classificador.py (linhas 105–129), em 08_baseline_tamanho.py e em PLANO_EXECUCAO.md, além dos guias incluídos no pacote.",
+    "Os PDFs originais não foram abertos e não houve inspeção visual. A conferência usou as extrações *_pdf.txt listadas. Para Hui et al. (2024) e para os detalhes de LoRA, a sessão se apoiou na LEITURA_FONTES e na busca de termos, sem ler o texto completo.",
+    "Esta sessão não acessou URLs, páginas arXiv/USENIX nem metadados online. As versões e datas do BibTeX não foram verificadas de forma independente, fora a coerência com a LEITURA_FONTES.",
+    "Não foram lidos diretamente os CSVs, os logs JSON nem classificador.py. A existência dos três pilotos 3B, das três seeds 7B e das avaliações NF4/BF16 foi aceita com base na LEITURA_FONTES e no trecho de 07_avaliar_classificador.py (merge_and_unload na variante BF16).",
+    "Afirmações conferidas como suportadas nas extrações: Ding (inadequação da acurácia e do F1, pares, FNR sob FPR, deduplicação e divisão temporal), Risse (dificuldade vulnerável/corrigida e características sem relação com a vulnerabilidade), Huang (V2P/V2N, perturbações, raciocínio, Qwen2.5-Coder-7B-Instruct) e QLoRA (base congelada em 4 bits e NF4). O baseline de tamanho em tokens foi confirmado em 08_baseline_tamanho.py.",
+    "A aprovação futura da introdução não aprova o artigo nem a consolidação experimental. P0–P4 continuam pendentes, e o texto não contém números de resultado.",
+    "Sugestão opcional, não obrigatória: a Fundamentação pode detalhar o NF4 (tipo de dado com quantis para pesos de distribuição normal, armazenamento em 4 bits e computação em BF16) e o BF16 (bfloat16), já que a definição atual basta para uma introdução."
+  ],
+  "proveniencia": {
+    "arquivo": "entradas/revisao_v001.json",
+    "sha256": "7254ac31158b4116ddd8d61916738c7caf5105273b7d240778e2fd4058d82532",
+    "origem": "claude_cli",
+    "modelos": [
+      "claude-opus-5-5"
+    ],
+    "session_id": "52244100-e7c1-4fb4-abd7-83ffc5827700",
+    "duration_ms": 90929,
+    "custo_estimado_cli": 0.6000286000000001
+  }
+}

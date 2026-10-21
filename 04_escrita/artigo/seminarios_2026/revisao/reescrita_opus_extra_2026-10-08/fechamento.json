@@ -1,0 +1,223 @@
+{
+  "instante_utc": "2026-10-09T01:08:25.784072+00:00",
+  "integracao": {
+    "rodada": "artigo_opus_extra_01",
+    "versao_integrada": 3,
+    "sha256_integral": "c6529a08b3d93a68103d8b2fa12790e8198d11f3374440b819307809ca6344af",
+    "fonte_aprovada": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\texto\\secoes\\artigo_opus_extra_01.md",
+    "manuscrito_canonico": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\texto\\artigo_completo.md",
+    "sha256_canonico": "80d1d72938567369c675175df7a44768b95734932f5a6bf02de0746d43d1cf96",
+    "bibliografia_atual": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\referencias\\artigo_opus_extra.bib",
+    "bibliografia_anterior_preservada": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\referencias\\artigo.bib",
+    "transposicao": {
+      "fonte": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\revisao\\fluxo_editorial\\rodadas\\artigo_opus_extra_01\\versoes\\v003.md",
+      "sha256_fonte": "c6529a08b3d93a68103d8b2fa12790e8198d11f3374440b819307809ca6344af",
+      "tex_aberto": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\revisao\\introducao_2026-10-07\\previa_rascunho_sbc.tex",
+      "sha256_tex": "a8dafeb1d568416a1de3f459e4eb6a15dd756133f2838cf066ebe0e4cf041ea8",
+      "referencias": [
+        "chakraborty2020reveal",
+        "chen2023diversevul",
+        "dettmers2023qlora",
+        "ding2024primevul",
+        "field2007bootstrap",
+        "fu2022linevul",
+        "hu2021lora",
+        "huang2026trap",
+        "hui2024qwen",
+        "risse2024limits",
+        "saito2015metrics",
+        "ullah2024sec",
+        "zhou2019devign"
+      ],
+      "numero_citacoes": 38,
+      "labels_verificados": 28,
+      "comentario": "Somente transposição e vínculos de citações. Não certifica compilação ou layout. Texto e fontes científicas não alterados."
+    },
+    "fontes_preservadas": 150,
+    "modificacoes_experimentais": []
+  },
+  "sessoes": [
+    {
+      "etapa": "01_analise",
+      "modelo_real": [
+        "claude-opus-5-5"
+      ],
+      "esforco_configurado": "xhigh",
+      "session_id": "e0943b07-23d9-422d-9677-e4c570dc6e95",
+      "custo_estimado_usd": 2.0330041999999997,
+      "teto_usd": 3,
+      "arquivo_resposta": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\revisao\\reescrita_opus_extra_2026-10-08\\01_analise\\resposta_bruta.json",
+      "sha256_resposta": "8f140c0526ea6edbe4482a5bdf5a202ad575c5f93a2de848a8dfd67afb48011a"
+    },
+    {
+      "etapa": "02_reescrita",
+      "modelo_real": [
+        "claude-opus-5-5"
+      ],
+      "esforco_configurado": "xhigh",
+      "session_id": "402eb376-5fce-4a64-8b85-e32d788dc802",
+      "custo_estimado_usd": 2.1759936,
+      "teto_usd": 3,
+      "arquivo_resposta": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\revisao\\reescrita_opus_extra_2026-10-08\\02_reescrita\\resposta_bruta.json",
+      "sha256_resposta": "e1d6bf2398ddd4d39a1d2085419c719c7f8ba477c5239374a6e807f4a3f13ff5"
+    },
+    {
+      "etapa": "03_revisao",
+      "modelo_real": [
+        "claude-opus-5-5"
+      ],
+      "esforco_configurado": "xhigh",
+      "session_id": "7d1083df-ab62-4a6b-b1a3-51a56d1ded7a",
+      "custo_estimado_usd": 1.552963,
+      "teto_usd": 3,
+      "arquivo_resposta": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\revisao\\reescrita_opus_extra_2026-10-08\\03_revisao\\resposta_bruta.json",
+      "sha256_resposta": "88ab3db1fc1873dbb79f4c0bd2efe9ae1ed3da63c9533086ba7645e82da116bf"
+    },
+    {
+      "etapa": "04_correcao",
+      "modelo_real": [
+        "claude-opus-5-5"
+      ],
+      "esforco_configurado": "xhigh",
+      "session_id": "f7f3949e-e0e5-49f5-bd60-db80b6f289bd",
+      "custo_estimado_usd": 1.9876564,
+      "teto_usd": 3,
+      "arquivo_resposta": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\revisao\\reescrita_opus_extra_2026-10-08\\04_correcao\\resposta_bruta.json",
+      "sha256_resposta": "4fc0b5a66adcef227bad2d9b82c360684a195d405f07f3b7fc59810a4460d6ac"
+    },
+    {
+      "etapa": "05_conferencia",
+      "modelo_real": [
+        "claude-opus-5-5"
+      ],
+      "esforco_configurado": "xhigh",
+      "session_id": "c5aa05d9-48b0-4336-85d2-9b1505871745",
+      "custo_estimado_usd": 1.6927254000000003,
+      "teto_usd": 3,
+      "arquivo_resposta": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\revisao\\reescrita_opus_extra_2026-10-08\\05_conferencia\\resposta_bruta.json",
+      "sha256_resposta": "765f59aee8cbec80341a3d14124dcf6edcb677c267039fb9b50f1dfe964f1e5d"
+    },
+    {
+      "etapa": "06_correcao",
+      "modelo_real": [
+        "claude-opus-5-5"
+      ],
+      "esforco_configurado": "xhigh",
+      "session_id": "4717741e-5408-4e3b-8b06-dc74db1043ba",
+      "custo_estimado_usd": 1.2736725999999998,
+      "teto_usd": 3,
+      "arquivo_resposta": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\revisao\\reescrita_opus_extra_2026-10-08\\06_correcao\\resposta_bruta.json",
+      "sha256_resposta": "20f4bc63661fd445dfbb0d66adec5aa777a597fdb012151a9e89c45a29743d44"
+    },
+    {
+      "etapa": "07_conferencia",
+      "modelo_real": [
+        "claude-opus-5-5"
+      ],
+      "esforco_configurado": "xhigh",
+      "session_id": "47065f1d-e149-4d73-9591-b84eb566e7b5",
+      "custo_estimado_usd": 1.5490225999999998,
+      "teto_usd": 3,
+      "arquivo_resposta": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\revisao\\reescrita_opus_extra_2026-10-08\\07_conferencia\\resposta_bruta.json",
+      "sha256_resposta": "06d0926a5dc2fe0e4ef583f3768bbdcfc627f2a2f28294293803fdf1ebf7506c"
+    }
+  ],
+  "custo_estimado_total_usd": 12.2650378,
+  "decisao_final": {
+    "versao": 3,
+    "sha256": "c6529a08b3d93a68103d8b2fa12790e8198d11f3374440b819307809ca6344af",
+    "contexto_sha256": "54f59854b20f96317483a1d94cb4e40f69e4f45180584249f493f1cb471a15b9",
+    "abrangencia": "texto_integral_da_versao",
+    "revisor": "Claude — papel revisor",
+    "escopo": "cientifico_editorial",
+    "decisao": "aprovar",
+    "itens": [],
+    "verificacoes_anteriores": [
+      {
+        "id": "V2-R1",
+        "estado": "resolvido",
+        "justificativa": "Na Seção 2.2, o texto atual diz: 'No PrimeVul, a rotulação mais rigorosa busca maior exatidão dos rótulos, enquanto a deduplicação e a divisão cronológica reduzem o risco de vazamento entre treino e teste [@ding2024primevul].' Conferi nesta sessão, em primevul_pdf.txt, que a fonte sustenta as duas finalidades separadas. Nas linhas 28–30, as técnicas de rotulação 'achieve comparable label accuracy to human-verified benchmarks'. Nas linhas 107–110, as 'two rigorous labeling techniques' servem para 'ensuring high label accuracy'. Para o vazamento, a linha 31–32 traz 'de-duplication and chronological data splitting strategy to mitigate data leakage issues', a linha 67 traz 'Chronological splitting also reduces the risks of data leakage' e as linhas 370–372 dizem 'To minimize the data leakage issue [...] we split [...] according to the commit date'. A frase não atribui à rotulação a redução do vazamento, mantém o token de citação e não acrescenta número. 'Reduzem o risco' não promete eliminar o vazamento, e a Seção 6 continua dizendo que divisão cronológica, deduplicação e rótulos não provam ausência de contaminação no pré-treinamento. Nas outras passagens que tratam do tema, não encontrei regressão: Seção 3.2 ('rótulos derivados de commits de correção, deduplicação e divisão cronológica'), Discussão ('apontaram problemas de rotulação e duplicação que motivaram o PrimeVul', compatível com as linhas 20–21 e 67–75) e Limitações."
+      }
+    ],
+    "limites": [
+      "Aprovação: só o conteúdo científico-editorial do texto e do suplemento da versão 3 que examinei. Não significa que o documento esteja pronto para submissão. Os hashes e este parecer não certificam a validade científica.",
+      "Leitura própria nesta sessão: o manuscrito e o suplemento da versão 3 inteiros, como vieram no pacote; A08.txt inteiro (342 linhas); retorno.json inteiro (diagnóstico); A01.txt, linhas 44–95; A06.txt, linhas 36–81; primevul_pdf.txt, linhas 20–119, 280–289 e 364–373. Também usei as diretrizes PADRAO_ESCRITA, PLANO_ESCRITA e MATRIZ_EVIDENCIAS no conteúdo transcrito no pacote, sem reabrir esses arquivos no disco.",
+      "Buscas focais feitas nesta sessão. Em devign_pdf.txt, as linhas 82–83 e 95 trazem '4 popular and diversified libraries in C', o que sustenta 'quatro bibliotecas C'. Em diversevul_pdf.txt, as linhas 16–17 e 33–34 trazem 18.945, 150 CWEs, 330.492 e 7.514 commits, além de 'LLMs [...] outperforming Graph'; as linhas 31 e 159 tratam de projetos não vistos e as linhas 126 e 160 de ruído de rótulo em seu conjunto e em conjuntos anteriores. Em huang_pdf.txt, as linhas 30 e 37–38 dizem 'fine-tuning without explicit reasoning produces deceptively high scores on unpaired data (V2N) while failing'. Em tabelas_artigo.md, a legenda da linha 1 diz que o custo inclui o tempo total da rodada, o que explica por que a Tabela S2 não é igual a horas de treino × 0,50. Em selecao_epocas.json, historica_estrita vale 1, 1 e 3 nas configurações 3B e 3/3, 2/2 e 3/3 nas sementes do 7B, coerente com a Tabela 2. Nesta sessão não reli ReVeal, LineVul, Ullah, Saito, Field, Qwen, LoRA, QLoRA nem Risse. Para essas atribuições, que não mudaram, valho-me do histórico das verificações registradas nos pareceres V1 e V2.",
+      "Números: não reconferi célula a célula as Tabelas 1–7, S1 e S2 contra tabelas_artigo.md. Essa conferência é determinística e cabe a Codex; considerei o parecer V2 como histórico. Conferi a coerência interna das derivações do texto com as tabelas do próprio manuscrito. Isso inclui: soma das categorias igual a 564 na Tabela 3; faixas de P-C de 2–13 e de 5–8; FPR* de 0,52–0,69; FNR acima de 88%; F1, AUC e ordenações das configurações com controle de tamanho; leitura de A<50% como W<L, que sustenta 'a versão corrigida [...] com mais frequência'; empates 7B entre 32 e 40; alteração máxima de 0,22 p.p. na Tabela S1; reduções de cerca de 67% e cerca de 40%; desvios padrão comparáveis às amplitudes dos intervalos.",
+      "Não há texto da versão 2 no pacote para um diff. Não tomei como prova a declaração do corretor de que só uma frase mudou. Revi a versão 3 por inteiro em busca de regressões e não encontrei nenhuma. Codex pode confirmar o diff de forma determinística.",
+      "Os onze IDs V1 continuam presentes no texto, sem entrar na lista acima: limiar de FPR com 'menor limiar' e piso de 0,005n (3.5 e S7); 'ordenação pareada' com meio crédito, sem 'ordenou X% dos pares'; seleção histórica estrita com AUC como desempate (3.4, 6 e S6); comparação 3B/7B sem generalização causal (4.2); distinção do TrapEval (2.3); nenhuma autoria digitada fora dos tokens; leituras separadas dos intervalos da diferença e das médias (4.3); definição dos 124 empates (4.2); escopo de '564 pares de teste' em P-B (S7); papéis dos dois limiares (3.1); implicação restrita na Conclusão.",
+      "Exame editorial frente ao corpus: a Introdução tem cinco parágrafos em prosa, sem lista, e segue contexto com fonte → problema de avaliação com achados concretos → justificativa métrica → recursos e objetivo com duas questões → organização. É o encadeamento de A08 (linhas 25–66) e de A06 (linhas 37–81). A seção 2 descreve cada trabalho com dados, modelo e achado, à maneira de A01 (linhas 68–94), e fecha com um posicionamento afirmativo. Hashes, alinhamento, idx/func_hash e os commits ficaram no suplemento, e não há URL no corpo. Não encontrei transcrição de frases do corpus, e o texto não reproduz as valorizações e os saltos causais de A08 (linhas 215–219 e 234–236).",
+      "Sugestões opcionais, que não condicionam a aprovação: (a) Introdução §3: 'Por esse motivo, o PrimeVul acrescenta [...] uma avaliação pareada e uma medida da taxa de falsos negativos sob restrição de falsos positivos'. O antecedente mais próximo é o argumento dos pares, mas o VD-S é motivado no PrimeVul pela taxa-base e pelos falsos alarmes (linhas 79–101). 'Por essas razões' daria um referente mais exato. (b) Seção 2.2: 'manter os falsos positivos abaixo de um limite fixo' poderia ser 'manter a taxa de falsos positivos abaixo', como na fonte, linhas 71–72. (c) O Resumo e o Abstract têm cerca de 150 palavras, acima da faixa de 100–130 do briefing. O limite de linhas renderizadas não foi verificado. (d) A Tabela 2 grafa 5574 e 178853 sem separador de milhar, enquanto a Tabela 1 e o corpo usam 5.574. (e) Em 4.2, 'não se converte' e, na Discussão, 'passo necessário' poderiam ficar mais próximos do que foi medido, como 'nessas configurações, raramente se converteu' e 'passo recomendável'. (f) No suplemento, a Tabela S2 aparece antes da S1. A numeração segue a ordem de citação no corpo, e isso é defensável.",
+      "Limites externos: autoria e afiliação completas, título definitivo e regras de extensão da disciplina não estão confirmados. O compilador interno falhou antes do TeX, e não houve leitura de PDF, compilação, diagramação nem verificação de layout SBC. Não li catalogo_verificado.json, bibliografia_verificada.bib, LEITURA_ADICIONAIS.md, estatistica.json, inspecao_correspondencia_commits.json, reutilizacoes_release_oficial.json, manifesto.json nem os scripts. Por isso, a tabela de commits da S3, as reutilizações da S2, as versões de bibliotecas, a contagem de 33 arquivos e as chaves do catálogo não foram confirmadas por mim. recuperacao_dados.json e auditoria_final.json, citados no suplemento, não estão no pacote. Não editei arquivos, não executei comandos e não usei rede, treino, inferência nem GPU."
+    ]
+  },
+  "compilacao": {
+    "ferramenta": "mcp__codex_app__compile_latex_document",
+    "arquivo": "D:/UFMA UNIVERSIDADE/MESTRADO - ESTUDO LLM/04_escrita/artigo/seminarios_2026/revisao/introducao_2026-10-07/previa_rascunho_sbc.tex",
+    "resultado": "compile-failed",
+    "mensagem": "Could not prepare the LaTeX preview",
+    "log": "exec failed: windows sandbox: helper_unknown_error: setup refresh had errors",
+    "resultado_bruto": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"path\":\"D:/UFMA UNIVERSIDADE/MESTRADO - ESTUDO LLM/04_escrita/artigo/seminarios_2026/revisao/introducao_2026-10-07/previa_rascunho_sbc.tex\",\"kind\":\"compile-failed\",\"message\":\"Could not prepare the LaTeX preview\",\"diagnostics\":{\"untrustedData\":true,\"log\":\"exec failed: windows sandbox: helper_unknown_error: setup refresh had errors\"}}"
+        }
+      ],
+      "isError": true
+    },
+    "interpretacao": "Falha na preparação do ambiente Windows antes do TeX. Nenhum PDF ou diagnóstico de linha fonte; compilação e diagramação não validadas. Sem compilação externa."
+  },
+  "preservacao": {
+    "versao_sha256": "c6529a08b3d93a68103d8b2fa12790e8198d11f3374440b819307809ca6344af",
+    "arquivo": "D:\\UFMA UNIVERSIDADE\\MESTRADO - ESTUDO LLM\\04_escrita\\artigo\\seminarios_2026\\revisao\\fluxo_editorial\\rodadas\\artigo_opus_extra_01\\versoes\\v003.md",
+    "fontes_experimentais_preservadas": 150,
+    "alteracoes_experimentais": [],
+    "tabelas": [
+      {
+        "tabela_artigo": 2,
+        "tabela_congelada": 1,
+        "celulas_conferidas": 36,
+        "diferencas": []
+      },
+      {
+        "tabela_artigo": 3,
+        "tabela_congelada": 2,
+        "celulas_conferidas": 18,
+        "diferencas": []
+      },
+      {
+        "tabela_artigo": 4,
+        "tabela_congelada": 3,
+        "celulas_conferidas": 80,
+        "diferencas": []
+      },
+      {
+        "tabela_artigo": 5,
+        "tabela_congelada": 4,
+        "celulas_conferidas": 80,
+        "diferencas": []
+      },
+      {
+        "tabela_artigo": 6,
+        "tabela_congelada": 6,
+        "celulas_conferidas": 15,
+        "diferencas": []
+      },
+      {
+        "tabela_artigo": 7,
+        "tabela_congelada": 5,
+        "celulas_conferidas": 30,
+        "diferencas": []
+      }
+    ],
+    "dados_tabela1": "Conferência das contagens registradas da release original",
+    "numero_tokens_citacao": 38,
+    "validacao": "Conferência de cópia, sem produzir novos resultados, testes estatísticos ou avaliações. Não valida a prosa por contagem de referências."
+  },
+  "pendencias_entrega": [
+    "Autoria e afiliação completas não confirmadas.",
+    "Extensão e regras de páginas não confirmadas.",
+    "Compilação e diagramação não validadas: falha de preparação do ambiente Windows antes do TeX."
+  ]
+}

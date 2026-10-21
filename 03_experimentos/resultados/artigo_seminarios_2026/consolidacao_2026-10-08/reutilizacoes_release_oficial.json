@@ -1,0 +1,42 @@
+{
+  "pareado": [
+    {
+      "idx": 349259,
+      "posicoes": [
+        621,
+        623
+      ],
+      "target": 0,
+      "project": "squashfs-tools",
+      "commit_id": "e0485802ec72996c20026da320650d8362f555bd",
+      "mesmo_codigo": true
+    },
+    {
+      "idx": 439495,
+      "posicoes": [
+        865,
+        867
+      ],
+      "target": 0,
+      "project": "squashfs-tools",
+      "commit_id": "79b5a555058eef4e1e7ff220c344d39f8cd09646",
+      "mesmo_codigo": true
+    }
+  ],
+  "validacao_pareada": [
+    {
+      "idx": 482955,
+      "posicoes": [
+        1001,
+        1003,
+        1005,
+        1007,
+        1009
+      ],
+      "target": 0,
+      "project": "linux",
+      "commit_id": "055e547478a11a6360c7ce05e2afc3e366968a12",
+      "mesmo_codigo": true
+    }
+  ]
+}

@@ -1,0 +1,690 @@
+% !TeX program = pdflatex
+% !TeX encoding = UTF-8
+% Apresentação de acompanhamento do mestrado, preparada em 12/10/2026.
+% Duração sugerida: 20 minutos para os slides 1 a 18.
+% Slides 19 a 22: apoio para a discussão.
+% O roteiro de fala de todos os slides está ao final deste mesmo arquivo.
+%
+% Compilação normal: pdflatex apresentacao_orientador.tex (duas vezes).
+% Para gerar somente os slides, sem o roteiro:
+% pdflatex -jobname=apresentacao_orientador_slides "\def\SomenteSlides{1}\input{apresentacao_orientador.tex}"
+%
+% Fonte independente: não requer imagens, .bib ou estilos externos.
+% Nome opcional na capa: preencher o comando \NomeMestrando abaixo.
+
+\documentclass[aspectratio=169,11pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage{booktabs,tabularx,array}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usefonttheme{professionalfonts}
+\usetheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{itemize item}{\small\textbullet}
+\setbeamertemplate{itemize subitem}{\tiny\textbullet}
+\setbeamersize{text margin left=9mm,text margin right=9mm}
+
+\definecolor{tinta}{HTML}{183349}
+\definecolor{destaque}{HTML}{226B70}
+\definecolor{cinza}{HTML}{52616C}
+\definecolor{linha}{HTML}{DBE2E5}
+\definecolor{vinho}{HTML}{A75C50}
+\setbeamercolor{normal text}{fg=tinta,bg=white}
+\setbeamercolor{frametitle}{fg=tinta,bg=white}
+\setbeamercolor{title}{fg=tinta}
+\setbeamercolor{subtitle}{fg=cinza}
+\setbeamercolor{structure}{fg=destaque}
+\setbeamercolor{alerted text}{fg=destaque}
+\setbeamerfont{title}{size=\LARGE,series=\bfseries}
+\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
+\setbeamerfont{subtitle}{size=\normalsize}
+\setbeamertemplate{frametitle}{\vspace{3mm}\insertframetitle\par\vspace{1mm}}
+\setbeamertemplate{footline}{%
+  \hspace{9mm}\begin{minipage}[b]{\dimexpr\paperwidth-18mm\relax}
+  \color{linha}\hrule\vspace{1.8mm}
+  \color{cinza}\fontsize{7}{8}\selectfont
+  \ifnum\value{framenumber}<19 PPGCC UFMA\else Material de apoio\fi
+  \hfill\insertframenumber/22\vspace{2mm}
+  \end{minipage}}
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.25}
+\hypersetup{colorlinks=true,urlcolor=destaque,linkcolor=tinta,
+ pdftitle={Detecção de vulnerabilidades no PrimeVul: reunião de orientação},
+ pdfauthor={PPGCC UFMA}}
+
+\newcommand{\NomeMestrando}{}
+\newcommand{\fonte}[1]{\par\vfill{\fontsize{7}{8.2}\selectfont\color{cinza}#1\par}}
+\newcommand{\observacao}[1]{\par\medskip{\small\color{cinza}#1\par}}
+\newcommand{\cabecalho}[1]{\par{\color{destaque}\bfseries #1}\par\smallskip}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newif\ifroteiro
+\ifdefined\SomenteSlides\roteirofalse\else\roteirotrue\fi
+
+\title{Detecção de vulnerabilidades\newline com modelos de linguagem}
+\subtitle{Resultados no PrimeVul e continuidade do mestrado}
+\author{\NomeMestrando}
+\institute{Programa de Pós-Graduação em Ciência da Computação\newline Universidade Federal do Maranhão}
+\date{Reunião de orientação\newline Outubro de 2026}
+
+\begin{document}
+
+% 01
+\begin{frame}[plain]
+\par\vspace{9mm}
+{\small\color{destaque}Mestrado em Ciência da Computação}\par\vspace{6mm}
+{\usebeamerfont{title}\inserttitle\par}\vspace{4mm}
+{\color{cinza}\insertsubtitle\par}\vspace{7mm}
+\ifx\NomeMestrando\empty\else\NomeMestrando\par\smallskip\fi
+{\small PPGCC UFMA\par Outubro de 2026}
+\end{frame}
+
+% 02
+\begin{frame}[t]{Pergunta de pesquisa e recorte atual}
+\cabecalho{Pergunta inicial}
+Quão pequeno e barato pode ser um modelo mantendo desempenho na detecção de vulnerabilidades?
+\par\vspace{5mm}
+\cabecalho{O que os experimentos permitem examinar agora}
+\begin{enumerate}
+\item O desempenho global acompanha a distinção entre uma função vulnerável e sua correção?
+\item Como NF4 com adaptador e BF16 mesclado se comparam em qualidade, memória e tempo?
+\end{enumerate}
+\observacao{Recorte executado: Qwen2.5-Coder 3B e 7B, PrimeVul e classificação por função.}
+\fonte{Anteprojeto do mestrado e manuscrito atual, Introdução e Método. Resultados exploratórios.}
+\end{frame}
+
+% 03
+\begin{frame}[t]{Trajetória dos experimentos}
+\small
+\begin{tabularx}{\linewidth}{@{}L{29mm}X@{}}
+\toprule
+Período & Trabalho realizado \\
+\midrule
+Início de setembro & Revisão, protocolo e montagem da bancada. \\
+11--17/set & Primeiros testes por instrução e controle do ambiente. \\
+19--25/set & Migração para a release original e pilotos 3B. \\
+26--29/set & Investigação do comprimento e treino com controle de tamanho. \\
+04--06/out & Três sementes do 7B e avaliações NF4/BF16. \\
+07--08/out & Consolidação, análise dos pares e redação do artigo. \\
+\bottomrule
+\end{tabularx}
+\par\medskip
+\normalsize As decisões do piloto conduziram o desenho das rodadas seguintes.
+\fonte{Histórico Git local, notas das etapas 1 e 3 e registros de consolidação de 08/10/2026.}
+\end{frame}
+
+% 04
+\begin{frame}[t]{PrimeVul: dados e partições}
+Funções C/C++ de projetos de código aberto, com rótulos derivados de correções de vulnerabilidades.
+\par\medskip
+\begin{tabularx}{\linewidth}{@{}Xrrr@{}}
+\toprule
+Partição & Funções & Vulneráveis & Pares \\
+\midrule
+Treino & 184.427 & 5.574 & 4.354 \\
+Validação & 25.430 & 699 & 562 \\
+Teste & 25.911 & 695 & 564 \\
+\bottomrule
+\end{tabularx}
+\par\medskip
+\begin{itemize}
+\item Vulneráveis representam \textbf{2,68\%} do teste global.
+\item Uso da \textbf{release original}. Rodadas da v0.1 ficaram arquivadas.
+\item Deduplicação e divisão cronológica reduzem riscos de vazamento.
+\end{itemize}
+\fonte{Ding et al. (2024). Contagens conferidas na release recuperada. Pares são um recorte próprio, não devem ser somados às funções globais.}
+\end{frame}
+
+% 05
+\begin{frame}[t]{Avaliação global e avaliação pareada}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.46\textwidth}
+\cabecalho{Global}
+Cada função recebe uma decisão ou um escore.
+\par\medskip
+25.911 funções no teste.
+\par\medskip
+F1, precisão, revocação, FPR e AUC ROC.
+\end{column}
+\begin{column}{0.49\textwidth}
+\cabecalho{Pareada}
+Comparação entre a função vulnerável e a versão associada à correção.
+\par\medskip
+564 pares, com 1.128 registros.
+\par\medskip
+Categorias de decisão e ordenação dos escores.
+\end{column}
+\end{columns}
+\par\vspace{6mm}
+\textbf{A comparação pareada reduz diferenças de projeto e contexto entre as versões.}
+\observacao{Sua interpretação também depende da correspondência correta dos pares.}
+\fonte{Ding et al. (2024), Risse e Böhme (2024). Definições locais no Método do manuscrito.}
+\end{frame}
+
+% 06
+\begin{frame}[t]{Configurações avaliadas}
+\small
+\begin{tabularx}{\linewidth}{@{}L{31mm}XX@{}}
+\toprule
+Configuração & Como produz a resposta & Contexto de entrada \\
+\midrule
+3B/7B Instruct & Prompt sem exemplos, saída YES/NO, FP16 & 8.192 tokens registrados \\
+3B/7B Base ajustados & LoRA sobre base NF4 e cabeça de duas classes & 2.048 tokens \\
+Comprimento & Número de tokens visíveis da função & Teto de 2.048 tokens \\
+\bottomrule
+\end{tabularx}
+\par\medskip
+\normalsize
+\begin{itemize}
+\item Três receitas 3B, cada uma com uma semente.
+\item Uma receita 7B, com sementes 1, 2 e 3.
+\item NVIDIA A40 48 GB, PyTorch e Transformers com versões registradas.
+\end{itemize}
+\fonte{Receitas e logs oficiais. Prompting e classificação diferem também em variante e contexto.}
+\end{frame}
+
+% 07
+\begin{frame}[t]{Receitas de treino e seleção de época}
+\small
+\begin{tabularx}{\linewidth}{@{}Xrrr@{}}
+\toprule
+Receita & Vulneráveis & Não vulneráveis & Épocas \\
+\midrule
+3B 1:1 sorteado & 5.574 & 5.574 & 3 \\
+3B proporção original & 5.574 & 178.853 & 1 \\
+3B 1:1 com controle de tamanho & 5.574 & 5.574 & 3 \\
+7B com controle de tamanho & 5.574 & 5.574 & 3 por semente \\
+\bottomrule
+\end{tabularx}
+\par\medskip
+\normalsize
+\begin{itemize}
+\item Controle de tamanho: selecionar não vulneráveis de comprimento próximo, sem reposição.
+\item Escolha histórica da época: ordenação estrita nos pares de validação, com AUC como desempate.
+\end{itemize}
+\observacao{A revisão com meio crédito para empates manteve as épocas nos quatro treinos com controle de tamanho. As receitas tiveram volumes e durações diferentes.}
+\fonte{Receitas de treino e selecao\_epocas.json. Pilotos 3B sem controle não registraram empates por época.}
+\end{frame}
+
+% 08
+\begin{frame}[t]{Regras de avaliação}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\cabecalho{Decisões por limiar}
+Regra: escore $s > t$.
+\begin{itemize}
+\item Limiar de maior F1 na validação.
+\item Outro limiar com FPR de até 0,5\% na validação.
+\end{itemize}
+Os mesmos limiares seguem para o teste.
+\end{column}
+\begin{column}{0.48\textwidth}
+\cabecalho{Ordenação pareada}
+Crédito por par:
+\begin{itemize}
+\item 1 se $s_v > s_c$.
+\item 0,5 se $s_v = s_c$.
+\item 0 se $s_v < s_c$.
+\end{itemize}
+Referência sem preferência entre versões: 50\%.
+\end{column}
+\end{columns}
+\observacao{A ordenação independe do limiar. O ponto local de baixa FPR usa validação e não reproduz o VD-Score oficial.}
+\fonte{Método, Seção 3.5. $v$: vulnerável. $c$: corrigida. Meio crédito não equivale à fração de pares com ordem estritamente correta.}
+\end{frame}
+
+% 09
+\begin{frame}[t]{Referência por prompting}
+\small
+\begin{tabularx}{\linewidth}{@{}Xrrrrr@{}}
+\toprule
+Modelo & F1 & Precisão & Revocação & FPR & P-C \\
+\midrule
+3B Instruct & 0,119 & 0,102 & 0,144 & 3,49\% & 16/564 \\
+7B Instruct & 0,062 & 0,038 & 0,160 & 11,00\% & 14/564 \\
+\bottomrule
+\end{tabularx}
+\par\medskip
+\normalsize
+\begin{itemize}
+\item O 7B encontrou 111 das 695 vulneráveis, contra 100 do 3B.
+\item Os alarmes falsos passaram de 879 para 2.774.
+\item Nos pares, a resposta mais frequente foi declarar ambas as versões não vulneráveis.
+\end{itemize}
+\par\medskip
+O modelo maior teve menor F1 nessa instrução.
+\fonte{Tabela de prompting da consolidação. P-C conta pares com as duas decisões corretas. Uma instrução sem exemplos, com decodificação gulosa.}
+\end{frame}
+
+% 10
+\begin{frame}[t]{A heurística de comprimento}
+\cabecalho{Referência sem aprendizado}
+Escore igual ao número de tokens visíveis, com teto de 2.048.
+\par\vspace{5mm}
+\begin{tabularx}{\linewidth}{@{}XX@{}}
+\toprule
+Teste global & Teste pareado \\
+\midrule
+F1: \textbf{0,200} & Ordenação: \textbf{21,10\%} \\
+AUC ROC: \textbf{0,810} & P-C: \textbf{2 de 564 pares} \\
+\bottomrule
+\end{tabularx}
+\par\vspace{5mm}
+Funções vulneráveis tendem a ser mais longas no conjunto global.
+\par\medskip
+Nos pares sem empate, a versão corrigida tem mais tokens visíveis com maior frequência que a vulnerável.
+\fonte{Heurística de comprimento, tabelas globais e pareadas. F1 e P-C usam limiar calibrado na validação.}
+\end{frame}
+
+% 11
+\begin{frame}[t]{Desempenho global e ordenação pareada}
+\small
+\begin{tabularx}{\linewidth}{@{}Xrrr@{}}
+\toprule
+Configuração & F1 & AUC ROC & Ordenação \\
+\midrule
+Comprimento & 0,200 & 0,810 & 21,10\% \\
+3B 1:1 sorteado & 0,195 & 0,795 & 42,38\% \\
+3B proporção original & \textbf{0,262} & \textbf{0,851} & 37,50\% \\
+3B com controle de tamanho & 0,121 & 0,746 & 49,20\% \\
+7B NF4, média de três sementes & 0,128 & 0,743 & 50,62\% \\
+\bottomrule
+\end{tabularx}
+\par\medskip
+\normalsize O maior F1 global coexistiu com ordenação pareada abaixo de 50\%.
+\observacao{O padrão é compatível com uso de características correlacionadas ao rótulo. O desenho não isola a causa das diferenças entre receitas.}
+\fonte{Tabelas consolidadas. F1 usa limiar de maior F1 na validação. Teste global: 25.911 funções. Pareado: 564 pares, com meio crédito para empates.}
+\end{frame}
+
+% 12
+\begin{frame}[t]{Variação entre sementes do 7B}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.42\textwidth}
+\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Semente & NF4 & BF16 \\
+\midrule
+1 & 55,23\% & 53,28\% \\
+2 & 45,04\% & 44,68\% \\
+3 & 51,60\% & 51,95\% \\
+\midrule
+Média & 50,62\% & 49,97\% \\
+\bottomrule
+\end{tabular}
+\par\medskip
+\small Diferença média: 0,65 p.p.\par
+IC95\%: $[-1{,}22;\ 2{,}54]$ p.p.
+\end{column}
+\begin{column}{0.55\textwidth}
+\begin{tikzpicture}
+\begin{axis}[
+ width=\linewidth,height=44mm,
+ xmin=44,xmax=56,ymin=0.4,ymax=2.6,
+ ytick={1,2},yticklabels={BF16,NF4},
+ xtick={45,50,55},xlabel={Ordenação pareada (\%)},
+ axis x line*=bottom,axis y line*=left,
+ y axis line style={draw=none},ytick style={draw=none},
+ tick label style={font=\small},label style={font=\small},
+ xmajorgrids=true,grid style={draw=linha},
+ enlarge x limits=false,clip=false]
+\addplot[dashed,cinza,thin] coordinates {(50,0.4)(50,2.6)};
+\addplot[only marks,mark=*,destaque,thick,
+ error bars/.cd,x dir=both,x explicit,error bar style={line width=1pt}]
+ coordinates {(50.62,2) += (2.71,0) -= (2.70,0)
+              (49.97,1) += (2.76,0) -= (2.83,0)};
+\end{axis}
+\end{tikzpicture}
+\end{column}
+\end{columns}
+\observacao{Intervalos por bootstrap de 550 grupos projeto/commit, condicionais aos três modelos observados. Incluem diferenças em ambas as direções.}
+\fonte{Tabela 6 da consolidação. 10.000 réplicas alinhadas. Os intervalos não estabelecem equivalência nem descrevem futuros treinamentos.}
+\end{frame}
+
+% 13
+\begin{frame}[t]{Memória e tempo de implantação}
+\small
+\begin{tabularx}{\linewidth}{@{}Xrr@{}}
+\toprule
+Recurso do 7B & NF4 + adaptador & BF16 mesclado \\
+\midrule
+Memória após carga & 4,63 GB & 14,15 GB \\
+Pico registrado & 12,49 GB & 20,76 GB \\
+Tempo por função & 59,6--60,0 ms & 46,8--47,1 ms \\
+\bottomrule
+\end{tabularx}
+\par\medskip
+\normalsize
+\begin{itemize}
+\item NF4 usou cerca de 67\% menos memória após a carga.
+\item BF16 teve menor tempo amortizado por função.
+\end{itemize}
+\observacao{A comparação muda representação da base e mesclagem do adaptador ao mesmo tempo.}
+\fonte{A40, Transformers, contexto de 2.048 e lotes de até 32.768 tokens. GB decimais de memória CUDA alocada. Tempo em lotes, não latência individual. Pico na pontuação de dev/teste/pares.}
+\end{frame}
+
+% 14
+\begin{frame}[t]{Operação com poucos falsos positivos}
+Limiar escolhido para FPR de até 0,5\% na validação e aplicado ao teste.
+\par\medskip
+\small
+\begin{tabularx}{\linewidth}{@{}Xrr@{}}
+\toprule
+Configuração & FNR no teste & FPR no teste \\
+\midrule
+3B proporção original & 88,06\% & 0,65\% \\
+3B com controle de tamanho & 96,26\% & 0,63\% \\
+7B NF4, semente 1 & 97,99\% & 0,69\% \\
+7B NF4, semente 2 & 98,71\% & 0,38\% \\
+7B NF4, semente 3 & 98,27\% & 0,56\% \\
+\bottomrule
+\end{tabularx}
+\par\medskip
+\normalsize A restrição reduziu alarmes, mas deixou passar a maior parte das vulnerabilidades.
+\fonte{FNR: proporção de vulneráveis perdidas. FPR: proporção de não vulneráveis com alarme falso. O teto da validação não garante o mesmo teto no teste.}
+\end{frame}
+
+% 15
+\begin{frame}[t]{Truncamento e correspondência dos pares}
+\small
+\begin{tabularx}{\linewidth}{@{}Xr@{}}
+\toprule
+Recorte de teste & Pares \\
+\midrule
+Referência oficial & 564 \\
+Sem truncamento nas duas versões & 465 \\
+Sem cinco correspondências inadequadas & 559 \\
+Interseção dos dois controles & 460 \\
+\bottomrule
+\end{tabularx}
+\par\medskip
+\normalsize
+\begin{itemize}
+\item O corte em 2.048 tokens torna idênticas as entradas de 32 pares.
+\item A inspeção focalizada confirmou cinco pares com funções diferentes.
+\item Remover esses cinco casos mudou o 7B em até 0,22 p.p.
+\end{itemize}
+\fonte{Auditoria e sensibilidades da consolidação. Os 564 pares permanecem na análise principal. A inspeção não certifica os demais pares.}
+\end{frame}
+
+% 16
+\begin{frame}[t]{Limites da interpretação}
+\begin{itemize}
+\setlength{\itemsep}{4mm}
+\item Análise retrospectiva e exploratória, com consulta prévia ao teste durante o desenvolvimento.
+\item Receitas com volumes, épocas e custos diferentes. Comparação descritiva entre 3B e 7B.
+\item Uma semente por receita 3B e três no 7B. Dependência entre exemplos e grupos ainda possível.
+\item Uma família de modelos, um dataset e um ambiente de inferência. Escores históricos com cinco casas decimais.
+\end{itemize}
+\fonte{Limitações do manuscrito atual. Ordenação perto de 50\% não demonstra ausência de compreensão. Deduplicação não prova ausência de contaminação no pré-treinamento.}
+\end{frame}
+
+% 17
+\begin{frame}[t]{Estado atual e continuidade}
+\cabecalho{Entregas disponíveis}
+Resultados consolidados, scripts de reconstrução, manuscrito completo e suplemento com rastreabilidade.
+\par\vspace{4mm}
+\cabecalho{Próximo desenho experimental}
+\begin{itemize}
+\item Receitas e critérios definidos antes de um novo teste.
+\item Mais sementes e orçamento de treino comparável.
+\item BF16 com adaptador separado e medições repetidas.
+\end{itemize}
+\observacao{No plano amplo: AWQ/GPTQ/INT8, outros modelos, energia e robustez ainda dependem de priorização.}
+\fonte{Conclusão e README do artigo. Autoria/afiliação e regras de extensão ainda precisam de fechamento editorial.}
+\end{frame}
+
+% 18
+\begin{frame}[t]{Pontos para discutir na orientação}
+\textbf{O achado mais consistente é a diferença entre desempenho global e discriminação dos pares.}
+\par\vspace{4mm}
+\begin{enumerate}
+\setlength{\itemsep}{3mm}
+\item Qual peso dar à avaliação pareada e à eficiência na pergunta central do mestrado?
+\item Qual comparação confirmatória deve vir primeiro?
+\item A comparação de quantização precisa de um baseline especializado adicional, como UniXcoder?
+\item Qual escopo é adequado para a qualificação e para o primeiro artigo?
+\end{enumerate}
+\end{frame}
+
+% Apoio técnico. O conteúdo principal termina no slide 18.
+\appendix
+
+% 19
+\begin{frame}[t]{Apoio: categorias pareadas e empates}
+\small
+\begin{tabularx}{\linewidth}{@{}lXXl@{}}
+\toprule
+Categoria & Versão vulnerável & Versão corrigida & Leitura \\
+\midrule
+P-C & Vulnerável & Não vulnerável & Ambas corretas \\
+P-V & Vulnerável & Vulnerável & Alarme nas duas \\
+P-B & Não vulnerável & Não vulnerável & Nenhum alarme \\
+P-R & Não vulnerável & Vulnerável & Decisões invertidas \\
+\bottomrule
+\end{tabularx}
+\par\medskip
+\normalsize
+\[
+A_{\mathrm{par}}=\frac{1}{N}\sum_{j=1}^N
+\left[\mathbf{1}(s_{v,j}>s_{c,j})+\frac12\mathbf{1}(s_{v,j}=s_{c,j})\right]
+\]
+\observacao{Categorias dependem do limiar. Ordenação com meio crédito não equivale a P-C.}
+\fonte{Método do manuscrito. A referência de 25\% para P-C só vale para palpites independentes e equilibrados entre as duas respostas.}
+\end{frame}
+
+% 20
+\begin{frame}[t]{Apoio: hiperparâmetros e ambiente}
+\small
+\begin{tabularx}{\linewidth}{@{}L{39mm}X@{}}
+\toprule
+Componente & Configuração registrada \\
+\midrule
+Adaptação & LoRA $r=16$, $\alpha=32$, dropout 0,05 e cabeça treinável \\
+Módulos & q, k, v, o, gate, up, down \\
+Base e cálculo & NF4, dupla quantização e computação BF16 \\
+Otimização & AdamW convencional, taxa $2\times10^{-4}$, warmup 3\% \\
+Lote e perda & 16 funções efetivas, entropia cruzada sem peso de classe \\
+Ambiente & PyTorch 2.8.0+cu128, Transformers 5.17.0 \\
+Adaptação/quantização & PEFT 0.21.0 e bitsandbytes 0.50.2 \\
+\bottomrule
+\end{tabularx}
+\fonte{Receitas oficiais e suplemento S5/S11. Contexto: 2.048 tokens. Checkpointing de gradientes, norma máxima 1,0, sem decaimento de pesos e scheduler linear.}
+\end{frame}
+
+% 21
+\begin{frame}[t]{Apoio: sensibilidade da ordenação}
+\small
+\begin{tabularx}{\linewidth}{@{}Xrrr@{}}
+\toprule
+Configuração & 564 pares & 559 pares & 460 pares \\
+\midrule
+Comprimento & 21,10\% & 20,57\% & 14,46\% \\
+3B proporção original & 37,50\% & 37,30\% & 33,80\% \\
+3B com controle de tamanho & 49,20\% & 49,02\% & 48,48\% \\
+7B NF4, semente 1 & 55,23\% & 55,19\% & 54,02\% \\
+7B NF4, semente 2 & 45,04\% & 45,26\% & 42,61\% \\
+7B NF4, semente 3 & 51,60\% & 51,52\% & 51,52\% \\
+\bottomrule
+\end{tabularx}
+\observacao{559: remoção das cinco correspondências inadequadas. 460: mesmo recorte, também sem truncamento.}
+\fonte{Tabela suplementar de sensibilidade. Recortes retrospectivos alteram a composição da amostra e não certificam os rótulos restantes.}
+\end{frame}
+
+% 22
+\begin{frame}[t]{Apoio: referências e material do projeto}
+\fontsize{9}{11}\selectfont
+\begin{itemize}
+\setlength{\itemsep}{2mm}
+\item Ding et al. (2024). \emph{Vulnerability Detection with Code Language Models: How Far Are We?} \href{https://arxiv.org/abs/2403.18624}{arXiv:2403.18624}.
+\item Risse e Böhme (2024). \emph{Uncovering the Limits of Machine Learning for Automatic Vulnerability Detection}. USENIX Security.
+\item Hu et al. (2021). \emph{LoRA: Low-Rank Adaptation of Large Language Models}. \href{https://arxiv.org/abs/2106.09685}{arXiv:2106.09685}.
+\item Dettmers et al. (2023). \emph{QLoRA: Efficient Finetuning of Quantized LLMs}. \href{https://arxiv.org/abs/2305.14314}{arXiv:2305.14314}.
+\item Hui et al. (2024). \emph{Qwen2.5-Coder Technical Report}. \href{https://arxiv.org/abs/2409.12186}{arXiv:2409.12186}.
+\item Huang et al. (2026). \emph{Do Fine-Tuned LLMs Understand Vulnerabilities? An Investigation into the Semantic Trap}. \href{https://arxiv.org/abs/2601.22655}{arXiv:2601.22655}.
+\end{itemize}
+\par\medskip
+\textbf{Fontes dos números:} consolidação de 08/10/2026, manuscrito atual e suplemento, em \texttt{03\_experimentos/resultados/} e \texttt{04\_escrita/artigo/seminarios\_2026/}.
+\end{frame}
+
+% ==============================================================
+% ROTEIRO DE FALA. O trecho abaixo integra a versão completa.
+% Cada entrada corresponde ao slide de mesmo número.
+% Tempos dos slides 1 a 18 somam aproximadamente 20 minutos.
+% ==============================================================
+\ifroteiro
+\setbeamertemplate{footline}{%
+\hspace{9mm}\begin{minipage}[b]{\dimexpr\paperwidth-18mm\relax}
+\color{linha}\hrule\vspace{1.8mm}\color{cinza}\fontsize{7}{8}\selectfont
+Roteiro de fala\hfill Material de consulta\vspace{2mm}\end{minipage}}
+
+\begin{frame}[plain,noframenumbering]
+\par\vspace{13mm}
+{\LARGE\bfseries Roteiro de fala}\par\vspace{5mm}
+Texto de apoio para cada slide\par\vspace{4mm}
+{\small Os slides 1 a 18 formam a apresentação principal, com duração sugerida de 20 minutos. Os slides 19 a 22 servem à discussão.\par\medskip
+Os tempos incluem pausas para explicar tabelas e resultados. O texto pode ser adaptado ao seu modo de falar.}
+\end{frame}
+
+\newcommand{\fala}[5]{%
+\begin{frame}[t,noframenumbering]{Roteiro #1: #2}
+\noindent{\small\color{destaque}#3}\par\medskip
+\setlength{\parskip}{1.5mm}\fontsize{10}{12.3}\selectfont #4
+\fonte{#5}
+\end{frame}}
+
+\fala{01}{Abertura}{Cerca de 30 segundos}{
+Professor, eu trouxe um resumo do que já consegui executar e do que esses resultados mudaram na leitura do projeto. A pergunta inicial continua ligada ao custo dos modelos, mas os experimentos mostraram que eu preciso olhar com cuidado para o que estou chamando de qualidade. Vou apresentar os dados, as configurações que rodei e os resultados principais. No final, queria discutir qual comparação faz mais sentido priorizar na continuidade do mestrado.
+}{Base: anteprojeto e manuscrito atual.}
+
+\fala{02}{Pergunta e recorte}{Cerca de 1 minuto e 10 segundos}{
+Eu parti da pergunta sobre até onde seria possível reduzir o tamanho e o custo de um modelo mantendo qualidade na detecção. Para investigar isso, comecei com uma família de modelos e um dataset. Ao longo das rodadas, apareceu uma questão anterior à economia de recursos: um resultado global melhor pode vir de uma característica do conjunto, sem acompanhar a diferença entre a função vulnerável e a corrigida.
+
+Por isso, organizei o recorte atual em torno dessa relação. Também comparei duas formas de implantar o mesmo ajuste do 7B, uma com base em quatro bits e adaptador separado, outra em BF16 com mesclagem. Esse bloco já tem resultados, mas ainda é menor que a proposta completa do mestrado.
+}{Anteprojeto, dossiê v3 e Introdução do manuscrito.}
+
+\fala{03}{Trajetória}{Cerca de 50 segundos}{
+Esta sequência mostra como os experimentos foram evoluindo. Primeiro eu montei a bancada e fiz as referências por instrução. Depois identifiquei que a versão do PrimeVul usada no início era um subconjunto diferente e passei para a release original. Os resultados antigos ficaram preservados.
+
+Nos pilotos do 3B, a relação entre comprimento e rótulo chamou atenção. Isso motivou o terceiro treino, com controle de tamanho. Só depois levei essa receita ao 7B e repeti com três sementes. Em outubro, consolidei os registros e o texto. A sequência importa porque as decisões foram exploratórias, influenciadas pelo que as rodadas anteriores mostraram.
+}{Histórico Git, notas experimentais e consolidação de 08/10/2026.}
+
+\fala{04}{Dataset}{Cerca de 1 minuto e 10 segundos}{
+O PrimeVul reúne funções C e C++ de projetos reais, com rótulos construídos a partir de correções de vulnerabilidades. Aqui estão as três partições. O treino tem cerca de 184 mil funções, e o teste tem 25.911, das quais 695 são vulneráveis. Isso dá uma prevalência de 2,68 por cento, então a tarefa é bastante desbalanceada.
+
+Uso a release original, que corresponde ao conjunto do artigo. A v0.1 acrescenta metadados, mas é menor: tem 549 vulneráveis no teste e 435 pares. Eu não misturo essas rodadas nas tabelas atuais. Deduplicação e separação temporal ajudam a reduzir vazamento. Ainda assim, esses cuidados não garantem que o código nunca tenha aparecido no pré-treinamento do modelo.
+}{Ding et al. (2024), downloader e auditoria da release original.}
+
+\fala{05}{Global e pareado}{Cerca de 1 minuto e 10 segundos}{
+No teste global, eu comparo a resposta do detector com o rótulo de cada função. Isso permite medir F1, precisão, revocação e outras métricas. No pareado, a pergunta é mais localizada: a nota da função vulnerável fica acima da nota da versão associada à correção?
+
+Essa comparação é interessante porque as duas versões compartilham quase todo o contexto. Se o detector usa só o tipo de projeto ou o estilo do código, isso pode funcionar globalmente e não ajudar a separar o par. Temos 564 pares, que correspondem a 1.128 registros. O pareamento também exige conferência, porque uma correspondência errada pode prejudicar a interpretação. Mais adiante eu mostro o que a inspeção encontrou.
+}{Método do manuscrito, PrimeVul e Risse e Böhme (2024).}
+
+\fala{06}{Configurações}{Cerca de 1 minuto}{
+Eu tenho três grupos de comparação. O primeiro usa as variantes Instruct, com uma pergunta sem exemplos e resposta YES ou NO. O segundo usa os modelos Base, ajustados com LoRA e uma cabeça de classificação. O terceiro é uma regra de referência que só conta os tokens da função.
+
+Esses grupos não diferem apenas pelo ajuste. O prompting usou contexto registrado de 8.192 tokens, e os classificadores usaram 2.048. Isso limita comparações diretas entre as etapas. No 3B, explorei três receitas, uma semente em cada. No 7B, repeti a receita com controle de tamanho em três sementes. As execuções oficiais usaram A40 e versões registradas das bibliotecas.
+}{Receitas, logs e Método, Seção 3.3.}
+
+\fala{07}{Treino e época}{Cerca de 1 minuto e 20 segundos}{
+No primeiro piloto, mantive todas as vulneráveis e sorteei o mesmo número de não vulneráveis. No segundo, usei o treino completo, com a proporção original. No terceiro, voltei ao um para um, mas escolhi funções não vulneráveis com comprimento próximo ao das vulneráveis. A intenção foi reduzir o sinal fornecido pelo tamanho.
+
+O 7B usou essa terceira receita. Historicamente, a seleção de época usou a ordenação estrita dos pares de validação, com AUC como desempate. Depois corrigi a pontuação dos empates para meio crédito. Consegui reconstruir essa seleção nos quatro treinos com controle de tamanho, e as épocas não mudaram. Nos outros pilotos, faltam empates por época. Também preciso considerar que as receitas têm volumes e durações diferentes, então essa comparação é descritiva.
+}{Receitas oficiais e selecao\_epocas.json.}
+
+\fala{08}{Métricas e limiares}{Cerca de 1 minuto e 20 segundos}{
+Aqui estão duas regras que precisam ficar separadas. Para dar uma decisão, comparo o escore com um limiar. Um limiar maximiza F1 na validação. Outro limita os falsos positivos a meio por cento na validação. Depois aplico cada um ao teste sem recalibrar. O segundo pode ultrapassar meio por cento no teste, e eu reporto isso.
+
+Na ordenação pareada, não uso limiar. Dou um ponto quando a vulnerável tem escore maior, meio ponto quando há empate e zero quando a ordem está invertida. Isso mantém uma referência de cinquenta por cento sob simetria entre versões. Todas as notas empatadas também dariam cinquenta por cento. Por isso, uma média próxima dessa referência não prova ausência de compreensão, assim como uma ordem favorável não prova que o modelo identificou o defeito.
+}{Método, Seção 3.5, e suplemento S7.}
+
+\fala{09}{Prompting}{Cerca de 1 minuto e 5 segundos}{
+Nesta referência por instrução, o 3B teve F1 de 0,119, e o 7B teve 0,062. O 7B encontrou onze vulnerabilidades a mais no teste, mas esse ganho veio com quase três vezes o número de alarmes falsos. Por isso, a precisão caiu bastante.
+
+Nos pares, o 3B acertou as duas decisões em dezesseis casos, e o 7B em quatorze. A maior parte caiu na categoria em que as duas versões recebem não vulnerável. O resultado me mostrou que aumentar o tamanho, nessa instrução, não melhorou o F1. Eu restrinjo essa leitura ao prompt e às variantes que usei. Não testei aqui exemplos no prompt, busca de contexto ou raciocínio explícito.
+}{Quatro logs oficiais de prompting e tabela consolidada.}
+
+\fala{10}{Comprimento}{Cerca de 1 minuto e 5 segundos}{
+Para saber quanto uma característica superficial consegue alcançar, usei o número de tokens como escore. Essa regra não aprende nada sobre segurança. Mesmo assim, ela chegou a AUC de 0,810 e F1 de 0,200 no teste global.
+
+Quando olho para os pares, a ordenação cai para 21,10 por cento, já com meio crédito nos empates. O motivo observável é que a relação de tamanho muda: globalmente, vulneráveis tendem a ser mais longas. Nos pares, entre os casos sem empate, a corrigida fica mais longa com maior frequência. Uma checagem acrescentada pelo patch pode produzir esse efeito. Essa referência mostra uma pista concreta que pode gerar bom desempenho global e uma ordem desfavorável nos pares.
+}{Heurística de comprimento e discussão do manuscrito.}
+
+\fala{11}{Resultados conjuntos}{Cerca de 1 minuto e 30 segundos}{
+Esta é a tabela central da apresentação. A receita 3B com proporção original tem o melhor F1 e a melhor AUC global entre essas configurações. Só que sua ordenação pareada é de 37,50 por cento. A receita um para um sorteada também fica abaixo de cinquenta por cento.
+
+Com controle de tamanho, o 3B chega a 49,20, e a média do 7B em NF4 fica em 50,62. Ao mesmo tempo, as métricas globais diminuem. Isso é compatível com a hipótese de que uma parte do desempenho global dependa de características correlacionadas ao rótulo, como comprimento. Eu não consigo isolar essa causa com o desenho atual, porque mudaram composição e orçamento de treino. O ponto sustentado pela tabela é a dissociação entre as avaliações. Não seria adequado escolher o melhor detector só pela coluna de F1 ou só pela ordenação.
+}{Tabelas globais e pareadas da consolidação. A média 7B é descritiva, não um ensemble.}
+
+\fala{12}{Sementes e incerteza}{Cerca de 1 minuto e 25 segundos}{
+No 7B, as sementes contam histórias diferentes. A primeira ficou acima de cinquenta por cento, a segunda abaixo, e a terceira perto. A média foi 50,62 em NF4 e 49,97 em BF16. O desvio entre sementes ficou na ordem de cinco pontos percentuais.
+
+Os intervalos do gráfico vêm de dez mil réplicas de bootstrap, reamostrando os 550 grupos de projeto e commit. Mantive o alinhamento entre as variantes em cada réplica. O intervalo da diferença média vai de menos 1,22 a mais 2,54 pontos percentuais. Assim, os dados não distinguem as duas implantações nessa medida, mas também não estabelecem equivalência. Os intervalos valem para os três modelos observados. As sementes usam os mesmos pares, então não triplicam a amostra e não caracterizam bem todos os possíveis treinamentos futuros.
+}{Tabela 6, intervalos.csv e estatistica.json.}
+
+\fala{13}{Recursos de implantação}{Cerca de 1 minuto e 15 segundos}{
+Na implantação, aparece uma troca bem concreta. O NF4 com adaptador alocou 4,63 gigabytes depois da carga, enquanto o BF16 mesclado alocou 14,15. O pico registrado também foi menor no NF4. Só que o BF16 teve menor tempo amortizado por função: cerca de 47 milissegundos, contra 60 no NF4.
+
+Então, nesse ambiente, reduzir memória não significou acelerar o processamento. Preciso tomar cuidado com duas coisas. Primeiro, esse tempo vem de lotes e não representa a latência de uma chamada individual. Segundo, a comparação muda a precisão da base e a mesclagem ao mesmo tempo. Para isolar melhor os efeitos, uma próxima condição útil seria BF16 com adaptador separado. Energia e faturamento real não foram medidos.
+}{Tabela de recursos do 7B e janela de medição descrita no suplemento S11.}
+
+\fala{14}{Poucos alarmes}{Cerca de 1 minuto e 5 segundos}{
+Quando eu aumento a exigência sobre alarmes falsos, o desempenho fica ainda mais limitado. O limiar foi calibrado para até meio por cento de falsos positivos na validação. Na proporção original, o 3B perdeu aproximadamente oitenta e oito por cento das vulnerabilidades no teste. Nas sementes do 7B, as perdas ficaram perto de noventa e oito por cento.
+
+A coluna da direita mostra que o limite da validação nem sempre se manteve no teste. Isso é esperado quando aplico o mesmo limiar a outro conjunto, mas precisa ficar explícito. Esse resultado descreve um ponto de operação com poucos alarmes. Ele ajuda a avaliar a utilidade prática e não pode ser substituído apenas por uma AUC global.
+}{Tabela global da consolidação. FNR/FPR no limiar de baixa FPR da validação.}
+
+\fala{15}{Conferência dos pares}{Cerca de 1 minuto}{
+Eu também examinei problemas que poderiam explicar parte do resultado pareado. Com o limite de 2.048 tokens, 465 pares cabem integralmente. Em trinta e dois, o corte torna as duas entradas idênticas, então o modelo não consegue observar a diferença por essa entrada.
+
+Outra inspeção olhou quinze pares com cabeçalhos diferentes. Em cinco, a verificação dos commits confirmou que o membro chamado de corrigido corresponde a outra função. Mantive os 564 pares como referência principal e fiz recortes de sensibilidade. Excluir esses cinco mudou o 7B em no máximo 0,22 ponto percentual. Eles não explicam o padrão principal, mas a inspeção focalizada também não certifica todos os pares restantes.
+}{Auditoria da tokenização e inspeção nos commits. Sensibilidades de 465, 559 e 460 pares.}
+
+\fala{16}{Limitações}{Cerca de 1 minuto}{
+Eu considero esse bloco exploratório. Houve consulta ao teste durante o desenvolvimento, e a consolidação recalcula previsões que já existiam. Calibrar os limiares na validação é um cuidado importante, mas não desfaz esse contato anterior.
+
+Também não tenho uma comparação equilibrada de orçamento entre todas as receitas. No 3B, cada receita tem uma única semente. No 7B, três sementes ainda são poucas para caracterizar a variação de treino. Além disso, os resultados se limitam a uma família, ao PrimeVul e a um ambiente. Por isso, eu descrevo os padrões observados e evito concluir que todo modelo falha ou que quatro bits preservam qualidade em qualquer situação. O estudo dá uma base concreta para desenhar a próxima avaliação.
+}{Limitações, Seção 6 do manuscrito atual.}
+
+\fala{17}{Continuidade}{Cerca de 55 segundos}{
+Hoje já tenho os registros consolidados, os scripts de reconstrução, o manuscrito e o suplemento. Para a entrega do texto, ainda preciso fechar identificação dos autores e adequação às regras de extensão.
+
+Na frente experimental, a continuação que vejo como mais útil é fixar receitas e critérios antes de um novo teste, aumentar as sementes e tornar o orçamento comparável. Para implantação, eu incluiria BF16 com adaptador separado e repetiria as medições. O plano amplo também prevê AWQ, GPTQ, INT8, outros modelos, energia e robustez. Queria priorizar esses itens de acordo com a pergunta central, em vez de ampliar a matriz inteira de uma vez.
+}{README atual, conclusão do artigo e protocolo do mestrado.}
+
+\fala{18}{Discussão com o orientador}{Cerca de 1 minuto e 10 segundos}{
+O que eu levo dessas rodadas é que a avaliação global e a pareada descrevem comportamentos diferentes, e essa diferença afeta a leitura de eficiência. Eu consigo economizar memória, mas preciso deixar claro qual qualidade estou preservando e quão útil ela é.
+
+Minha principal dúvida para a continuidade é o peso que esse achado deve ter no mestrado. Faz sentido concentrar a próxima etapa numa avaliação confirmatória dessa dissociação ou retomar primeiro a comparação entre métodos de quantização? Também queria discutir se precisamos de um classificador especializado menor, como UniXcoder, para dar mais força à referência. A partir disso, consigo delimitar melhor o que entra na qualificação e o que fica para um artigo ou uma etapa posterior.
+}{Discussão proposta a partir dos resultados. Prioridades ainda dependem da orientação.}
+
+\fala{19}{Categorias e empates}{Apoio, se surgir dúvida}{
+Esta tabela separa a decisão binária da ordem dos escores. Em P-C, as duas decisões estão corretas. Em P-V, o modelo dá alarme nas duas versões. Em P-B, não dá alarme em nenhuma. Em P-R, ele inverte as decisões.
+
+A fórmula abaixo usa a ordem das notas e dá meio crédito aos empates. Ela pode indicar uma ordem favorável mesmo quando as duas versões ficam do mesmo lado do limiar. Por exemplo, notas 0,8 e 0,7 com limiar 0,5 ordenam certo, mas geram P-V. Por isso, não trato ordenação como P-C. O valor de vinte e cinco por cento às vezes citado para P-C depende de palpites independentes e equilibrados, não vale para qualquer detector.
+}{Método, Seção 3.5.}
+
+\fala{20}{Configuração técnica}{Apoio, se surgir dúvida}{
+O ajuste mantém a base congelada em NF4 e treina os adaptadores LoRA e a cabeça. Usei posto dezesseis, alfa trinta e dois e dropout de 0,05. Os adaptadores cobrem as projeções de atenção e do MLP. O lote efetivo foi de dezesseis funções, com limite de 2.048 tokens e técnicas para reduzir memória de gradientes.
+
+O otimizador é AdamW convencional, não o paginado do artigo QLoRA. A taxa inicial foi de dois vezes dez a menos quatro, com aquecimento de três por cento. As versões da tabela são as registradas nas execuções. Esses detalhes ajudam a repetir o procedimento, mas não eliminam todas as possíveis diferenças numéricas entre ambientes.
+}{Receitas e suplemento S5/S11.}
+
+\fala{21}{Sensibilidades}{Apoio, se surgir dúvida}{
+Aqui estão os valores antes e depois dos recortes. A coluna de 559 remove apenas os cinco pares cuja correspondência foi confirmada como inadequada. A coluna de 460 aplica também o requisito de ausência de truncamento.
+
+Excluir só os cinco casos muda muito pouco o 7B. Quando retiro também o truncamento, algumas sementes caem mais, especialmente a segunda. Esse recorte muda a composição da amostra, então eu não atribuo toda a diferença ao corte de entrada. O ponto é verificar quanto a leitura depende desses controles, mantendo o conjunto oficial como principal. Os resultados também não autorizam concluir que os demais rótulos passaram por auditoria completa.
+}{sensibilidade\_correspondencia.csv e tabela suplementar.}
+
+\fala{22}{Referências e registros}{Apoio, se surgir dúvida}{
+Estas são as referências principais para o dataset, os limites da detecção, a adaptação eficiente e a família de modelos. Os trabalhos sobre pares e sobre a chamada armadilha semântica ajudam a situar o problema de interpretação, mas os protocolos diferem. Por isso, não comparo diretamente os números deles com os meus.
+
+Os números da apresentação vêm da consolidação local, do manuscrito e do suplemento. A consolidação cobriu quatorze avaliações, trinta e três arquivos de previsão e seis receitas. Os registros permitem conferir identidade e reconstruir métricas na precisão gravada. Essa rastreabilidade sustenta a apresentação, embora não substitua uma nova avaliação independente.
+}{Referências do manuscrito, manifesto e auditoria de integridade.}
+
+\fi
+\end{document}

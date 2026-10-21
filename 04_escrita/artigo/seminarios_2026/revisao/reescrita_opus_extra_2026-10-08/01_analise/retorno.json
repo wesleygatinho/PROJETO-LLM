@@ -1,0 +1,258 @@
+{
+  "diagnostico": [
+    {
+      "trecho_atual": "Título: 'Avaliação exploratória de classificadores Qwen2.5-Coder no PrimeVul: desempenho global, pareado e recursos de implantação'",
+      "problema": "O título lista três facetas sem dizer qual tarefa está sendo avaliada. Ele também não mostra que a relação entre essas facetas é o objeto do estudo. 'Recursos de implantação' é vago, e 'pareado' aparece sem substantivo.",
+      "comparacao_corpus": "A08.txt, p.1, linhas 2–3: o título informa tarefa, família de modelo e benchmark ('Verificação de Fatos com Transformers: Um Estudo com DistilBERT no Benchmark FEVER').",
+      "diretriz": "Nomear a tarefa (detecção de vulnerabilidades), os modelos, o benchmark e o tipo de estudo, além do contraste que organiza o artigo. Exemplo para o pesquisador decidir: 'Detecção de vulnerabilidades com Qwen2.5-Coder no PrimeVul: desempenho global, discriminação entre versões vulnerável e corrigida e custo de implantação'. A palavra 'exploratório' pode ficar no subtítulo ou no Resumo."
+    },
+    {
+      "trecho_atual": "Resumo: 'Foram consolidados registros de prompting, uma referência de tamanho, três pilotos 3B e três seeds do 7B em NF4 e BF16. [...] A auditoria identificou cinco correspondências pareadas [...] sem demonstrar compreensão semântica, equivalência de configurações ou efeito causal da quantização.'",
+      "problema": "O Resumo descreve o processo de consolidação dos registros, e não o estudo realizado. Não há frase de problema. Usa jargão interno sem definição ('pilotos', 'referência de tamanho', 'ordenação pareada', 'auditoria'). Fecha com três negações, mas não diz o que os resultados significam.",
+      "comparacao_corpus": "A08.txt, p.1, linhas 16–23: problema → o que o trabalho investiga (tarefa, dataset, modelo) → resultado principal com número → implicação. A06.txt, p.1, linha 22 em diante, segue a mesma ordem.",
+      "diretriz": "Escrever no máximo dez linhas na ordem problema (uma frase) → objetivo → desenho (variantes Instruct por prompting; classificadores Base 3B/7B ajustados com LoRA; heurística de comprimento; teste global e pareado; NF4 e BF16) → achado central (AUC 0,810 versus ordenação de 21,10% da heurística; F1 0,262 versus 37,50% do 3B; médias 7B de 50,62% e 49,97%) → recursos (menos memória e mais tempo em NF4) → uma única frase de alcance (exploratório, acesso prévio ao teste). A frase sobre os cinco pares sai do Resumo ou vira uma oração curta."
+    },
+    {
+      "trecho_atual": "Introdução §1: 'A avaliação de modelos de linguagem de código para detecção de vulnerabilidades exige distinguir o desempenho agregado [...]. Em conjuntos nos quais as funções não vulneráveis predominam, a acurácia pode permanecer elevada [...]. Ding et al. (2024) discutem essas limitações e mostram que a composição dos dados e as condições de avaliação alteram a interpretação [...]'",
+      "problema": "O texto começa por uma tese metodológica e pula o contexto: por que se automatiza a detecção e como os detectores aprendidos evoluíram até os LLMs. Duas proposições gerais aparecem sem fonte. A única citação é vaga ('discutem', 'mostram que [...] alteram a interpretação') e não traz nenhum achado específico.",
+      "comparacao_corpus": "A08.txt, p.1, linhas 25–41: contexto amplo sustentado por citação ([Guo et al. 2022]), seguido do benchmark de referência ([Thorne et al. 2018]). A06.txt, pp.1–2, linhas 37–59: cada proposição factual tem fonte própria. A01.txt, pp.1–2, linhas 47–54: o trabalho citado é sujeito da frase e o problema apontado é descrito concretamente ('Segundo os autores, há perda...').",
+      "diretriz": "Abrir com o problema da detecção automatizada no nível da função, citando trabalhos da trajetória dos detectores aprendidos e dos LLMs (ver literatura_necessaria). Em seguida, apresentar a qualidade dos dados e a avaliação como problema, com achados concretos. Exemplo: o contraste de F1 entre BigVul e PrimeVul relatado por Ding et al. (primevul_pdf.txt, linhas 39 e 88; Codex deve conferir no PDF qual modelo e qual condição). Cada citação narrativa deve carregar uma proposição verificável."
+    },
+    {
+      "trecho_atual": "Introdução §6–§8: 'Os registros experimentais compreendem três receitas exploratórias de ajuste [...]'; 'O estudo não propõe uma nova arquitetura nem um novo teste de compreensão semântica [...]'; 'Esses limites orientam a interpretação da evidência [...]'",
+      "problema": "A introdução tem oito parágrafos e antecipa o método (receitas, seeds, merge, BF16). A contribuição é definida pela negação, e as limitações aparecem três vezes (Introdução, Discussão e Ameaças). O leitor só chega ao objetivo no quinto parágrafo.",
+      "comparacao_corpus": "A01.txt, p.2, linhas 61–64: objetivo e contribuição em um único parágrafo, depois do problema. A08.txt, p.2, linhas 57–66: objetivo geral seguido de objetivo específico e da forma de entrada e saída. A06.txt, p.2, linhas 67–81: diferença em relação ao trabalho anterior, seguida da organização do texto.",
+      "diretriz": "Usar quatro ou cinco parágrafos: (1) problema; (2) limites da avaliação e qualidade dos dados; (3) LLMs de código e adaptação eficiente; (4) objetivo com duas questões (relação global/pareada; NF4 versus BF16 em qualidade e recursos), mais duas ou três contribuições afirmativas e uma frase sobre o caráter exploratório; (5) organização do artigo. Detalhes de receitas vão para o Método e as limitações para a seção própria."
+    },
+    {
+      "trecho_atual": "Seção 2 §4: 'O posicionamento científico resulta de diferenças concretas de desenho. PrimeVul fornece dados [...]; Risse e Böhme (2024) investigam [...]; Huang et al. (2026) examinam [...]. Não executa o protocolo TrapEval, não compara diretamente números [...] e não interpreta ordenação próxima de 50% como diagnóstico de Semantic Trap.'",
+      "problema": "Os trabalhos relacionados se resumem a três estudos, resumidos em uma frase cada. Não há linhagem (detectores profundos → modelos pré-treinados de código → LLMs) nem literatura sobre qualidade de dados. O posicionamento é construído por aquilo que o estudo não faz.",
+      "comparacao_corpus": "A01.txt, pp.2–3, linhas 65–94: seção própria com um parágrafo por trabalho, cada um com objetivo, modelo, base, métrica e resultado. A08.txt, p.2, linhas 67–90: trajetória cronológica (BERT → variantes → destilação → linhas recentes), fechada com a relação ao estudo.",
+      "diretriz": "Criar uma seção de Trabalhos Relacionados em três eixos: (a) evolução da detecção aprendida até os LLMs; (b) qualidade dos dados e protocolos de avaliação (PrimeVul, VulnPatchPairs de Risse, qualidade de rótulos); (c) avaliação de LLMs ajustados e pares (TrapEval). Para cada trabalho, informar dados, modelo, protocolo e achado. Fechar com um parágrafo afirmativo de posicionamento. Opcionalmente, incluir uma tabela de características (dataset, pares, ajuste, quantização, recursos), nunca uma tabela de números entre protocolos distintos."
+    },
+    {
+      "trecho_atual": "Seção 2 §3: 'Neste estudo, a adaptação empregou NF4 e computação BF16, mas o otimizador foi AdamW convencional: não se atribui à implementação local a adoção de todos os componentes do trabalho original, como otimizadores paginados.'",
+      "problema": "A seção de fundamentação mistura conceito e implementação local. A ressalva sobre otimizadores paginados é correta (qlora_pdf.txt, linhas 82–85 listam NF4, Double Quantization e Paged Optimizers), mas pertence ao Método.",
+      "comparacao_corpus": "A01.txt, seção 3 ('Redes Em Cápsula', linha 96): o conceito fica em seção separada do método. A08.txt, p.4, linhas 140–154: a arquitetura efetivamente usada é descrita em 3.3, dentro do Método.",
+      "diretriz": "Deixar em uma subseção curta de Fundamentação apenas LoRA (ΔW = BA, pesos congelados), QLoRA/NF4 e as duas formas de classificar com LLM (geração e cabeça). As escolhas locais (módulos-alvo, r, α, otimizador) ficam na subseção de configuração de treinamento."
+    },
+    {
+      "trecho_atual": "Método 3.1 §1: 'Realizou-se uma consolidação retrospectiva dos experimentos existentes [...]. Nesta consolidação não foram realizados treinamento, inferência, recuperação de pesos ou novas medições em GPU; os cálculos utilizaram exclusivamente os registros disponíveis e processamento em CPU.'",
+      "problema": "O Método relata a nossa auditoria dos registros, e não o estudo executado. O leitor não encontra primeiro o desenho: o que foi treinado, como foi avaliado e em que ordem. O título '3.1 Delineamento, dados e rastreabilidade' confirma esse foco.",
+      "comparacao_corpus": "A01.txt, p.4, linhas 139–146: visão geral com materiais, ambiente (bibliotecas, GPU), etapas numeradas e figura. A06.txt, p.3, linhas 101–109: visão geral do método com figura e encadeamento das etapas. A08.txt, p.3, linhas 92–99: recorte da tarefa e sua finalidade.",
+      "diretriz": "Abrir o Método com a visão geral do estudo executado: tarefa (classificação binária por função), três grupos de configurações (prompting Instruct, classificadores ajustados, heurística de comprimento), protocolo (seleção de época na validação, limiar escolhido na validação, aplicação ao teste global e pareado) e medição de recursos. Acrescentar a Figura 1 como diagrama do fluxo. Declarar em uma frase, no fim do Método ou nas Limitações, o caráter exploratório e que as métricas foram recalculadas dos registros de predição. O restante vai para o suplemento."
+    },
+    {
+      "trecho_atual": "Método 3.1 §2–§4: 'Os hashes SHA-256 completos calculados nesta etapa coincidiram com os prefixos históricos de 12 caracteres [...]'; 'Cada log foi alinhado à fonte por posição original, identificador idx [...]. O campo func_hash nulo não foi empregado como prova. [...] sem fallback por agrupamento arbitrário'; '[...] libjpeg (2022), PHP (2011), rizin (2022), Linux (2008) e drogon (2022).'",
+      "problema": "Os detalhes de rastreabilidade ocupam o espaço da descrição dos dados. As contagens dos splits ficam diluídas em prosa entre hashes. Os commits são tratados como referências bibliográficas.",
+      "comparacao_corpus": "A08.txt, p.3, linhas 100–121: subseção 'Conjunto de Dados' que descreve a instância, os rótulos e uma Tabela 1 de distribuição por split, com comentário sobre o desbalanceamento. A06.txt, pp.2–3, linhas 83–99: composição, aquisição e rotulação da base, com tabela.",
+      "diretriz": "Escrever uma subseção 'Conjunto de dados' com origem do PrimeVul (citação), linguagem C/C++, deduplicação e divisão temporal, uma tabela de splits (treino 184.427/5.574; validação 25.430/699; teste 25.911/695, prevalência de 2,68%; pares 4.354/562/564) e uma frase sobre a construção dos pares. Hashes, alinhamento, idx/func_hash, reutilizações e a lista de projetos e commits vão para o suplemento. Os cinco pares problemáticos continuam no corpo (Resultados e Limitações), descritos sem citação bibliográfica."
+    },
+    {
+      "trecho_atual": "Método 3.3 §2 e §4: 'Numericamente, o limiar fica no valor representável imediatamente inferior ao último score incluído.'; 'Os scores históricos foram gravados com cinco casas decimais. A reconstrução utilizou essa precisão disponível, sem criar casas internas ausentes ou ajustar epsilon [...]'",
+      "problema": "A minúcia de implementação esconde as duas regras de decisão que o leitor precisa entender: o limiar de maior F1 na validação e o limiar que limita a FPR a 0,5% na validação, ambos aplicados ao teste sem recalibração.",
+      "comparacao_corpus": "A08.txt, p.5, linhas 163–175: cada configuração aparece com seu valor e o motivo da escolha, seguidos do risco reconhecido ('reconhece-se que este desbalanceamento pode induzir vieses').",
+      "diretriz": "Usar uma subseção 'Calibração e métricas' em duas partes: (1) regra s > t e as duas calibrações na validação, com o motivo de cada uma (F1 para a comparação geral, FPR ≤ 0,5% para o cenário de poucos falsos alarmes proposto por Ding et al.); (2) métricas globais, categorias pareadas P-C/P-V/P-B/P-R e ordenação pareada definida pela fórmula com meio crédito para empates. A precisão de cinco casas, o desempate do F1 e o valor representável vão para o suplemento. A diferença em relação ao VD-Score oficial fica no corpo em uma frase."
+    },
+    {
+      "trecho_atual": "Método 3.4 §1: '[...] bootstrap percentil de 95%, com 10.000 réplicas e seed 20261008. [...] A comparação dos endpoints entre 5.000 e 10.000 réplicas variou no máximo 0,10 ponto percentual [...] Não foram transportados p-valores das notas históricas [...]'",
+      "problema": "O parágrafo tem doze frases. A informação essencial (unidade de reamostragem, intervalo condicional aos três modelos, dispersão entre seeds tratada como coisa distinta) disputa espaço com detalhes de execução.",
+      "comparacao_corpus": "A01.txt, p.7, linhas 207–225 e A08.txt, p.5, linhas 163–169: procedimento descrito por finalidade e parâmetros principais, sem registro de execução.",
+      "diretriz": "Manter no corpo: média e DP amostral das três seeds 7B; bootstrap percentil de 95% com reamostragem dos 550 grupos projeto/commit e 10.000 réplicas, alinhado entre NF4 e BF16; intervalo condicional aos modelos treinados; ausência de testes de hipótese. Levar para o suplemento: a semente do bootstrap, a estabilidade 5.000/10.000, a reamostragem por par e a média ponderada por réplica. Codex deve conferir a fonte metodológica do bootstrap (ver literatura)."
+    },
+    {
+      "trecho_atual": "Resultados 4.1 §1: 'A junção dos 33 arquivos de previsão das 14 avaliações selecionadas com os splits oficiais não apresentou divergências de posição, idx, projeto, commit ou rótulo [...]. O teste pareado tem 1.128 posições, mas 1.126 identidades idx distintas [...]'",
+      "problema": "A seção de Resultados começa por uma verificação de integridade, que não responde a nenhuma questão do estudo.",
+      "comparacao_corpus": "A06.txt, p.6, linhas 184–201: a subseção de resultados abre com as condições do experimento e a chamada da tabela, depois descreve o contraste observado. A08.txt, p.6, linhas 186–196: começa pelo recorte da comparação e pelo primeiro resultado.",
+      "diretriz": "Abrir os Resultados pela Tabela de prompting e pela de desempenho global. A integridade do alinhamento passa para o suplemento, e o Método afirma em uma frase que as métricas foram recalculadas dos registros de predição alinhados ao conjunto oficial."
+    },
+    {
+      "trecho_atual": "Resultados 4.1–4.2: 'Nas seis avaliações 7B, F1 variou entre 0,114 e 0,148 e AUC entre 0,726 e 0,765.'; 'A ordenação da referência de tamanho foi 21,10%, embora sua AUC global tenha sido 0,810.'",
+      "problema": "Os intervalos são recitados sem ligação à pergunta. O contraste central do artigo fica espalhado entre 4.1, 4.2 e a Discussão. Falta a leitura direta permitida pela definição da métrica: uma ordenação de 21,10% para o comprimento indica que, na maioria dos pares, a versão corrigida não é mais curta que a vulnerável. Isso decorre da definição e não exige número novo.",
+      "comparacao_corpus": "A08.txt, p.7, linhas 208–222: número → padrão assimétrico → leitura. Não reproduzir o salto causal 'pode ser atribuído'. A06.txt, p.6, linhas 202–217: tabela → contraste → decisão derivada.",
+      "diretriz": "Em cada subseção: anunciar a tabela pelo que ela permite examinar, destacar o contraste que responde à questão e interpretar com modalidade proporcional. Organizar o desempenho global e o pareado como uma única narrativa: a heurística discrimina globalmente mas inverte nos pares; o 3B com maior F1 também fica abaixo de 50%; as configurações com controle de tamanho se aproximam de 50% e perdem desempenho global. A explicação continua como hipótese compatível, não como causa."
+    },
+    {
+      "trecho_atual": "Discussão §4: 'Assim como Risse e Böhme (2024) e Huang et al. (2026) investigam limites dos detectores em desenhos específicos, este estudo evidencia limites de avaliação das configurações executadas [...]'",
+      "problema": "A relação com a literatura é genérica. Não discute achados específicos: as características sem relação com a vulnerabilidade em Risse, a avaliação pareada em Ding, as falhas de LLMs por prompting e o problema de rótulos e correspondência na literatura de qualidade de dados.",
+      "comparacao_corpus": "A08.txt, p.8, linhas 247–264: a discussão compara o estudo com cada trabalho relacionado e explica a diferença de protocolo que limita a comparação (com ou sem recuperação de evidências).",
+      "diretriz": "Escrever três parágrafos de discussão: (1) dissociação global/pareada à luz de Risse (características sem relação com a vulnerabilidade) e de Ding (pares), com a diferença de protocolo explícita; (2) prompting fraco em relação à literatura de avaliação de LLMs; (3) os cinco pares incompatíveis à luz da literatura sobre qualidade de datasets de vulnerabilidade. NF4/BF16 fica como implicação prática delimitada."
+    },
+    {
+      "trecho_atual": "Ameaças à validade §4: 'A rastreabilidade histórica registra prefixos de revisões e hashes, sem uma revisão de código identificada por execução ou uma revisão própria de tokenizer em todas as rodadas.'",
+      "problema": "Esta seção repete limites já ditos na Introdução §8, no Método e nos Resultados, e mistura limitações materiais com detalhes de proveniência de baixo impacto interpretativo.",
+      "comparacao_corpus": "A01.txt, p.10, linhas 358–363 e A06.txt, p.9, linhas 392–396: os limites aparecem ligados à continuidade do trabalho. O corpus é menos cauteloso que este projeto, e esse traço não deve ser copiado. A ANALISE_CORPUS.md §4 registra essa adaptação.",
+      "diretriz": "Criar uma seção única de Limitações, organizada por tipo: interna (acesso prévio ao teste; seleção de época retrospectiva; NF4 confundido com o merge do adaptador); estatística (uma seed por piloto 3B; três seeds no 7B; intervalo condicional); de construção (cinco pares incompatíveis e demais pares não certificados; truncamento em 2.048 tokens; ordenação ≠ compreensão); externa (uma família, um dataset, uma GPU, sem latência individual). Proveniência de tokenizer e precisão dos registros vão para o suplemento, com uma frase no corpo."
+    },
+    {
+      "trecho_atual": "Conclusão §1: 'Este trabalho consolidou as execuções Qwen2.5-Coder disponíveis no PrimeVul [...]. A reconstrução reproduziu as métricas principais na precisão publicada [...]'; §3: 'A contribuição é uma caracterização empírica delimitada e rastreável do bloco executado.'",
+      "problema": "A conclusão fala do processo de consolidação. A contribuição é qualificada como 'rastreável', e não pelo que o estudo mostrou.",
+      "comparacao_corpus": "A01.txt, p.10, linhas 365–375 e A06.txt, p.9, linhas 377–396: retomada do que foi estudado e de como, achados principais com números e trabalhos futuros enumerados.",
+      "diretriz": "Escrever três parágrafos: o que foi avaliado; o que se observou (dissociação global/pareada, dispersão entre seeds, troca entre memória e tempo, sem equivalência); continuidade concreta (avaliação confirmatória com protocolo definido antes do teste, mais seeds, revisão sistemática dos pares, NF4 sem merge versus BF16 sem merge)."
+    },
+    {
+      "trecho_atual": "Jargão interno ao longo do texto: 'pilotos 3B', 'bloco 7B', '3B real', 'dev', 'splits', 'logs', 'parser', 'fallback', 'endpoints', 'merge', 'scores'/'escores', 'release v0.1', 'A correção retrospectiva de 06/10'",
+      "problema": "O vocabulário de laboratório e as datas internas expõem o processo de trabalho. Há alternância de termos para o mesmo objeto, por exemplo scores e escores, e referência de tamanho e baseline.",
+      "comparacao_corpus": "A08.txt, pp.3–5, linhas 101–105 e 165–167: termos definidos em português com o original entre parênteses ('taxa de aprendizado (learning rate)', 'tamanho do lote (batch size)').",
+      "diretriz": "Adotar um glossário fixo: 'conjunto de validação' (sem 'dev'); 'escore'; 'heurística de comprimento' ou 'referência de comprimento'; 'configuração 3B com proporção original', 'com amostragem 1:1' e 'com amostragem 1:1 e controle de tamanho'; 'semente (seed)' definida uma vez; 'mesclagem do adaptador (merge)' definida uma vez. Eliminar datas internas, nomes de campos e nomes de arquivos do corpo."
+    },
+    {
+      "trecho_atual": ".tex, linhas 452–485: '\\bibitem[Dettmers 2023]{ref1}' ... '\\bibitem[rizin 2022]{ref11}'; corpo com 'Ding et al. (2024)' e '(Hu et al., 2021)' digitados; '\\url{https://github.com/...}'",
+      "problema": "Nenhuma citação está vinculada: as chaves ref1 a ref11 nunca são chamadas. Cinco commits aparecem como referências bibliográficas, e há URLs do GitHub e do arXiv. O formato parentético '(Autor, ano)' diverge do SBC observado, que usa colchetes sem vírgula.",
+      "comparacao_corpus": "A08.txt, pp.1–2, linhas 28, 36 e 54: parentética '[Guo et al. 2022]'; linha 68: narrativa 'Devlin et al. (2019)'. A06.txt, p.2, linha 49: múltipla '[Morris et al. 2011, Olesen et al. 2019]'. A08.txt, pp.9–10, linhas 294–342: a lista contém apenas trabalhos científicos.",
+      "diretriz": "Substituir o thebibliography manual por BibTeX com artigo.bib e sbc.bst. Remover os commits da bibliografia e retirar os campos url. Converter todas as citações para os tokens [@chave] e [!chave] (ver politica_citacoes)."
+    },
+    {
+      "trecho_atual": ".tex, tabelas: '\\resizebox{\\textwidth}{!}{%'; texto com 'na Tabela 5' digitado; rótulos de linha 'Tamanho', '3B real'; Tabela 1 com 'Custo total (US$)'",
+      "problema": "O redimensionamento altera o corpo de fonte em relação ao template. A numeração está fixa no texto. Os rótulos de linha só fazem sentido para quem conhece o projeto, e o custo financeiro de treino não serve à pergunta científica.",
+      "comparacao_corpus": "A08.txt, p.3 (Tabela 1, linhas 113–117) e p.8 (Tabela 2, linhas 238–246); A06.txt, pp.6–7 (Tabelas 2–3, linhas 197–213): tabelas pequenas, com rótulos autoexplicativos e chamadas no texto antes de aparecerem.",
+      "diretriz": "Usar \\label/\\ref, sem \\resizebox. Dividir as tabelas largas (por exemplo, separar FNR*/FPR* da Tabela 3, ou o 3B do 7B). Usar rótulos de linha descritivos. Na tabela de configurações, manter vulneráveis, não vulneráveis, épocas, época selecionada e horas de treino; o custo vai para o suplemento. As legendas, acima da tabela, devem dizer política, denominador e unidade."
+    }
+  ],
+  "argumento_central": "Nas configurações Qwen2.5-Coder avaliadas no PrimeVul, o desempenho global e a capacidade de ordenar a função vulnerável acima de sua versão corrigida não andam juntos. Uma heurística que usa apenas o comprimento da função alcança AUC global de 0,810, mas ordena favoravelmente só 21,10% dos 564 pares. O classificador 3B treinado na proporção original obtém o maior F1 global (0,262) e ordena 37,50%. As configurações treinadas com amostragem 1:1 e controle de tamanho se aproximam de 50% no pareado (3B: 49,20%; médias 7B: 50,62% em NF4 e 49,97% em BF16, com cerca de 5 p.p. de dispersão entre seeds), mas têm desempenho global menor. Esse padrão é compatível com a hipótese de que parte do desempenho global no benchmark venha de características correlacionadas ao rótulo, como o comprimento, e não da distinção entre vulnerável e corrigida. O desenho não estabelece essa causa. Em segundo plano, a implantação NF4 com adaptador separado usou menos memória alocada e mais tempo amortizado que a BF16 com adaptador mesclado. A diferença de ordenação (0,65 p.p.; intervalo condicional de −1,22 a 2,54) não distingue as duas configurações nem estabelece equivalência, e não isola o efeito da quantização do efeito da mesclagem. Todos os achados são exploratórios: houve acesso prévio ao teste, uma seed por configuração 3B, três seeds no 7B, e cinco pares oficiais não correspondem ao patch da mesma função; excluí-los alterou a ordenação em no máximo 0,22 p.p.",
+  "estrutura": [
+    {
+      "secao": "Título, Resumo e Abstract",
+      "funcao": "Tarefa, modelos, benchmark, achado central e alcance exploratório em até dez linhas cada, com o mesmo conteúdo nos dois idiomas.",
+      "migrar_para_suplemento": "Nada. Retirar do Resumo e do Abstract os termos 'consolidados registros' e 'auditoria'."
+    },
+    {
+      "secao": "1. Introdução",
+      "funcao": "Problema da detecção automatizada → trajetória dos detectores aprendidos e LLMs → qualidade dos dados e limites das métricas globais (PrimeVul, pares) → adaptação eficiente (LoRA/QLoRA) como motivação para os recursos → objetivo e duas questões → contribuições afirmativas → organização do texto.",
+      "migrar_para_suplemento": "Nada. Detalhes de receitas, merge e limites vão para o Método e as Limitações."
+    },
+    {
+      "secao": "2. Trabalhos relacionados",
+      "funcao": "Três eixos (detecção aprendida até LLMs; qualidade de dados e protocolos, incluindo pares; LLMs ajustados e TrapEval), com dados, modelo, protocolo e achado de cada trabalho, mais um parágrafo de posicionamento afirmativo. Tabela qualitativa opcional.",
+      "migrar_para_suplemento": "Nada. Comparações numéricas entre protocolos diferentes não entram."
+    },
+    {
+      "secao": "3. Fundamentação (curta; pode ser 2.4 ou 3.0)",
+      "funcao": "Classificação por geração versus cabeça de classificação; LoRA (ΔW = BA); QLoRA/NF4 e a distinção entre armazenamento e computação.",
+      "migrar_para_suplemento": "Nada."
+    },
+    {
+      "secao": "4. Materiais e Métodos",
+      "funcao": "4.1 Visão geral e Figura 1 (fluxo: dados → configurações → seleção na validação → limiares na validação → teste global e pareado → recursos). 4.2 Conjunto de dados (PrimeVul; tabela de splits e pares; truncamento em 2.048 tokens). 4.3 Configurações avaliadas: prompting Instruct (FP16, YES/NO, 8.192 tokens); heurística de comprimento; classificadores Base com cabeça (escore = diferença de logits); receitas 3B e 7B (tabela); hiperparâmetros LoRA e otimizador. 4.4 Seleção de época na validação e correção de empates, mencionada em uma frase. 4.5 Implantação NF4 com adaptador versus BF16 mesclado, declarando o confundimento. 4.6 Calibração e métricas (duas regras; métricas globais; FNR com FPR observada; categorias pareadas; ordenação com meio crédito; diferença em relação ao VD-Score). 4.7 Análise estatística e sensibilidades (seeds; bootstrap por grupo projeto/commit; recortes 465 e 559). 4.8 Ambiente e medição de recursos (A40, memória alocada, pico na janela, tempo amortizado em lotes de 32.768 tokens).",
+      "migrar_para_suplemento": "Hashes e recuperação da release; alinhamento de logs (posição, idx, func_hash, campo i); reutilizações de idx; inspeção dos 15 cabeçalhos e lista dos 5 commits (projeto e hash); proveniência do tokenizer; texto integral do prompt e do parser; detalhes de implementação dos limiares (desempate, valor representável, regra estrita); precisão de cinco casas; semente e estabilidade do bootstrap; reamostragem por par; versões de bibliotecas além de PyTorch/Transformers; custo financeiro de treino; seleção de época por empates nos pilotos."
+    },
+    {
+      "secao": "5. Resultados",
+      "funcao": "5.1 Prompting (Tabela). 5.2 Desempenho global (Tabela; contraste entre heurística, 3B e 7B; dois limiares). 5.3 Avaliação pareada (Tabela de categorias e ordenação; Figura por seed já gerada; Tabela de média, DP e IC). 5.4 Sensibilidades (truncamento 465; correspondência 559, com até 0,22 p.p.; empates e entradas idênticas). 5.5 Recursos NF4/BF16 (Tabela).",
+      "migrar_para_suplemento": "Integridade da junção (33 arquivos, 14 avaliações, 1.128 posições/1.126 idx); tabela completa 564/559/460; categorias no limiar zero; IC por seed e diferenças por seed."
+    },
+    {
+      "secao": "6. Discussão",
+      "funcao": "Dissociação global/pareada e a hipótese do comprimento à luz de Risse e Ding; prompting em relação à literatura de LLMs; calibração como parte do resultado; qualidade dos pares à luz da literatura de dados; leitura prática e delimitada de NF4/BF16.",
+      "migrar_para_suplemento": "Nada."
+    },
+    {
+      "secao": "7. Limitações",
+      "funcao": "Seção única por tipo de validade, mantendo explícitos o acesso prévio ao teste, a seleção retrospectiva, NF4 confundido com o merge, as poucas seeds, a qualidade pareada (cinco incompatíveis e os demais não certificados), o truncamento, a ordenação diferente de compreensão, a contaminação possível do pré-treino e a medição única de recursos.",
+      "migrar_para_suplemento": "Proveniência de revisões e tokenizer, precisão dos registros e detalhes da janela do pico, com remissão de uma frase no corpo."
+    },
+    {
+      "secao": "8. Conclusão e trabalhos futuros",
+      "funcao": "O que foi avaliado, os três achados com números já reportados e uma continuidade concreta.",
+      "migrar_para_suplemento": "Nada."
+    },
+    {
+      "secao": "Material suplementar",
+      "funcao": "Evidência documental e de reprodutibilidade, citada no corpo como 'Material Suplementar, Seção S#'.",
+      "migrar_para_suplemento": "Todos os itens listados acima. Os commits ficam aqui como evidência documental (projeto, hash e data), nunca na bibliografia."
+    }
+  ],
+  "literatura_necessaria": [
+    {
+      "necessidade": "Detectores aprendidos pré-LLM sobre funções C/C++, para a trajetória na Introdução e nos Trabalhos Relacionados. Também é a origem do conjunto CodeXGLUE/Devign usado por Risse.",
+      "fonte_candidata": "Zhou, Y.; Liu, S.; Siow, J.; Du, X.; Liu, Y. Devign: Effective vulnerability identification by learning comprehensive program semantics via graph neural networks. Advances in Neural Information Processing Systems 32, 2019.",
+      "sustentacao_local": "primevul_pdf.txt, referência [19], linhas 730–734; risse_pdf.txt, linhas 108 e 439–443 (uso de CodeXGLUE/Devign). O conteúdo do artigo original não foi conferido."
+    },
+    {
+      "necessidade": "Evidência de que o desempenho de detectores profundos cai sob avaliação realista, para mostrar que o problema de avaliação é anterior aos LLMs.",
+      "fonte_candidata": "Chakraborty, S.; Krishna, R.; Ding, Y.; Ray, B. Deep learning based vulnerability detection: Are we there yet. IEEE Transactions on Software Engineering, 2021.",
+      "sustentacao_local": "primevul_pdf.txt, referência [4], linhas 720–723. A proposição sobre queda de desempenho não foi conferida no original."
+    },
+    {
+      "necessidade": "Detector baseado em Transformer pré-treinado em código, como elo entre os detectores profundos e os LLMs. Opcional se a trajetória ficar curta.",
+      "fonte_candidata": "Fu, M.; Tantithamthavorn, C. LineVul: A transformer-based line-level vulnerability prediction. MSR 2022, pp. 608–620.",
+      "sustentacao_local": "primevul_pdf.txt, referência [7], linhas 736–739. Conteúdo não conferido."
+    },
+    {
+      "necessidade": "Avaliação de LLMs por prompting na identificação e no raciocínio sobre vulnerabilidades, para contextualizar os resultados fracos de prompting (F1 de 0,119 e 0,062).",
+      "fonte_candidata": "Ullah, S.; Han, M.; Pujar, S.; Pearce, H.; Coskun, A.; Stringhini, G. LLMs cannot reliably identify and reason about security vulnerabilities (yet?): A comprehensive evaluation, framework, and benchmarks. IEEE S&P 2024, pp. 862–880.",
+      "sustentacao_local": "huang_pdf.txt, referência [21], linhas 1039–1044; versão anterior em arXiv:2312.12575 citada em primevul_pdf.txt, referência [47], linhas 789–792. Achados não conferidos no original."
+    },
+    {
+      "necessidade": "Falhas de raciocínio de LLMs na detecção de vulnerabilidades. Opcional, como complemento a Ullah.",
+      "fonte_candidata": "Steenhoek, B.; Rahman, M. M.; Roy, M. K.; Alam, M. S.; Tong, H.; Das, S.; Barr, E. T.; Le, W. To err is machine: Vulnerability detection challenges LLM reasoning. arXiv:2403.17218, 2024.",
+      "sustentacao_local": "huang_pdf.txt, referência [43], linhas 1077–1080. Conteúdo não conferido."
+    },
+    {
+      "necessidade": "Variabilidade entre execuções e seeds em detectores aprendidos, para justificar reportar seeds individuais e a dispersão. Só usar se o original sustentar essa proposição.",
+      "fonte_candidata": "Steenhoek, B.; Rahman, M. M.; Jiles, R.; Le, W. An empirical study of deep learning models for vulnerability detection. ICSE 2023, pp. 2237–2248.",
+      "sustentacao_local": "primevul_pdf.txt, referência [6], linhas 731–735 (metadados). A proposição sobre seeds NÃO foi conferida; Codex deve verificar no original antes de usar."
+    },
+    {
+      "necessidade": "Qualidade de datasets de vulnerabilidade (ruído de rótulo, correspondências), para enquadrar os cinco pares incompatíveis como problema conhecido de dados, sem atribuir taxa ao PrimeVul.",
+      "fonte_candidata": "Croft, R.; Babar, M. A.; Kholoosi, M. Data quality for software vulnerability datasets. ICSE 2023.",
+      "sustentacao_local": "primevul_pdf.txt, referência [50], linhas 804–806. As páginas não aparecem na lista. Conteúdo não conferido."
+    },
+    {
+      "necessidade": "Datasets anteriores ao PrimeVul, cuja acurácia de rótulo e duplicação o próprio PrimeVul analisa. Necessário somente se o texto citar o contraste BigVul/PrimeVul ou a linhagem dos dados.",
+      "fonte_candidata": "Fan, J.; Li, Y.; Wang, S.; Nguyen, T. N. A C/C++ code vulnerability dataset with code changes and CVE summaries. MSR 2020, pp. 508–512. Chen, Y.; Ding, Z.; Alowain, L.; Chen, X.; Wagner, D. DiverseVul: A new vulnerable source code dataset for deep learning based vulnerability detection. RAID 2023, pp. 654–668.",
+      "sustentacao_local": "primevul_pdf.txt, referências [9] (linhas 678–681) e [5] (linhas 724–730); contraste de F1 entre BigVul e PrimeVul nas linhas 39 e 88 (conferir no PDF qual modelo e qual condição)."
+    },
+    {
+      "necessidade": "Efeito da duplicação de código na avaliação de modelos de código. Opcional; usar só se o texto discutir deduplicação além da citação do PrimeVul.",
+      "fonte_candidata": "Allamanis, M. The adverse effects of code duplication in machine learning models of code. Onward! 2019, pp. 143–153.",
+      "sustentacao_local": "primevul_pdf.txt, referência [30], linhas 777–782. Conteúdo não conferido."
+    },
+    {
+      "necessidade": "Interpretação de métricas sob baixa prevalência: por que acurácia e AUC ROC podem ser pouco informativas, e qual é o papel de precisão/revocação e da taxa-base de falsos alarmes em segurança. Sustenta a escolha de F1, FNR com FPR restrita e a leitura cautelosa da AUC de 0,810.",
+      "fonte_candidata": "não identificada nas fontes lidas. Codex deve localizar um estudo metodológico sobre curvas precisão-revocação versus ROC em dados desbalanceados e um trabalho sobre armadilhas de aprendizado de máquina em segurança (taxa-base, falsos alarmes), e conferir os dois no original.",
+      "sustentacao_local": "não conferida"
+    },
+    {
+      "necessidade": "Referência metodológica do bootstrap percentil e da reamostragem por agrupamento (grupos projeto/commit).",
+      "fonte_candidata": "não identificada nas fontes lidas. Codex deve localizar uma referência clássica de bootstrap e outra de bootstrap por cluster ou dados agrupados.",
+      "sustentacao_local": "não conferida"
+    },
+    {
+      "necessidade": "Manter as seis referências atuais, verificadas por LEITURA_FONTES.md: PrimeVul (Ding et al.), Risse e Böhme, TrapEval (Huang et al.), Qwen2.5-Coder (Hui et al.), LoRA (Hu et al.) e QLoRA (Dettmers et al.). Usar achados concretos de cada uma: VulnPatchPairs e transformações semânticas em Risse; NF4, dupla quantização e otimizadores paginados em QLoRA.",
+      "fonte_candidata": "Chaves existentes em artigo.bib: ding2024primevul, risse2024limits, huang2026trap, hui2024qwen, hu2021lora, dettmers2023qlora.",
+      "sustentacao_local": "LEITURA_FONTES.md, tabela de fontes; qlora_pdf.txt, linhas 82–85; risse_pdf.txt, linhas 84, 109–113 e 411–476. Huang cita LoRA como ICLR 2022 (huang_pdf.txt, linhas 1036–1038); manter a versão efetivamente lida ou trocar de forma deliberada."
+    }
+  ],
+  "politica_citacoes": "(1) Tokens no manuscrito-fonte. [@chave] indica citação parentética; [@chave1; @chave2] indica parentética múltipla em ordem cronológica. [!chave] indica citação narrativa, com o autor como sujeito da frase. Nunca digitar autor, ano, 'et al.' ou parênteses manualmente. (2) Conversão para LaTeX. [@chave] vira \\cite{chave}, que no SBC rende colchetes sem vírgula entre autor e ano, como '[Guo et al. 2022]' em A08.txt, p.1, linha 28. A forma múltipla segue A06.txt, p.2, linha 49: '[Morris et al. 2011, Olesen et al. 2019]'. [!chave] deve render 'Ding et al. (2024)', como 'Devlin et al. (2019)' em A08.txt, p.2, linha 68. O caminho template_sbc/template-latex/ não existe no disco, então não conferi qual comando narrativo o sbc.bst/sbc-template.sty suporta. Codex deve inspecionar o .bst e o .bbl gerado. Se não houver comando narrativo nativo, definir no preâmbulo uma macro que extraia autor e ano do rótulo gerado pelo BibTeX, sem texto manual, e registrar a solução. (3) Bibliografia. Substituir o thebibliography manual por \\bibliographystyle{sbc} e \\bibliography{artigo.bib}, com o caminho relativo conferido. Cada entrada precisa ser citada e cada citação precisa ter entrada; não usar \\nocite. Remover os campos url de todas as entradas. Manter doi (10.48550/arXiv.* para os preprints) e metadados de veículo, páginas e ISBN; para preprints, manter o identificador arXiv com a versão lida e o ano dessa versão. Nenhum link do GitHub ou URL solta no corpo ou nas referências. (4) Commits. Sair da bibliografia e de \\cite. No corpo, citar como 'verificação nos repositórios de origem (Material Suplementar, Seção S#)'. No suplemento, listar projeto, hash completo e data como evidência documental; links, se desejados, ficam só ali. Software (PyTorch, Transformers, PEFT, bitsandbytes) aparece com versão no Método ou no suplemento, sem URL. (5) Uso. A citação parentética fica no fim da proposição que sustenta, antes do ponto. A narrativa só aparece quando a frase descreve o que o trabalho fez ou encontrou, com proposição concreta; evitar fórmulas como 'X discutem limitações'. Toda afirmação factual sobre a área, um dataset ou um modelo externo recebe citação. Resultados locais não recebem citação. Não repetir a mesma citação em frases consecutivas do mesmo parágrafo sem outra fonte entre elas. Afirmações sobre trabalhos não conferidos no original não entram. (6) Tabelas, figuras e seções são referenciadas com \\label/\\ref, nunca com 'Tabela 5' digitado.",
+  "fontes_lidas": [
+    "04_escrita/artigo/seminarios_2026/texto/artigo_completo.md — íntegra (linhas 1–231)",
+    "04_escrita/artigo/seminarios_2026/revisao/introducao_2026-10-07/previa_rascunho_sbc.tex — íntegra (linhas 1–487: preâmbulo com .sty embutido, resumos, seções, tabelas, thebibliography)",
+    "02_referencias/padrao_escrita_anselmo_2026/textos_extraidos/A08.txt — íntegra (linhas 1–342)",
+    "02_referencias/padrao_escrita_anselmo_2026/textos_extraidos/A01.txt — linhas 28–97 (Introdução, Trabalhos Relacionados), 139–248 (Materiais e Método, início de Resultado), 330–375 (fim de Resultado, Tabela 4, Conclusão); cabeçalhos de seção por busca",
+    "02_referencias/padrao_escrita_anselmo_2026/textos_extraidos/A06.txt — linhas 36–110 (Introdução, Base de Imagens, Método Proposto), 165–224 (Experimentos e Resultados 4.1 e início de 4.2), 376–402 (Conclusão); cabeçalhos por busca",
+    "04_escrita/artigo/seminarios_2026/PADRAO_ESCRITA.md — íntegra",
+    "04_escrita/artigo/seminarios_2026/PLANO_ESCRITA.md — íntegra",
+    "02_referencias/padrao_escrita_anselmo_2026/ANALISE_CORPUS.md — íntegra",
+    "04_escrita/artigo/seminarios_2026/template_sbc/README.md — íntegra",
+    "02_referencias/verificacao_introducao_seminarios_2026/LEITURA_FONTES.md — íntegra",
+    "04_escrita/artigo/seminarios_2026/referencias/artigo.bib — íntegra",
+    "02_referencias/verificacao_introducao_seminarios_2026/primevul_pdf.txt — busca focalizada (linhas 22–276: qualidade de rótulos, duplicação, datasets) e lista de referências (linhas 676–809)",
+    "02_referencias/verificacao_introducao_seminarios_2026/risse_pdf.txt — busca focalizada (linhas 65–502: VulnPatchPairs, CodeXGLUE/Devign, técnicas avaliadas)",
+    "02_referencias/verificacao_introducao_seminarios_2026/huang_pdf.txt — busca focalizada (linhas 121–958) e referências (linhas 1036–1083)",
+    "02_referencias/verificacao_introducao_seminarios_2026/qlora_pdf.txt — busca focalizada (linhas 25, 82–85, 122, 179: NF4, Double Quantization, Paged Optimizers)",
+    "04_escrita/artigo/seminarios_2026/revisao/artigo_completo_2026-10-08/FECHAMENTO.md — íntegra",
+    "03_experimentos/resultados/artigo_seminarios_2026/consolidacao_2026-10-08/tabelas_artigo.md — apenas busca de legendas e cabeçalhos (linhas 13, 37, 39, 65, 74, 76)"
+  ],
+  "limites": [
+    "Não li qwen_pdf.txt nem lora_pdf.txt diretamente. Para Qwen2.5-Coder e LoRA, usei a conferência registrada em LEITURA_FONTES.md e o texto do manuscrito.",
+    "Não li estatistica.json, auditoria_integridade.json, selecao_epocas.json, manifesto.json, inspecao_correspondencia_commits.json, tokenizacao_proveniencia.json nem SUPLEMENTO.md. Os números citados neste diagnóstico vêm do manuscrito, e só conferi que as legendas de tabelas_artigo.md correspondem às do texto. Não revalidei nenhuma célula contra os JSONs.",
+    "A leitura interpretativa de que 21,10% de ordenação para o comprimento indica que, na maioria dos pares, a versão corrigida não é mais curta decorre da definição da métrica. Codex deve confirmá-la nos dados antes do uso, sem introduzir contagens novas no corpo.",
+    "As fontes candidatas novas foram identificadas apenas nas listas de referências de PrimeVul e Huang. Títulos, autores, veículos e páginas são citações secundárias que Codex precisa verificar nas publicações originais. Nenhuma proposição atribuída a elas foi conferida no texto original, em especial a de seeds em Steenhoek et al. 2023.",
+    "As necessidades de literatura sobre métricas sob desbalanceamento, taxa-base em segurança e bootstrap por agrupamento não têm fonte identificada nos arquivos lidos.",
+    "O caminho template_sbc/template-latex/ não existe no disco, então não inspecionei sbc.bst nem sbc-template.sty. O comando de citação narrativa compatível precisa ser determinado por Codex. A observação sobre formato autor–ano vem da forma renderizada em A08/A06.",
+    "Não compilei nem validei PDF, extensão do Resumo/Abstract em linhas, diagramação ou número de páginas. Não executei comandos nem editei arquivos, conforme as restrições.",
+    "As localizações do corpus usam os marcadores de página e as linhas da extração, que tem defeitos de espaçamento. As passagens não foram conferidas visualmente nos PDFs. Não li integralmente A01 (linhas 98–138 e 249–329) nem A06 (linhas 111–164 e 225–375).",
+    "Os traços do corpus foram usados como padrão de estrutura e encadeamento, não como padrão de cautela. Valorizações e saltos causais observados (por exemplo, A08.txt, p.7, linhas 215–219, e A06.txt, p.9, linhas 385–387) não devem ser reproduzidos. Nenhuma passagem é atribuída individualmente ao coautor Anselmo."
+  ]
+}

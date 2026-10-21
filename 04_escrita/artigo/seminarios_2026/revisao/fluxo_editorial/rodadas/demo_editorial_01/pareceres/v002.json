@@ -1,0 +1,42 @@
+{
+  "versao": 2,
+  "sha256": "83f6b71192f7f33c52fa027cdb6f09ab4f9125ababce9082b4b618ee02d3aa22",
+  "contexto_sha256": "40112ef4d956579c2b52659256a83c37d96c0b4cb34082ffeaa2b14a312c9ddb",
+  "abrangencia": "texto_integral_da_versao",
+  "revisor": "Claude — papel revisor",
+  "escopo": "editorial",
+  "decisao": "aprovar",
+  "itens": [],
+  "verificacoes_anteriores": [
+    {
+      "id": "V1-R1",
+      "estado": "resolvido",
+      "justificativa": "No texto atual, o primeiro período é \"Este trabalho analisa, de forma exploratória, o comportamento de configurações da família Qwen na detecção de vulnerabilidades em funções C/C++ do PrimeVul.\" O verbo principal agora é \"analisa\", como pede o briefing. O período mantém \"de forma exploratória\", o objeto e o recorte, e não repete a finalidade. O período seguinte (\"Para isso, o estudo considera...\") retoma o objetivo de forma coerente. A distinção entre avaliação global e pareada e o papel das medições de recursos continuam presentes. Não encontrei regressão no primeiro parágrafo."
+    },
+    {
+      "id": "V1-R2",
+      "estado": "resolvido",
+      "justificativa": "O texto atual diz \"enquanto as duas receitas 1:1 do 3B foram executadas por três épocas\", o que elimina a ambiguidade com a receita 1:1 do 7B. A comparação de volume passou para um período próprio: \"Além do número de épocas, o volume de dados da receita na proporção original difere daquele utilizado nas receitas 1:1.\" Esse período explicita os termos comparados. Logo depois vem \"as diferenças entre as receitas do 3B\", que deixa o contexto do 3B identificável. O parágrafo mantém uma seed por receita no 3B, três seeds no 7B e a diferença no número de épocas, e não acrescenta números. O ponto editorial está resolvido. A conferência factual dessa delimitação está registrada nos limites."
+    }
+  ],
+  "limites": [
+    "Os valores de versao, sha256 e contexto_sha256 foram copiados do pacote. Não recalculei hashes, porque esta consulta não permite executar comandos.",
+    "Arquivos lidos com Read: AMOSTRA_REDACAO.md e revisao/fluxo_editorial/BRIEFING_DEMONSTRACAO.md. O briefing lido coincide com o do pacote. PADRAO_ESCRITA.md, MATRIZ_EVIDENCIAS.md e PLANO_ESCRITA.md foram examinados apenas pelo conteúdo transcrito no pacote. Não abri os prompts redigir.md, revisar.md e corrigir.md.",
+    "Esta é uma aprovação apenas editorial. Não atesta validade científica. Não verifiquei contra logs, CSVs ou código os fatos sobre receitas, seeds, épocas, volumes de dados e NF4/BF16, e não certifiquei experimentos, avaliação pareada, métricas ou literatura.",
+    "Ponto factual não verificado: a amostra de origem traz apenas \"com volumes distintos de dados\" e não diz qual comparação está em jogo. O corretor optou por comparar a receita na proporção original com as receitas 1:1, e essa escolha não pode ser confirmada pela amostra. Além disso, \"daquele utilizado nas receitas 1:1\" pode ser lido como se os dois braços 1:1 usassem o mesmo volume. Antes de usar esse trecho no manuscrito, é preciso conferir as duas coisas na consolidação: a linha \"Pilotos 3B e composição de treino\" da MATRIZ_EVIDENCIAS.md, que trata de volumes.",
+    "Sugestão opcional, já registrada na versão 1 e não exigida para aprovação: no manuscrito, definir \"seed\" (semente de aleatoriedade), NF4 e BF16 na primeira ocorrência, conforme a seção 7 do PADRAO_ESCRITA.md.",
+    "Verifiquei também que o futuro em \"serão descritas\" se mantém para a consolidação pendente e que NF4 com adaptador continua distinto de BF16 com adaptador mesclado. O texto não traz números de desempenho nem referências.",
+    "Não houve leitura de PDF nem verificação de diagramação SBC."
+  ],
+  "proveniencia": {
+    "arquivo": "entradas/revisao_v002.json",
+    "sha256": "0d2db20a53a9fc9a537e8e9319bfd6e8c2c2a9bd731c734ccca577d33a7ee205",
+    "origem": "claude_cli",
+    "modelos": [
+      "claude-opus-5-5"
+    ],
+    "session_id": "96ef96c5-3c27-498b-a97a-425f26b735fa",
+    "duration_ms": 27834,
+    "custo_estimado_cli": 0.24209479999999997
+  }
+}
