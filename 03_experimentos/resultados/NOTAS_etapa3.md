@@ -302,3 +302,41 @@ as colunas novas ficam vazias.
 
 30,8 h de A40, US$ 15,41: 3 treinos (US$ 12,65), 6 avaliações do 7B (US$ 2,42), o terceiro braço do 3B no teste
 (US$ 0,25) e a depuração (US$ 0,08).
+
+## Verificação da implementação no 3B: leitura anotada antes de rodar (21/out/2026)
+
+Pergunta: o pareado no acaso (3B e 7B) é culpa de duas escolhas nossas, e não da tarefa?
+(1) As benignas do treino nunca são a versão corrigida da vulnerável: o modelo nunca vê a mesma função antes e
+depois do conserto. (2) A taxa de aprendizado é o padrão do QLoRA (2e-4, 10× a do artigo do PrimeVul), sem ajuste,
+e há sobreajuste a partir da época 2. Já descartado com os logs: o corte em 2.048 tokens não explica o pareado
+(nos 465 pares sem corte, o 7B fica em 49,4%).
+
+Três treinos no 3B, seed 1, 3 épocas, demais hiperparâmetros iguais aos do terceiro braço:
+
+| Braço | Treino | lr |
+|---|---|---|
+| A | Pares: cada vulnerável com a sua versão corrigida (4.354 pares do PrimeVul-train) | 2e-4 |
+| B | 1:1 com benignas de mesmo tamanho (a receita oficial) | 2e-5 |
+| C | 1:1 com benignas de mesmo tamanho | 5e-5 |
+
+Referência: o terceiro braço (mesma receita, lr 2e-4) fez 51,4% na validação.
+
+Medida: pares ordenados (empate = meio acerto) no pareado da validação, melhor época; acaso = 50% ± 4,1.
+Correlação nota × tamanho nos pares na melhor época: com ~560 pares, o ruído dela é de ±0,08.
+
+| Resultado (cada braço) | Leitura | Consequência |
+|---|---|---|
+| **acima de 54,1%** e nota × tamanho entre −0,10 e +0,10 | Esta escolha fazia diferença: o modelo aprende algo que distingue as versões. | Repetir com seeds 2 e 3 no 3B antes de concluir (no 7B, uma seed sozinha chegou a 55% no teste). Se confirmar, a receita do 7B muda antes da RQ2. |
+| **acima de 54,1%**, nota × tamanho fora dessa faixa | Pode ser o tamanho: no treino com pares, a versão corrigida costuma ser a mais longa ("mais código = benigna"). | Não conta como "aprende" antes de conferir os pares em que a versão vulnerável é a mais longa. |
+| **entre 45,9% e 54,1%** | Também no acaso. | Esta escolha não explica o resultado. |
+| **abaixo de 45,9%** | Um atalho que aponta para a versão corrigida. | Investigar. |
+
+Se os três braços ficarem no acaso, a dissertação registra, com evidência, que o pareado no acaso não é artefato das
+benignas escolhidas nem da taxa de aprendizado.
+
+Notas para a leitura:
+- No braço A, AUC, VD-S e F1 no teste devem piorar: o modelo nunca vê benignas comuns, só versões corrigidas. Não é
+  essa a pergunta do braço; ele responde só ao pareado.
+- Nos braços B e C, as épocas 1 e 2 aproximam treinos mais curtos, mas não são iguais a eles: a lr ainda não desceu
+  até zero.
+- Custo estimado: ~17 h e ~US$ 8,50 (A: 7,8 milhões de tokens por época; B e C: iguais ao terceiro braço).

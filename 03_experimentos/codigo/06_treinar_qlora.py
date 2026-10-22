@@ -8,6 +8,9 @@ O que este script faz, em ordem:
      Motivo: no piloto, o modelo aprendeu "função longa = vulnerável" e passou a dar nota maior à versão
      CORRIGIDA de cada par (o conserto costuma aumentar a função). Com as duas classes do mesmo tamanho,
      esse atalho some do treino. O script imprime a "AUC do tamanho no treino" para conferir (0,5 = sumiu).
+     Com --benignas_por_vul par, o treino é o PrimeVul-train PAREADO: cada vulnerável com a SUA versão corrigida
+     como benigna. É o treino mais alinhado com o teste pareado: o modelo vê a mesma função antes e depois do
+     conserto (verificação de 21/out/2026: o pareado no acaso seria culpa das benignas escolhidas?).
   2. Carrega o modelo BASE (não o Instruct, protocolo §2) em 4 bits NF4, com uma cabeça de 2 saídas.
   3. Congela o modelo e treina só os adaptadores LoRA e a cabeça.
   4. No fim de cada época: salva o adaptador e confere duas coisas na VALIDAÇÃO (o teste não é tocado aqui):
@@ -29,6 +32,8 @@ Uso (primeira rodada = depuração, poucos minutos):
 Rodada de verdade (exemplo):
   python 06_treinar_qlora.py --benignas_por_vul 1 --parear_tamanho --epocas 3 --seed 1 \
       --preco_hora 0.50 --repo_hf SEU_USUARIO/etapa3-adaptadores
+Treino com pares (vulnerável + a sua versão corrigida):
+  python 06_treinar_qlora.py --benignas_por_vul par --epocas 3 --seed 1 --preco_hora 0.50
 
 Depois: python 07_avaliar_classificador.py --rodada ../adapters/NOME_DA_RODADA
 """
@@ -158,7 +163,10 @@ def main():
     ap.add_argument("--validacao_pareada", default="../dados/primevul_valid_paired.jsonl",
                     help="pareado da VALIDAÇÃO: é ele que escolhe a melhor época")
     ap.add_argument("--benignas_por_vul", required=True,
-                    help='"real" (todas as benignas, ~35 por vulnerável) ou um número k (k benignas por vulnerável)')
+                    help='"real" (todas as benignas, ~35 por vulnerável), um número k (k benignas por vulnerável) '
+                         'ou "par" (a benigna de cada vulnerável é a sua versão corrigida, do --treino_pareado)')
+    ap.add_argument("--treino_pareado", default="../dados/primevul_train_paired.jsonl",
+                    help='treino PAREADO, usado só com --benignas_por_vul par')
     ap.add_argument("--parear_tamanho", action="store_true",
                     help="sorteia as benignas com o MESMO tamanho (em tokens) das vulneráveis, para tirar do treino "
                          "o atalho 'função longa = vulnerável'. Exige um número em --benignas_por_vul")
@@ -182,27 +190,38 @@ def main():
     ap.add_argument("--observacoes", default="", help="texto livre para a planilha")
     args = ap.parse_args()
 
-    if args.benignas_por_vul != "real" and not (args.benignas_por_vul.isdigit() and int(args.benignas_por_vul) > 0):
-        raise SystemExit('[ERRO] --benignas_por_vul deve ser "real" ou um número inteiro positivo.')
-    if args.parear_tamanho and args.benignas_por_vul == "real":
+    k_valido = args.benignas_por_vul.isdigit() and int(args.benignas_por_vul) > 0
+    if args.benignas_por_vul not in ("real", "par") and not k_valido:
+        raise SystemExit('[ERRO] --benignas_por_vul deve ser "real", "par" ou um número inteiro positivo.')
+    if args.parear_tamanho and args.benignas_por_vul in ("real", "par"):
         raise SystemExit('[ERRO] --parear_tamanho escolhe k benignas por vulnerável: use um número em --benignas_por_vul.')
     fixar_seed(args.seed)  # antes de carregar o modelo: a cabeça nasce aleatória e depende da seed
     depuracao = args.limite_treino > 0
     carimbo = datetime.now().strftime("%Y%m%d_%H%M%S")
+    marca_lr = "" if args.lr == 2e-4 else f"_lr{args.lr:g}"  # lr fora do padrão entra no nome (ex.: _lr2e-05)
     nome = (f"etapa3_{args.modelo.split('/')[-1]}_ben{args.benignas_por_vul}{'tam' if args.parear_tamanho else ''}"
-            f"_s{args.seed}_{carimbo}" + ("_depuracao" if depuracao else ""))
+            f"{marca_lr}_s{args.seed}_{carimbo}" + ("_depuracao" if depuracao else ""))
     pasta = Path("../adapters") / nome
     pasta.mkdir(parents=True, exist_ok=True)
     pasta_logs = Path("../logs")
     pasta_logs.mkdir(parents=True, exist_ok=True)
 
     # ---- 1) Dados -----------------------------------------------------------
-    for caminho in (args.treino, args.validacao, args.validacao_pareada):
+    arquivo_treino = args.treino_pareado if args.benignas_por_vul == "par" else args.treino
+    for caminho in (arquivo_treino, args.validacao, args.validacao_pareada):
         if not Path(caminho).exists():
             raise SystemExit(f"[ERRO] Não achei {caminho}. Rode python 00_baixar_primevul.py")
-    itens_treino = carregar_jsonl(Path(args.treino))
-    release_dados = qual_release(args.treino, len(itens_treino))
-    if args.parear_tamanho:
+    itens_treino = carregar_jsonl(Path(arquivo_treino))
+    release_dados = qual_release(arquivo_treino, len(itens_treino))
+    if args.benignas_por_vul == "par":
+        # Cada vulnerável com a sua versão corrigida (pares em linhas consecutivas, a mesma regra do teste).
+        # Depuração: os primeiros N/2 pares.
+        pares_treino, metodo = formar_pares(itens_treino)
+        if args.limite_treino:
+            pares_treino = pares_treino[: args.limite_treino // 2]
+        treino = [itens_treino[i] for par in pares_treino for i in par]
+        print(f"Treino com pares: {len(pares_treino)} pares (vulnerável + versão corrigida), formados por {metodo}")
+    elif args.parear_tamanho:
         treino = itens_treino  # a escolha das benignas espera a contagem de tokens (passo 2)
     else:
         treino = montar_treino(itens_treino, args.benignas_por_vul, args.seed, args.limite_treino)
@@ -213,7 +232,7 @@ def main():
         d["_pos"] = pos
     pares_val, _ = formar_pares(pareado)
     checagem_par = pareado[: args.limite_treino] if args.limite_treino else pareado
-    dados_sha256 = impressao_digital(Path(args.treino))
+    dados_sha256 = impressao_digital(Path(arquivo_treino))
     print(f"Checagem por época: {len(checagem)} funções da validação (AUC) + {len(checagem_par)} do pareado da validação")
 
     # ---- 2) Ambiente, tokens e modelo em 4 bits -----------------------------
@@ -277,7 +296,8 @@ def main():
 
     registro = {
         "nome": nome, "modelo": args.modelo, "modelo_revisao": modelo_revisao, "args": vars(args),
-        "camadas_lora": CAMADAS_LORA, "dados_sha256": dados_sha256, "release_dados": release_dados,
+        "camadas_lora": CAMADAS_LORA, "arquivo_treino": Path(arquivo_treino).name,
+        "dados_sha256": dados_sha256, "release_dados": release_dados,
         "depuracao": depuracao,
         "treino": {"n_vul": n_vul, "n_ben": len(seqs) - n_vul, "cortadas": int(sum(cortadas)),
                    "tokens_por_epoca": tokens_por_epoca, "passos_por_epoca": passos_por_epoca,
@@ -393,6 +413,7 @@ def main():
         "modelo": args.modelo,
         "seed": args.seed,
         "benignas_por_vul": args.benignas_por_vul,
+        "arquivo_treino": Path(arquivo_treino).name,
         "parear_tamanho": "sim" if args.parear_tamanho else "nao",
         "n_vul": n_vul, "n_ben": len(seqs) - n_vul,
         "auc_tamanho_treino": round(auc_tamanho_treino, 4),

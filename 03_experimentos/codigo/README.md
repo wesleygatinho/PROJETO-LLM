@@ -27,6 +27,7 @@ Crie o pod sempre igual: **1× A40 48 GB** e **o mesmo template PyTorch**.
 | `07_avaliar_classificador.py` | Etapa 3: avalia um adaptador na validação, no teste e no pareado (F1, AUC, VD-S, P-C). |
 | `08_baseline_tamanho.py` | O baseline burro: só o tamanho da função. Sem GPU, sem modelo. É o piso das tabelas. |
 | `classificador.py` | Peças comuns do 06, 07 e 08 (carregar modelo, notas, VD-S, pareado). Não é para rodar sozinho. |
+| `sessao_verificacao_3b.sh` | A sessão da verificação da implementação no 3B (treino com pares e lr), com o 06 e o 07 em fila. |
 
 (Os números nos nomes são só identificadores; a ordem de uso é a da rotina acima.)
 
@@ -269,6 +270,64 @@ done
 
 4. A leitura: linhas do 7B em `treinos_etapa3.csv` (validação) contra a regra no fim da `NOTAS_etapa3.md`.
    O teste (`resultados_etapa3.csv`) só é olhado depois.
+
+### Verificação da implementação no 3B (uma sessão de ~17 h, ~US$ 8,50)
+
+Pergunta: o pareado no acaso é culpa de escolhas nossas? Três treinos no 3B (seed 1, 3 épocas):
+
+| Braço | Treino | lr | Tempo (treino + teste) |
+|---|---|---|---|
+| A | **pares**: a benigna de cada vulnerável é a sua versão corrigida (`--benignas_por_vul par`, 4.354 pares) | 2e-4 | ~4,8 h |
+| B | 1:1 com benignas de mesmo tamanho (a receita oficial) | 2e-5 | ~5,8 h |
+| C | 1:1 com benignas de mesmo tamanho | 5e-5 | ~5,8 h |
+
+A referência é o terceiro braço (mesma receita, lr 2e-4). A leitura foi anotada **antes** de rodar, no fim da
+`NOTAS_etapa3.md`. O código está na branch `verificacao-implementacao-3b`, que precisa estar no GitHub antes da sessão.
+
+1. Baixar o repositório **já na branch** e entrar na pasta do código:
+
+```bash
+cd /workspace && git clone -b verificacao-implementacao-3b https://github.com/wesleygatinho/PROJETO-LLM.git
+```
+
+```bash
+cd /workspace/PROJETO-LLM/03_experimentos/codigo
+```
+
+2. Setup e dados, como sempre:
+
+```bash
+bash 01_setup_runpod.sh
+```
+
+```bash
+python 00_baixar_primevul.py --release original
+```
+
+3. Depuração do treino com pares (~5 min). Confira `Treino com pares: 200 pares ... formados por consecutivos` e
+   `Treino: 400 funções (200 vulneráveis, 200 benignas)`:
+
+```bash
+python 06_treinar_qlora.py --benignas_por_vul par --limite_treino 400 --preco_hora 0.50
+```
+
+4. A sessão inteira em segundo plano (os três treinos, cada um seguido da avaliação no teste; se um treino falhar,
+   os outros seguem):
+
+```bash
+nohup bash sessao_verificacao_3b.sh > ../logs/verificacao_3b.out 2>&1 &
+```
+
+   Acompanhe com `tail -f ../logs/verificacao_3b.out`. O fim é a linha `FIM DA SESSÃO`.
+
+5. Commit e push (vão para a branch):
+
+```bash
+cd /workspace/PROJETO-LLM && git add 03_experimentos/resultados 03_experimentos/logs && git commit -m "verificacao 3B: pares e lr" && git push
+```
+
+Os nomes das rodadas: `etapa3_Qwen2.5-Coder-3B_benpar_s1_...` (A), `..._ben1tam_lr2e-05_s1_...` (B) e
+`..._ben1tam_lr5e-05_s1_...` (C). Desde 21/out/2026, uma lr fora do padrão (2e-4) entra no nome da rodada.
 
 ### O baseline do tamanho (rode uma vez, antes de comparar qualquer modelo)
 
