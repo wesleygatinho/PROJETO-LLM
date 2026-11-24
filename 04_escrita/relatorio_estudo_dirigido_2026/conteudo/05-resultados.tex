@@ -1,0 +1,92 @@
+\chapter{Resultados e Discussão}
+
+\section{Classificação por Instrução}
+
+A Tabela~\ref{tab:instrucao} apresenta o desempenho dos modelos instruídos por \textit{prompt}, sem ajuste. O F1 foi baixo nas duas escalas, e o modelo maior usou mais memória e mais tempo sem ganho de qualidade: sua revocação um pouco maior veio acompanhada de uma taxa de falsos positivos três vezes maior.
+
+\begin{table}[H]
+    \centering
+    \caption{Classificação por instrução no teste global (25.911 funções) e nos 564 pares. Memória de GPU e tempo por função medidos no teste global.}
+    \label{tab:instrucao}
+    \footnotesize
+    \begin{tabular}{lrrrrrrr}
+        \toprule
+        \textbf{Modelo} & \textbf{F1} & \textbf{Precisão} & \textbf{Revocação} & \textbf{FPR (\%)} & \textbf{P-C} & \textbf{Mem. (GB)} & \textbf{Tempo (s)} \\
+        \midrule
+        3B-Instruct & 0,119 & 0,102 & 0,144 & 3,49 & 16 & 7,2 & 0,071 \\
+        7B-Instruct & 0,062 & 0,038 & 0,160 & 11,00 & 14 & 16,9 & 0,112 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Nos pares, a categoria P-B reuniu 463 e 454 dos 564 casos. A taxa de respostas YES foi praticamente a mesma na versão vulnerável e na corrigida: 14,7\% e 15,1\% no 3B, e 16,3\% e 17,0\% no 7B. A resposta dos modelos, portanto, não acompanhou a correção da falha. Esses resultados descrevem a instrução utilizada, e não todo o espaço de instruções possíveis.
+
+\section{Desempenho Global e Ordenação Pareada}
+
+A Tabela~\ref{tab:global} reúne, para as configurações com escore, o desempenho no teste global e a ordenação nos 564 pares.
+
+\begin{table}[H]
+    \centering
+    \caption{Teste global e teste pareado. F1 e P-C usam o limiar de maior F1 na validação. FNR* usa o limiar calibrado para FPR $\leq$ 0,5\% na validação. s1--s3 indicam as sementes do 7B.}
+    \label{tab:global}
+    \footnotesize
+    \begin{tabular}{lrrrrr}
+        \toprule
+        \textbf{Configuração} & \textbf{F1} & \textbf{AUC} & \textbf{FNR* (\%)} & \textbf{P-C} & \textbf{Ordenação pareada (\%)} \\
+        \midrule
+        Heurística de comprimento & 0,200 & 0,810 & 100,00 & 2 & 21,10 \\
+        3B 1:1 & 0,195 & 0,795 & 94,10 & 13 & 42,38 \\
+        3B proporção original & 0,262 & 0,851 & 88,06 & 6 & 37,50 \\
+        3B 1:1 + tamanho & 0,121 & 0,746 & 96,26 & 6 & 49,20 \\
+        7B NF4 s1 & 0,114 & 0,738 & 97,99 & 7 & 55,23 \\
+        7B BF16 s1 & 0,119 & 0,740 & 98,13 & 6 & 53,28 \\
+        7B NF4 s2 & 0,142 & 0,726 & 98,71 & 5 & 45,04 \\
+        7B BF16 s2 & 0,148 & 0,728 & 98,71 & 7 & 44,68 \\
+        7B NF4 s3 & 0,127 & 0,765 & 98,27 & 6 & 51,60 \\
+        7B BF16 s3 & 0,124 & 0,765 & 98,27 & 8 & 51,95 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+O contraste mais nítido envolve a heurística de comprimento. Usando apenas o número de tokens, ela alcançou AUC global de 0,810 e F1 de 0,200, valores próximos aos do classificador 3B 1:1 e acima dos dois modelos instruídos. Nos pares, porém, sua ordenação foi de apenas 21,10\%. Assim, a característica que separa as classes no teste global não separa, e tende a inverter, as duas versões de uma mesma correção.
+
+Os classificadores repetem esse contraste em menor grau. As duas configurações de maior F1 e AUC, a de proporção original e a 1:1, tiveram ordenações pareadas de 37,50\% e 42,38\%. As configurações com controle de tamanho ficaram entre 44,68\% e 55,23\%, com F1 entre 0,114 e 0,148. Esse padrão é compatível com a hipótese de que parte do desempenho global dependa do comprimento da função, embora o desenho não permita identificar essa causa.
+
+Com a FPR limitada a 0,5\% na validação, a FNR no teste foi de 88,06\% na melhor configuração e ficou entre 97,99\% e 98,71\% no 7B. Em um cenário de poucos alarmes falsos, portanto, todas as configurações perderam a maior parte das funções vulneráveis.
+
+\section{Variação entre Sementes no 7B}
+
+Nas três sementes do 7B, a ordenação pareada média foi de 50,62\% na implantação NF4 e de 49,97\% na BF16, com desvios padrão entre sementes de 5,17 e 4,63 pontos percentuais. As sementes isoladas apontam em direções opostas: a semente 1 ficou acima de 50\% nas duas implantações, e a semente 2, abaixo. Uma única semente poderia, assim, sugerir conclusões contrárias. A diferença NF4 $-$ BF16 foi de 0,65 ponto percentual, com intervalo de 95\% de $-1{,}22$ a $2{,}54$, que inclui valores nas duas direções e não distingue as implantações.
+
+\section{Recursos das Implantações}
+
+A Tabela~\ref{tab:recursos} apresenta os recursos medidos nas duas implantações do 7B.
+
+\begin{table}[H]
+    \centering
+    \caption{Recursos do 7B na NVIDIA A40: memória alocada após a carga, pico durante a pontuação, tempo amortizado por função e custo estimado da pontuação do teste. Faixas entre as três sementes.}
+    \label{tab:recursos}
+    \footnotesize
+    \begin{tabular}{lrrrr}
+        \toprule
+        \textbf{Implantação} & \textbf{Carga (GB)} & \textbf{Pico (GB)} & \textbf{Tempo (ms)} & \textbf{Custo (US\$)} \\
+        \midrule
+        NF4, adaptador separado & 4,63 & 12,49 & 59,6--60,0 & 0,2145--0,2160 \\
+        BF16, adaptador mesclado & 14,15 & 20,76 & 46,8--47,1 & 0,1684--0,1696 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+A implantação NF4 alocou cerca de 67\% menos memória após a carga e cerca de 40\% menos no pico. Em contrapartida, seu tempo por função foi maior, e o custo estimado acompanhou essa diferença. Nesse ambiente, a implantação NF4 usou menos memória e mais tempo, sem diferença distinguível na ordenação pareada.
+
+\section{Reprodutibilidade}
+
+Durante a preparação dos experimentos, a mesma rodada de classificação por instrução foi repetida em condições controladas, em uma versão anterior e menor do conjunto de pares (870 funções). Em uma instância nova com a mesma GPU e as mesmas versões de bibliotecas, as 870 respostas foram idênticas. Em uma GPU de outro modelo, 9 das 870 respostas mudaram. Por esse motivo, todas as comparações deste estudo foram feitas no mesmo tipo de GPU e com as versões travadas.
+
+\section{Discussão}
+
+O principal resultado é a dissociação entre desempenho global e ordenação pareada. Uma heurística sem qualquer informação sobre vulnerabilidades obteve AUC global de 0,810, e o classificador com maior F1 teve ordenação pareada abaixo de 50\%. Esse quadro é coerente com a observação de \citeonline{chakraborty2020reveal} de que detectores profundos frequentemente não aprendem características da vulnerabilidade e com o achado de \citeonline{risse2024limits} sobre funções vulneráveis e suas correções.
+
+Quanto ao custo, o estudo mostra que a escolha entre implantações precisa ser lida junto à qualidade: a implantação em quatro bits reduziu a memória, mas não o tempo, e nenhuma das duas distinguiu as versões dos pares.
+
+Os resultados têm limitações. O conjunto de teste foi consultado durante o desenvolvimento das receitas de treino, de modo que a análise é exploratória, e não confirmatória. Cada configuração 3B tem uma única semente, e o 7B tem três, quantidade pequena diante da dispersão observada. Além disso, os resultados se referem a uma família de modelos, um conjunto de dados e uma GPU.

@@ -1,0 +1,63 @@
+% Relatório Técnico do Estudo Dirigido (PPGCC/UFMA, Norma 01/2019, Art. 4º).
+% Compilação: latexmk -pdf relatorio_estudo_dirigido.tex
+% Mesmo modelo ABNT do relatório de estudo dirigido anterior (packages/abnt-UTP.sty).
+
+\documentclass[
+    12pt,
+    oneside,
+    a4paper,
+    chapter=TITLE,
+    section=TITLE,
+    sumario=abnt-6027-2012,
+    english,
+    brazil
+]{abntex2}
+\usepackage[utf8]{inputenc}
+
+\usepackage{packages/abnt-UTP}
+\usepackage{amssymb}
+
+\titulo{Estudo Dirigido em Detecção Eficiente de Vulnerabilidades em Código com
+Modelos de Linguagem: Quantização e QLoRA sob Avaliação Descontaminada}
+
+\autor{
+\normalfont\small
+WESLEY DOS SANTOS GATINHO\\
+}
+
+\orientador{\normalfont\small
+DR. JOÃO OTÁVIO BANDEIRA DINIZ}
+\preambulo{Relatório apresentado como requisito para aprovação na disciplina de Estudo Dirigido, do Mestrado em Ciência da Computação da Universidade Federal do Maranhão (UFMA).}
+
+\instituicao{
+UNIVERSIDADE FEDERAL DO MARANHÃO \\
+Centro de Ciências Exatas e Tecnologia \\
+PROGRAMA DE PÓS-GRADUAÇÃO EM CIÊNCIA DA COMPUTAÇÃO \\
+}
+
+\local{
+\normalfont\small
+São Luís - MA}
+
+\data{
+\normalfont\small
+2026}
+
+\begin{document}
+
+\imprimircapa
+\imprimirfolhaderosto{}
+\sumario
+
+\textual
+\input{conteudo/01-introducao}
+\input{conteudo/02-objetivos}
+\input{conteudo/03-fundamentacao}
+\input{conteudo/04-metodologia}
+\input{conteudo/05-resultados}
+\input{conteudo/06-conclusao}
+
+\postextual
+\bibliography{referencias/referencias}
+
+\end{document}

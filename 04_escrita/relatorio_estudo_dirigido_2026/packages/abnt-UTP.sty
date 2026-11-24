@@ -1,0 +1,484 @@
+% Pacote de estilo do modelo UTP baseado em abnTeX2.
+% Centraliza ajustes de formatação, listas e comandos auxiliares.
+
+\NeedsTeXFormat{LaTeX2e}
+
+% Configuração de página e margens.
+\usepackage[a4paper,vmargin={3.0cm,2.0cm},hmargin={3.0cm,2.0cm}]{geometry}
+
+\usepackage{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{textcomp}
+\usepackage{float}
+
+\usepackage[
+    alf,
+    abnt-and-type=e,
+    abnt-etal-text=it,
+    abnt-etal-cite=2,
+    abnt-etal-list=3,
+    abnt-emphasize=bf
+]{abntex2cite}
+
+\usepackage[cmex10]{amsmath}
+\interdisplaylinepenalty=2500
+
+\usepackage{caption}
+\captionsetup[subfigure]{position=bottom}
+
+\usepackage[caption=false]{subfig}
+\usepackage{graphicx}
+\graphicspath{{assets/img/}}
+
+\usepackage{listings}
+\usepackage{algpseudocode}
+
+\usepackage{colortbl}           % Permite a coloração de células
+\usepackage{multirow}
+\usepackage{multicol}
+
+\usepackage{booktabs}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{amsmath}
+\usepackage{siunitx}
+\usepackage{float}
+\usepackage{caption}
+\pgfplotsset{compat=1.18}
+
+\usepackage{indentfirst}		% Indenta o primeiro parágrafo de cada seção.
+\usepackage{xcolor}			% Controle das cores
+\usepackage{setspace}
+\usepackage{etoolbox}
+
+\usepackage{times}
+\renewcommand*\familydefault{\sfdefault}
+
+\renewcommand{\arraystretch}{1.5}
+\setlength{\belowbottomsep}{0.2cm}
+
+\sloppy
+\tolerance=9999999
+
+\setlength{\parindent}{1.25cm}
+
+\setlength{\parskip}{0.0cm}  % tente também \onelineskip
+
+\makeatletter
+\setlength{\@fptop}{5pt} % Set distance from top of page to first float
+\makeatother
+
+% Definição da capa.
+\renewcommand{\imprimircapa}{%
+    \begin{capa}%
+        \center
+
+        \includegraphics[width=4cm]{assets/img/logo_ufma.png}
+        \vspace{1cm}
+
+        {\bfseries\large\MakeUppercase{\imprimirinstituicao}}
+        \vspace*{1cm}
+
+
+        \begin{center}
+            {\bfseries\large\MakeUppercase{\imprimirtitulo}}
+        \end{center}
+        \vfill
+        {\bfseries\large\MakeUppercase{\imprimirautor}}
+        \vfill
+
+        % {\bfseries\large\MakeUppercase{\imprimirorientador}}
+        % \vfill
+
+        {\bfseries\large\MakeUppercase{\imprimirlocal}}
+
+        {\bfseries\large\MakeUppercase{\imprimirdata}}
+
+    \end{capa}
+}
+
+\newcommand{\exercicio}[1]{
+    \begin{center}
+        \bfseries\Large Exercício #1
+    \end{center}
+    \vspace{1cm}
+}
+
+% Definição da folha de rosto.
+\makeatletter
+\renewcommand{\folhaderostocontent}{%
+    \begin{center}
+        {\bfseries\large\MakeUppercase{\imprimirautor}\par}
+        \vspace*{8cm}
+
+        {\bfseries\large\MakeUppercase{\imprimirtitulo}\par}
+        \vspace*{2cm}
+    \end{center}
+
+    \abntex@ifnotempty{\imprimirpreambulo}{%
+        \noindent\hfill
+        \begin{minipage}{.5\textwidth}
+            \SingleSpacing
+            \imprimirpreambulo\par
+            \vspace{\baselineskip}
+            {\imprimirorientadorRotulo~\imprimirorientador\par}
+            \abntex@ifnotempty{\imprimircoorientador}{%
+                {\imprimircoorientadorRotulo~\imprimircoorientador\par}%
+            }%
+        \end{minipage}\par
+    }%
+
+    \vfill
+    \begin{center}
+        {\bfseries\large\MakeUppercase{\imprimirlocal}\par}
+        {\bfseries\large\MakeUppercase{\imprimirdata}\par}
+    \end{center}%
+}
+\makeatother
+
+% Ajustes de hierarquia visual das seções.
+\renewcommand{\ABNTEXchapterfont}{\bfseries}
+\renewcommand{\ABNTEXchapterfontsize}{\normalsize}
+
+\renewcommand{\ABNTEXsectionfont}{\normalfont}
+\renewcommand{\ABNTEXsectionfontsize}{\normalsize}
+
+\renewcommand{\ABNTEXsubsectionfont}{\normalfont}
+\renewcommand{\ABNTEXsubsectionfontsize}{\normalsize}
+
+\renewcommand{\ABNTEXsubsubsectionfont}{\normalfont}
+\renewcommand{\ABNTEXsubsubsectionfontsize}{\normalsize}
+
+\renewcommand{\ABNTEXsubsubsubsectionfont}{\normalfont}
+\renewcommand{\ABNTEXsubsubsubsectionfontsize}{\normalsize}
+
+\setlength\afterchapskip{.6cm}
+\setlength\aftersecskip{.4cm}	    %espaçamento entre seção e texto
+\setlength\aftersubsecskip{.4cm}    %espaçamento entre subseção e texto
+\setlength\aftersubsubsecskip{.4cm} %espaçamento entre subseção e texto
+
+\makepagestyle{estiloutp}
+
+\makeevenhead{estiloutp}{}{}{\scriptsize{\thepage}}
+\makeoddhead{estiloutp}{}{}{\scriptsize{\thepage}}
+\makeevenfoot{estiloutp}{}{}{}
+\makeoddfoot{estiloutp}{}{}{}
+
+\makepagestyle{abntchapfirst}
+\makeoddhead{abntchapfirst}{}{}{\scriptsize\thepage}
+
+\renewcommand{\textual}{%
+    \pagestyle{estiloutp}%
+    \aliaspagestyle{chapter}{abntchapfirst}% customizing chapter pagestyle
+    \nouppercaseheads%
+    \bookmarksetup{startatroot}%
+}
+
+% Comando auxiliar para palavras-chave do resumo.
+\newcommand{\palavraschave}[1]{\vspace{.6cm}\textbf{Palavras-chave}: #1.}
+
+% Ajustes do sumário e das listas.
+\renewcommand{\cftchapterfont}{\bfseries}
+\renewcommand{\cftchapterpagefont}{\bfseries}
+
+\renewcommand{\cftsectionfont}{\normalfont}
+\renewcommand{\cftsectionpagefont}{\normalfont}
+
+\renewcommand{\cftsubsectionfont}{\normalsize\normalfont}
+\renewcommand{\cftsubsectionpagefont}{\normalsize\normalfont}
+
+\renewcommand{\cftsubsubsectionfont}{\normalsize\normalfont}
+\renewcommand{\cftsubsubsectionpagefont}{\normalsize\normalfont}
+
+\renewcommand{\cftparagraphfont}{\normalsize\normalfont}
+\renewcommand{\cftparagraphpagefont}{\normalsize\normalfont}
+
+\makeatletter
+\let\oldcontentsline\contentsline
+\def\contentsline#1#2{%
+    \expandafter\ifx\csname l@#1\endcsname\l@section
+    \expandafter\@firstoftwo
+    \else
+    \expandafter\@secondoftwo
+    \fi
+    {%
+        \oldcontentsline{#1}{\MakeTextUppercase{#2}}%
+    }{%
+    \oldcontentsline{#1}{#2}%
+}%
+}
+\makeatother
+
+\setlength{\cftbeforechapterskip}{0em}
+\setlength{\cftlastnumwidth}{4em}
+\cftsetindents{chapter}{0em}{\cftlastnumwidth}
+\cftsetindents{section}{0em}{\cftlastnumwidth}
+\cftsetindents{subsection}{0em}{\cftlastnumwidth}
+\cftsetindents{subsubsection}{0em}{\cftlastnumwidth}
+\cftsetindents{paragraph}{0em}{\cftlastnumwidth}
+\cftsetindents{subparagraph}{0em}{\cftlastnumwidth}
+
+\makeatletter
+\settocpreprocessor{chapter}{%
+    \let\tempf@rtoc\f@rtoc%
+    \def\f@rtoc{%
+        \texorpdfstring{\MakeTextUppercase{\tempf@rtoc}}{\tempf@rtoc}}%
+}
+\makeatother
+
+\renewcommand{\listadesiglasname}{LISTA DE SIGLAS E ACRÔNIMOS}
+
+\newcommand{\quadroname}{QUADRO}
+\newcommand{\listofquadrosname}{Lista de quadros}
+\newcommand{\quadroautorefname}{Quadro} % PS
+
+% \newfloat[chapter]{quadro}{loq}{\quadroname}
+\newlistof{listofquadros}{loq}{\listofquadrosname}
+\newlistentry{quadro}{loq}{0}
+
+\setfloatadjustment{quadro}{\centering}
+\counterwithout{quadro}{chapter}
+\renewcommand{\cftquadroname}{\quadroname\space}
+\renewcommand*{\cftquadroaftersnum}{\hfill--\hfill}
+
+\setfloatlocations{quadro}{hbtp}
+
+\newcommand{\graficoname}{GRÁFICO}
+\newcommand{\listofgraficosname}{Lista de gráficos}
+\newcommand{\graficoautorefname}{Gráfico} % PS
+
+% \newfloat[chapter]{grafico}{logr}{\graficoname}
+\newlistof{listofgraficos}{logr}{\listofgraficosname}
+\newlistentry{grafico}{logr}{0}
+
+\setfloatadjustment{grafico}{\centering}
+\counterwithout{grafico}{chapter}
+\renewcommand{\cftgraficoname}{\graficoname\space}
+\renewcommand*{\cftgraficoaftersnum}{\hfill--\hfill}
+
+\setfloatlocations{grafico}{hbtp}
+
+\newcommand{\codigoname}{CÓDIGO}
+\newcommand{\listofcodigosname}{Lista de códigos}
+\newcommand{\codigoautorefname}{Código} % PS
+
+% \newfloat[chapter]{codigo}{locod}{\codigoname}
+\newlistof{listofcodigos}{locod}{\listofcodigosname}
+\newlistentry{codigo}{locod}{0}
+
+\setfloatadjustment{codigo}{\centering}
+\counterwithout{codigo}{chapter}
+\renewcommand{\cftcodigoname}{\codigoname\space}
+\renewcommand*{\cftcodigoaftersnum}{\hfill--\hfill}
+
+\setfloatlocations{codigo}{hbtp}
+
+\newcommand{\algoritmoname}{ALGORITMO}
+\newcommand{\listofalgoritmosname}{Lista de algoritmos}
+\newcommand{\algoritmoautorefname}{Algoritmo} % PS
+
+% \newfloat[chapter]{algoritmo}{loalg}{\algoritmoname}
+\newlistof{listofalgoritmos}{loalg}{\listofalgoritmosname}
+\newlistentry{algoritmo}{loalg}{0}
+
+\setfloatadjustment{algoritmo}{\centering}
+\counterwithout{algoritmo}{chapter}
+\renewcommand{\cftalgoritmoname}{\algoritmoname\space}
+\renewcommand*{\cftalgoritmoaftersnum}{\hfill--\hfill}
+
+\setfloatlocations{algoritmo}{hbtp}
+
+\renewcommand{\cftfigurename}{\MakeUppercase{\figurename}\space}
+\renewcommand{\cfttablename}{\MakeUppercase{\tablename}\space}
+
+\addto\captionsbrazil{% portugues-brasil
+    \renewcommand{\listfigurename}{Lista de figuras}
+    \renewcommand{\listtablename}{Lista de tabelas}
+    \renewcommand{\bibname}{REFERÊNCIAS}
+}
+
+\captionsetup[figure]{name={Figura}}
+\captionsetup[table]{name={Tabela}}
+\renewcommand*{\figureautorefname}{Figura}
+\renewcommand*{\tableautorefname}{Tabela}
+\renewcommand*{\chapterautorefname}{Capítulo}
+\renewcommand*{\sectionautorefname}{Seção}
+\renewcommand*{\subsectionautorefname}{Subseção}
+\renewcommand*{\equationautorefname}{Equação}
+
+\makeatletter
+\renewcommand{\fonte}[2][FONTE]{%
+    \M@gettitle{#2}%
+    \memlegendinfo{#2}%
+    \par
+    \begingroup
+    \@parboxrestore
+    \if@minipage
+    \@setminipage
+    \fi
+    \ABNTEXfontereduzida
+    \configureseparator\vspace{0cm}
+    \@makecaption{\ABNTEXfontereduzida #1}{\ignorespaces\ABNTEXfontereduzida
+    #2}\vspace{-.5cm}
+    \endgroup}
+\makeatother
+
+\newcommand{\listadefiguras}{
+    \pdfbookmark[0]{\listfigurename}{lof}
+    \listoffigures*
+    \cleardoublepage
+}
+
+\newcommand{\listadegraficos}{
+    \pdfbookmark[0]{listgraficosname}{logr}
+    \listofgraficos*
+    \cleardoublepage
+}
+
+\newcommand{\listadetabelas}{
+    \pdfbookmark[0]{\listtablename}{lot}
+    \listoftables*
+    \cleardoublepage
+}
+
+\newcommand{\listadequadros}{
+    \pdfbookmark[0]{\listofquadrosname}{loq}
+    \listofquadros*
+    \cleardoublepage
+}
+
+\newcommand{\listadecodigos}{
+    \pdfbookmark[0]{\listofcodigosname}{locod}
+    \listofcodigos*
+    \cleardoublepage
+}
+
+\newcommand{\listadealgoritmos}{
+    \pdfbookmark[0]{\listofalgoritmosname}{loalg}
+    \listofalgoritmos*
+    \cleardoublepage
+}
+
+\newcommand{\sumario}{
+    \pdfbookmark[0]{\contentsname}{toc}
+    \tableofcontents*
+    \cleardoublepage
+}
+
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\definecolor{myblue}{rgb}{0,0,0.5}
+\definecolor{mygreen}{rgb}{0,0.5,0}
+\definecolor{myorange}{rgb}{0.8,0.6,0}
+
+\lstset{%
+    extendedchars=true,
+    belowcaptionskip=1\baselineskip,
+    basicstyle=\fontencoding{T1}\small\fontfamily{lmtt}\fontseries{m}\selectfont,
+    backgroundcolor=\color{white},      % choose the background color; you must
+    breakatwhitespace=true,             % sets if automatic breaks should only
+    breaklines=true,                    % sets automatic line breaking
+    frame=tblr,	                        % adds a frame around the code
+    keepspaces=true,                    % keeps spaces in text, useful for keeping
+    keywordstyle=\bfseries\color{mygreen},
+    commentstyle=\itshape\color{mygray},
+    identifierstyle=\color{black},
+    stringstyle=\color{myorange},
+    numbers=left,                       % where to put the line-numbers; possible
+    numbersep=0.5cm,                    % how far the line-numbers are from the
+    numberstyle=\tiny\color{mygray},    % the style that is used for the
+    rulecolor=\color{black},            % if not set, the frame-color may be
+    showspaces=false,                   % show spaces everywhere adding particular
+    showstringspaces=false,             % underline spaces within strings only
+    showtabs=false,                     % show tabs within strings adding
+    stepnumber=1,                       % the step between two line-numbers. If
+    framextopmargin=0.1cm,
+    framexrightmargin=-0.1cm,
+    framexleftmargin=0.9cm,
+    framexbottommargin=0.1cm,
+    basewidth  = {.5em,.4em},
+    xleftmargin=1cm,
+    literate=
+        {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+        {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+        {à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+        {À}{{\`A}}1 {È}{{\`E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+        {ä}{{\"a}}1 {ë}{{\"e}}1 {ï}{{\"i}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
+        {Ä}{{\"A}}1 {Ë}{{\"E}}1 {Ï}{{\"I}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
+        {â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+        {Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+        {ã}{{\~a}}1 {ẽ}{{\~e}}1 {ĩ}{{\~i}}1 {õ}{{\~o}}1 {ũ}{{\~u}}1
+        {Ã}{{\~A}}1 {Ẽ}{{\~E}}1 {Ĩ}{{\~I}}1 {Õ}{{\~O}}1 {Ũ}{{\~U}}1
+        {œ}{{\oe}}1 {Œ}{{\OE}}1 {æ}{{\ae}}1 {Æ}{{\AE}}1 {ß}{{\ss}}1
+        {ű}{{\H{u}}}1 {Ű}{{\H{U}}}1 {ő}{{\H{o}}}1 {Ő}{{\H{O}}}1
+        {ç}{{\c c}}1 {Ç}{{\c C}}1 {ø}{{\o}}1 {Ø}{{\O}}1 {å}{{\r a}}1 {Å}{{\r A}}1
+        {€}{{\euro}}1 {£}{{\pounds}}1 {«}{{\guillemotleft}}1
+        {»}{{\guillemotright}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+\definecolor{blue}{RGB}{0,0,0}
+
+\makeatletter
+\hypersetup{
+    pdftitle={\@title},
+    pdfauthor={\@author},
+    pdfsubject={\imprimirpreambulo},
+    pdfcreator={LaTeX with abnTeX2},
+    pdfkeywords={abnt}{latex}{abntex}{abntex2}{trabalho acadêmico},
+    colorlinks=true,       		% false: boxed links; true: colored links
+    linkcolor=blue,          	% color of internal links
+    citecolor=blue,        		% color of links to bibliography
+    urlcolor=blue,
+    bookmarksdepth=3
+}
+\makeatother
+
+\makeatother
+
+\newcommand{\utpiflabel}[1]{\ifstrempty{#1}{}{\label{#1}}}
+
+\newcommand{\legenda}[2][]{%
+    \centering
+    \ifstrempty{#1}{\caption{#2.}}{\caption{#2.\label{#1}}}%
+}
+\newcommand{\fonteautor}{\fonte{O autor}}
+\newcommand{\fonteautora}{\fonte{A autora}}
+\newcommand{\fonteautores}{\fonte{Os autores}}
+\newcommand{\fonteautoras}{\fonte{As autoras}}
+\newcommand{\fonteautoria}{\fonte{Autoria própria}}
+
+\newcommand{\ie}{\textit{i.e.}}
+\newcommand{\eg}{\textit{e.g.}}
+
+\newcommand{\footurl}[1]{\footnote{\url{#1}}}
+
+\newcommand{\sfig}[3][]{\subfloat[][]{\utpiflabel{#1}\includegraphics[#2]{#3}}}
+\newcommand{\lfig}[4][]{\subfloat[][#4]{\utpiflabel{#1}\includegraphics[#2]{#3}}}
+
+\newcommand{\fig}[3][]{\utpiflabel{#1}\includegraphics[#2]{#3}}
+
+\newcounter{apendiceidx}
+\setcounter{apendiceidx}{1}
+\newcommand{\apendice}[2][]{
+    \chapter*{APÊNDICE \Alph{apendiceidx} -- #2}
+    \addcontentsline{toc}{chapter}{APÊNDICE \Alph{apendiceidx} -- #2}
+    \addtocounter{apendiceidx}{1}
+}
+
+\newcounter{anexoidx}
+\setcounter{anexoidx}{1}
+\newcommand{\anexo}[2][]{
+    \chapter*{ANEXO \Alph{anexoidx} -- #2}
+    \addcontentsline{toc}{chapter}{ANEXO \Alph{anexoidx} -- #2}
+    \addtocounter{anexoidx}{1}
+}
+
+\makeatletter
+\@ifpackageloaded{url}{%
+\addtociteoptionlist{abnt-url-package=url}
+\def\UrlLeft{}
+\def\UrlRight{}
+\urlstyle{same}}
+\makeatother

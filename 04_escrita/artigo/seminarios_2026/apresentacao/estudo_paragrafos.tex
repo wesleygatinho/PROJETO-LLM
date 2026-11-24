@@ -1,0 +1,325 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\usepackage[brazil]{babel}
+\usepackage[margin=1.8cm,top=1.6cm,bottom=1.6cm]{geometry}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{titlesec}
+
+\setlist{nosep,leftmargin=1.2em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\pagestyle{plain}
+
+\definecolor{azul}{HTML}{14213D}
+\definecolor{laranja}{HTML}{A85A12}
+\definecolor{fundo}{HTML}{EEF1F4}
+
+\titleformat{\section}{\Large\bfseries\color{azul}}{}{0pt}{}
+\titleformat{\subsection}{\large\bfseries\color{azul}}{}{0pt}{}
+\titlespacing*{\section}{0pt}{14pt}{4pt}
+\titlespacing*{\subsection}{0pt}{10pt}{2pt}
+
+% \pp{rótulo}{explicação simples}{frase para falar}
+\newcommand{\pp}[3]{%
+  \par\vspace{4pt}{\color{laranja}\bfseries #1}\par
+  #2\par
+  \fcolorbox{fundo}{fundo}{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\textbf{Para falar:} #3}}\par}
+
+% \refe{nome}{o que é}{por que citei}{cuidado}
+\newcommand{\refe}[4]{%
+  \par\vspace{4pt}{\color{laranja}\bfseries #1}\par
+  \textbf{O que é:} #2\par
+  \textbf{Por que citei:} #3\par
+  \textbf{Não diga:} #4\par}
+
+\begin{document}
+
+{\LARGE\bfseries\color{azul} O artigo explicado parágrafo por parágrafo}\\[3pt]
+Detecção de vulnerabilidades com Qwen2.5-Coder no PrimeVul --- versão de 11 páginas
+
+\vspace{6pt}
+Como usar: leia a explicação, feche o papel e tente dizer a frase do quadro com as suas palavras. Os números estão aqui só quando você precisa falar deles.
+
+\section{A ideia do artigo em 30 segundos}
+
+Um programa pode ter uma função com defeito de segurança. Treinamos modelos de IA para dizer ``essa função é perigosa''. A nota que eles tiram no teste comum parece boa. Mas quando colocamos lado a lado a função \textbf{com defeito} e a \textbf{mesma função já consertada}, os modelos não sabem dizer qual é qual. Pior: só medir o \textbf{tamanho} da função já tira nota boa no teste comum, e erra feio no teste lado a lado. Ou seja: \textbf{a nota comum engana}.
+
+\section{Palavras que você precisa saber}
+
+\begin{itemize}
+  \item \textbf{Função vulnerável:} um pedaço de código com falha de segurança.
+  \item \textbf{Versão corrigida:} a mesma função depois que o programador consertou a falha.
+  \item \textbf{Par:} as duas juntas, a vulnerável e a corrigida. Temos 564 pares no teste.
+  \item \textbf{Escore:} a ``nota de suspeita'' que o modelo dá para cada função. Quanto maior, mais suspeita.
+  \item \textbf{Limiar:} a nota de corte. Acima dela, o modelo diz ``vulnerável''.
+  \item \textbf{F1, precisão, revocação:} notas de acerto. Precisão = dos alarmes, quantos eram verdade. Revocação = das vulneráveis, quantas foram pegas. F1 = mistura das duas.
+  \item \textbf{FPR:} taxa de alarme falso (chamar de perigosa uma função boa).
+  \item \textbf{FNR:} taxa de vulneráveis que passaram sem ser pegas.
+  \item \textbf{AUC:} sorteie uma função vulnerável e uma boa qualquer. A AUC é a chance de a vulnerável receber nota maior. 0,5 = chute; 1 = perfeito.
+  \item \textbf{Ordenação pareada:} igual à AUC, mas comparando a vulnerável com \textbf{a própria versão corrigida}. Vale 1 ponto se a vulnerável tiver nota maior, meio ponto se empatar, zero se a corrigida tiver nota maior. \textbf{50\% = chute.}
+  \item \textbf{P-C, P-V, P-B, P-R:} o que o modelo decidiu no par. P-C: acertou as duas. P-V: disse que as duas são vulneráveis. P-B: disse que as duas são boas. P-R: inverteu.
+  \item \textbf{LoRA:} jeito barato de treinar um modelo grande: congela o modelo e treina só uma ``pecinha'' pequena (o adaptador).
+  \item \textbf{NF4:} guardar o modelo em 4 bits, ou seja, comprimido. Ocupa menos memória.
+  \item \textbf{BF16:} guardar o modelo em 16 bits, ou seja, sem comprimir tanto.
+  \item \textbf{Adaptador mesclado:} a pecinha da LoRA ``colada'' dentro do modelo. Separado: a pecinha fica ao lado.
+  \item \textbf{Semente:} o número que controla a sorte no treino. Mudar a semente = treinar de novo com outra sorte.
+  \item \textbf{Bootstrap:} sortear o teste de novo muitas vezes para ver o quanto o resultado balança.
+\end{itemize}
+
+\section{Seção 1 --- Introdução}
+
+\pp{1 §1 --- Qual é a tarefa}
+{O detector recebe uma função de código C/C++ e diz se ela tem falha de segurança. Serve para o analista saber o que revisar primeiro. Os detectores evoluíram: primeiro usavam grafos, depois Transformers, e agora modelos de linguagem grandes (LLMs) feitos para código, como o Qwen2.5-Coder.}
+{Os modelos melhoraram, mas se eles servem ou não depende de como a gente mede.}
+
+\pp{1 §2 --- Por que a medida pode enganar}
+{Outros pesquisadores mostraram que os testes antigos tinham dados repetidos e rótulos errados, e que os modelos não distinguem a função com defeito da consertada. Se existe uma pista boba que acompanha o rótulo, como o tamanho, o modelo tira nota alta sem entender nada. Comparar a função com a sua versão consertada evita isso, porque as duas são quase iguais: só muda o conserto.}
+{Nota alta no teste comum pode vir de pista boba; o teste lado a lado mostra se o modelo viu o defeito.}
+
+\pp{1 §3 --- As duas perguntas}
+{Além de acertar, importa quanto custa rodar. Pergunta 1: quem vai bem no teste comum também vai bem no teste lado a lado? (usando o tamanho da função como comparação). Pergunta 2: o mesmo modelo 7B rodando comprimido (NF4) ou não (BF16) muda o acerto, a memória e o tempo? O estudo é exploratório: olhamos o teste enquanto ajustávamos as receitas.}
+{Q1: o teste comum concorda com o teste lado a lado? Q2: comprimir o modelo muda acerto, memória e tempo?}
+
+\section{Seção 2 --- Fundamentação e trabalhos relacionados}
+
+\pp{2.1 §1 --- Gerações de detectores}
+{Devign transforma o código num grafo. LineVul usa um Transformer e ainda aponta a linha do defeito. Nós só dizemos se a função é vulnerável, sem apontar a linha.}
+{A gente classifica a função inteira, não a linha.}
+
+\pp{2.1 §2 --- Dois jeitos de usar um LLM}
+{Jeito 1: perguntar ``isso é vulnerável? responda YES ou NO''. Só dá a resposta, sem nota. Jeito 2: colocar uma camada de classificação no modelo, que dá uma nota. O Qwen2.5-Coder tem vários tamanhos e permite os dois jeitos. Outro estudo mostrou que LLMs dão respostas instáveis nessa tarefa.}
+{Testamos o modelo respondendo YES/NO e o modelo dando nota.}
+
+\pp{2.2 §1 --- Dados ruins}
+{Estudos mostraram que, com dados realistas, os detectores pioram muito, e que os rótulos tirados de commits de conserto têm erros.}
+{Dado ruim infla o resultado.}
+
+\pp{2.2 §2 --- O PrimeVul e os testes lado a lado}
+{O PrimeVul é um conjunto de dados mais limpo. Nele, um modelo que ia bem em dados antigos foi mal. Ele propõe dois testes: quantas vulneráveis escapam quando quase não pode dar alarme falso, e o teste lado a lado (pares). Outros dois trabalhos (VulnPatchPairs e TrapEval) também mostraram modelos falhando diante da versão consertada.}
+{O PrimeVul trouxe o teste lado a lado; outros trabalhos já viam modelos falhando nele.}
+
+\pp{2.2 §3 --- A AUC engana quando a classe é rara}
+{Só 2,68\% das funções são vulneráveis. Nesse caso, a AUC pode parecer otimista. Por isso mostramos também precisão e o teste com poucos alarmes falsos.}
+{Com vulnerável rara, só a AUC não basta.}
+
+\pp{2.3 §1 --- LoRA e as duas formas de rodar}
+{A LoRA treina só a pecinha pequena. O QLoRA faz isso com o modelo comprimido em 4 bits (NF4). Depois de treinar, dá para rodar de dois jeitos: comprimido com a pecinha separada (NF4), ou descomprimido com a pecinha colada (BF16).}
+{Depois do treino, o mesmo modelo pode rodar comprimido ou não.}
+
+\pp{2.3 §2 --- O que este trabalho tem de diferente}
+{Usamos os pares do próprio PrimeVul, comparamos com uma regra boba (o tamanho) e medimos memória e tempo. Não comparamos números com os outros trabalhos porque os testes são diferentes.}
+{Diferencial: régua do tamanho mais medição de custo.}
+
+\section{Seção 3 --- Materiais e métodos}
+
+\pp{3.1 §1 --- Os dados}
+{Usamos o PrimeVul original. Treino, validação e teste. Os números foram recalculados a partir das respostas salvas dos modelos.}
+{Usamos o PrimeVul e recalculamos tudo das previsões salvas.}
+
+\pp{3.1 §2 --- Números do teste}
+{No teste: 25.911 funções, só 2,68\% vulneráveis. 564 pares, de 550 projetos/commits. Os modelos leem no máximo 2.048 pedaços de texto (tokens); em 465 pares as duas versões cabem inteiras.}
+{Teste: 25.911 funções, 2,68\% vulneráveis, 564 pares.}
+
+\pp{3.2 §1 --- Modelo que responde YES/NO}
+{O 3B e o 7B Instruct receberam a pergunta e responderam YES ou NO. Como não dão nota, ficam fora do teste de ordenação.}
+{Os modelos de YES/NO só dão decisão, não nota.}
+
+\pp{3.2 §2 --- A régua boba: o tamanho}
+{A nota é só o número de tokens da função. Não sabe nada de segurança. Serve para ver até onde uma pista boba chega.}
+{O tamanho é a régua: mostra o que uma pista boba alcança.}
+
+\pp{3.2 §3 --- Os classificadores}
+{Modelos Qwen 3B e 7B com uma camada que dá nota, treinados com LoRA sobre o modelo comprimido. A nota é ``quanto mais vulnerável do que boa''. Os outros detalhes (taxa de aprendizado etc.) são técnicos e só se alguém perguntar.}
+{Os classificadores são o Qwen com LoRA, dando uma nota por função.}
+
+\pp{3.2 §4 --- As receitas de treino}
+{No 3B, três receitas: (1) metade vulnerável, metade boa; (2) tudo, na proporção real; (3) metade e metade, mas cada boa escolhida com tamanho parecido com a vulnerável. O 7B usou só a receita 3, treinada três vezes (três sementes). As receitas diferem em várias coisas, então não dá para dizer qual causa o quê.}
+{No 3B testei três receitas; no 7B, a de tamanho parecido, três vezes.}
+
+\pp{3.3 §1 --- Escolha da época}
+{Treinamos até três rodadas pelos dados (épocas) e escolhemos a melhor olhando os pares da validação.}
+{A melhor época foi escolhida na validação.}
+
+\pp{3.3 §2 --- NF4 contra BF16}
+{Cada modelo 7B rodou dos dois jeitos. Mas os dois jeitos mudam duas coisas ao mesmo tempo (compressão e pecinha colada), então não dá para culpar só a compressão.}
+{NF4 e BF16 são dois pacotes completos, não isolam a compressão.}
+
+\pp{3.3 §3 --- Como medimos o custo}
+{Numa placa de vídeo A40: memória depois de carregar, pico de memória e tempo médio por função rodando em lote.}
+{Memória e tempo medidos numa A40.}
+
+\pp{3.4 §1 --- As duas notas de corte}
+{Corte 1: o que dá o melhor F1 na validação. Corte 2: o que deixa no máximo 0,5\% de alarme falso na validação; com ele medimos quantas vulneráveis escapam. Os cortes são escolhidos na validação e usados no teste sem mexer.}
+{Dois cortes: um para o F1, outro para medir o que escapa com poucos alarmes.}
+
+\pp{3.4 §2 --- Como funciona a ordenação pareada}
+{Para cada par: vulnerável com nota maior = 1 ponto; empate = meio; corrigida com nota maior = zero. Faz a média. Não precisa de corte. 50\% é chute. Abaixo de 50\% quer dizer que a corrigida costuma ganhar nota maior.}
+{50\% é chute; abaixo disso, o modelo acha a versão consertada mais suspeita.}
+
+\pp{3.5 §1 --- Estatística}
+{No 7B: média e variação entre as três sementes. A incerteza foi medida sorteando os 550 grupos projeto/commit 10.000 vezes. Não fizemos teste de hipótese.}
+{Três sementes e bootstrap por grupo; sem teste de hipótese.}
+
+\section{Seção 4 --- Resultados}
+
+\pp{4.1 --- YES/NO foi fraco}
+{F1 de 0,119 no 3B e 0,062 no 7B. O 7B foi pior: deu muito mais alarme falso (11\% contra 3,49\%). Nos pares, quase sempre disse que as duas eram boas (P-B).}
+{Perguntar YES/NO funcionou mal, e o modelo maior foi pior.}
+
+\pp{4.2 §1 --- Ler as duas tabelas juntas}
+{Uma tabela mostra o teste comum, a outra o teste lado a lado. A resposta da pergunta 1 está na diferença entre elas.}
+{A pergunta 1 se responde comparando as duas tabelas.}
+
+\pp{4.2 §2 --- O resultado principal: o tamanho}
+{Só contando o tamanho, a AUC foi 0,810, nota boa. Nos pares, 21,10\%, muito abaixo do chute. Por quê? Funções vulneráveis costumam ser maiores que as boas, mas o conserto costuma \textbf{acrescentar} código, então a versão corrigida fica maior que a vulnerável.}
+{O tamanho separa as classes no teste comum, mas inverte o par: a corrigida é maior.}
+
+\pp{4.2 §3 --- Os classificadores repetem isso}
+{O 3B que foi melhor no teste comum (F1 0,262, AUC 0,851) teve só 37,50\% nos pares. Os treinados com tamanho parecido foram piores no comum, mas ficaram perto de 50\% nos pares. Isso combina com a ideia de que parte da nota vem de pista boba, mas não prova.}
+{Quem foi melhor no teste comum foi pior nos pares.}
+
+\pp{4.2 §4 --- Ordenar bem não é decidir bem}
+{Com o corte do F1, acertar as duas versões do par (P-C) aconteceu em só 2 a 13 pares de 564. A diferença de nota entre as versões é pequena demais para cruzar o corte.}
+{Mesmo quando ordena, o modelo quase nunca acerta as duas versões.}
+
+\pp{4.2 §5 --- Com poucos alarmes, quase tudo escapa}
+{Com o corte de 0,5\% de alarme falso, de 88\% a 100\% das vulneráveis escaparam. No tamanho deu 100\% por causa do corte em 2.048 tokens.}
+{Se não pode dar alarme falso, o detector deixa passar quase tudo.}
+
+\pp{4.3 --- A sorte do treino pesa}
+{No 7B a média foi 50,62\% (NF4) e 49,97\% (BF16): chute. As sementes variaram uns 5 pontos e apontaram para lados opostos: a semente 1 acima de 50\%, a 2 abaixo. Com um treino só, a conclusão poderia virar. A diferença NF4 menos BF16 tem intervalo que inclui zero: não deu para distinguir.}
+{A sorte do treino mudou mais o resultado do que comprimir ou não o modelo.}
+
+\pp{4.4 --- Conferências extras}
+{Usando só os 465 pares sem corte, o tamanho caiu para 15,16\%; o 7B mudou pouco. Achamos 5 pares em que a ``corrigida'' era outra função; tirando eles, mudou no máximo 0,22 ponto. O quadro se manteve.}
+{Tirando pares cortados ou errados, a conclusão não muda.}
+
+\pp{4.5 --- Custo: NF4 contra BF16}
+{NF4 usou cerca de 67\% menos memória (4,63 contra 14,15 GB) e 40\% menos no pico, mas foi cerca de 27\% mais lento (60 contra 47 ms por função). Na ordenação, nenhuma diferença visível.}
+{Comprimir troca memória por tempo, sem mudar o acerto visível.}
+
+\section{Seção 5 --- Discussão}
+
+\pp{5 §1 --- O achado principal}
+{Ir bem no teste comum não significa distinguir a vulnerável da consertada. Isso combina com o que outros pesquisadores viram. A nossa contribuição é mostrar uma pista concreta: o tamanho.}
+{Contribuição: mostrar que o tamanho engana o teste comum.}
+
+\pp{5 §2 --- O corte faz parte do resultado}
+{Com o corte do F1, quase tudo vira P-B; com poucos alarmes, quase todas as vulneráveis escapam. O F1 sozinho esconde isso. E a régua do tamanho teve AUC alta com precisão baixa (0,152): por isso não se confia só na AUC.}
+{O F1 sozinho esconde que, com poucos alarmes, quase tudo escapa.}
+
+\pp{5 §3 --- Os outros pontos}
+{O YES/NO fraco vale só para a pergunta que usamos. Os 5 pares errados mostram que é preciso conferir os pares. NF4 contra BF16 ajuda a escolher entre esses dois pacotes, mas não mostra o efeito só da compressão.}
+{Resultados valem para estas condições; não generalizar.}
+
+\section{Seção 6 --- Limitações}
+
+\pp{6 §1 --- Validade interna}
+{Olhamos o teste durante o desenvolvimento, então o estudo é exploratório. As receitas diferem em várias coisas; não dá para dizer o que causou o quê.}
+{É exploratório e não prova causa.}
+
+\pp{6 §2 --- Validade estatística}
+{Poucas sementes (1 no 3B, 3 no 7B). Não deu diferença entre NF4 e BF16, mas isso não prova que são iguais.}
+{Poucas sementes; não ver diferença não é provar igualdade.}
+
+\pp{6 §3 --- Construção e alcance}
+{Só parte dos pares foi conferida; o corte em 2.048 tokens tira código das funções longas. Ordenar bem não prova que o modelo entendeu. Tudo foi feito com um modelo, um conjunto de dados e uma placa de vídeo.}
+{Vale para este modelo, estes dados e esta máquina.}
+
+\section{Seção 7 --- Conclusão}
+
+\pp{7 §1 --- As três observações}
+{(1) Ir bem no teste comum e ir bem nos pares não andaram juntos. (2) No 7B, a sorte do treino pesou mais que comprimir ou não. (3) NF4 usa menos memória e mais tempo, sem diferença visível no acerto.}
+{Teste comum engana; a semente pesa; comprimir troca memória por tempo.}
+
+\pp{7 §2 --- Próximos passos}
+{Repetir com tudo decidido antes de olhar o teste, com mais sementes, conferindo todos os pares e separando compressão de pecinha colada.}
+{Próximo passo: um estudo confirmatório, mais sementes e pares conferidos.}
+
+\newpage
+\section{As referências: por que cada uma está no artigo}
+
+\subsection{Mostram que a avaliação engana}
+
+\refe{Chakraborty et al. (2020) --- ReVeal}
+{estudo que testou detectores em dados realistas.}
+{mostrou que o desempenho cai muito por dados repetidos, classes irreais e modelos que não aprendem o defeito. Base do ``a medida engana''.}
+{que é a versão publicada depois; cito o preprint de 2020.}
+
+\refe{Ding et al. (2024) --- PrimeVul}
+{o conjunto de dados que usei, mais limpo que os antigos.}
+{de onde vêm os dados, os pares e o teste com poucos alarmes falsos.}
+{que reproduzi o VD-Score oficial, nem que o PrimeVul garante que o modelo não viu o código antes.}
+
+\refe{Risse e Böhme (2024) --- VulnPatchPairs}
+{estudo com pares vulnerável/corrigida.}
+{mostrou modelos que não distinguem as duas versões e que se apoiam em pistas sem relação com o defeito. É o mais parecido com o meu resultado.}
+{que comparei números com eles; os testes são diferentes.}
+
+\refe{Huang et al. (2026) --- TrapEval}
+{estudo recente com LLMs ajustados, incluindo um Qwen2.5-Coder-7B.}
+{viu modelos acertando contra código qualquer e falhando contra a versão consertada.}
+{que fui o primeiro a ver isso.}
+
+\refe{Saito e Rehmsmeier (2015)}
+{artigo sobre como ler curvas de desempenho com classes desbalanceadas.}
+{com classe rara, a curva ROC (e a AUC) pode enganar, e a precisão mostra o que ela esconde.}
+{que a AUC sobe sozinha com o desbalanceamento.}
+
+\subsection{Contam a história dos detectores e dos modelos}
+
+\refe{Zhou et al. (2019) --- Devign}
+{detector que usa grafos.}
+{exemplo da primeira geração.}
+{que ele ``entende a semântica'' só por causa do título.}
+
+\refe{Fu e Tantithamthavorn (2022) --- LineVul}
+{detector com Transformer que também aponta a linha.}
+{exemplo da segunda geração, e para dizer que eu não aponto linha.}
+{que o meu modelo localiza linhas.}
+
+\refe{Chen et al. (2023) --- DiverseVul}
+{conjunto de dados grande de vulnerabilidades.}
+{mostrou erros nos rótulos e dificuldade com projetos novos.}
+{que as taxas de erro deles valem para o PrimeVul.}
+
+\refe{Ullah et al. (2024) --- SecLLMHolmes}
+{avaliação de oito LLMs em segurança.}
+{mostrou respostas instáveis e raciocínio ruim; ajuda a explicar o YES/NO fraco.}
+{que eles avaliaram o Qwen2.5-Coder; ele não estava lá.}
+
+\refe{Hui et al. (2024) --- Qwen2.5-Coder}
+{relatório do modelo que usei.}
+{tem 3B e 7B e versões Base e Instruct, o que permitiu os dois jeitos de uso.}
+{que gerar código bem prova que ele detecta vulnerabilidade.}
+
+\subsection{Explicam o treino e as duas formas de rodar}
+
+\refe{Hu et al. (2021) --- LoRA}
+{o método de treino barato com a pecinha pequena.}
+{é como treinei, e é o que permite colar a pecinha no modelo (BF16 mesclado).}
+{que a LoRA garante o mesmo resultado do treino completo nesta tarefa.}
+
+\refe{Dettmers et al. (2023) --- QLoRA}
+{LoRA com o modelo comprimido em 4 bits (NF4).}
+{é de onde vem a forma NF4.}
+{que usei os otimizadores do QLoRA (usei o AdamW comum) nem que medi o efeito só da compressão.}
+
+\subsection{Explica a estatística}
+
+\refe{Field e Welsh (2007)}
+{artigo sobre bootstrap com dados agrupados.}
+{justifica sortear os grupos projeto/commit inteiros, já que pares do mesmo commit são parecidos.}
+{que os meus intervalos têm garantia de cobertura.}
+
+\vspace{8pt}
+\textbf{Resumo das referências em quatro frases:}
+\begin{itemize}
+  \item Chakraborty, Ding, Risse e Huang: a medida comum engana, e o par é o teste certo.
+  \item Saito: só a AUC engana quando a classe é rara.
+  \item Devign, LineVul, Chen, Ullah e Hui: os modelos evoluíram, mas isso não garante detectar.
+  \item Hu e Dettmers: de onde vêm as duas formas de rodar; Field: por que o sorteio é por grupo.
+\end{itemize}
+
+\end{document}

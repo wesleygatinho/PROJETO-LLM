@@ -1,0 +1,9 @@
+\chapter{Conclusão}
+
+O Estudo Dirigido percorreu os tópicos da ementa, da formulação do problema à medição de custo, e produziu um conjunto de experimentos reprodutíveis com os modelos Qwen2.5-Coder de 3B e 7B no PrimeVul. O domínio adquirido abrange a avaliação descontaminada de detectores, a implementação das métricas globais e pareadas, o ajuste fino com QLoRA e cabeça de classificação, os fundamentos dos métodos de quantização de quatro bits e a medição de memória e tempo.
+
+Os resultados sustentam três observações para as configurações executadas. Primeiro, desempenho global e discriminação pareada não andaram juntos: a heurística de comprimento e o classificador de maior F1 tiveram ordenação pareada abaixo de 50\%. Segundo, a variação entre as três sementes do 7B foi grande em relação às diferenças entre implantações. Terceiro, a implantação NF4 usou menos memória e mais tempo que a BF16, sem diferença distinguível na ordenação.
+
+Dois itens da ementa foram cobertos apenas no plano teórico e ficam como continuidade: a comparação experimental entre NF4, AWQ e GPTQ sobre o modelo ajustado e a medição de energia. Também é necessária uma avaliação confirmatória, com receitas, critérios e limiares definidos antes do acesso ao teste e mais sementes por configuração. Essas etapas integram o projeto de mestrado ao qual este estudo está vinculado.
+
+Como produtos do estudo, foram elaborados este relatório técnico e o artigo científico apresentado à disciplina de Seminários, em versões em português e em inglês.

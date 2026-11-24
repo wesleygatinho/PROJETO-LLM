@@ -1,0 +1,11 @@
+\chapter{Introdução}
+
+A detecção de vulnerabilidades em código-fonte pode ser formulada como classificação de funções: dado o corpo de uma função C/C++, um detector indica se ela contém uma vulnerabilidade. Para essa tarefa, os detectores aprendidos passaram de representações do código em grafos \cite{zhou2019devign} a Transformers pré-treinados em código \cite{fu2022linevul} e, mais recentemente, a modelos de linguagem de grande porte (LLMs, do inglês \textit{large language models}) especializados em código, como a família Qwen2.5-Coder \cite{hui2024qwen}.
+
+Dois problemas acompanham essa evolução. O primeiro é de avaliação: duplicação de dados, rótulos imprecisos e distribuição irreal das classes produziram resultados que não se mantêm em condições realistas \cite{chakraborty2020reveal,ding2024primevul}. O segundo é de custo: modelos com bilhões de parâmetros exigem memória e tempo de processamento que limitam seu uso, o que motiva técnicas como a quantização e o ajuste fino eficiente \cite{hu2021lora,dettmers2023qlora}.
+
+Este relatório documenta o Estudo Dirigido realizado no segundo semestre de 2026 no Programa de Pós-Graduação em Ciência da Computação da UFMA, sob supervisão do Prof. Dr. João Otávio Bandeira Diniz. O estudo percorreu os tópicos da ementa aprovada: fundamentos de vulnerabilidades e de modelos de linguagem de código; conjuntos de dados e avaliação descontaminada, com o PrimeVul como estudo de caso; métricas de detecção; ajuste fino eficiente com QLoRA e cabeça de classificação; quantização de modelos; medição de custo computacional; e elaboração de relatório técnico e artigo científico.
+
+Além do estudo teórico, foram executados experimentos com os modelos Qwen2.5-Coder de 3B e 7B parâmetros no PrimeVul. Os resultados deram origem ao artigo ``Limitações das Métricas Globais na Detecção de Vulnerabilidades: Uma Avaliação do Qwen2.5-Coder no PrimeVul'', redigido em português e em inglês para a disciplina de Seminários.
+
+O relatório está organizado da seguinte forma. O Capítulo~2 apresenta os objetivos. O Capítulo~3 reúne a fundamentação teórica dos tópicos estudados. O Capítulo~4 descreve as atividades e a metodologia dos experimentos. O Capítulo~5 apresenta e discute os resultados. O Capítulo~6 traz a conclusão e os próximos passos.

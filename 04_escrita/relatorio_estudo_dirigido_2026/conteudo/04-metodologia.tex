@@ -1,0 +1,99 @@
+\chapter{Metodologia}
+
+\section{Atividades do Estudo}
+
+A Tabela~\ref{tab:ementa} relaciona cada tópico da ementa à atividade realizada. Os tópicos foram cobertos por leitura dos trabalhos de referência e, quando indicado, por implementação e experimento.
+
+\begin{table}[H]
+    \centering
+    \caption{Tópicos da ementa e atividades realizadas.}
+    \label{tab:ementa}
+    \footnotesize
+    \begin{tabular}{|p{4.6cm}|p{9.4cm}|}
+        \hline
+        \textbf{Tópico da ementa} & \textbf{Atividade realizada} \\
+        \hline
+        Fundamentos de vulnerabilidades e de modelos de linguagem de código & Estudo da formulação por função e dos detectores Devign, LineVul e LLMs de código; uso do Qwen2.5-Coder por instrução e por cabeça de classificação. \\
+        \hline
+        Datasets e avaliação descontaminada (PrimeVul) & Estudo dos problemas de rotulação, duplicação e divisão dos dados; uso da distribuição original do PrimeVul, com conferência dos totais e dos pares. \\
+        \hline
+        Métricas de detecção (F1, VD-S e avaliação pareada) & Implementação de F1, precisão, revocação, FPR, AUC, FNR com FPR limitada, categorias pareadas e ordenação pareada. \\
+        \hline
+        Ajuste fino eficiente com QLoRA e cabeça de classificação & Treino de seis classificadores (três receitas no 3B e três sementes no 7B). \\
+        \hline
+        Quantização de modelos (NF4, AWQ e GPTQ) & Estudo teórico dos três métodos; avaliação experimental da implantação em NF4, comparada à implantação em BF16. A comparação experimental com AWQ e GPTQ não foi executada neste estudo. \\
+        \hline
+        Medição de custo computacional (memória, latência e energia) & Medição de memória, tempo por função e custo estimado. A energia foi estudada, mas não foi medida. \\
+        \hline
+        Elaboração de relatório técnico e artigo científico & Este relatório e o artigo da disciplina de Seminários, em português e em inglês. \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\section{Conjunto de Dados}
+
+O estudo utiliza a distribuição original do PrimeVul, composta por funções C/C++ de projetos de código aberto, com rótulos derivados de commits de correção \cite{ding2024primevul}. A Tabela~\ref{tab:particoes} apresenta as partições e o número de pares vulnerável/corrigida em cada uma.
+
+\begin{table}[H]
+    \centering
+    \caption{Partições do PrimeVul utilizadas.}
+    \label{tab:particoes}
+    \begin{tabular}{lrrr}
+        \toprule
+        \textbf{Partição} & \textbf{Funções} & \textbf{Vulneráveis} & \textbf{Pares} \\
+        \midrule
+        Treino & 184.427 & 5.574 & 4.354 \\
+        Validação & 25.430 & 699 & 562 \\
+        Teste & 25.911 & 695 & 564 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+A classe vulnerável corresponde a 2,68\% do teste global. Cada par reúne uma função rotulada como vulnerável e outra rotulada como sua versão corrigida, no mesmo projeto e commit. Os 564 pares de teste pertencem a 550 grupos projeto/commit.
+
+\section{Configurações Avaliadas}
+
+São avaliados três tipos de configuração:
+
+\begin{alineas}
+    \item \textbf{Classificação por instrução.} As variantes Qwen2.5-Coder-3B-Instruct e 7B-Instruct, carregadas em 16 bits, recebem uma instrução sem exemplos que pede uma única palavra, YES ou NO, para cada função. A decodificação é determinística, e um analisador aceita a primeira palavra de decisão reconhecida. O contexto de entrada é de até 8.192 tokens.
+    \item \textbf{Heurística de comprimento.} Atribui a cada função um escore igual ao número de tokens visíveis após o corte em 2.048 tokens. Não usa nenhuma informação sobre a vulnerabilidade e indica quanto uma característica superficial correlacionada ao rótulo alcança em cada métrica.
+    \item \textbf{Classificadores com QLoRA.} Partem dos modelos Base Qwen2.5-Coder-3B e 7B, com cabeça de duas saídas e contexto de 2.048 tokens. No ajuste, a base é carregada em NF4 com dupla quantização e computação em BF16. A LoRA é aplicada às projeções de atenção e do bloco MLP, com posto $r = 16$, $\alpha = 32$ e \textit{dropout} de 0,05. O otimizador é o AdamW, com taxa de aprendizado inicial de $2 \times 10^{-4}$, aquecimento em 3\% dos passos e decaimento linear. O lote efetivo tem 16 funções, e a perda é a entropia cruzada.
+\end{alineas}
+
+No 3B, são exploradas três receitas de amostragem do treino. A primeira mantém todas as funções vulneráveis e sorteia igual número de não vulneráveis (1:1). A segunda usa o treino completo, na proporção original. A terceira forma o conjunto 1:1 escolhendo, para cada função vulnerável, a não vulnerável de comprimento mais próximo (1:1 com controle de tamanho). O 7B usa somente essa última receita, com três sementes de aleatoriedade. A Tabela~\ref{tab:treinos} resume os treinos.
+
+\begin{table}[H]
+    \centering
+    \caption{Treinos realizados: funções vulneráveis e não vulneráveis usadas, épocas executadas, época selecionada e horas de treino.}
+    \label{tab:treinos}
+    \footnotesize
+    \begin{tabular}{lrrrrr}
+        \toprule
+        \textbf{Configuração} & \textbf{Vuln.} & \textbf{Não vuln.} & \textbf{Épocas} & \textbf{Selecionada} & \textbf{Treino (h)} \\
+        \midrule
+        3B 1:1 & 5.574 & 5.574 & 3 & 1 & 3,37 \\
+        3B proporção original & 5.574 & 178.853 & 1 & 1 & 10,16 \\
+        3B 1:1 + tamanho & 5.574 & 5.574 & 3 & 3 & 4,98 \\
+        7B 1:1 + tamanho, semente 1 & 5.574 & 5.574 & 3 & 3 & 7,89 \\
+        7B 1:1 + tamanho, semente 2 & 5.574 & 5.574 & 3 & 2 & 7,89 \\
+        7B 1:1 + tamanho, semente 3 & 5.574 & 5.574 & 3 & 3 & 7,91 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\section{Seleção de Época, Limiares e Implantação}
+
+A época de cada classificador é escolhida pela ordenação pareada nos 562 pares de validação. São calibrados dois limiares na validação global: o primeiro maximiza F1; o segundo é o menor limiar que mantém a FPR em no máximo 0,5\% e serve para medir a FNR no teste, em aproximação ao VD-S. Ambos são aplicados ao teste sem recalibração.
+
+Cada classificador 7B selecionado é avaliado em duas implantações. Na implantação NF4, a base permanece quantizada e o adaptador separado. Na implantação BF16, a base é carregada em BF16 e o adaptador é mesclado aos pesos. Como as duas diferem ao mesmo tempo na representação da base e na incorporação do adaptador, elas são tratadas como configurações completas de implantação, e não como um experimento que isola a quantização.
+
+\section{Medição de Recursos e Análise Estatística}
+
+Os recursos são registrados em uma GPU NVIDIA A40, com lotes de até 32.768 tokens. A memória corresponde à memória CUDA alocada após a carga do modelo, e o pico é observado durante a pontuação. O tempo por função é o tempo de pontuação do teste dividido pelo número de funções, ou seja, um tempo amortizado em lotes. O custo estimado multiplica esse tempo pelo preço de US\$ 0,50 por hora de GPU.
+
+No 7B, a variação entre treinamentos é descrita pela média e pelo desvio padrão das três sementes. A incerteza amostral da ordenação pareada é estimada por \textit{bootstrap} percentil de 95\% com 10.000 réplicas, reamostrando os 550 grupos projeto/commit com reposição \cite{field2007bootstrap}.
+
+\section{Ambiente e Reprodutibilidade}
+
+Os experimentos são executados em instâncias alugadas com uma GPU NVIDIA A40 de 48 GB, com PyTorch e Transformers em versões travadas em arquivo de requisitos. Cada execução registra em planilha as versões das bibliotecas, a revisão do modelo e a impressão digital dos dados. O código, os registros de execução e as planilhas de resultados estão versionados no repositório do projeto.

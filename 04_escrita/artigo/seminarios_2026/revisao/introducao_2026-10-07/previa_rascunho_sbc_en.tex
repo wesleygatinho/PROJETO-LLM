@@ -1,0 +1,518 @@
+% !TeX program = pdflatex
+% !TeX encoding = UTF-8
+% !TeX root = previa_rascunho_sbc_en.tex
+% Documento SBC independente: estilo e bibliografia incorporados abaixo.
+% Compilação local: latexmk -pdf previa_rascunho_sbc_en.tex
+\documentclass[12pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\makeatletter
+% Asset SBC embutido, SHA256: dbe513d56dde32bedc53dcf7b9efba052ff1b3b747037ed2f284f7095a91e895
+% LaTeX definitions for SBC 2001 style
+%
+% Created by Jomi Hubner & Rafael Bordini, june 2001
+% updated march 2005
+% updated december 2017
+
+
+% margem sup 3.5 cm: hï¿½ 1,5 cm para header, + 2 cm para top
+% margem inf 2.5 cm: hï¿½ 1,5 cm para foot, + 1 cm para bottom
+% margem esq/dir 3 cm
+\RequirePackage[a4paper,top=3.5cm,left=3cm,right=3cm,bottom=2.5cm]{geometry}
+
+\parindent 1.27cm
+\parskip   6pt
+
+\flushbottom
+
+% captions
+%updated 2017. Change deprecated caption2 to caption package
+\RequirePackage[bf,sf,footnotesize,indent]{caption}
+\setlength{\captionmargin}{0.8cm}
+\renewcommand{\captionfont}{\sffamily\footnotesize\bfseries}
+%\renewcommand{\captionlabeldelim}{.}
+\captionsetup{labelsep=period}
+
+% font
+\RequirePackage{times}
+
+\renewcommand{\normalsize}{\@setfontsize\normalsize\@xiipt\@xivpt}
+\newcommand{\XIIIPT}{\@setfontsize\xiiipt{13}{17}}
+\newcommand{\XVIPT}{\@setfontsize\xvipt{16}{20}}
+
+% new commands
+\newcounter{instn}
+\setcounter{instn}{1}
+\newcommand{\instnum}{\arabic{instn}}
+\newcommand{\inst}[1]{\ensuremath{^{#1}}}
+\newcommand{\nextinstitute}{\\\mbox{}\\[-6pt] \addtocounter{instn}{1}\inst{\instnum}}
+\newcommand{\email}[1]{\\\mbox{}\\[-6pt]\footnotesize\texttt{#1}}
+\renewcommand{\and}{, }
+
+% to avoid [...] in the bibliography
+% \item[] instead of \item[\@biblabel{#1}\hfill]
+\def\@lbibitem[#1]#2{\item[]\if@filesw
+      {\let\protect\noexpand
+       \immediate
+       \write\@auxout{\string\bibcite{#2}{#1}}}\fi\ignorespaces}
+\renewenvironment{thebibliography}[1]
+     {\section*{\refname
+        \@mkboth{\MakeUppercase\refname}{\MakeUppercase\refname}}%
+      \list{\@biblabel{\@arabic\c@enumiv}}%
+           {\settowidth\labelwidth{\@biblabel{#1}}%
+            \leftmargin\labelwidth
+            \advance\leftmargin\labelsep
+            %% changed!
+               \itemindent -\leftmargin
+               \itemsep 6pt
+            %%%%%%%%%%%
+            \@openbib@code
+            \usecounter{enumiv}%
+            \let\p@enumiv\@empty
+            \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+      \sloppy
+      \clubpenalty4000
+      \@clubpenalty \clubpenalty
+      \widowpenalty4000%
+      \sfcode`\.\@m}
+     {\def\@noitemerr
+       {\@latex@warning{Empty `thebibliography' environment}}%
+      \endlist}
+
+
+% itens
+\setlength\leftmargini   {1.27cm}
+\setlength\leftmargin    {\leftmargini}
+\setlength\leftmarginii  {\leftmargini}
+\setlength\leftmarginiii {\leftmargini}
+\setlength\leftmarginiv  {\leftmargini}
+\setlength  \labelsep    {.5em}
+\setlength  \labelwidth  {\leftmargini}
+\addtolength\labelwidth  {-\labelsep}
+\def\@listI{\leftmargin\leftmargini
+            \parsep 0\p@ \@plus1\p@ \@minus\p@
+            \topsep 0\p@ \@plus2\p@ \@minus4\p@
+            \itemsep0\p@}
+\let\@listi\@listI
+\@listi
+\def\@listii {\leftmargin\leftmarginii
+              \labelwidth\leftmarginii
+              \advance\labelwidth-\labelsep
+              \topsep    0\p@ \@plus2\p@ \@minus\p@}
+\def\@listiii{\leftmargin\leftmarginiii
+              \labelwidth\leftmarginiii
+              \advance\labelwidth-\labelsep
+              \topsep    0\p@ \@plus\p@\@minus\p@
+              \parsep    \z@
+              \partopsep \p@ \@plus\z@ \@minus\p@}
+
+
+% sections
+\renewcommand\section{\@startsection{section}{1}{\z@}%
+                       {-6\p@ \@plus -4\p@ \@minus -4\p@}%
+                       {0\p@ \@plus 4\p@ \@minus 4\p@}%
+                       {\normalfont\XIIIPT\bfseries\boldmath
+                        \rightskip=\z@ \@plus 8em\pretolerance=10000 }}
+
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+                       {-6\p@ \@plus -4\p@ \@minus -4\p@}%
+                       {0\p@ \@plus 4\p@ \@minus 4\p@}%
+                       {\normalfont\normalsize\bfseries\boldmath
+                        \rightskip=\z@ \@plus 8em\pretolerance=10000 }}
+
+%\renewcommand{\thesection}{\arabic{section}.}
+%\renewcommand{\thesubsection}{\thesection\arabic{subsection}.}
+%\renewcommand{\thesubsubsection}{\thesubsection\arabic{subsubsection}.}
+
+\RequirePackage{titlesec}
+\titlelabel{\thetitle.\hspace{1ex}}
+
+% first page
+
+\pagestyle{empty}
+
+\newcommand{\authortag}[1]{$^{#1}$}
+
+\def\address#1{\gdef\@address{#1}}
+
+\def\@maketitle{\newpage
+ %\null % isso dava um espaco extra antes do title
+ \begin{center}
+   %\vglue -6pt
+%   \vspace*{12pt}
+\vspace*{-.7cm}
+  {\XVIPT\bf\@title\par}
+   \vglue 6pt plus 3pt minus 3pt
+  {\normalsize
+   \textbf{\begin{tabular}[t]{c}\@author\end{tabular}}\par}
+   \vglue 6pt plus 3pt minus 3pt
+  {\normalsize
+   \begin{tabular}[t]{c}\inst{\instnum}\@address\end{tabular}\par}
+   \vglue 6pt plus 3pt minus 3pt
+   \end{center}\par
+}
+\let\maketitleOLD\maketitle
+\renewcommand{\maketitle}{\maketitleOLD\thispagestyle{empty}}
+
+\renewenvironment{abstract}{%
+      \list{}{\advance\topsep by6pt\relax%\small
+      \leftmargin=0.8cm
+      \labelwidth=\z@
+      \listparindent=\z@
+      \itemindent\listparindent
+      \rightmargin\leftmargin}\item[\hskip\labelsep
+                                    \bfseries\itshape Abstract.]\itshape}%
+      {\endlist}
+
+\newenvironment{resumo}{%
+      \list{}{\advance\topsep by6pt\relax%\small
+      \leftmargin=0.8cm
+      \labelwidth=\z@
+      \listparindent=\z@
+      \itemindent\listparindent
+      \rightmargin\leftmargin}\item[\hskip\labelsep
+                                    \bfseries\itshape Resumo.]\itshape}%
+      {\endlist}
+
+%Updated 2017. If hyperref is used, do not change references styles
+\RequirePackage{etoolbox}%
+\AtEndPreamble{\@ifpackageloaded{hyperref}
+	{%
+		\makeatletter
+		  \def\@lbibitem[#1]#2{%
+			\@skiphyperreftrue
+			\H@item[%
+			  \ifx\Hy@raisedlink\@empty
+				\hyper@anchorstart{cite.#2\@extra@b@citeb}%
+				\hyper@anchorend
+			  \else
+				\Hy@raisedlink{%
+				  \hyper@anchorstart{cite.#2\@extra@b@citeb}\hyper@anchorend
+				}%
+			  \fi
+			  \hfill
+			]%
+			\@skiphyperreffalse
+			\if@filesw
+			  \begingroup
+				\let\protect\noexpand
+				\immediate\write\@auxout{%
+				  \string\bibcite{#2}{#1}%
+				}%
+			  \endgroup%
+			\fi%
+			\ignorespaces%
+		  }% 
+		\makeatother%
+	}%
+}%
+\makeatother
+
+\usepackage{booktabs,array,graphicx,amsmath,url}
+\usepackage{amssymb}
+\usepackage[authoryear,square]{natbib}
+\setcitestyle{authoryear,square,aysep={},citesep={,}}
+
+% Tabelas mantêm a fonte definida; reduzem somente quando excedem a coluna.
+\newsavebox{\SBCtablebox}
+\newenvironment{sbcfitwidth}{\begin{lrbox}{\SBCtablebox}}{%
+  \end{lrbox}%
+  \ifdim\wd\SBCtablebox>\linewidth
+    \resizebox{\linewidth}{!}{\usebox{\SBCtablebox}}%
+  \else
+    \usebox{\SBCtablebox}%
+  \fi}
+
+\title{Limitations of Global Metrics in Vulnerability Detection: An Evaluation of Qwen2.5-Coder on PrimeVul}
+\author{Wesley dos Santos Gatinho}
+\address{Graduate Program in Computer Science\\
+Federal University of Maranhão}
+\begin{document}
+\maketitle
+\begin{abstract}
+Global metrics do not show whether a vulnerability detector separates a vulnerable function from its fixed version. This work examines that relation for 3B and 7B Qwen2.5-Coder configurations on PrimeVul, comparing prompted models, LoRA classifiers on a quantized base, and a length-only heuristic. On the global test set, the heuristic reached an AUC of 0.810, but its pairwise ranking over 564 vulnerable/fixed pairs was 21.10\%. The classifier with the highest F1 (0.262) reached 37.50\%. For the 7B model, mean pairwise ranking stayed close to 50\%, and the NF4 deployment used less memory but took longer per function than BF16. These exploratory results indicate that global performance should be interpreted alongside paired evaluation and deployment conditions.
+\end{abstract}
+\section{Introduction}\label{sec:1}
+Source code vulnerability detection can be formulated as function classification: given the body of a C/C++ function, a detector indicates whether it contains a vulnerability. This formulation has a limited purpose: to point security analysts to the functions they should examine \citep{fu2022linevul}. For this task, learned detectors have moved from graph representations of code \citep{zhou2019devign} to Transformers pre-trained on code \citep{fu2022linevul} and, more recently, to large language models (LLMs) specialized in code, such as the Qwen2.5-Coder family \citep{hui2024qwen}. This trajectory has broadened the set of available models, but each detector's usefulness still depends on how its performance is measured.
+
+Evaluation studies have shown that data and protocols can favor results that do not hold under realistic conditions. Data duplication, unrealistic class distributions, and inaccurate labels reduced the observed performance when detectors were evaluated in scenarios closer to real use \citep{chakraborty2020reveal,ding2024primevul}. In addition, models trained on typical datasets did not distinguish vulnerable functions from their fixed versions \citep{risse2024limits}. These findings indicate that a global metric can be high for reasons unrelated to the vulnerability, since any feature correlated with the label, such as function size, can produce discrimination unrelated to the defect. Comparing the vulnerable function with its fixed version reduces this possibility, because the two versions share the same project and context and differ by the fix. For this reason, PrimeVul adds a paired evaluation to the global metrics \citep{ding2024primevul}.
+
+In practice, quality must also be considered alongside the required resources. With low-rank adaptation (LoRA) and its variant on a quantized base (QLoRA), the same fine-tuned model can be deployed in ways that differ in memory and time \citep{hu2021lora,dettmers2023qlora}, and the choice between them depends on knowing whether discrimination is preserved. In this context, this work analyzes the relation between global performance, pairwise discrimination, and deployment resources in 3B and 7B Qwen2.5-Coder configurations evaluated on PrimeVul. The first question is whether these configurations' global performance follows their ability to assign the vulnerable function a higher score than its fixed version, using a heuristic based only on function length as a reference. The second is how two complete deployments of the same 7B classifier compare in pairwise discrimination, memory, and time: one in NF4 with a separate adapter and the other in BF16 with a merged adapter. The analysis is retrospective and exploratory, because the test set was consulted during the development of the training recipes.
+
+\section{Background and related work}\label{sec:2}
+\subsection{From learned detection to code language models}\label{sec:2.1}
+Learned detectors for C/C++ functions differ mainly in how they represent code. Devign encodes control and data dependencies in a graph derived from the syntax tree \citep{zhou2019devign}. In contrast, LineVul replaces the graph with a Transformer pre-trained on code and adds the localization of defective lines \citep{fu2022linevul}. The present study keeps the function-level formulation and does not evaluate line localization.
+
+With code LLMs, the task can be carried out in two ways. In the first, a textual instruction requests an answer, and a parser converts the text into a label; this use does not, in general, produce a continuous score. In the second, a classification layer is attached to the model and provides a score that can be ranked and compared with thresholds. The Qwen2.5-Coder family, offered from 0.5B to 32B parameters \citep{hui2024qwen}, makes it possible to examine both forms of use at similar scales. Although LLMs outperformed graph-based models in the experiments of \citet{chen2023diversevul}, code specialization alone is not enough to guarantee detection. \citet{ullah2024sec}, for example, found non-deterministic answers, unfaithful reasoning, and low robustness to changes in evaluation conditions across eight LLMs.
+
+\subsection{Data quality and evaluation protocols}\label{sec:2.2}
+Part of the literature shifts attention from models to data. \citet{chakraborty2020reveal} observed a sharp drop in the performance of deep detectors in a realistic scenario and attributed it to duplication, an unrealistic class distribution, and models that do not learn features of the vulnerability. Similarly, the authors of DiverseVul reported difficulty generalizing to unseen projects and considerable noise in labels derived from fix commits \citep{chen2023diversevul}.
+
+PrimeVul was built to address these problems, with stricter labeling, deduplication, and a chronological split; on this benchmark, a 7B model that achieved a high F1 on BigVul obtained a very low F1 \citep{ding2024primevul}. For evaluation, the benchmark proposes the VD-Score, which measures the false negative rate with false positives limited to a low value (e.g., 0.5\%), and a paired evaluation between the vulnerable sample and its fixed counterpart. VulnPatchPairs adopts a similar design, and its authors showed, with semantics-preserving transformations, that models were fitting to features unrelated to the label \citep{risse2024limits}. TrapEval extended this investigation to fine-tuned LLMs and observed high scores when the vulnerable function was contrasted with unrelated code, but failures against the fixed versions \citep{huang2026trap}.
+
+The choice of metrics also conditions what is observed. On imbalanced data, the ROC curve can be misleading about classifier reliability \citep{saito2015metrics}, which justifies reporting the AUC alongside precision and operating points at a low false positive rate.
+
+\subsection{Efficient adaptation and deployment}\label{sec:2.3}
+In LoRA, the update to a pre-trained matrix \(W_0 \in \mathbb{R}^{d \times k}\) is represented as the product of two low-rank matrices, so the adapted weight is \(W_0 + BA\), with \(B \in \mathbb{R}^{d \times r}\), \(A \in \mathbb{R}^{r \times k}\), and \(r \ll \min(d,k)\). During training, only \(A\) and \(B\) are updated, and the linear design allows them to be merged into the frozen weights \citep{hu2021lora}. QLoRA keeps the base frozen in four bits, in the NormalFloat (NF4) format, while the adapters are trained \citep{dettmers2023qlora}. After fine-tuning, these mechanisms allow at least two deployment options: keeping the quantized base with a separate adapter or loading the base at higher precision and merging the adapter.
+
+Compared with the cited works, this study uses PrimeVul's own pairs, applies no code transformations, includes an explicit length heuristic as a reference, and measures the memory and time of two deployments of each fine-tuned 7B model. Because protocols, models, and fine-tuning methods differ, the numbers from those works are not compared directly with those obtained here.
+
+\section{Materials and methods}\label{sec:3}
+\subsection{Dataset}\label{sec:3.1}
+This study uses the original PrimeVul distribution, composed of C/C++ functions from open-source projects, with labels derived from fix commits \citep{ding2024primevul}. Table~\ref{tab:1} presents the partitions used and the number of vulnerable/fixed pairs in each. The metrics are recomputed from the predictions recorded in the original runs, aligned with these partitions.
+
+\begin{table}[htbp]
+\centering
+\caption{PrimeVul partitions used: number of functions, functions labeled as vulnerable, and vulnerable/fixed pairs.}
+\label{tab:1}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{sbcfitwidth}
+\begin{tabular}{lrrr}
+\toprule
+Partition & Functions & Vulnerable & Pairs \\
+\midrule
+Training & 184,427 & 5,574 & 4,354 \\
+Validation & 25,430 & 699 & 562 \\
+Test & 25,911 & 695 & 564 \\
+\bottomrule
+\end{tabular}
+\end{sbcfitwidth}
+\end{table}
+
+The vulnerable class represents 2.68\% of the global test set, making accuracy uninformative and motivating the use of F1, precision, recall, and error rates. Each pair brings together a function labeled as vulnerable and another labeled as its fixed version, in the same project and commit. The 564 test pairs belong to 550 project/commit groups, the unit used in resampling. The classifiers and the heuristic use a 2,048-token context, preserving the beginning of the function; in 465 test pairs, both versions fit entirely within this limit.
+
+\subsection{Evaluated configurations}\label{sec:3.2}
+In the prompt-based evaluations, the Qwen2.5-Coder-3B-Instruct and 7B-Instruct variants, loaded in FP16, receive an instruction without examples that asks for a single word, YES or NO, for each function. Decoding is deterministic, and a parser accepts the first recognized decision word. Because these configurations produce only decisions, they are not included in the pairwise ranking.
+
+The length heuristic assigns each function a score equal to the number of tokens visible after truncation at 2,048 tokens. It uses no information about the vulnerability and therefore indicates how far a superficial feature correlated with the label can go on each metric.
+
+The classifiers start from the Qwen2.5-Coder-3B and 7B base models, with a two-output head, and the vulnerability score is the difference between the two logits. For fine-tuning, the base is loaded in NF4 with double quantization and BF16 computation. LoRA is applied to the attention and MLP-block projections, with rank \(r = 16\), \(\alpha = 32\), and a dropout of 0.05, and the classification head is also trained. The optimizer is AdamW, with an initial learning rate of \(2 \times 10^{-4}\), warmup over 3\% of the steps, and linear decay. The effective batch has 16 functions, and the loss is cross-entropy, with no additional weight for the vulnerable class.
+
+For the 3B model, three sampling recipes for the training set are explored. The first keeps all vulnerable functions and randomly draws an equal number of non-vulnerable ones (1:1). The second uses the full training set, at the original ratio. The third forms the 1:1 set by choosing, for each vulnerable function, the non-vulnerable function closest in length (length-matched 1:1), to reduce the size difference between the classes during training. The 7B model uses only this last recipe, with three random seeds, whereas each 3B configuration has a single seed. Table~\ref{tab:2} summarizes these configurations. Because the recipes differ in composition, number of examples, epochs, and duration, the comparison between them is descriptive.
+
+\begin{table}[htbp]
+\centering
+\caption{Fine-tuning configurations: training functions used per recipe, epochs run, selected epoch, and recorded training hours.}
+\label{tab:2}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{sbcfitwidth}
+\begin{tabular}{lrrrrr}
+\toprule
+Configuration & Vulnerable & Non-vulnerable & Epochs & Selected & Training (h) \\
+\midrule
+3B 1:1 & 5574 & 5574 & 3 & 1 & 3.37 \\
+3B original ratio & 5574 & 178853 & 1 & 1 & 10.16 \\
+3B 1:1 + length & 5574 & 5574 & 3 & 3 & 4.98 \\
+7B 1:1 + length, seed 1 & 5574 & 5574 & 3 & 3 & 7.89 \\
+7B 1:1 + length, seed 2 & 5574 & 5574 & 3 & 2 & 7.89 \\
+7B 1:1 + length, seed 3 & 5574 & 5574 & 3 & 3 & 7.91 \\
+\bottomrule
+\end{tabular}
+\end{sbcfitwidth}
+\end{table}
+
+\subsection{Epoch selection, deployment, and resources}\label{sec:3.3}
+The epoch of each classifier is chosen by pairwise ranking on the 562 validation pairs, with the AUC on a sample of the global validation set as the tie-breaking criterion. In the original runs, ties count as errors. The retrospective reconstruction with half credit for ties keeps the same epoch in the four length-matched training runs, but it cannot be carried out for the other recipes.
+
+Next, each selected 7B checkpoint is evaluated in two deployments. In the NF4 deployment, the base remains quantized, and the adapter is separate; in the BF16 deployment, the base is loaded in BF16, and the adapter is merged into the weights. Because the two differ in both the representation of the base and the incorporation of the adapter, they are treated as complete deployment configurations, not as an experiment that isolates quantization.
+
+Resources are recorded on an NVIDIA A40 GPU using PyTorch and Transformers, with batches of up to 32,768 tokens and a context of 2,048 tokens. Memory corresponds to the CUDA memory allocated after the model is loaded, and the peak is observed during scoring. The time per function is the test-set scoring time divided by the number of functions, that is, a batch-amortized time. Finally, the estimated cost multiplies this time by the historical price of US\$0.50 per GPU hour.
+
+\subsection{Decision rules and metrics}\label{sec:3.4}
+The classifiers and the heuristic follow the rule \(s > t\), where \(s\) is the score and \(t\) is the threshold. Two thresholds are calibrated on the global validation set, each with its own purpose. The first maximizes F1 and is used for the global metrics and the paired categories. The second is the lowest threshold that keeps the false positive rate (FPR) at no more than 0.5\% on the validation set; it approximates the low-false-alarm scenario of the VD-Score and is used to measure the false negative rate (FNR) on the test set. Both are applied to the test set without recalibration; therefore, the FPR observed on the test set may exceed 0.5\%. For the same reason, the local values do not reproduce the official VD-Score, which chooses the point on the ROC curve of the evaluated set itself.
+
+On the global test set, F1, precision, recall, FPR, and ROC AUC are computed. On the paired test set, each pair receives one of four categories, based on the decisions on the vulnerable and fixed versions: P-C, both correct; P-V, both vulnerable; P-B, both non-vulnerable; and P-R, reversed decisions. These categories depend on the threshold. Pairwise ranking, in contrast, is threshold-independent and summarizes how often the vulnerable version receives a higher score than the fixed one, giving half credit to ties:
+
+\[A_{\text{pair}} = \frac{1}{N}\sum_{j=1}^{N}\left[\mathbf{1}(s_{v,j} > s_{f,j}) + \tfrac{1}{2}\,\mathbf{1}(s_{v,j} = s_{f,j})\right]\]
+where \(s_{v,j}\) and \(s_{f,j}\) are the scores of the vulnerable and the fixed versions in pair \(j\), and \(N = 564\). A score unrelated to the versions tends to 50\%, and values below this level indicate that the fixed version receives a higher score more often.
+
+\subsection{Statistical analysis}\label{sec:3.5}
+For the 7B model, the variation between training runs is described by each seed's values and by the mean and standard deviation across the three runs. The sampling uncertainty of the ranking on the test set is estimated by a 95\% percentile bootstrap with 10,000 replicates, resampling the 550 project/commit groups with replacement \citep{field2007bootstrap}. In each replicate, the same groups are used for all configurations, which allows the NF4 - BF16 difference to be computed in a paired manner. No hypothesis tests are performed. In addition to the main analysis, two retrospective sensitivity analyses restrict the ranking to the 465 pairs without truncation and remove pairs whose match does not represent the fix of the same function.
+
+\section{Results}\label{sec:4}
+\subsection{Prompt-based classification}\label{sec:4.1}
+With the YES/NO instruction, F1 on the global test set was low at both scales: 0.119 for the 3B model and 0.062 for the 7B model. The 7B model's slightly higher recall (0.160 versus 0.144) came with an FPR of 11.00\% versus 3.49\%, which reduced its precision to 0.038, versus 0.102 for the 3B model. In the pairs, the P-B category accounted for 463 and 454 of the 564 cases, whereas P-C occurred in only 16 and 14 pairs. These results describe the instruction and decision rule used, not the full space of possible instructions.
+
+\subsection{Global performance and pairwise ranking}\label{sec:4.2}
+Table~\ref{tab:4} presents the global performance of the configurations that produce a score, and Table~\ref{tab:5} shows, for these same configurations, the paired categories and the ranking. The contrast between the two tables answers the study's first question.
+
+\begin{table}[!t]
+\centering
+\caption{Global test set, 25,911 functions. F1, precision, recall, and FPR use the threshold with the highest F1 on the validation set. FNR* and FPR* use the threshold calibrated for FPR \(\leq\) 0.5\% on the validation set; FPR* is the value observed on the test set. s1 - s3 denote the 7B seeds.}
+\label{tab:4}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{sbcfitwidth}
+\begin{tabular}{lrrrrrrr}
+\toprule
+Configuration & F1 & Precision & Recall & FPR (\%) & AUC & FNR* (\%) & FPR* (\%) \\
+\midrule
+Length heuristic & 0.200 & 0.152 & 0.294 & 4.53 & 0.810 & 100.00 & 0.00 \\
+3B 1:1 & 0.195 & 0.142 & 0.312 & 5.19 & 0.795 & 94.10 & 0.54 \\
+3B original ratio & 0.262 & 0.200 & 0.380 & 4.19 & 0.851 & 88.06 & 0.65 \\
+3B 1:1 + length & 0.121 & 0.083 & 0.224 & 6.86 & 0.746 & 96.26 & 0.63 \\
+7B NF4 s1 & 0.114 & 0.077 & 0.222 & 7.36 & 0.738 & 97.99 & 0.69 \\
+7B BF16 s1 & 0.119 & 0.081 & 0.229 & 7.19 & 0.740 & 98.13 & 0.67 \\
+7B NF4 s2 & 0.142 & 0.103 & 0.229 & 5.47 & 0.726 & 98.71 & 0.38 \\
+7B BF16 s2 & 0.148 & 0.115 & 0.207 & 4.41 & 0.728 & 98.71 & 0.38 \\
+7B NF4 s3 & 0.127 & 0.084 & 0.258 & 7.75 & 0.765 & 98.27 & 0.56 \\
+7B BF16 s3 & 0.124 & 0.087 & 0.220 & 6.39 & 0.765 & 98.27 & 0.52 \\
+\bottomrule
+\end{tabular}
+\end{sbcfitwidth}
+
+\vspace{10pt}
+\caption{Official paired test set, 564 pairs. The categories use the threshold with the highest F1 on the validation set. Ties are pairs with equal scores for both versions. The ranking gives half credit to ties and is threshold-independent; the 465 column considers only pairs in which neither version is truncated.}
+\label{tab:5}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{sbcfitwidth}
+\begin{tabular}{lrrrrrrr}
+\toprule
+Configuration & P-C & P-V & P-B & P-R & Ties & Rank. 564 (\%) & Rank. 465 (\%) \\
+\midrule
+Length heuristic & 2 & 156 & 398 & 8 & 124 & 21.10 & 15.16 \\
+3B 1:1 & 13 & 155 & 372 & 24 & 52 & 42.38 & 39.03 \\
+3B original ratio & 6 & 200 & 344 & 14 & 43 & 37.50 & 34.09 \\
+3B 1:1 + length & 6 & 120 & 422 & 16 & 37 & 49.20 & 48.71 \\
+7B NF4 s1 & 7 & 116 & 435 & 6 & 39 & 55.23 & 54.09 \\
+7B BF16 s1 & 6 & 125 & 425 & 8 & 39 & 53.28 & 51.94 \\
+7B NF4 s2 & 5 & 128 & 423 & 8 & 40 & 45.04 & 42.37 \\
+7B BF16 s2 & 7 & 113 & 434 & 10 & 34 & 44.68 & 41.94 \\
+7B NF4 s3 & 6 & 134 & 412 & 12 & 32 & 51.60 & 51.61 \\
+7B BF16 s3 & 8 & 113 & 434 & 9 & 32 & 51.95 & 52.04 \\
+\bottomrule
+\end{tabular}
+\end{sbcfitwidth}
+\end{table}
+
+The sharpest contrast involves the length heuristic. Using only the number of tokens, it reached a global AUC of 0.810 and an F1 of 0.200, values close to those of the 3B 1:1 classifier. This AUC indicates that, on the global test set, vulnerable functions tend to be longer than non-vulnerable ones. In the pairs, however, the ranking of the same heuristic was only 21.10\%; that is, among the pairs without ties, the fixed version had more tokens than the vulnerable one more often than the reverse. Thus, the feature that separates the classes on the global test set does not separate, and tends to invert, the two versions of the same fix.
+
+In the 3B configurations, the classifiers repeat this contrast to a lesser degree. The two with the highest F1 and AUC, the original-ratio and the 1:1 configurations, had pairwise rankings of 37.50\% and 42.38\%. The length-matched configurations, in turn, ranged from 44.68\% to 55.23\%, with F1 between 0.114 and 0.148. This pattern is consistent with the hypothesis that part of the global performance depends on features correlated with the label, such as length. However, the design does not allow this cause to be identified. Within the 7B model, which used a single recipe, the relation was not uniform: seed 2 had the highest F1 and the lowest rankings, whereas seed 1 had the highest rankings.
+
+The paired categories complement this reading. With the highest-F1 threshold, the P-B category predominated in all configurations, and P-C ranged from 2 to 13 pairs. Even when the ranking approaches or exceeds 50\%, the difference between the two versions' scores rarely crosses the threshold. Hence, a favorable relative order does not translate into correct decisions for both versions.
+
+The second threshold shows another side of the same configurations. With the FPR limited to 0.5\% on the validation set, the FNR on the test set was 88.06\% for the 3B original-ratio configuration and ranged from 97.99\% to 98.71\% for the 7B model. For the heuristic, this threshold coincided with the 2,048-token ceiling, and no function exceeded it, a truncation effect that does not contradict the AUC of 0.810. In a low-false-alarm scenario, therefore, all configurations missed most of the vulnerable functions.
+
+\subsection{Dispersion across seeds in the 7B model}\label{sec:4.3}
+Table~\ref{tab:6} separates the dispersion across the three 7B seeds from the sampling uncertainty of the test set.
+
+\begin{table}[htbp]
+\centering
+\caption{Pairwise ranking of the 7B model: mean of the three seeds, standard deviation across seeds, and 95\% percentile interval from a bootstrap of 550 project/commit groups, conditional on the three observed models.}
+\label{tab:6}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{sbcfitwidth}
+\begin{tabular}{lrrrr}
+\toprule
+Measure & Estimate (\%) or p.p. & Seed SD (p.p.) & 95\% CI lower & 95\% CI upper \\
+\midrule
+NF4 & 50.62 & 5.17 & 47.92 & 53.33 \\
+BF16 & 49.97 & 4.63 & 47.14 & 52.73 \\
+NF4 - BF16 (p.p.) & 0.65 & - & -1.22 & 2.54 \\
+\bottomrule
+\end{tabular}
+\end{sbcfitwidth}
+\end{table}
+
+The standard deviations across seeds, about 5 percentage points, are of the same order as the width of the intervals of the means. In addition, the individual seeds point in opposite directions: seed 1 was above 50\% in both deployments, and seed 2 was below. A single seed could thus suggest opposite conclusions. The interval of the NF4 - BF16 difference includes values in both directions and therefore does not distinguish the deployments.
+
+\subsection{Sensitivity analyses}\label{sec:4.4}
+In the 465 pairs without truncation, the heuristic's ranking dropped from 21.10\% to 15.16\%, whereas the 7B configurations varied by at most about 2.7 percentage points. In addition, the inspection of the 15 test pairs whose versions differ in the header or signature confirmed five cases in which the function labeled as fixed corresponds to a different function. With these pairs removed, the largest change in the 7B evaluations was 0.22 percentage points, and the pattern described in the previous sections was maintained.
+
+\subsection{Resources of the 7B deployments}\label{sec:4.5}
+Table~\ref{tab:7} presents the resources recorded in the two deployments. Because memory was identical across seeds, the table shows only the time and cost ranges.
+
+\begin{table}[htbp]
+\centering
+\caption{Resources of the 7B model on the NVIDIA A40. CUDA memory allocated after loading and peak during scoring, in GB; amortized time per function on the test set; estimated cost of scoring the test set at US\$0.50/h. Ranges across the three seeds.}
+\label{tab:7}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{sbcfitwidth}
+\begin{tabular}{lrrrr}
+\toprule
+Deployment & After loading (GB) & Peak (GB) & Time/function (ms) & Test cost (US\$) \\
+\midrule
+NF4, separate adapter & 4.63 & 12.49 & 59.6 - 60.0 & 0.2145 - 0.2160 \\
+BF16, merged adapter & 14.15 & 20.76 & 46.8 - 47.1 & 0.1684 - 0.1696 \\
+\bottomrule
+\end{tabular}
+\end{sbcfitwidth}
+\end{table}
+
+The NF4 deployment allocated about 67\% less memory after loading and about 40\% less at the peak than the BF16 deployment. In return, NF4 had a longer amortized time, and the estimated cost followed this difference. In this environment, therefore, the NF4 deployment saved memory at the cost of time, with no distinguishable difference in pairwise ranking.
+
+\section{Discussion}\label{sec:5}
+The main result is the dissociation between global performance and pairwise ranking. A heuristic with no information about vulnerabilities obtained a global AUC of 0.810 and, among the untied pairs, assigned a higher score to the fixed version in most cases. The classifier with the highest F1 also had a pairwise ranking below 50\%. This picture is consistent with the observation by \citet{chakraborty2020reveal} that deep detectors often do not learn features of the vulnerability and with the finding of \citet{risse2024limits} on vulnerable functions and their fixes. The local contribution lies in making visible a concrete feature, length, that produces global discrimination and unfavorable pairwise ranking on the same dataset.
+
+Calibration is also part of the result. With the highest-F1 threshold, the paired categories were concentrated in P-B; with the low-FPR threshold, the FNR exceeded 88\% in all configurations. The evaluation with a false-alarm constraint proposed by \citet{ding2024primevul} makes this limitation visible, which F1 alone does not show. Likewise, the heuristic combined an AUC of 0.810 with a precision of 0.152, illustrating the caution recommended by \citet{saito2015metrics} when interpreting the ROC curve.
+
+The weak performance of prompt-based classification is consistent with the problems reported by \citet{ullah2024sec}, but it is limited to the single instruction without examples used here. The five pairs with an incorrect match, in turn, indicate that verifying how the pairs were built is a necessary step before interpreting rankings close to 50\%. Finally, the comparison between deployments guides the choice between the two complete configurations evaluated, but it indicates neither the isolated effect of quantization nor the most economical configuration on other hardware.
+
+\section{Limitations}\label{sec:6}
+Regarding internal validity, the test set was consulted during the development of the recipes, and the analysis recomputed metrics from existing predictions; the results therefore do not constitute a confirmatory evaluation. The recipes differ in composition, number of examples, epochs, and duration, and the NF4/BF16 comparison changes the representation of the base and the merging of the adapter at the same time. None of these comparisons identifies causal effects.
+
+Regarding statistical validity, each 3B configuration has a single seed, and the 7B model has three, a small number given the dispersion observed. The bootstrap intervals are conditional on the observed models and assume exchangeable project/commit groups, although commits from the same project may be dependent. Moreover, the absence of a distinguishable difference between NF4 and BF16 does not establish equivalence.
+
+Regarding construct validity, only the pairs with divergent headers were inspected, and truncation at 2,048 tokens removes part of the code of long functions. Because of the half credit, pairwise ranking is not the fraction of pairs ranked in favor of the vulnerable version, and ranking the pairs well does not demonstrate an understanding of the vulnerability. Regarding external validity, the results refer to one model family, one dataset, one GPU, and one inference library, and the batch-amortized time does not correspond to the latency of an individual request.
+
+\section{Conclusion}\label{sec:7}
+This work analyzed 3B and 7B Qwen2.5-Coder configurations on PrimeVul, combining the global test set, the 564 vulnerable/fixed pairs, and the resources of two deployments. The results support three observations for the configurations that were run. First, global performance and pairwise discrimination did not go together: the length heuristic and the classifier with the highest F1 had pairwise rankings below 50\%. Second, the variation across the three 7B seeds was large relative to the differences between deployments. Third, the NF4 deployment used less memory and more time than the BF16 deployment, with no distinguishable difference in ranking. Under these conditions, global metrics were insufficient to describe the discrimination between the versions of a fix.
+
+Continuing this study requires a confirmatory evaluation, with recipes, criteria, and thresholds defined before access to the test set, more seeds per configuration, and a comparable training budget across recipes. It also requires a systematic review of the pair matching and a comparison that separates quantization from adapter merging.
+
+
+
+\section*{Use of Artificial Intelligence}
+
+The following generative AI tools were used in the preparation of this article:
+
+\begin{itemize}
+    \item \textbf{ChatGPT} and \textbf{Claude}: used to correct LaTeX tables, review spelling and grammar, improve cohesion and coherence, assist in searching for articles, and improve code for the correct analysis of the tests performed.
+    \item \textbf{Grammarly}: used to review grammar, punctuation, and clarity in the English version.
+\end{itemize}
+
+The authors are solely responsible for all ideas, analyses, interpretations, and conclusions presented.
+
+
+
+\begin{thebibliography}{99}
+\bibitem[Chakraborty et al.(2020)]{chakraborty2020reveal}
+Chakraborty, S.; Krishna, R.; Ding, Y.; Ray, B. (2020). Deep Learning based Vulnerability Detection: Are We There Yet?. arXiv:2009.07235. DOI: 10.48550/arXiv.2009.07235.
+
+\bibitem[Chen et al.(2023)]{chen2023diversevul}
+Chen, Y.; Ding, Z.; Alowain, L.; Chen, X.; Wagner, D. (2023). DiverseVul: A New Vulnerable Source Code Dataset for Deep Learning Based Vulnerability Detection. 26th International Symposium on Research in Attacks, Intrusions and Defenses (RAID 2023). DOI: 10.1145/3607199.3607242.
+
+\bibitem[Dettmers et al.(2023)]{dettmers2023qlora}
+Dettmers, T.; Pagnoni, A.; Holtzman, A.; Zettlemoyer, L. (2023). QLoRA: Efficient Finetuning of Quantized LLMs. arXiv:2305.14314v1. DOI: 10.48550/arXiv.2305.14314.
+
+\bibitem[Ding et al.(2024)]{ding2024primevul}
+Ding, Y.; Fu, Y.; Ibrahim, O.; Sitawarin, C.; Chen, X.; Alomair, B.; Wagner, D.; Ray, B.; Chen, Y. (2024). Vulnerability Detection with Code Language Models: How Far Are We?. arXiv:2403.18624v2. DOI: 10.48550/arXiv.2403.18624.
+
+\bibitem[Field and Welsh(2007)]{field2007bootstrap}
+Field, C. A.; Welsh, A. H. (2007). Bootstrapping clustered data. Journal of the Royal Statistical Society: Series B (Statistical Methodology), 69(3), 369 - 390. DOI: 10.1111/j.1467-9868.2007.00593.x.
+
+\bibitem[Fu and Tantithamthavorn(2022)]{fu2022linevul}
+Fu, M.; Tantithamthavorn, C. (2022). LineVul: A Transformer-based Line-Level Vulnerability Prediction. 19th International Conference on Mining Software Repositories (MSR 2022), 608 - 620. DOI: 10.1145/3524842.3528452.
+
+\bibitem[Hu et al.(2021)]{hu2021lora}
+Hu, E. J.; Shen, Y.; Wallis, P.; Allen-Zhu, Z.; Li, Y.; Wang, S.; Wang, L.; Chen, W. (2021). LoRA: Low-Rank Adaptation of Large Language Models. arXiv:2106.09685v2. DOI: 10.48550/arXiv.2106.09685.
+
+\bibitem[Huang et al.(2026)]{huang2026trap}
+Huang, F.; Sun, Y.; Zhang, F.; Yang, Z.; Liu, H.; Liu, Y. (2026). Do Fine-Tuned LLMs Understand Vulnerabilities? An Investigation into the Semantic Trap. arXiv:2601.22655v3. DOI: 10.48550/arXiv.2601.22655.
+
+\bibitem[Hui et al.(2024)]{hui2024qwen}
+Hui, B.; Yang, J.; Cui, Z.; Yang, J.; Liu, D.; Zhang, L.; Liu, T.; Zhang, J.; Yu, B.; Lu, K.; Dang, K.; Fan, Y.; Zhang, Y.; Yang, A.; Men, R.; Huang, F.; Zheng, B.; Miao, Y.; Quan, S.; Feng, Y.; Ren, X.; Ren, X.; Zhou, J.; Lin, J. (2024). Qwen2.5-Coder Technical Report. arXiv:2409.12186v3. DOI: 10.48550/arXiv.2409.12186.
+
+\bibitem[Risse and Böhme(2024)]{risse2024limits}
+Risse, N.; Böhme, M. (2024). Uncovering the Limits of Machine Learning for Automatic Vulnerability Detection. 33rd USENIX Security Symposium (USENIX Security 24), 4247 - 4264.
+
+\bibitem[Saito and Rehmsmeier(2015)]{saito2015metrics}
+Saito, T.; Rehmsmeier, M. (2015). The Precision-Recall Plot Is More Informative than the ROC Plot When Evaluating Binary Classifiers on Imbalanced Datasets. PLOS ONE, 10(3), e0118432. DOI: 10.1371/journal.pone.0118432.
+
+\bibitem[Ullah et al.(2024)]{ullah2024sec}
+Ullah, S.; Han, M.; Pujar, S.; Pearce, H.; Coskun, A.; Stringhini, G. (2024). LLMs Cannot Reliably Identify and Reason About Security Vulnerabilities (Yet?): A Comprehensive Evaluation, Framework, and Benchmarks. arXiv:2312.12575v3. DOI: 10.48550/arXiv.2312.12575.
+
+\bibitem[Zhou et al.(2019)]{zhou2019devign}
+Zhou, Y.; Liu, S.; Siow, J.; Du, X.; Liu, Y. (2019). Devign: Effective Vulnerability Identification by Learning Comprehensive Program Semantics via Graph Neural Networks. Advances in Neural Information Processing Systems, 32.
+\end{thebibliography}
+\end{document}

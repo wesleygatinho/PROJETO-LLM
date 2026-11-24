@@ -1,0 +1,72 @@
+\chapter{Fundamentação Teórica}
+
+\section{Vulnerabilidades e Modelos de Linguagem de Código}
+
+Uma vulnerabilidade é um defeito de software que pode ser explorado para violar a segurança de um sistema, como um acesso à memória fora dos limites ou a falta de validação de uma entrada. Na formulação mais usada pela literatura, a detecção é feita por função: o detector recebe o corpo de uma função e indica se ela é vulnerável. Essa formulação tem uma finalidade delimitada, que é indicar a analistas de segurança quais funções examinar \cite{fu2022linevul}.
+
+Os detectores aprendidos diferem sobretudo na representação do código. O Devign codifica dependências de controle e de dados em um grafo derivado da árvore sintática \cite{zhou2019devign}, enquanto o LineVul substitui o grafo por um Transformer pré-treinado em código \cite{fu2022linevul}. Com os LLMs de código, a tarefa pode ser executada de duas maneiras. Na primeira, uma instrução textual (\textit{prompt}) solicita uma resposta, e um analisador converte o texto em rótulo. Na segunda, uma camada de classificação é acoplada ao modelo e fornece um escore contínuo, que pode ser ordenado e comparado a limiares.
+
+A família Qwen2.5-Coder, usada neste estudo, é oferecida de 0,5B a 32B parâmetros, em variantes Base e Instruct \cite{hui2024qwen}. A especialização em código, porém, não garante a detecção: \citeonline{ullah2024sec} encontraram em oito LLMs respostas não determinísticas, raciocínio infiel e baixa robustez a alterações nas condições de avaliação.
+
+\section{Conjuntos de Dados e Avaliação Descontaminada}
+
+Os conjuntos de dados de vulnerabilidades são, em geral, construídos a partir de commits de correção: a versão anterior ao commit é rotulada como vulnerável e a posterior, como corrigida. Esse procedimento introduz três problemas. O primeiro é o ruído nos rótulos, pois nem toda função alterada em um commit de correção é vulnerável \cite{chen2023diversevul}. O segundo é a duplicação, que permite a uma mesma função aparecer no treino e no teste. O terceiro é a distribuição irreal das classes, com proporção de funções vulneráveis muito acima da encontrada em projetos reais \cite{chakraborty2020reveal}.
+
+Uma avaliação é dita descontaminada quando o conjunto de teste não contém informação vista no treino. O PrimeVul foi construído com esse objetivo, por meio de rotulação mais rigorosa, deduplicação e divisão cronológica entre treino, validação e teste; nesse conjunto, um modelo de 7B que alcançava F1 elevado no BigVul obteve F1 muito baixo \cite{ding2024primevul}.
+
+O PrimeVul também fornece pares formados por uma função vulnerável e sua versão corrigida. Como as duas versões compartilham projeto e contexto, um detector que as distingue dificilmente está usando uma característica alheia à vulnerabilidade. Esse desenho responde a um achado recorrente: modelos treinados em conjuntos típicos não distinguem funções vulneráveis de suas correções \cite{risse2024limits}, e LLMs ajustados alcançam escores altos contra código não relacionado, mas falham diante das versões corrigidas \cite{huang2026trap}.
+
+\section{Métricas de Detecção}
+
+Sejam VP, FP, VN e FN os verdadeiros positivos, falsos positivos, verdadeiros negativos e falsos negativos, com a classe vulnerável como positiva. As métricas globais usadas são:
+
+\begin{equation}
+\text{Precisão} = \frac{VP}{VP + FP}, \qquad
+\text{Revocação} = \frac{VP}{VP + FN}
+\end{equation}
+
+\begin{equation}
+F1 = \frac{2 \cdot \text{Precisão} \cdot \text{Revocação}}{\text{Precisão} + \text{Revocação}}
+\end{equation}
+
+\begin{equation}
+FPR = \frac{FP}{FP + VN}, \qquad FNR = \frac{FN}{FN + VP}
+\end{equation}
+
+Como a classe vulnerável é rara, a acurácia é pouco informativa. A área sob a curva ROC (AUC) também exige cuidado, pois em dados desbalanceados ela pode ser alta mesmo com precisão baixa \cite{saito2015metrics}.
+
+O \textit{Vulnerability Detection Score} (VD-S), proposto com o PrimeVul, mede a taxa de falsos negativos quando a taxa de falsos positivos é limitada a um valor baixo, como 0,5\% \cite{ding2024primevul}. A métrica representa o uso prático, em que um analista só tolera poucos alarmes falsos.
+
+Na avaliação pareada, cada par recebe uma de quatro categorias, segundo as decisões sobre as duas versões: P-C, ambas corretas; P-V, ambas classificadas como vulneráveis; P-B, ambas classificadas como não vulneráveis; e P-R, decisões invertidas. Quando o detector produz um escore, é possível também medir a ordenação pareada, isto é, a frequência com que a versão vulnerável recebe escore maior que a corrigida, com meio crédito para empates:
+
+\begin{equation}
+A_{\text{par}} = \frac{1}{N}\sum_{j=1}^{N}\left[\mathbf{1}(s_{v,j} > s_{c,j}) + \tfrac{1}{2}\,\mathbf{1}(s_{v,j} = s_{c,j})\right]
+\end{equation}
+
+em que $s_{v,j}$ e $s_{c,j}$ são os escores da versão vulnerável e da corrigida no par $j$. Um escore sem relação com as versões tende a 50\%.
+
+\section{Ajuste Fino Eficiente com QLoRA}
+
+Na adaptação de baixo posto (LoRA), a atualização de uma matriz pré-treinada $W_0 \in \mathbb{R}^{d \times k}$ é representada pelo produto de duas matrizes de baixo posto, de modo que o peso adaptado é $W_0 + BA$, com $B \in \mathbb{R}^{d \times r}$, $A \in \mathbb{R}^{r \times k}$ e $r \ll \min(d,k)$. Durante o treino, apenas $A$ e $B$ são atualizadas, o que reduz o número de parâmetros treináveis a uma pequena fração do modelo \cite{hu2021lora}. Como a atualização é linear, o adaptador pode ser mesclado aos pesos originais após o treino.
+
+O QLoRA combina a LoRA com uma base quantizada em quatro bits: os pesos originais ficam congelados no formato NF4, e os gradientes atravessam a base quantizada para atualizar apenas os adaptadores, mantidos em precisão maior \cite{dettmers2023qlora}. Com isso, o ajuste de um modelo de 7B cabe em uma única GPU.
+
+Para classificação, acrescenta-se ao modelo uma cabeça de duas saídas sobre a representação do último token da sequência. O escore de vulnerabilidade é a diferença entre os dois logits, e a cabeça é treinada junto com os adaptadores.
+
+\section{Quantização de Modelos}
+
+A quantização representa os pesos de um modelo com menos bits, reduzindo memória e, conforme o suporte de hardware, o tempo de inferência. Na quantização pós-treinamento (PTQ), o modelo já treinado é convertido sem novo treino, eventualmente com um pequeno conjunto de calibração \cite{gholami2021survey}. Os três métodos da ementa são de quatro bits e diferem na forma de escolher os valores quantizados:
+
+\begin{alineas}
+    \item \textbf{NF4} (\textit{4-bit NormalFloat}): parte da observação de que os pesos pré-treinados seguem aproximadamente uma distribuição normal e define os 16 níveis pelos quantis dessa distribuição. Não usa dados de calibração e pode ser aplicado no momento da carga do modelo. A dupla quantização reduz ainda o custo das constantes de escala \cite{dettmers2023qlora}.
+    \item \textbf{GPTQ}: quantiza os pesos camada por camada, usando informação aproximada de segunda ordem (a Hessiana do erro de reconstrução da camada). A cada peso quantizado, os pesos restantes são ajustados para compensar o erro introduzido. Exige dados de calibração \cite{frantar2023gptq}.
+    \item \textbf{AWQ}: parte da observação de que os pesos não são igualmente importantes e identifica os mais relevantes pela magnitude das ativações. Esses pesos são protegidos por um fator de escala por canal, buscado em dados de calibração, sem retropropagação \cite{lin2024awq}.
+\end{alineas}
+
+Há, portanto, duas formas de obter um classificador de quatro bits: ajustar o modelo sobre a base NF4 e mantê-la na implantação, ou ajustar, mesclar o adaptador e só então quantizar com AWQ ou GPTQ. A comparação entre essas formas depende de medir se a discriminação se mantém em cada uma.
+
+\section{Medição de Custo Computacional}
+
+O custo de uma configuração foi estudado em três dimensões. A memória pode ser medida como a memória de GPU alocada após a carga do modelo ou como o pico durante a inferência; as duas medidas diferem da memória reservada e da capacidade da placa. A latência pode ser medida por requisição individual ou como tempo amortizado por função em lotes; os dois valores não são intercambiáveis. A energia é obtida pela integração da potência da GPU ao longo da execução e depende do equipamento medido.
+
+Em todas as dimensões, a medida só é comparável quando feita no mesmo tipo de GPU, com as mesmas versões de bibliotecas e o mesmo tamanho de lote. O custo financeiro é derivado do tempo, multiplicado pelo preço da hora de GPU.

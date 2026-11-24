@@ -1,0 +1,120 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+\usepackage[brazil]{babel}
+\usepackage[margin=1.6cm,top=1.4cm,bottom=1.5cm]{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{array}
+
+\setlist{nosep,leftmargin=1.2em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+\pagestyle{plain}
+
+\newcommand{\bloco}[2]{\vspace{6pt}{\large\bfseries #1}\hfill{\small\color{gray}#2}\par\vspace{2pt}}
+\newcommand{\diga}[1]{\par\fcolorbox{gray!60}{gray!10}{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\textbf{Frase-chave:} #1}}\par}
+
+\begin{document}
+
+{\Large\bfseries Guia de apresentação}\\[2pt]
+Detecção de vulnerabilidades com Qwen2.5-Coder no PrimeVul --- Seminários PPGCC/UFMA, 11/11/2026
+
+\bloco{1. Problema}{Introdução, §1--3}
+\begin{itemize}
+  \item Tarefa: dada uma função C/C++, dizer se é vulnerável. Objetivo: indicar ao analista quais funções revisar (não aponta a linha).
+  \item Detectores evoluíram: grafos (Devign) $\rightarrow$ Transformers (LineVul) $\rightarrow$ LLMs de código (Qwen2.5-Coder).
+  \item A avaliação pode enganar: cenário irreal (Chakraborty 2020); vazamento treino/teste, que levou ao PrimeVul (Ding 2024); modelos não distinguem a vulnerável da corrigida (Risse e Böhme 2024).
+  \item Métrica global alta sem relação com o defeito: classe rara (2,68\%) e pistas como o tamanho.
+\end{itemize}
+\diga{Ter modelos melhores não basta: se eles servem depende de como medimos.}
+
+\bloco{2. Perguntas}{Introdução, §4}
+\begin{itemize}
+  \item \textbf{Q1:} o desempenho global acompanha a ordenação pareada? Referência: heurística de tamanho.
+  \item \textbf{Q2:} 7B em NF4 (adaptador separado) $\times$ BF16 (adaptador mesclado): ordenação, memória e tempo.
+  \item Estudo \textbf{retrospectivo e exploratório}: o teste foi consultado durante o desenvolvimento.
+\end{itemize}
+
+\bloco{3. Desenho}{Seção 3}
+\begin{itemize}
+  \item PrimeVul, teste: 25.911 funções, 695 vulneráveis (2,68\%), 564 pares vulnerável/corrigida (550 grupos projeto/commit).
+  \item Três grupos: Instruct com YES/NO (3B, 7B); classificadores Base + LoRA sobre base NF4 (3B: 1:1, proporção original, 1:1 + tamanho; 7B: 1:1 + tamanho, 3 sementes); heurística = nº de tokens.
+  \item Escore = logit vulnerável $-$ logit não vulnerável. Limiares na validação: maior F1; e FPR $\le$ 0,5\% (para a FNR*).
+  \item Ordenação pareada: por par, 1 se a vulnerável tem escore maior, 0,5 se empata, 0 se a corrigida tem escore maior. \textbf{50\% = acaso.} Não usa limiar.
+\end{itemize}
+
+\bloco{4. Resultados}{Seção 4}
+\begin{itemize}
+  \item \textbf{Heurística:} AUC 0,810, mas ordenação 21,10\% (57 acertos, 124 empates, 383 erros). A correção costuma acrescentar código.
+  \item \textbf{3B proporção original:} maior F1 (0,262) e AUC (0,851), ordenação 37,50\%. Mesma decisão nas duas versões em 544 de 564 pares; P-C só 6.
+  \item \textbf{Controle de tamanho:} ordenação 44,7--55,2\%, com F1 menor (0,114--0,148).
+  \item \textbf{FPR $\le$ 0,5\%:} FNR* entre 88\% e 100\%. Com poucos alarmes, perde quase todas as vulneráveis.
+  \item \textbf{Sementes 7B:} médias 50,62\% (NF4) e 49,97\% (BF16), DP $\approx$ 5 pp. Semente 1 acima de 50\%, semente 2 abaixo.
+  \item \textbf{NF4 $\times$ BF16:} memória 4,63 $\times$ 14,15 GB ($-$67\%); pico 12,49 $\times$ 20,76 GB ($-$40\%); tempo 59,6--60,0 $\times$ 46,8--47,1 ms/função. Diferença na ordenação 0,65 pp, IC95\% [$-$1,22; 2,54].
+  \item \textbf{Instruct:} F1 0,119 (3B) e 0,062 (7B); quase tudo em P-B.
+\end{itemize}
+\diga{Desempenho global alto conviveu com ordenação pareada desfavorável.}
+
+\bloco{5. Limitações}{Seção 6}
+\begin{itemize}
+  \item Teste consultado: exploratório, não confirmatório; sem testes de hipótese.
+  \item Receitas diferem em composição, épocas e duração: sem conclusão causal.
+  \item NF4 $\times$ BF16 muda base e adaptador juntos: não isola a quantização.
+  \item Poucas sementes (3B: 1; 7B: 3).
+  \item 5 pares com correspondência errada (efeito $\le$ 0,22 pp); os outros 559 não foram certificados. Corte em 2.048 tokens.
+  \item Uma família de modelos, um conjunto de dados, uma GPU (A40).
+\end{itemize}
+
+\bloco{6. Continuidade}{Seção 7}
+\begin{itemize}
+  \item Avaliação confirmatória: receitas e limiares definidos antes de ver o teste.
+  \item Mais sementes e orçamento de treino comparável entre receitas.
+  \item Revisar a correspondência de todos os pares.
+  \item Separar quantização de mesclagem (ex.: BF16 com adaptador separado); medir em outros ambientes.
+\end{itemize}
+
+\newpage
+
+{\Large\bfseries Cola rápida}
+
+\vspace{4pt}
+\textbf{AUC global $\times$ ordenação pareada} --- mesma regra (1 / 0,5 / 0), comparações diferentes:
+
+\begin{tabular}{@{}lll@{}}
+\toprule
+ & AUC global & Ordenação pareada \\
+\midrule
+Vulnerável comparada com & qualquer não vulnerável & a própria versão corrigida \\
+Nº de comparações & 695 $\times$ 25.216 = 17.525.120 & 564 \\
+Heurística de tamanho & 0,810 & 21,10\% \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+\textbf{Conta dos 21,10\%:} $(57 + 0{,}5 \times 124)\,/\,564 = 119/564 = 21{,}10\%$. \quad
+\textbf{Conta dos 37,50\%:} $(190 + 0{,}5 \times 43)\,/\,564 = 37{,}50\%$.
+
+\textbf{Categorias pareadas} (dependem do limiar): P-C (1,0) certo; P-V (1,1) ambas vulneráveis; P-B (0,0) ambas não vulneráveis; P-R (0,1) invertido.
+
+\vspace{6pt}
+{\Large\bfseries Perguntas prováveis}
+
+\vspace{2pt}
+\begin{description}[leftmargin=0pt,itemsep=3pt]
+  \item[Por que não usar só a AUC?] A classe é rara (2,68\%) e a ROC pode enganar; o tamanho sozinho já chega a 0,810. Por isso há F1, precisão, FNR* e avaliação pareada.
+  \item[Para que serve a heurística se ela não detecta nada?] É a referência: mostra quanto uma pista superficial alcança. Bate quase todos os classificadores no global e cai para 21,10\% nos pares.
+  \item[Por que a heurística fica abaixo de 50\%?] A correção geralmente acrescenta código (uma verificação), então a corrigida tende a ser mais longa.
+  \item[E se inverter a pontuação?] Vira $1 - A$: ordenação 78,90\%, mas AUC 0,190. A direção é fixada pelo significado do escore (maior = mais suspeito) e não pode ser escolhida depois de ver o teste.
+  \item[Por que empate vale meio ponto?] Para que um escore sem relação com as versões dê 50\%, o nível do acaso.
+  \item[Qual a diferença entre P-C e ordenação?] P-C exige decisões certas nas duas versões com um limiar; a ordenação só compara os escores. Mesmo com ordenação perto de 50\%, a diferença entre as versões raramente atravessa o limiar (P-C 5--8 no 7B).
+  \item[NF4 é pior que BF16?] Sem diferença distinguível na ordenação (IC inclui zero), o que não prova equivalência. NF4 usa menos memória e mais tempo.
+  \item[Por que NF4 é mais lenta?] O estudo registra o tempo, não investiga a causa.
+  \item[Por que três sementes?] O DP foi $\approx$ 5 pp: com uma só semente, a conclusão sobre o 7B poderia se inverter.
+  \item[E o truncamento em 2.048 tokens?] Nos 465 pares sem truncamento, a heurística cai para 15,16\% e o 7B quase não muda.
+  \item[O teste não ficou contaminado?] Sim, foi consultado; por isso o estudo se declara exploratório e não faz testes de hipótese.
+  \item[Qual a contribuição, se não há modelo novo?] Tornar visível uma pista concreta (o comprimento) que dá discriminação global alta e ordenação desfavorável no mesmo conjunto, e quantificar a troca memória $\times$ tempo.
+  \item[Por que Qwen2.5-Coder?] Vários tamanhos com o mesmo pré-treino (3B e 7B) e variantes Base e Instruct.
+\end{description}
+
+\end{document}
